@@ -1,0 +1,32 @@
+AUDIO REACTIVE PREFAB
+
+Prerequisite packages:
+VRChat SDK3 Udon
+UdonSharp
+CyanEmu (optional but highly recommended)
+
+Example scene: AudioReactor4_ExampleScene
+
+To install core module w/ optional global controller:
+1) Drag AudioReactor4 into scene
+2) Drag audio source into AudioReactor4/AudioLink -> "Audio Source" parameter.
+3) (optional, recommended) Drag AudioLinkController4 into scene and drag AudioLink into the controller's "Audio Link" parameter
+
+This will automatically export the _AudioTexture globally (including to avatar shaders). To disable this feature, uncheck "Audio Texture Toggle" on the AudioLink object.
+
+To use the other prefabs like AudioReactiveLight & AudioReactiveSurface, please see the example scene for use cases. Generally speaking though, you will just have to drag the prefab into the scene and link the AudioLink object onto it.
+
+Also included are 2 other versions of the base module setup with more spectrum bands (32 and 128). They are useful in their own way, but the data is dirtier/noisier and less useful with the other prefab objects so far in this toolkit.
+
+
+HUGE THANKS TO:
+
+phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
+Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
+Orels1 for all of the great help with MaterialPropertyBlocks & shaders
+Lyuma for helping in many ways and being super nice!
+fuopy for being awesome and reflecting great vibes back into this project
+jackiepi for math wizardry, emotional support and inspiration
+Barry, OM3, GRIMECRAFT for stoking my fire!
+Lamp for the awesome example music and inspiration. Follow them!! https://soundcloud.com/lampdx
+Shelter, Loner, Rizumu, and all of the other dance communities in VRChat for making this project worthwhile
