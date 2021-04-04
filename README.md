@@ -11,15 +11,15 @@ https://github.com/llealloo/vrc-audio-reactor/releases/latest
 
 # Installation:
 
-First, have a look at the example scene, "AudioReactor4_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
+First, have a look at the example scene, "AudioLink4_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
 
-1) Drag AudioReactor4 into scene
-2) Drag audio source into AudioReactor4/AudioLink -> "Audio Source" parameter.
-3) (optional, recommended) Drag AudioLinkController4 into scene and drag AudioLink into the controller's "Audio Link" parameter
+1) Drag AudioLink4 into scene
+2) Drag audio source into AudioLink4 -> "Audio Source" parameter.
+3) (optional, recommended) Drag AudioLink4Controller into scene and drag AudioLink4 into the controller's "Audio Link" parameter.
 
 This is set up automatically to export the _AudioTexture globally (including to avatar shaders). To disable this feature, uncheck "Audio Texture Toggle" on the AudioLink object.
 
-To use the other prefabs like AudioReactiveLight & AudioReactiveSurface, please see the example scene for use cases. Generally speaking though, you will just have to drag the prefab into the scene and link the AudioLink object onto it.
+To use the other prefabs like AudioReactiveLight & AudioReactiveSurface, please see the example scene for use cases. Generally speaking though, you will just have to drag the prefab into the scene and link the AudioLink4 object onto it.
 
 Also included are 2 other versions of the base module setup with more spectrum bands (32 and 128). They are useful in their own way, but the data is dirtier/noisier and less useful with the other prefab objects so far in this toolkit.
 
