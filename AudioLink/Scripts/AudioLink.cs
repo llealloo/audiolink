@@ -139,7 +139,7 @@ public class AudioLinkEditor : Editor
     {
     	if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
     	EditorGUILayout.Space();
-    	if (GUILayout.Button(new GUIContent("Link all " + /*AudioReactiveObjectsCount().ToString() +*/ " sound reactive objects to this AudioLink", "Links all UdonBehaviours with 'audioLink' parameter to this object."))) { LinkAll(); }
+    	if (GUILayout.Button(new GUIContent("Link all " + /*AudioReactiveObjectsCount().ToString() +*/ "sound reactive objects to this AudioLink", "Links all UdonBehaviours with 'audioLink' parameter to this object."))) { LinkAll(); }
     	EditorGUILayout.Space();
     	base.OnInspectorGUI();
     }
