@@ -13,7 +13,7 @@ https://github.com/llealloo/vrc-udon-audio-link/releases/latest
 
 First, have a look at the example scene, "AudioLink4_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
 
-1) Drag AudioLink4 into scene
+1) Drag AudioLink4 into hierarchy. This object should be positioned at x=0, y=10000000, z=0 so it is kept out of view.
 2) Drag audio source into AudioLink4 -> "Audio Source" parameter.
 3) (optional, recommended) Drag AudioLink4Controller into scene and drag AudioLink4 into the controller's "Audio Link" parameter.
 
