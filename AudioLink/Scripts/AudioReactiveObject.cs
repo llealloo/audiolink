@@ -8,18 +8,13 @@ using System.Collections;
 
 public class AudioReactiveObject : UdonSharpBehaviour
 {
-	[SerializeField]
-	private UdonBehaviour audioLink;
-	[SerializeField]
-	private int band;
-	[SerializeField]
-	private int delay;
-	[SerializeField]
-	private Vector3 position;
-	[SerializeField]
-	private Vector3 rotation;
-	[SerializeField]
-	private Vector3 scale;
+	public UdonBehaviour audioLink;
+	public int band;
+	[Range(0, 31)]
+	public int delay;
+	public Vector3 position;
+	public Vector3 rotation;
+	public Vector3 scale;
 
 
 	private int _dataIndex;

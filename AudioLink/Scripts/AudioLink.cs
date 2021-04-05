@@ -63,7 +63,8 @@ public class AudioLink : UdonSharpBehaviour
     void Start()
     {
         UpdateSettings();
-        gameObject.SetActive(true);		// client disables extra cameras, so set it true
+        gameObject.SetActive(true);								// client disables extra cameras, so set it true
+        transform.position = new Vector3(0f, 10000000f, 0f);	// keep this in a far away place
         //transform.
     }
 
@@ -144,7 +145,7 @@ public class AudioLinkEditor : Editor
     	base.OnInspectorGUI();
     }
 
-    int AudioReactiveObjectsCount()
+    /*int AudioReactiveObjectsCount()
     {
     	int numObjects = 0;
     	UdonBehaviour[] allBehaviours = UnityEngine.Object.FindObjectsOfType<UdonBehaviour>();
@@ -162,7 +163,7 @@ public class AudioLinkEditor : Editor
             }
         }
         return numObjects;
-    }
+    }*/
 
     void LinkAll()
     {

@@ -1,6 +1,9 @@
 # VRChat Audio Reactivity Prefab
 A repository containing audio reactive prefabs for VRChat Udon
 
+## Public example world:
+https://vrchat.com/home/launch?worldId=wrld_7cfa5d1c-4177-43ec-ab05-26ec62bb5088
+
 ## Prerequisite packages:
 - VRChat SDK3 Udon
 - UdonSharp
@@ -13,7 +16,7 @@ https://github.com/llealloo/vrc-udon-audio-link/releases/latest
 
 First, have a look at the example scene, "AudioLink4_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
 
-1) Drag AudioLink4 into hierarchy. This object should be positioned at x=0, y=10000000, z=0 so it is kept out of view.
+1) Drag AudioLink4 into scene
 2) Drag audio source into AudioLink4 -> "Audio Source" parameter.
 3) (optional, recommended) Drag AudioLink4Controller into scene and drag AudioLink4 into the controller's "Audio Link" parameter.
 
@@ -28,6 +31,7 @@ Also included are 2 other versions of the base module setup with more spectrum b
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
 - Orels1 for all of the great help with MaterialPropertyBlocks & shaders
+- CyanLaser for making CyanEmu
 - Lyuma for helping in many ways and being super nice!
 - fuopy for being awesome and reflecting great vibes back into this project
 - Colonel Cthulu for incepting the idea to make the audio data visible to avatars

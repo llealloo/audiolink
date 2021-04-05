@@ -8,14 +8,12 @@ public class AudioReactiveSurface : UdonSharpBehaviour
 {
 
 
-	[SerializeField]
-	private UdonBehaviour audioLink;
-    [SerializeField]
-	private float band;
-	[SerializeField]
-	private float delay;
-    [SerializeField][ColorUsage(true, true)]
-    private Color color;
+	public UdonBehaviour audioLink;
+    public int band;
+	[Range(0, 31)]
+	public int delay;
+    [ColorUsage(true, true)]
+    public Color color;
 
     void Start()
     {
@@ -24,8 +22,8 @@ public class AudioReactiveSurface : UdonSharpBehaviour
         var spectrumBands = (float[])audioLink.GetProgramVariable("spectrumBands");
         var block = new MaterialPropertyBlock();
         var mesh = GetComponent<MeshRenderer>();
-        block.SetFloat("_Delay", delay);
-        block.SetFloat("_Band", band);
+        block.SetFloat("_Delay", (float)delay);
+        block.SetFloat("_Band", (float)band);
         block.SetFloat("_NumBands", spectrumBands.Length);
         block.SetColor("_AudioColor", color);
         //block.SetTexture("_AudioTexture", audioTexture);
