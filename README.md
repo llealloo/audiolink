@@ -7,7 +7,7 @@ A repository containing audio reactive prefabs for VRChat Udon
 - CyanEmu (optional but highly recommended)
 
 # Download the latest release here:
-https://github.com/llealloo/vrc-audio-reactor/releases/latest
+https://github.com/llealloo/vrc-udon-audio-link/releases/latest
 
 # Installation:
 

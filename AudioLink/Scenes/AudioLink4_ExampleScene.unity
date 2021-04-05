@@ -152,7 +152,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32208405}
-  m_Text: All settings on AudioLink UdonBehaviour
+  m_Text: All settings on AudioLink4 UdonBehaviour
   m_OffsetZ: 0
   m_CharacterSize: 0.5
   m_LineSpacing: 1
@@ -12935,7 +12935,7 @@ TextMesh:
     by shaders on avatars. \r\nIt is a mirror of the local RenderTexture to \rthe
     \nleft. This can be toggled off if \rperformance is \nan issue.\n\nThe above shader
     can be applied to an avatar\nand will pick up the _AudioTexture if the world\nhas
-    the AudioReactor Prefab installed."
+    the AudioLink4 Prefab installed."
   m_OffsetZ: 0
   m_CharacterSize: 0.5
   m_LineSpacing: 1.3
