@@ -14,6 +14,7 @@ public class AudioReactiveSurface : UdonSharpBehaviour
 	public int delay;
     [ColorUsage(true, true)]
     public Color color;
+    public float hueShift;
 
     void Start()
     {
@@ -25,6 +26,7 @@ public class AudioReactiveSurface : UdonSharpBehaviour
         block.SetFloat("_Delay", (float)delay);
         block.SetFloat("_Band", (float)band);
         block.SetFloat("_NumBands", spectrumBands.Length);
+        block.SetFloat("_AudioHueShift", hueShift);
         block.SetColor("_AudioColor", color);
         //block.SetTexture("_AudioTexture", audioTexture);
         mesh.SetPropertyBlock(block);
