@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Bands: 4
-    - _Bass: 1
+    - _Bass: 1.25
     - _BumpScale: 1
     - _ContrastOffset: 0.62
     - _ContrastSlope: 0.63
@@ -74,7 +74,7 @@ Material:
     - _FadeEnabled: 1
     - _FadeExpFalloff: 0.3
     - _FadeLength: 0.85
-    - _Gain: 1.5
+    - _Gain: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1

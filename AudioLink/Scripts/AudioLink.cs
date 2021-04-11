@@ -18,21 +18,17 @@ using System.Collections.Immutable;
 public class AudioLink : UdonSharpBehaviour
 {
     [Header("Main Settings")]
-    [Tooltip("Drag your audio source in here")]
-	public AudioSource audioSource;
     [Tooltip("Enable Udon audioData array")]
     public bool audioDataToggle = true;
     [Tooltip("Enable global _AudioTexture")]
     public bool audioTextureToggle = true;
-    [Tooltip("The number of spectrum bands and their crossover points")]
-	public float[] spectrumBands = {20f, 100f, 500f, 2500f};
 
     [Header("Basic EQ")]
-    [Range(0.0f, 2.0f)][Tooltip("Gain")]
+    [Range(0.0f, 2.0f)][Tooltip("Warning: this setting might be taken over by AudioLinkController")]
 	public float gain = 1f;
-    [Range(0.0f, 2.0f)][Tooltip("Bass")]
+    [Range(0.0f, 2.0f)][Tooltip("Warning: this setting might be taken over by AudioLinkController")]
     public float bass = 1f;
-    [Range(0.0f, 2.0f)][Tooltip("Treble")]
+    [Range(0.0f, 2.0f)][Tooltip("Warning: this setting might be taken over by AudioLinkController")]
     public float treble = 1f;
 
     [Header("Advanced EQ")]
@@ -44,32 +40,41 @@ public class AudioLink : UdonSharpBehaviour
     public float contrastOffset = 0.62f;
 
     [Header("Fade Controls")]
-    [Range(0.0f, 1.0f)][Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect")]
+    [Range(0.0f, 1.0f)][Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
     public float fadeLength = 0.85f;
-    [Range(0.0f, 1.0f)][Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect")]
+    [Range(0.0f, 1.0f)][Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
 	public float fadeExpFalloff = 0.3f;
 
     [Header("Internal")]
     public Material audioMaterial;
     public GameObject audioTextureExport;
-    public Texture2D audioData2D;           // Texture2D reference for Blit, may eventually be depreciated
+    public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
+    [Tooltip("Using other audio sources could lead to unepexcted behavior.")]
+    public AudioSource audioSource;
+    [Tooltip("Audio reactive noodle seasoning")]
     public Color[] audioData;
+    [Tooltip("The number of spectrum bands and their crossover points")]
+    public float[] spectrumBands = {20f, 100f, 500f, 2500f};
 
 	float[] _spectrumValues = new float[1024];
     float[] _spectrumValuesTrim = new float[1023];
 	float[] _lut;
 	float[] _chunks;
+    
+    private float _inputVolume = 0.01f;                        // smallify input source volume, re-multiplied by AudioSpectrum.shader
 
     void Start()
     {
         UpdateSettings();
         gameObject.SetActive(true);								// client disables extra cameras, so set it true
         transform.position = new Vector3(0f, 10000000f, 0f);	// keep this in a far away place
-        //transform.
+        audioSource.volume = _inputVolume;
+        audioTextureExport.SetActive(audioTextureToggle);
     }
 
     private void Update()
     {
+        if (audioSource == null) return;
     	audioSource.GetSpectrumData(_spectrumValues, 0, FFTWindow.Hamming);
         Array.Copy(_spectrumValues, 0, _spectrumValuesTrim, 0, 1023);
         audioMaterial.SetFloatArray("Spectrum", _spectrumValuesTrim);
@@ -125,8 +130,6 @@ public class AudioLink : UdonSharpBehaviour
     {
     	return ( (t-a) / (b-a) ) * (v-u) + u;
     }
-
-
 }
 
 

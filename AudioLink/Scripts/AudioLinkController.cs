@@ -28,9 +28,25 @@ public class AudioLinkController : UdonSharpBehaviour
 	public Text x3Label;
 	public Slider x3Slider;
 
+    private float _initGain;
+    private float _initTreble;
+    private float _initBass;
+    private float _initFadeLength;
+    private float _initFadeExpFalloff;
+    private float _initX1;
+    private float _initX2;
+    private float _initX3;
 
     void Start()
     {
+        _initGain = gainSlider.value;
+        _initTreble = trebleSlider.value;
+        _initBass = bassSlider.value;
+        _initFadeLength = fadeLengthSlider.value;
+        _initFadeExpFalloff = fadeExpFalloffSlider.value;
+        _initX1 = x1Slider.value;
+        _initX2 = x2Slider.value;
+        _initX3 = x3Slider.value;
 		UpdateSettings();
     }
 
@@ -57,6 +73,19 @@ public class AudioLinkController : UdonSharpBehaviour
     	audioLink.SetProgramVariable("spectrumBands", spectrumBands);
     	audioLink.SendCustomEvent("UpdateSettings");
     }
+
+    public void ResetSettings()
+    {
+        gainSlider.value = _initGain;
+        trebleSlider.value = _initTreble;
+        bassSlider.value = _initBass;
+        fadeLengthSlider.value = _initFadeLength;
+        fadeExpFalloffSlider.value = _initFadeExpFalloff;
+        x1Slider.value = _initX1;
+        x2Slider.value = _initX2;
+        x3Slider.value = _initX3;
+    }
+
 
     private float Remap(float t, float a, float b, float u, float v)
     {
