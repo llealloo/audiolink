@@ -8,18 +8,18 @@ public class AudioReactiveSurface : UdonSharpBehaviour
 {
 
 
-	public UdonBehaviour audioLink;
+    public UdonBehaviour audioLink;
     public int band;
-	[Range(0, 31)]
-	public int delay;
+    [Range(0, 31)]
+    public int delay;
     [ColorUsage(true, true)]
     public Color color;
     public float hueShift;
 
     void Start()
     {
-    	//var camera = audioLink.GetComponent<Camera>();
-    	//var audioTexture = camera.targetTexture;
+        //var camera = audioLink.GetComponent<Camera>();
+        //var audioTexture = camera.targetTexture;
         var spectrumBands = (float[])audioLink.GetProgramVariable("spectrumBands");
         var block = new MaterialPropertyBlock();
         var mesh = GetComponent<MeshRenderer>();

@@ -7,35 +7,35 @@ using System;
 
 public class AudioReactiveLight : UdonSharpBehaviour
 {
-	public UdonBehaviour audioLink;
-	public int band;
-	[Range(0, 31)]
-	public int delay;
+    public UdonBehaviour audioLink;
+    public int band;
+    [Range(0, 31)]
+    public int delay;
     public bool affectIntensity = true;
-	public float intensityMultiplier = 1f;
+    public float intensityMultiplier = 1f;
     public float hueShift;
 
-	private Light _light;
-	private int _dataIndex;
+    private Light _light;
+    private int _dataIndex;
     private Color _initialColor;
 
     void Start()
     {
-    	_light = transform.GetComponent<Light>();
+        _light = transform.GetComponent<Light>();
         _initialColor = _light.color;
-    	_dataIndex = (band * 32) + delay;
+        _dataIndex = (band * 32) + delay;
 
     }
 
     void Update()
     {
-    	Color[] audioData = (Color[])audioLink.GetProgramVariable("audioData");
-    	if(audioData.Length != 0)		// check for audioLink initialization
-    	{
+        Color[] audioData = (Color[])audioLink.GetProgramVariable("audioData");
+        if(audioData.Length != 0)       // check for audioLink initialization
+        {
             float amplitude = audioData[_dataIndex].grayscale;
-    		if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
+            if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
             _light.color = HueShift(_initialColor, amplitude * hueShift);
-    	}
+        }
     }
 
     private Color HueShift(Color color, float hueShiftAmount)
