@@ -15,12 +15,15 @@ public class AudioReactiveObject : UdonSharpBehaviour
     public Vector3 position;
     public Vector3 rotation;
     public Vector3 scale;
+    public bool transparency;
 
 
     private int _dataIndex;
     private Vector3 _initialPosition;
     private Vector3 _initialRotation;
     private Vector3 _initialScale;
+    private Material _material;
+    private Color _initialMaterialColor;
 
     void Start()
     {
@@ -28,6 +31,8 @@ public class AudioReactiveObject : UdonSharpBehaviour
         _initialPosition = transform.localPosition;
         _initialRotation = transform.localEulerAngles;
         _initialScale = transform.localScale;
+        _material = gameObject.GetComponent<Renderer>().material;
+        _initialMaterialColor = _material.color;
 
     }
 
@@ -42,6 +47,14 @@ public class AudioReactiveObject : UdonSharpBehaviour
             transform.localEulerAngles = _initialRotation + (rotation * amplitude);
         
             //transform.localScale *= scale;
+
+            if(transparency){
+                Color c = new Color(_initialMaterialColor.r, 
+                                    _initialMaterialColor.g,
+                                    _initialMaterialColor.b,
+                                    amplitude);
+                _material.SetColor("_Color", c);
+            }
         }
     }
 
