@@ -1,18 +1,13 @@
-﻿
-using UdonSharp;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 public class MirrorToggle : UdonSharpBehaviour
 {
 
     public GameObject mirror;
-
-    void Start()
-    {
-        
-    }
 
     void Interact()
     {
@@ -20,3 +15,7 @@ public class MirrorToggle : UdonSharpBehaviour
     }
 
 }
+#else
+public class MirrorToggle : MonoBehaviour
+{ }
+#endif

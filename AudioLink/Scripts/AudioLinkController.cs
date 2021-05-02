@@ -1,14 +1,13 @@
-﻿
-using UdonSharp;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using UnityEngine.UI;
 using System;
 
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 public class AudioLinkController : UdonSharpBehaviour
 {
-
     public UdonBehaviour audioLink;
     [Space(10)]
     public Text gainLabel;
@@ -92,3 +91,8 @@ public class AudioLinkController : UdonSharpBehaviour
         return ( (t-a) / (b-a) ) * (v-u) + u;
     }
 }
+#else
+public class AudioLinkController : MonoBehaviour
+{
+}
+#endif

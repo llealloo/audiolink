@@ -1,10 +1,10 @@
-﻿
-using UdonSharp;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using UnityEngine.UI;
 
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 public class GlobalSlider : UdonSharpBehaviour
 {
     [UdonSynced]
@@ -44,3 +44,6 @@ public class GlobalSlider : UdonSharpBehaviour
         localValue = syncedValue = slider.value;
     }
 }
+#else
+public class GlobalSlider : MonoBehaviour { }
+#endif

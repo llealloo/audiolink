@@ -1,10 +1,12 @@
-﻿
-using UdonSharp;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using UnityEngine.UI;
 using System;
+
+//Check if udon is in project. else compile as monobehaviour
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR
 using UnityEditor;
@@ -16,6 +18,9 @@ using System.Collections.Immutable;
 #endif
 
 public class AudioLink : UdonSharpBehaviour
+#else
+public class AudioLink : MonoBehaviour
+#endif
 {
     [Header("Main Settings")]
     [Tooltip("Enable Udon audioData array")]
@@ -135,7 +140,7 @@ public class AudioLink : UdonSharpBehaviour
 
 
 
-#if !COMPILER_UDONSHARP && UNITY_EDITOR
+#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
 [CustomEditor(typeof(AudioLink))]
 public class AudioLinkEditor : Editor
 {

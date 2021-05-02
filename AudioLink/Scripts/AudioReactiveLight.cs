@@ -1,9 +1,10 @@
-﻿
-using UdonSharp;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using System;
+
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 
 public class AudioReactiveLight : UdonSharpBehaviour
 {
@@ -46,3 +47,6 @@ public class AudioReactiveLight : UdonSharpBehaviour
         return Color.HSVToRGB(h, s, v);
     }
 }
+#else
+public class AudioReactiveLight : MonoBehaviour { }
+#endif

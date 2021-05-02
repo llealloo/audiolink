@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: mat_AudioSpectrumInit
-  m_Shader: {fileID: 4800000, guid: c8a8d1e089a6e024f9242793d6fc20cb, type: 3}
+  m_Shader: {fileID: 4800000, guid: d4eec7c67b682454d86ec2d58bdea453, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
