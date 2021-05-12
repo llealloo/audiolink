@@ -148,31 +148,25 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float segment = 0.;
                 for (int i=1; i<4; i++)
                 {
-                    segment += saturate(_SegmentThickness - abs(iuv.x - _AudioBands[i]/1024.)) * 1000.;
+                    segment += saturate(_SegmentThickness - abs(iuv.x - _AudioBands[i])) * 1000.;
                 }
-                //segment += saturate(_SegmentThickness - abs(iuv.x - _AudioBands[1]/1024.)) * 1000.;
-                //segment += saturate(_SegmentThickness - abs(iuv.x - _AudioBands[2]/1024.)) * 1000.;
-                //segment += saturate(_SegmentThickness - abs(iuv.x - _AudioBands[3]/1024.)) * 1000.;
 
                 segment = saturate(segment) * _SegmentColor;
 
                 // Band threshold lines
+                float totalBins = EXPBINS * EXPOCT;
                 float threshold = 0;
                 float minHeight = 0.21;
                 float maxHeight = 0.85;
                 int band = 0;
                 for (int i=1; i<4; i++)
                 {
-                    band += (iuv.x > _AudioBands[i]/1024.);
+                    band += (iuv.x > _AudioBands[i]);
                 }
                 for (int i=0; i<4; i++)
                 {
                     threshold += (band == i) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, _AudioThresholds[i]))) * 1000.;
                 }
-                //threshold += (band == 0) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, _AudioThresholds[0]))) * 1000.;
-                //threshold += (band == 1) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, _AudioThresholds[1]))) * 1000.;
-                //threshold += (band == 2) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, _AudioThresholds[2]))) * 1000.;
-                //threshold += (band == 3) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, _AudioThresholds[3]))) * 1000.;
 
                 threshold = saturate(threshold) * _ThresholdColor * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
 
@@ -183,25 +177,21 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 bandColor += (band == 1) * _Band1Color;
                 bandColor += (band == 2) * _Band2Color;
                 bandColor += (band == 3) * _Band3Color;
-
-
-
-                //segment = round(segment);
-
-                //float3 vertical_bars = max(0.,1.3-length(readnof-1.3) );
-                //c += float4( vertical_bars * _SeparatorColor, 1. );
                 
-                //Under-spectrum first
+                // Under-spectrum first
                 float rval = clamp( _SpectrumThickness - iuv.y + intensity.z + _SpectrumVertOffset, 0., 1. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
                 
-                //Spectrum-Line second
+                // Spectrum-Line second
                 rval = max( _SpectrumThickness - abs( intensity.z - iuv.y + _SpectrumVertOffset), 0. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _SpectrumFixedColor, rval );
 
-                // float4 c;
+                // Pulse
+                //float pulse = 0;
+                //pulse = tex2D(_AudioLinkTexture, float2(iuv.x, ((noteno/128)/64.+4./64.)));
+
 
                 // Overlay blending mode
                 float4 a = c;

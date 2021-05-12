@@ -241,7 +241,7 @@ Shader "AudioLink/AudioLink"
                 mag /= totalwindow;
                 mag *= _BaseAmplitude;
 
-                float mag2 = mag;
+                //float mag2 = mag;
 
 
                 // Treble compensation
@@ -251,14 +251,14 @@ Shader "AudioLink/AudioLink"
                 float magfilt = (lerp(mag, last.z, _IIRCoefficient ));
 
                 // Treble compensation
-                float lastMagnitude = last.g;
+                //float lastMagnitude = last.g;
 
                 // Fade
-                lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);
+                //lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);
                 // FadeExpFalloff
-                lastMagnitude = lastMagnitude * (1.0 + ( pow(lastMagnitude-1.0, 4.0) * _FadeExpFalloff ) - _FadeExpFalloff);
+                //lastMagnitude = lastMagnitude * (1.0 + ( pow(lastMagnitude-1.0, 4.0) * _FadeExpFalloff ) - _FadeExpFalloff);
                 // Do the fade
-                mag2 = (max(lastMagnitude, mag2));
+                //mag2 = (max(lastMagnitude, mag2));
 
                 return float4( 
                     mag,    //Red:   Spectrum power
@@ -348,18 +348,19 @@ Shader "AudioLink/AudioLink"
                 if (delay == 0) 
                 {
                     float total = 0.;
-                    uint binStart = _AudioBands[band];
-                    uint binEnd = (band != 3) ? _AudioBands[band + 1] : 1023;
+                    uint totalBins = EXPBINS * EXPOCT;
+                    uint binStart = _AudioBands[band] * totalBins;
+                    uint binEnd = (band != 3) ? _AudioBands[band + 1] * totalBins : totalBins;
                     float threshold = _AudioThresholds[band];
                     //float maxValue = 0.;
                     //float lastValue = 0.;
 
-                    for (uint i=binStart; i<binEnd; i++)
+                    for (uint j=binStart; j<binEnd; j++)
                     {
-                        int2 spectrumCoord = int2(i % 128, i / 128);
-                        float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].r;
+                        int2 spectrumCoord = int2(j % 128, j / 128);
+                        float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].b;
                         //rawMagnitude *= ((float)i / 1023.) * pow(_TrebleCorrection, 2);
-                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / 1024.);
+                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)j / totalBins);
                         total += rawMagnitude;
                         //lastValue = max(rawMagnitude, lastValue);
                     }
@@ -368,9 +369,9 @@ Shader "AudioLink/AudioLink"
                     float magnitude = total / (binEnd - binStart);
                     //float magnitude = lastValue;
                     magnitude = LogAttenuation(magnitude, _LogAttenuation) / pow(threshold, 2);
-                    //magnitude = Contrast(magnitude, _ContrastSlope, _ContrastOffset);
+                    magnitude = Contrast(magnitude, _ContrastSlope, _ContrastOffset);
 
-                    float lastMagnitude = _SelfTexture2D[PASS_THREE_OFFSET + int2(0, band)].r;
+                    float lastMagnitude = _SelfTexture2D[PASS_THREE_OFFSET + int2(0, band)].b;
                     lastMagnitude -= InvCubeRemap(_FadeLength);
                     lastMagnitude = CubicAttenuation(lastMagnitude, _FadeExpFalloff);
 

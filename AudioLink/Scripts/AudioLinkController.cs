@@ -91,10 +91,10 @@ public class AudioLinkController : UdonSharpBehaviour
         bassLabel.text = "Bass: " + ((int)Remap( bassSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
 
         // Update 
-        threshold0Slider.transform.localPosition = new Vector3(Remap(x1Slider.value / 2f, 0f, 1024f, -349f, 349f), _initThreshold0SliderPosition.y, 0f);
-        threshold1Slider.transform.localPosition = new Vector3(Remap((x1Slider.value + x2Slider.value) / 2f, 0f, 1024f, -349f, 349f), _initThreshold1SliderPosition.y, 0f);
-        threshold2Slider.transform.localPosition = new Vector3(Remap((x2Slider.value + x3Slider.value) / 2f, 0f, 1024f, -349f, 349f), _initThreshold2SliderPosition.y, 0f);
-        threshold3Slider.transform.localPosition = new Vector3(Remap((x3Slider.value + 1024f) / 2f, 0f, 1024f, -349f, 349f), _initThreshold3SliderPosition.y, 0f);
+        threshold0Slider.transform.localPosition = new Vector3(Remap(x1Slider.value / 2f, 0f, 1f, -349f, 349f), _initThreshold0SliderPosition.y, 0f);
+        threshold1Slider.transform.localPosition = new Vector3(Remap((x1Slider.value + x2Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold1SliderPosition.y, 0f);
+        threshold2Slider.transform.localPosition = new Vector3(Remap((x2Slider.value + x3Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold2SliderPosition.y, 0f);
+        threshold3Slider.transform.localPosition = new Vector3(Remap((x3Slider.value + 1f) / 2f, 0f, 1f, -349f, 349f), _initThreshold3SliderPosition.y, 0f);
 
         // General settings
         audioLink.SetProgramVariable("gain", gainSlider.value);

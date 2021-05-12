@@ -65,13 +65,15 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Bands: 4
-    - _BaseAmplitude: 200
-    - _Bass: 1.25
+    - _BaseAmplitude: 25
+    - _Bass: 1
     - _BottomFrequency: 13.75
     - _BumpScale: 1
     - _ContrastOffset: 0.62
     - _ContrastSlope: 0.63
     - _Cutoff: 0.5
+    - _DFTMode: 0
+    - _DFTQ: 4
     - _DecayCoefficient: 0.01
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -97,7 +99,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Treble: 1
-    - _TrebleCorrection: 0
+    - _TrebleCorrection: 60
     - _UVSec: 0
     - _UniAmp: 12
     - _UniCutoff: 0
