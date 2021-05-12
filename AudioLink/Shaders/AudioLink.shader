@@ -21,7 +21,7 @@ Shader "AudioLink/AudioLink"
         _Gain("Gain", Range(0 , 10)) = 0.2724236
         _TrebleCorrection("Treble Correction", Float) = 10
         _LogAttenuation("Log Attenuation", Range(0 , 1)) = 0
-        _ContrastSlope("Contrast Slope", Range(0 , 5)) = 0
+        _ContrastSlope("Contrast Slope", Range(0 , 1)) = 0
         _ContrastOffset("Contrast Offset", Range(0 , 1)) = 0
         _FadeLength("Fade Length", Range(0 , 1)) = 0
         _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3144608
@@ -285,7 +285,6 @@ Shader "AudioLink/AudioLink"
             {
                 return gain*(((1.0-freq)*bassLevel)+(freq*trebleLevel));
             }
-
             float LogAttenuation( float input, float attenuation )
             {
                 return saturate(input * (log(1.1)/(log(1.1+pow(attenuation, 4)*(1.0-input)))));
@@ -297,6 +296,10 @@ Shader "AudioLink/AudioLink"
             float CubicAttenuation( float input, float attenuation )
             {
                 return saturate(input * (1.0 + ( pow(input-1.0, 4.0) * attenuation ) - attenuation));
+            }
+            float Contrast( float input, float slope, float offset )
+            {
+                return saturate(input*tan(1.57*slope) + input + offset*tan(1.57*slope) - tan(1.57*slope));
             }
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
@@ -327,6 +330,7 @@ Shader "AudioLink/AudioLink"
 
                     float magnitude = total / (binEnd - binStart);
                     magnitude = LogAttenuation(magnitude, _LogAttenuation) / pow(threshold, 2);
+                    magnitude = Contrast(magnitude, _ContrastSlope, _ContrastOffset);
 
                     float lastMagnitude = _SelfTexture2D[PASS_THREE_OFFSET + int2(0, band)].r;
                     lastMagnitude -= InvCubeRemap(_FadeLength);
