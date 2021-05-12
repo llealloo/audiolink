@@ -53,11 +53,12 @@ public class AudioLinkController : UdonSharpBehaviour
     #if UNITY_EDITOR
     void Update()
     {
-        float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
+        /*float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
         float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");
 
         audioSpectrumDisplay.SetFloatArray("_audioBands", audioBands);
-        audioSpectrumDisplay.SetFloatArray("_audioThresholds", audioThresholds);
+        audioSpectrumDisplay.SetFloatArray("_audioThresholds", audioThresholds);*/
+        UpdateSettings();
     }
     #endif
 
@@ -109,10 +110,6 @@ public class AudioLinkController : UdonSharpBehaviour
         audioBands[1] = x1Slider.value;
         audioBands[2] = x2Slider.value;
         audioBands[3] = x3Slider.value;
-        /*float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
-        audioBands[1] = x1Slider.value;
-        audioBands[2] = x2Slider.value;
-        audioBands[3] = x3Slider.value;*/
         audioLink.SetProgramVariable("audioBands", audioBands);
         audioSpectrumDisplay.SetFloatArray("_AudioBands", audioBands);
         float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");

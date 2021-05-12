@@ -25,6 +25,8 @@ Shader "AudioLink/AudioLinkSpectrumUI"
         _Band1Color ("Band 1 Color", Color) = (.5,.5,0.,1.)
         _Band2Color ("Band 2 Color", Color) = (.5,.5,0.,1.)
         _Band3Color ("Band 3 Color", Color) = (.5,.5,0.,1.)
+        _BandDelayPulse("Band Delay Pulse", Float) = 0.1
+        _BandDelayPulseOpacity("Band Delay Pulse", Float) = 0.5
         
     }
     SubShader
@@ -90,6 +92,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             float4 _Band1Color;
             float4 _Band2Color;
             float4 _Band3Color;
+
+            float _BandDelayPulse;
+            float _BandDelayPulseOpacity;
             
 
             v2f vert (appdata v)
@@ -177,6 +182,8 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 bandColor += (band == 1) * _Band1Color;
                 bandColor += (band == 2) * _Band2Color;
                 bandColor += (band == 3) * _Band3Color;
+
+                float bandIntensity = tex2D(_AudioLinkTexture, float2(0., (float)band * 0.015625));
                 
                 // Under-spectrum first
                 float rval = clamp( _SpectrumThickness - iuv.y + intensity.z + _SpectrumVertOffset, 0., 1. );
@@ -186,17 +193,16 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 // Spectrum-Line second
                 rval = max( _SpectrumThickness - abs( intensity.z - iuv.y + _SpectrumVertOffset), 0. );
                 rval = min( 1., 1000*rval );
-                c = lerp( c, _SpectrumFixedColor, rval );
+                c = lerp( c, _SpectrumFixedColor, rval * bandIntensity );
 
                 // Pulse
-                //float pulse = 0;
-                //pulse = tex2D(_AudioLinkTexture, float2(iuv.x, ((noteno/128)/64.+4./64.)));
+                //float4 pulse = tex2D(_AudioLinkTexture, float2(iuv.y * _BandDelayPulse, (float)band * 0.015625)) * _BandDelayPulseOpacity * bandColor;
 
 
                 // Overlay blending mode
                 float4 a = c;
                 float4 b = bandColor;
-                if (length(a) < 0.5)
+                if (0.2 * a.r + 0.7 * a.g + 0.1 * a.b < 0.5)
                 {
                     c = 2. * a * b;
                 } else {
