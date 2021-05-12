@@ -133,9 +133,12 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 int reado = (noteno/EXPBINS);
                 float readof = notenof/EXPBINS;
 
-                intensity = forcefilt(_AudioLinkTexture, _AudioLinkTexture_TexelSize, 
-                     float2((fmod(notenof,128))/128.,((noteno/128)/64.+4./64.)) ) * _SpectrumGain;
-                
+                {
+                    float4 spectrum_value_lower  =  tex2D(_AudioLinkTexture, float2((fmod(noteno,128))/128.,((noteno/128)/64.+4./64.)) );
+                    float4 spectrum_value_higher =  tex2D(_AudioLinkTexture, float2((fmod((noteno+1),128))/128.,(((noteno+1)/128)/64.+4./64.)) );
+                    intensity = lerp(spectrum_value_lower, spectrum_value_higher, frac(notenof) )* _SpectrumGain;
+                }
+
                 intensity.x *= 1.;
                 intensity.y *= 1.;
             
