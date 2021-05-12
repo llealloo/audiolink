@@ -43,7 +43,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             #include "UnityCG.cginc"
             
             #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
-            #define EXPBINS 64
+            #define EXPBINS 24
             #define EXPOCT 10
             #define ETOTALBINS (EXPOCT*EXPBINS)         
 
