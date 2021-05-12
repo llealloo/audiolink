@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_AudioSpectrum4
-  m_Shader: {fileID: 4800000, guid: 6d93c5e018714fc4589d788212b9b9b4, type: 3}
-  m_ShaderKeywords: _FADEENABLED_ON
+  m_Name: mat_AudioLinkSpectrumUI
+  m_Shader: {fileID: 4800000, guid: 878611a2e2ac4ed46ba1310dab633153, type: 3}
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -19,6 +19,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AudioLinkTexture:
+        m_Texture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,40 +59,50 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _RTARenderTexture:
-        m_Texture: {fileID: 8600000, guid: fc7f0a55709da4f4eb7498936865dacf, type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Bands: 4
-    - _Bass: 1.25
     - _BumpScale: 1
-    - _ContrastOffset: 0.62
-    - _ContrastSlope: 0.63
     - _Cutoff: 0.5
-    - _Delays: 32
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EQBass: 1
-    - _EQTreble: 1
-    - _FadeEnabled: 1
-    - _FadeExpFalloff: 0.3
-    - _FadeLength: 0.85
-    - _Gain: 1
+    - _GainDottedLine: 0.02
+    - _GainThickness: 0.011
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _LogAttenuation: 0.68
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _SampleGain: 50
+    - _SampleThickness: 0.01
+    - _SampleVertOffset: 0.785
+    - _SegmentThickness: 0.003
     - _SmoothnessTextureChannel: 0
+    - _SpectrumColorMix: 1
+    - _SpectrumGain: 1
+    - _SpectrumThickness: 0.008
+    - _SpectrumVertOffset: 0.2
+    - _SpectrumVisMode: 3
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Treble: 1
+    - _ThresholdDottedLine: 0.012
+    - _ThresholdThickness: 0.01
     - _UVSec: 0
+    - _VUOpacity: 0.5
     - _ZWrite: 1
     m_Colors:
+    - _Band0Color: {r: 0.3019608, g: 0.07058824, b: 0.07058824, a: 1}
+    - _Band1Color: {r: 0.40784317, g: 0.3137255, b: 0.07058824, a: 1}
+    - _Band2Color: {r: 0.121568635, g: 0.26666668, b: 0.121568635, a: 1}
+    - _Band3Color: {r: 0.10980393, g: 0.15686275, b: 0.31764707, a: 1}
+    - _BaseColor: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GainColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
+    - _SampleColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
+    - _SegmentColor: {r: 0.5, g: 0.5, b: 0, a: 1}
+    - _SeparatorColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Spectrum23Color: {r: 0.23584908, g: 0.23584908, b: 0.23584908, a: 1}
+    - _SpectrumFixedColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ThresholdColor: {r: 0.5, g: 0.5, b: 0, a: 1}
+    - _UnderSpectrumColor: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 0.23921569}

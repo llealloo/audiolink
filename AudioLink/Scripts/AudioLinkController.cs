@@ -1,16 +1,19 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using UnityEngine.UI;
 using System;
+
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 
 public class AudioLinkController : UdonSharpBehaviour
 {
 
     public UdonBehaviour audioLink;
     [Space(10)]
+    public Material audioSpectrumDisplay;
     public Text gainLabel;
     public Slider gainSlider;
     public Text trebleLabel;
@@ -21,12 +24,13 @@ public class AudioLinkController : UdonSharpBehaviour
     public Slider fadeLengthSlider;
     public Text fadeExpFalloffLabel;
     public Slider fadeExpFalloffSlider;
-    public Text x1Label;
     public Slider x1Slider;
-    public Text x2Label;
     public Slider x2Slider;
-    public Text x3Label;
     public Slider x3Slider;
+    public Slider threshold0Slider;
+    public Slider threshold1Slider;
+    public Slider threshold2Slider;
+    public Slider threshold3Slider;
 
     private float _initGain;
     private float _initTreble;
@@ -36,6 +40,26 @@ public class AudioLinkController : UdonSharpBehaviour
     private float _initX1;
     private float _initX2;
     private float _initX3;
+    private float _initThreshold0;
+    private float _initThreshold1;
+    private float _initThreshold2;
+    private float _initThreshold3;
+
+    private Vector3 _initThreshold0SliderPosition;
+    private Vector3 _initThreshold1SliderPosition;
+    private Vector3 _initThreshold2SliderPosition;
+    private Vector3 _initThreshold3SliderPosition;
+ 
+    #if UNITY_EDITOR
+    void Update()
+    {
+        float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
+        float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");
+
+        audioSpectrumDisplay.SetFloatArray("_audioBands", audioBands);
+        audioSpectrumDisplay.SetFloatArray("_audioThresholds", audioThresholds);
+    }
+    #endif
 
     void Start()
     {
@@ -47,18 +71,32 @@ public class AudioLinkController : UdonSharpBehaviour
         _initX1 = x1Slider.value;
         _initX2 = x2Slider.value;
         _initX3 = x3Slider.value;
+        _initThreshold0 = threshold0Slider.value;
+        _initThreshold1 = threshold1Slider.value;
+        _initThreshold2 = threshold2Slider.value;
+        _initThreshold3 = threshold3Slider.value;
+        _initThreshold0SliderPosition = threshold0Slider.transform.localPosition;
+        _initThreshold1SliderPosition = threshold1Slider.transform.localPosition;
+        _initThreshold2SliderPosition = threshold2Slider.transform.localPosition;
+        _initThreshold3SliderPosition = threshold3Slider.transform.localPosition;
+
         UpdateSettings();
     }
 
     public void UpdateSettings()
     {
+        // Update labels
         gainLabel.text = "Gain: " + ((int)Remap( gainSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
         trebleLabel.text = "Treble: " + ((int)Remap( trebleSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
         bassLabel.text = "Bass: " + ((int)Remap( bassSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
-        x1Label.text = "X1: " + ((int)x1Slider.value).ToString() + "hz";
-        x2Label.text = "X2: " + ((int)x2Slider.value).ToString() + "hz";
-        x3Label.text = "X3: " + ((int)x3Slider.value).ToString() + "hz";
 
+        // Update 
+        threshold0Slider.transform.localPosition = new Vector3(Remap(x1Slider.value / 2f, 0f, 1024f, -349f, 349f), _initThreshold0SliderPosition.y, 0f);
+        threshold1Slider.transform.localPosition = new Vector3(Remap((x1Slider.value + x2Slider.value) / 2f, 0f, 1024f, -349f, 349f), _initThreshold1SliderPosition.y, 0f);
+        threshold2Slider.transform.localPosition = new Vector3(Remap((x2Slider.value + x3Slider.value) / 2f, 0f, 1024f, -349f, 349f), _initThreshold2SliderPosition.y, 0f);
+        threshold3Slider.transform.localPosition = new Vector3(Remap((x3Slider.value + 1024f) / 2f, 0f, 1024f, -349f, 349f), _initThreshold3SliderPosition.y, 0f);
+
+        // General settings
         audioLink.SetProgramVariable("gain", gainSlider.value);
         audioLink.SetProgramVariable("treble", trebleSlider.value);
         audioLink.SetProgramVariable("bass", bassSlider.value);
@@ -66,11 +104,21 @@ public class AudioLinkController : UdonSharpBehaviour
         audioLink.SetProgramVariable("fadeExpFalloff", fadeExpFalloffSlider.value);
         audioLink.SetProgramVariable("fadeExpFalloff", fadeExpFalloffSlider.value);
 
-        float[] spectrumBands = (float[])audioLink.GetProgramVariable("spectrumBands");
-        spectrumBands[1] = x1Slider.value;
-        spectrumBands[2] = x2Slider.value;
-        spectrumBands[3] = x3Slider.value;
-        audioLink.SetProgramVariable("spectrumBands", spectrumBands);
+        // Crossover settings
+        float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
+        audioBands[1] = x1Slider.value;
+        audioBands[2] = x2Slider.value;
+        audioBands[3] = x3Slider.value;
+        audioLink.SetProgramVariable("audioBands", audioBands);
+        audioSpectrumDisplay.SetFloatArray("_AudioBands", audioBands);
+        float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");
+        audioThresholds[0] = threshold0Slider.value;
+        audioThresholds[1] = threshold1Slider.value;
+        audioThresholds[2] = threshold2Slider.value;
+        audioThresholds[3] = threshold3Slider.value;
+        audioLink.SetProgramVariable("audioThresholds", audioThresholds);
+        audioSpectrumDisplay.SetFloatArray("_AudioThresholds", audioThresholds);
+
         audioLink.SendCustomEvent("UpdateSettings");
     }
 
@@ -84,6 +132,10 @@ public class AudioLinkController : UdonSharpBehaviour
         x1Slider.value = _initX1;
         x2Slider.value = _initX2;
         x3Slider.value = _initX3;
+        threshold0Slider.value = _initThreshold0;
+        threshold1Slider.value = _initThreshold1;
+        threshold2Slider.value = _initThreshold2;
+        threshold3Slider.value = _initThreshold3;
     }
 
 
@@ -92,3 +144,8 @@ public class AudioLinkController : UdonSharpBehaviour
         return ( (t-a) / (b-a) ) * (v-u) + u;
     }
 }
+#else
+public class AudioLinkController2 : MonoBehaviour
+{
+}
+#endif

@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_AudioSpectrum32
-  m_Shader: {fileID: 4800000, guid: 6d93c5e018714fc4589d788212b9b9b4, type: 3}
-  m_ShaderKeywords: _FADEENABLED_ON
+  m_Name: mat_AudioLink2
+  m_Shader: {fileID: 4800000, guid: 0071b93d4d4494246a2f39b211ba016f, type: 3}
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8600000, guid: 408ce269c71edce4ab7da49b713ee342, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -55,40 +55,56 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _RTARenderTexture:
-        m_Texture: {fileID: 8600000, guid: 9ca34016a8b899e48a1d4619a9f6821a, type: 2}
+    - _Phase1Input:
+        m_Texture: {fileID: 8600000, guid: 408ce269c71edce4ab7da49b713ee342, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Bands: 32
-    - _Bass: 1
+    - _Bands: 4
+    - _BaseAmplitude: 200
+    - _Bass: 1.25
+    - _BottomFrequency: 32.7
     - _BumpScale: 1
     - _ContrastOffset: 0.62
     - _ContrastSlope: 0.63
     - _Cutoff: 0.5
-    - _Delays: 32
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EQBass: 1
-    - _EQTreble: 1
-    - _FadeEnabled: 1
     - _FadeExpFalloff: 0.3
     - _FadeLength: 0.85
-    - _Gain: 1.5
+    - _Gain: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _IIRCoefficient: 0.1
     - _LogAttenuation: 0.68
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
+    - _OctaveMerge: 1
     - _Parallax: 0.02
+    - _PeakCloseEnough: 2
+    - _PeakDecay: 0.7
+    - _PeakMinium: 0.005
     - _SmoothnessTextureChannel: 0
+    - _SortNotes: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Treble: 1
+    - _TrebleCorrection: 244.7
     - _UVSec: 0
+    - _UniAmp: 12
+    - _UniCutoff: 0
+    - _UniMaxPeak: 0
+    - _UniNerfFromQ: 0.05
+    - _UniSumPeak: 0.1
+    - _Uniformity: 1.5
     - _ZWrite: 1
+    - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

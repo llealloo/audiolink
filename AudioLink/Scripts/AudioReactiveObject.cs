@@ -14,7 +14,7 @@ public class AudioReactiveObject : UdonSharpBehaviour
     public int delay;
     public Vector3 position;
     public Vector3 rotation;
-    public Vector3 scale;
+    public Vector3 scale = new Vector3(1f, 1f, 1f);
 
 
     private int _dataIndex;
@@ -41,7 +41,7 @@ public class AudioReactiveObject : UdonSharpBehaviour
             transform.localPosition = _initialPosition + (position * amplitude);
             transform.localEulerAngles = _initialRotation + (rotation * amplitude);
         
-            //transform.localScale *= scale;
+            transform.localScale = new Vector3(_initialScale.x * Mathf.Lerp(1f, scale.x, amplitude), _initialScale.y * Mathf.Lerp(1f, scale.y, amplitude), _initialScale.z * Mathf.Lerp(1f, scale.z, amplitude));
         }
     }
 
