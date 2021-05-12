@@ -1,7 +1,9 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+
+#if UDON
+using UdonSharp;
 using VRC.Udon;
 
 public class AudioReactiveSurface : UdonSharpBehaviour
@@ -45,3 +47,7 @@ public class AudioReactiveSurface : UdonSharpBehaviour
         mesh.SetPropertyBlock(block);
     }
 }
+
+#else
+public class AudioReactiveSurface : MonoBehaviour { }
+#endif

@@ -230,7 +230,7 @@ Shader "AudioLink/AudioLink"
 
                 return float4( 
                     mag,    //Red:   Spectrum power
-                    mag2,   //Green: Filtered power
+                    0,   //Green: Filtered power
                     magfilt,      //Blue:  Filtered spectrum (For CC)
                     1 );
             }
@@ -317,8 +317,10 @@ Shader "AudioLink/AudioLink"
                 {
                     float total = 0.;
                     uint binStart = _AudioBands[band];
-                    uint binEnd = (band < 3) ? _AudioBands[band + 1] : 1023;
+                    uint binEnd = (band != 3) ? _AudioBands[band + 1] : 1023;
                     float threshold = _AudioThresholds[band];
+                    //float maxValue = 0.;
+                    //float lastValue = 0.;
 
                     for (uint i=binStart; i<binEnd; i++)
                     {
@@ -327,12 +329,14 @@ Shader "AudioLink/AudioLink"
                         //rawMagnitude *= ((float)i / 1023.) * pow(_TrebleCorrection, 2);
                         rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / 1023.);
                         total += rawMagnitude;
+                        //lastValue = max(rawMagnitude, lastValue);
                     }
                     //total /= size;
 
                     float magnitude = total / (binEnd - binStart);
+                    //float magnitude = lastValue;
                     magnitude = LogAttenuation(magnitude, _LogAttenuation) / pow(threshold, 2);
-                    magnitude = Contrast(magnitude, _ContrastSlope, _ContrastOffset);
+                    //magnitude = Contrast(magnitude, _ContrastSlope, _ContrastOffset);
 
                     float lastMagnitude = _SelfTexture2D[PASS_THREE_OFFSET + int2(0, band)].r;
                     lastMagnitude -= InvCubeRemap(_FadeLength);

@@ -189,12 +189,12 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 //c += float4( vertical_bars * _SeparatorColor, 1. );
                 
                 //Under-spectrum first
-                float rval = clamp( _SpectrumThickness - iuv.y + intensity.x + _SpectrumVertOffset, 0., 1. );
+                float rval = clamp( _SpectrumThickness - iuv.y + intensity.z + _SpectrumVertOffset, 0., 1. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
                 
                 //Spectrum-Line second
-                rval = max( _SpectrumThickness - abs( intensity.x - iuv.y + _SpectrumVertOffset), 0. );
+                rval = max( _SpectrumThickness - abs( intensity.z - iuv.y + _SpectrumVertOffset), 0. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _SpectrumFixedColor, rval );
 

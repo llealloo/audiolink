@@ -1,10 +1,12 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using System;
 using System.Collections;
+
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 
 public class AudioReactiveObject : UdonSharpBehaviour
 {
@@ -50,3 +52,7 @@ public class AudioReactiveObject : UdonSharpBehaviour
         _dataIndex = (band * 128) + delay;
     }
 }
+
+#else
+public class AudioReactiveObject : MonoBehaviour { }
+#endif

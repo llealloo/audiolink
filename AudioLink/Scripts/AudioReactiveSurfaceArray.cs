@@ -1,7 +1,9 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+
+#if UDON
+using UdonSharp;
 using VRC.Udon;
 
 public class AudioReactiveSurfaceArray : UdonSharpBehaviour
@@ -46,7 +48,7 @@ public class AudioReactiveSurfaceArray : UdonSharpBehaviour
 			if (mesh != null)
 			{
 		        var block = new MaterialPropertyBlock();
-		        block.SetFloat("_Delay", (delayStep/32f) * (float)i);
+		        block.SetFloat("_Delay", (delayStep/128f) * (float)i);
 		        block.SetFloat("_Band", (float)band);
 		        block.SetFloat("_HueShift", hueShift);
 		        block.SetColor("_EmissionColor", HueShift(color, hueStep * (float)i));
@@ -67,3 +69,7 @@ public class AudioReactiveSurfaceArray : UdonSharpBehaviour
         return Color.HSVToRGB(h, s, v);
     }
 }
+
+#else
+public class AudioReactiveSurfaceArray : MonoBehaviour { }
+#endif

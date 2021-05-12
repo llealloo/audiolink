@@ -334,7 +334,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32208405}
-  m_Text: All settings on AudioLink4 UdonBehaviour
+  m_Text: All settings on AudioLink UdonBehaviour
   m_OffsetZ: 0
   m_CharacterSize: 0.5
   m_LineSpacing: 1
@@ -17488,7 +17488,7 @@ TextMesh:
     by shaders on avatars. \r\nIt is a mirror of the local RenderTexture to \rthe
     \nleft. This can be toggled off if \rperformance is \nan issue.\n\nThe above shader
     can be applied to an avatar\nand will pick up the _AudioTexture if the world\nhas
-    the AudioLink4 Prefab installed."
+    the AudioLink Prefab installed."
   m_OffsetZ: 0
   m_CharacterSize: 0.5
   m_LineSpacing: 1.3
@@ -22315,7 +22315,7 @@ TextMesh:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1576432868}
   m_Text: "The base module updates a RenderTexture with\r\na user specified number
-    of frequency bands and \r\n32 points of history, referred to as delay. With the\r\nrecommended
+    of frequency bands and \r\n128 points of history, referred to as delay. With the\r\nrecommended
     settings (as used in this scene),\r\nthere are 4 frequency bands representing
     bass,\r\nlow mids, high mids, and treble. \r\n\r\nThe local RenderTexture has
     a very low overhead\r\ncomparatively and can be sampled by world shaders \r\nto
@@ -25724,7 +25724,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1800130411}
-  m_Text: 'AudioLink Prefab (Core Module)      Current Version: 0.1.6 (4/26/2021)'
+  m_Text: AudioLink Prefab (Core Module)
   m_OffsetZ: 0
   m_CharacterSize: 1
   m_LineSpacing: 1

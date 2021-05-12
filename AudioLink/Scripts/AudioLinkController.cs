@@ -109,6 +109,10 @@ public class AudioLinkController : UdonSharpBehaviour
         audioBands[1] = x1Slider.value;
         audioBands[2] = x2Slider.value;
         audioBands[3] = x3Slider.value;
+        /*float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
+        audioBands[1] = x1Slider.value;
+        audioBands[2] = x2Slider.value;
+        audioBands[3] = x3Slider.value;*/
         audioLink.SetProgramVariable("audioBands", audioBands);
         audioSpectrumDisplay.SetFloatArray("_AudioBands", audioBands);
         float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");
@@ -149,3 +153,30 @@ public class AudioLinkController2 : MonoBehaviour
 {
 }
 #endif
+
+
+/*#if !COMPILER_UDONSHARP// && UNITY_EDITOR
+[ExecuteInEditMode]
+public class AudioLinkControllerEditUpdater : MonoBehaviour
+{
+    void Update()
+    {
+        Debug.Log("test");
+    }
+}
+#endif
+
+*/
+
+
+
+
+
+
+
+// && UDON
+//[CustomEditor(typeof(AudioLinkController))]
+
+ 
+        //UdonSharpBehaviour thisGuy = GetUdonSharpComponent<UdonSharpBehaviour>();
+        //Debug.Log(thisGuy);
