@@ -237,7 +237,7 @@ MonoBehaviour:
       Data: 0
     - Name: max
       Entry: 4
-      Data: 31
+      Data: 127
     - Name: 
       Entry: 8
       Data: 

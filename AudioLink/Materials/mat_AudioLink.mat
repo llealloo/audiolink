@@ -67,7 +67,7 @@ Material:
     - _Bands: 4
     - _BaseAmplitude: 200
     - _Bass: 1.25
-    - _BottomFrequency: 32.7
+    - _BottomFrequency: 13.75
     - _BumpScale: 1
     - _ContrastOffset: 0.62
     - _ContrastSlope: 0.63
@@ -81,7 +81,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _IIRCoefficient: 0.1
+    - _IIRCoefficient: 0.75
     - _LogAttenuation: 0.68
     - _Metallic: 0
     - _Mode: 0
@@ -97,7 +97,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Treble: 1
-    - _TrebleCorrection: 244.7
+    - _TrebleCorrection: 0
     - _UVSec: 0
     - _UniAmp: 12
     - _UniCutoff: 0
