@@ -359,7 +359,7 @@ Shader "AudioLink/AudioLink"
                         int2 spectrumCoord = int2(i % 128, i / 128);
                         float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].r;
                         //rawMagnitude *= ((float)i / 1023.) * pow(_TrebleCorrection, 2);
-                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / 1023.);
+                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / 1024.);
                         total += rawMagnitude;
                         //lastValue = max(rawMagnitude, lastValue);
                     }
