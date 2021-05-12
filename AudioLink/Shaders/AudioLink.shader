@@ -149,7 +149,7 @@ Shader "AudioLink/AudioLink"
 
                 //XXX Hack: Force the compiler to keep Samples0 and Samples1.
                 if(guv.x < 0)
-                    return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0]; // slick, thanks @lox9973
+                    return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0] + _AudioFrames[0]; // slick, thanks @lox9973
 
                 //Uncomment to enable debugging of where on the CRT this pass is.
                 //return float4( coordinateLocal, 0., 1. );
@@ -210,25 +210,27 @@ Shader "AudioLink/AudioLink"
 
                 float mag2 = mag;
 
-                //Z component contains filtered output.
-                float magfilt = (lerp(mag, last.z, _IIRCoefficient ));
-
 
                 // Treble compensation
                 uint spectrumElement = (octave * EXPBINS) + bin;
+				mag *= ((spectrumElement / float(EXPOCT*EXPBINS) )*_TrebleCorrection + 1.0);
+
+                //Z component contains filtered output.
+                float magfilt = (lerp(mag, last.z, _IIRCoefficient ));
+
+                // Treble compensation
                 float lastMagnitude = last.g;
-                //mag2 *= 1 + pow(((float)spectrumElement / 768.) * pow(_TrebleCorrection, 2), 3);
-                mag2 *= 1 + (pow((float)spectrumElement / 768., 8) * _TrebleCorrection);
+
                 // Fade
                 lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);
                 // FadeExpFalloff
                 lastMagnitude = lastMagnitude * (1.0 + ( pow(lastMagnitude-1.0, 4.0) * _FadeExpFalloff ) - _FadeExpFalloff);
                 // Do the fade
                 mag2 = (max(lastMagnitude, mag2));
-                
+
                 return float4( 
                     mag,    //Red:   Spectrum power
-                    0,   //Green: Filtered power
+                    mag2,   //Green: Filtered power
                     magfilt,      //Blue:  Filtered spectrum (For CC)
                     1 );
             }
