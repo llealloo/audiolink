@@ -12,6 +12,8 @@ Shader "AudioLink/AudioLink"
         _BaseAmplitude("Base Amplitude Multiplier", float) = 2.0
         _DecayCoefficient("Decay Coefficient", float) = 0.01
         _PhiDeltaCorrection("Phi Delta Correction", float) = 4
+        _DFTMode( "DFT mode", float) = 0.0
+        _DFTQ( "Q Value", float ) = 4.0
 
         // Phase 2 (Waveform Data)
         // This has no parameters.
@@ -58,7 +60,7 @@ Shader "AudioLink/AudioLink"
             CGINCLUDE
 
             // This determines the bottom-left corner of the various passes.
-            #define PASS_ONE_OFFSET    int2(0,4)   //Pass 1: DFT: 4,5,6,7,8 (5x2 (10) Octaves)
+            #define PASS_ONE_OFFSET    int2(0,4)   //Pass 1: DFT: 4,5 10.66 octaves, with 24 bins per octave.
             //Row 9: Reserved.
             #define PASS_TWO_OFFSET    int2(0,10)  //Pass 2: Sample Data 10->19 10x128 samples = 1280 samples total.
 
@@ -69,8 +71,8 @@ Shader "AudioLink/AudioLink"
             #define PASS_SIX_OFFSET    int2(4,20) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
 
             #define SAMPHIST 2046
-            #define EXPBINS 64
-            #define EXPOCT 8
+            #define EXPBINS 24
+            #define EXPOCT 10
             #define ETOTALBINS ((EXPBINS)*(EXPOCT))
             #define _SamplesPerSecond 48000
 
@@ -123,24 +125,20 @@ Shader "AudioLink/AudioLink"
             uniform float _ContrastSlope;
             uniform float _ContrastOffset;
             uniform float _TrebleCorrection;
-
             ENDCG
 
             Name "Pass1AudioDFT"
             
             CGPROGRAM
-            
-            // The structure of the output is:
-            // RED CHANNEL: Intensity of given frequency.
-            // GREEN/BLUE Reserved.
-            //   4 Rows, each row contains two octaves. 
-            //   Each octave contains 64 bins.
 
             uniform float _BottomFrequency;
             uniform float _IIRCoefficient;
             uniform float _BaseAmplitude;
             uniform float _DecayCoefficient;
             uniform float _PhiDeltaCorrection;
+
+            uniform float _DFTMode;
+            uniform float _DFTQ;
 
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
@@ -159,49 +157,84 @@ Shader "AudioLink/AudioLink"
         
                 float4 last = GetSelfPixelData( coordinateGlobal );
 
-                int bin = coordinateLocal.x % EXPBINS;
-                int octave = coordinateLocal.y * 2 + coordinateLocal.x / EXPBINS;
+                int note = coordinateLocal.y* 128 + coordinateLocal.x;
 
                 float2 ampl = 0.;
-                int idx;
                 float pha = 0;
-                float phadelta = pow( 2, octave + ((float)bin)/EXPBINS );
+                float phadelta = pow( 2, (note)/((float)EXPBINS) );
                 phadelta *= _BottomFrequency;
                 phadelta /= _SamplesPerSecond;
                 phadelta *= 3.1415926 * 2.0;
                 float integraldec = 0.;
                 float totalwindow = 0;
-                float HalfWindowSize;
 
                 // Align phase so 0 phaseis center of window.
                 pha = -phadelta * SAMPHIST/2;
 
                 // This determines the narrowness of our peaks.
-                float Q = 4.;
+                float Q = _DFTQ;
 
-                HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
-
-                int windowrange = floor(HalfWindowSize)+1;
-
-                // For ??? reason, this is faster than doing a clever
-                // indexing which only searches the space that will be used.
-
-                for( idx = 0; idx < SAMPHIST; idx++ )
+                if( _DFTMode < 1.0 )
                 {
-                    float window = max( 0, HalfWindowSize - abs(idx - SAMPHIST/2) );
+                    //Method 1: Convolve entire incoming waveform.
+                    
+                    float HalfWindowSize;
+                    HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
 
-                    float af = _AudioFrames[idx];
+                    int windowrange = floor(HalfWindowSize)+1;
+                    int idx;
 
-                    //Sin and cosine components to convolve.
-                    float2 sc; sincos( pha, sc.x, sc.y );
+                    // For ??? reason, this is faster than doing a clever
+                    // indexing which only searches the space that will be used.
 
-                    // Step through, one sample at a time, multiplying the sin
-                    // and cos values by the incoming signal.
-                    ampl += sc * af * window;
+                    for( idx = 0; idx < SAMPHIST; idx++ )
+                    {
+                        float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST-HalfWindowSize) ) );
 
-                    totalwindow += window;
+                        float af = _AudioFrames[idx];
 
-                    pha += phadelta;
+                        //Sin and cosine components to convolve.
+                        float2 sc; sincos( pha, sc.x, sc.y );
+
+                        // Step through, one sample at a time, multiplying the sin
+                        // and cos values by the incoming signal.
+                        ampl += sc * af * window;
+
+                        totalwindow += window;
+
+                        pha += phadelta;
+                    }
+                }
+                else
+                {
+                    //Method 2: Convolve only a set number of sampler per bin.
+                    float fvpha;
+                    int place;
+                    
+                    #define WINDOWSIZE (6.28*_DFTQ)
+                    #define STEP 0.06
+                    #define EXTENT ((int)(WINDOWSIZE/STEP))
+                    float invphaadv = STEP / phadelta;
+                    
+                    float fra = SAMPHIST/2 - (invphaadv*EXTENT); //We want the center to line up.
+                    
+                    for( place = -EXTENT; place <= EXTENT; place++ )
+                    {
+                        float fvpha = place * STEP;
+                        //Sin and cosine components to convolve.
+                        float2 sc; sincos( fvpha, sc.x, sc.y );
+                        float window = WINDOWSIZE - abs(fvpha);
+                        
+                        float af = _AudioFrames[round( fra )];
+                        
+                        // Step through, one sample at a time, multiplying the sin
+                        // and cos values by the incoming signal.
+                        ampl += sc * af * window;
+                        
+                        fra += invphaadv;
+
+                        totalwindow += window;
+                    }
                 }
 
                 float mag = length( ampl );
@@ -212,8 +245,7 @@ Shader "AudioLink/AudioLink"
 
 
                 // Treble compensation
-                uint spectrumElement = (octave * EXPBINS) + bin;
-				mag *= ((spectrumElement / float(EXPOCT*EXPBINS) )*_TrebleCorrection + 1.0);
+                mag *= ((note / float(EXPOCT*EXPBINS) )*_TrebleCorrection + 1.0);
 
                 //Z component contains filtered output.
                 float magfilt = (lerp(mag, last.z, _IIRCoefficient ));
