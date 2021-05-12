@@ -126,8 +126,8 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
                 float4 intensity = 0;
 
-                int noteno = iuv.x * EXPBINS * EXPOCT + 64;
-                float notenof = iuv.x * EXPBINS * EXPOCT + 64.;
+                int noteno = iuv.x * EXPBINS * EXPOCT;
+                float notenof = iuv.x * EXPBINS * EXPOCT;
                 int readno = noteno % EXPBINS;
                 float readnof = fmod( notenof, EXPBINS );
                 int reado = (noteno/EXPBINS);
@@ -155,7 +155,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
                 // Band threshold lines
                 float threshold = 0;
-                float minHeight = 0.15;
+                float minHeight = 0.21;
                 float maxHeight = 0.85;
                 int band = 0;
                 for (int i=1; i<4; i++)
@@ -189,12 +189,12 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 //c += float4( vertical_bars * _SeparatorColor, 1. );
                 
                 //Under-spectrum first
-                float rval = clamp( _SpectrumThickness - iuv.y + intensity.y + _SpectrumVertOffset, 0., 1. );
+                float rval = clamp( _SpectrumThickness - iuv.y + intensity.x + _SpectrumVertOffset, 0., 1. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
                 
                 //Spectrum-Line second
-                rval = max( _SpectrumThickness - abs( intensity.y - iuv.y + _SpectrumVertOffset), 0. );
+                rval = max( _SpectrumThickness - abs( intensity.x - iuv.y + _SpectrumVertOffset), 0. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _SpectrumFixedColor, rval );
 

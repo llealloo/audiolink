@@ -10,7 +10,7 @@ public class AudioReactiveObject : UdonSharpBehaviour
 {
     public UdonBehaviour audioLink;
     public int band;
-    [Range(0, 31)]
+    [Range(0, 127)]
     public int delay;
     public Vector3 position;
     public Vector3 rotation;
@@ -47,6 +47,6 @@ public class AudioReactiveObject : UdonSharpBehaviour
 
     public void UpdateDataIndex()
     {
-        _dataIndex = (band * 32) + delay;
+        _dataIndex = (band * 128) + delay;
     }
 }

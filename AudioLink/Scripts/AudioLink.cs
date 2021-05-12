@@ -96,6 +96,11 @@ public class AudioLink : MonoBehaviour
         audioMaterial.SetFloatArray("_Samples1", _samples1);
         audioMaterial.SetFloatArray("_Samples2", _samples2);
         audioMaterial.SetFloatArray("_Samples3", _samples3);
+
+        #if UNITY_EDITOR
+        audioMaterial.SetFloatArray("_AudioBands", audioBands);
+        audioMaterial.SetFloatArray("_AudioThresholds", audioThresholds);
+        #endif
     }
 
     void OnPostRender()

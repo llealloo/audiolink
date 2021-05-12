@@ -10,7 +10,7 @@ public class AudioReactiveSurface : UdonSharpBehaviour
     [Header("AudioLink Settings")]
     public UdonBehaviour audioLink;
     public int band;
-    [Range(0, 31)]
+    [Range(0, 127)]
     public int delay;
 
     [Header("Reactivity Settings")]
@@ -35,7 +35,7 @@ public class AudioReactiveSurface : UdonSharpBehaviour
     {
         var block = new MaterialPropertyBlock();
         var mesh = GetComponent<MeshRenderer>();
-        block.SetFloat("_Delay", (float)delay/32f);
+        block.SetFloat("_Delay", (float)delay/128f);
         block.SetFloat("_Band", (float)band);
         block.SetFloat("_HueShift", hueShift);
         block.SetColor("_EmissionColor", color);

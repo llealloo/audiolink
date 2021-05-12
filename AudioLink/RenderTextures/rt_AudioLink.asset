@@ -42,13 +42,13 @@ CustomRenderTexture:
   m_UpdateZoneSpace: 1
   m_CurrentUpdateZoneSpace: 1
   m_UpdateZones:
-  - updateZoneCenter: {x: 64, y: 58, z: 0.5}
-    updateZoneSize: {x: 128, y: 4, z: 1}
+  - updateZoneCenter: {x: 64, y: 57, z: 0.5}
+    updateZoneSize: {x: 128, y: 5, z: 1}
     rotation: 0
     passIndex: 0
     needSwap: 1
-  - updateZoneCenter: {x: 64, y: 52, z: 0.5}
-    updateZoneSize: {x: 128, y: 8, z: 1}
+  - updateZoneCenter: {x: 64, y: 43, z: 0.5}
+    updateZoneSize: {x: 128, y: 22, z: 1}
     rotation: 0
     passIndex: 1
     needSwap: 1
@@ -57,6 +57,11 @@ CustomRenderTexture:
     rotation: 0
     passIndex: 2
     needSwap: 1
+  - updateZoneCenter: {x: 2, y: 31, z: 0.5}
+    updateZoneSize: {x: 4, y: 1, z: 1}
+    rotation: 0
+    passIndex: 4
+    needSwap: 0
   m_UpdatePeriod: 0.01111111
   m_ShaderPass: 0
   m_CubemapFaceMask: 4294967295

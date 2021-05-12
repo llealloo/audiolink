@@ -18,10 +18,10 @@ Shader "AudioLink/AudioLink"
 
         // Phase 3 (AudioLink 4 Band)
         _Bands("Bands (Rows)", Float) = 4
-        _Gain("Gain", Range(0 , 2)) = 0.2724236
+        _Gain("Gain", Range(0 , 10)) = 0.2724236
         _TrebleCorrection("Treble Correction", Float) = 10
         _LogAttenuation("Log Attenuation", Range(0 , 1)) = 0
-        _ContrastSlope("Contrast Slope", Range(0 , 1)) = 0
+        _ContrastSlope("Contrast Slope", Range(0 , 5)) = 0
         _ContrastOffset("Contrast Offset", Range(0 , 1)) = 0
         _FadeLength("Fade Length", Range(0 , 1)) = 0
         _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3144608
@@ -320,7 +320,7 @@ Shader "AudioLink/AudioLink"
                         int2 spectrumCoord = int2(i % 128, i / 128);
                         float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].r;
                         //rawMagnitude *= ((float)i / 1023.) * pow(_TrebleCorrection, 2);
-                        rawMagnitude *= saturate(LinearEQ(_Gain, _Bass, _Treble, (float)i / 1023.));
+                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / 1023.);
                         total += rawMagnitude;
                     }
                     //total /= size;
