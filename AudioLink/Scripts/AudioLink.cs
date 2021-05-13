@@ -58,7 +58,7 @@ public class AudioLink : MonoBehaviour
     [Tooltip("Audio reactive noodle seasoning")]
     public Color[] audioData;
     [Tooltip("The number of spectrum bands and their crossover points out of 1023 elements")]
-    public float[] audioBands = {0f, 256f, 512f, 768f};
+    public float[] audioBands = {0f, 0.25f, 0.5f, .75f};
     [Tooltip("The gain settings of each spectrum band from 0-1")]
     public float[] audioThresholds = {0.75f, 0.5f, 0.4f, 0.5f};
 

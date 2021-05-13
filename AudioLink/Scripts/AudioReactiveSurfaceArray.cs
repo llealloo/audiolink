@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using System.Collections;
 using VRC.SDKBase;
 
 #if UDON
@@ -65,7 +66,7 @@ public class AudioReactiveSurfaceArray : UdonSharpBehaviour
     {
         float h, s, v;
         Color.RGBToHSV(color, out h, out s, out v);
-        h = (h + hueShiftAmount)%1f;
+        h = (h + hueShiftAmount) - Mathf.Floor(h + hueShiftAmount);
         return Color.HSVToRGB(h, s, v);
     }
 }
