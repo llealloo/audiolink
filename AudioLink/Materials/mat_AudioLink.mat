@@ -79,7 +79,7 @@ Material:
     - _DstBlend: 0
     - _FadeExpFalloff: 0.3
     - _FadeLength: 0.85
-    - _Gain: 1
+    - _Gain: 1.342
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
