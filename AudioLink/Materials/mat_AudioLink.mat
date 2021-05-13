@@ -65,7 +65,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Bands: 4
-    - _BaseAmplitude: 0.6
+    - _BaseAmplitude: 0.7
     - _Bass: 1
     - _BottomFrequency: 13.75
     - _BumpScale: 1

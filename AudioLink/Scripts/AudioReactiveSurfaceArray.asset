@@ -618,7 +618,7 @@ MonoBehaviour:
       Data: 40|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: 'Incrementally applied to children: Delay based on 32 delay values. First
+      Data: 'Incrementally applied to children: Delay based on 128 delay values. First
         child''s delay will be 0.'
     - Name: 
       Entry: 8

@@ -28,7 +28,7 @@ public class AudioReactiveSurfaceArray : UdonSharpBehaviour
     public float pulseRotation = 0f;
 
     [Header("Stepper Settings (Applied incrementally to all children)")]
-    [Tooltip("Incrementally applied to children: Delay based on 32 delay values. First child's delay will be 0.")]
+    [Tooltip("Incrementally applied to children: Delay based on 128 delay values. First child's delay will be 0.")]
     public float delayStep = 1f;
     [Tooltip("Incrementally applied to children: Hue step based on 0-1 hue values. Very small values recommended: 0.01 or less.")]
     public float hueStep = 0f;
