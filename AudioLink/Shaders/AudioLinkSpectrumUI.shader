@@ -161,8 +161,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 // Band threshold lines
                 float totalBins = EXPBINS * EXPOCT;
                 float threshold = 0;
-                float minHeight = 0.21;
-                float maxHeight = 0.85;
+                float minHeight = 0.186;
+                float maxHeight = 0.875
+                ;
                 int band = 0;
                 for (int i=1; i<4; i++)
                 {
@@ -186,12 +187,12 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float bandIntensity = tex2D(_AudioLinkTexture, float2(0., (float)band * 0.015625));
                 
                 // Under-spectrum first
-                float rval = clamp( _SpectrumThickness - iuv.y + intensity.z + _SpectrumVertOffset, 0., 1. );
+                float rval = clamp( _SpectrumThickness - iuv.y + intensity.g + _SpectrumVertOffset, 0., 1. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
                 
                 // Spectrum-Line second
-                rval = max( _SpectrumThickness - abs( intensity.z - iuv.y + _SpectrumVertOffset), 0. );
+                rval = max( _SpectrumThickness - abs( intensity.g - iuv.y + _SpectrumVertOffset), 0. );
                 rval = min( 1., 1000*rval );
                 c = lerp( c, _SpectrumFixedColor, rval * bandIntensity );
 

@@ -65,7 +65,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Bands: 4
-    - _BaseAmplitude: 25
+    - _BaseAmplitude: 12
     - _Bass: 1
     - _BottomFrequency: 13.75
     - _BumpScale: 1
@@ -99,7 +99,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Treble: 1
-    - _TrebleCorrection: 60
+    - _TrebleCorrection: 400
     - _UVSec: 0
     - _UniAmp: 12
     - _UniCutoff: 0

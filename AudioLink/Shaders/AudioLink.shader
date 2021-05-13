@@ -239,16 +239,18 @@ Shader "AudioLink/AudioLink"
 
                 float mag = length( ampl );
                 mag /= totalwindow;
-                mag *= _BaseAmplitude;
+                mag *= _BaseAmplitude * _Gain;
 
                 //float mag2 = mag;
-
+                float freqNormalized = note / float(EXPOCT*EXPBINS);
 
                 // Treble compensation
-                mag *= ((note / float(EXPOCT*EXPBINS) )*_TrebleCorrection + 1.0);
+                mag *= (freqNormalized * _TrebleCorrection + 1.0);
 
                 //Z component contains filtered output.
-                float magfilt = (lerp(mag, last.z, _IIRCoefficient ));
+                float magfilt = lerp(mag, last.z, _IIRCoefficient);
+
+                float magEQ = magfilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 
                 // Treble compensation
                 //float lastMagnitude = last.g;
@@ -262,7 +264,7 @@ Shader "AudioLink/AudioLink"
 
                 return float4( 
                     mag,    //Red:   Spectrum power
-                    0,   //Green: Filtered power
+                    magEQ,   //Green: Filtered power
                     magfilt,      //Blue:  Filtered spectrum (For CC)
                     1 );
             }
@@ -355,12 +357,11 @@ Shader "AudioLink/AudioLink"
                     //float maxValue = 0.;
                     //float lastValue = 0.;
 
-                    for (uint j=binStart; j<binEnd; j++)
+                    for (uint i=binStart; i<binEnd; i++)
                     {
-                        int2 spectrumCoord = int2(j % 128, j / 128);
+                        int2 spectrumCoord = int2(i % 128, i / 128);
                         float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].b;
-                        //rawMagnitude *= ((float)i / 1023.) * pow(_TrebleCorrection, 2);
-                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)j / totalBins);
+                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / totalBins);
                         total += rawMagnitude;
                         //lastValue = max(rawMagnitude, lastValue);
                     }
