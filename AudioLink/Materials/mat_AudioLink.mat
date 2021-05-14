@@ -82,7 +82,7 @@ Material:
     - _FadeLength: 0.85
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
-    - _Gain: 1.2877891
+    - _Gain: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -101,7 +101,7 @@ Material:
     - _SortNotes: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Treble: 1.7279837
+    - _Treble: 1
     - _TrebleCorrection: 3000
     - _UVSec: 0
     - _UniAmp: 12

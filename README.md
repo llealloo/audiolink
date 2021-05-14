@@ -68,7 +68,8 @@ Also included are 2 versions of the base module setup with more spectrum band da
 - cnlohr for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
 - lox9973 for the inspirational & tangential math help with signal processing
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
-- Orels1 for all of the great help with MaterialPropertyBlocks & shaders
+- Orels1 for all of the great help with MaterialPropertyBlocks, shaders, and for writing the local avatar testing integration
+- Thryrallo for the inspiration, guidance, and help with writing local avatar integration
 - CyanLaser for making CyanEmu
 - Lyuma for helping in many ways and being super nice!
 - fuopy for being awesome and reflecting great vibes back into this project
