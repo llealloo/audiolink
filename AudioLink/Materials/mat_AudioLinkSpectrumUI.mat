@@ -66,6 +66,8 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _FreqCeiling: 1
+    - _FreqFloor: 0.123
     - _GainDottedLine: 0.02
     - _GainThickness: 0.011
     - _GlossMapScale: 1

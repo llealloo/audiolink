@@ -27,6 +27,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
         _Band3Color ("Band 3 Color", Color) = (.5,.5,0.,1.)
         _BandDelayPulse("Band Delay Pulse", Float) = 0.1
         _BandDelayPulseOpacity("Band Delay Pulse", Float) = 0.5
+
+        _FreqFloor("Frequency Floor", Range(0, 1)) = 0
+        _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
         
     }
     SubShader
@@ -71,6 +74,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             uniform float _AudioBands[4];
             // usually {0.5, 0.5, 0.5, 0.5} by default
             uniform float _AudioThresholds[4];
+
+            uniform float _FreqFloor;
+            uniform float _FreqCeiling;
             
             float _SpectrumGain;
             float _SpectrumColorMix;
@@ -95,6 +101,8 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
             float _BandDelayPulse;
             float _BandDelayPulseOpacity;
+
+
             
 
             v2f vert (appdata v)
@@ -124,6 +132,11 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             {
                 return tex2D( _AudioLinkTexture, float2( pixelcoord*_AudioLinkTexture_TexelSize.xy) );
             }
+
+            float Remap(float t, float a, float b, float u, float v)
+            {
+                return ( (t-a) / (b-a) ) * (v-u) + u;
+            }
             
             fixed4 frag (v2f IN) : SV_Target
             {
@@ -131,12 +144,14 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
                 float4 intensity = 0;
 
-                int noteno = iuv.x * EXPBINS * EXPOCT;
-                float notenof = iuv.x * EXPBINS * EXPOCT;
-                int readno = noteno % EXPBINS;
-                float readnof = fmod( notenof, EXPBINS );
-                int reado = (noteno/EXPBINS);
-                float readof = notenof/EXPBINS;
+                uint totalBins = EXPBINS * EXPOCT;
+
+                int noteno = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT; 
+                float notenof = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT;
+                //int readno = noteno % EXPBINS;
+                //float readnof = fmod( notenof, EXPBINS );
+                //int reado = (noteno/EXPBINS);
+                //float readof = notenof/EXPBINS;
 
                 {
                     float4 spectrum_value_lower  =  tex2D(_AudioLinkTexture, float2((fmod(noteno,128))/128.,((noteno/128)/64.+4./64.)) );
@@ -159,7 +174,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 segment = saturate(segment) * _SegmentColor;
 
                 // Band threshold lines
-                float totalBins = EXPBINS * EXPOCT;
+                //float totalBins = EXPBINS * EXPOCT;
                 float threshold = 0;
                 float minHeight = 0.186;
                 float maxHeight = 0.875

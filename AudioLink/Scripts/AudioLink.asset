@@ -1737,7 +1737,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: _inputVolume
+      Data: _audioLinkInputVolume
     - Name: $v
       Entry: 7
       Data: 109|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1758,10 +1758,10 @@ MonoBehaviour:
       Data: SystemSingle
     - Name: symbolOriginalName
       Entry: 1
-      Data: _inputVolume
+      Data: _audioLinkInputVolume
     - Name: symbolUniqueName
       Entry: 1
-      Data: _inputVolume
+      Data: _audioLinkInputVolume
     - Name: symbolDefaultValue
       Entry: 6
       Data: 

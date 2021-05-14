@@ -29,6 +29,8 @@ Shader "AudioLink/AudioLink"
         _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3144608
         _Bass("Bass", Range(0 , 4)) = 1
         _Treble("Treble", Range(0 , 4)) = 1
+        _FreqFloor("Frequency Floor", Range(0, 1)) = 0
+        _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
         
         // ColorChord Notes (Pass 6)
         _PeakDecay ("Peak Decay", float) = 0.7
@@ -43,6 +45,8 @@ Shader "AudioLink/AudioLink"
         _UniMaxPeak( "Uniformitvity Peak Reduction", float ) = 0.0
         _UniSumPeak( "Uniformitvity Sum Reduction", float ) = 0.1
         _UniNerfFromQ ("Uniformitvity Nerf from Bad Q", float ) = 0.05
+
+        _AudioSource2D("Audio Source 2D", Float) = 0
 
     }
     SubShader
@@ -125,6 +129,9 @@ Shader "AudioLink/AudioLink"
             uniform float _ContrastSlope;
             uniform float _ContrastOffset;
             uniform float _TrebleCorrection;
+            uniform float _FreqFloor;
+            uniform float _FreqCeiling;
+            uniform float _AudioSource2D;
             ENDCG
 
             Name "Pass1AudioDFT"
@@ -239,7 +246,7 @@ Shader "AudioLink/AudioLink"
 
                 float mag = length( ampl );
                 mag /= totalwindow;
-                mag *= _BaseAmplitude * _Gain;
+                mag *= _BaseAmplitude * _Gain * ((_AudioSource2D == 1.) ? 0.01 : 1.);
 
                 //float mag2 = mag;
                 float freqNormalized = note / float(EXPOCT*EXPBINS);
@@ -338,6 +345,11 @@ Shader "AudioLink/AudioLink"
                 return saturate(input*tan(1.57*slope) + input + offset*tan(1.57*slope) - tan(1.57*slope));
             }
 
+            float Remap(float t, float a, float b, float u, float v)
+            {
+                return ( (t-a) / (b-a) ) * (v-u) + u;
+            }
+
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_THREE_OFFSET )
@@ -351,8 +363,8 @@ Shader "AudioLink/AudioLink"
                 {
                     float total = 0.;
                     uint totalBins = EXPBINS * EXPOCT;
-                    uint binStart = _AudioBands[band] * totalBins;
-                    uint binEnd = (band != 3) ? _AudioBands[band + 1] * totalBins : totalBins;
+                    uint binStart = Remap(_AudioBands[band], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins);
+                    uint binEnd = (band != 3) ? Remap(_AudioBands[band + 1], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins) : _FreqCeiling * totalBins;
                     float threshold = _AudioThresholds[band];
                     //float maxValue = 0.;
                     //float lastValue = 0.;

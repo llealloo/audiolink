@@ -1,7 +1,9 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+
+#if UDON
+using UdonSharp;
 using VRC.Udon;
 
 public class MirrorToggle : UdonSharpBehaviour
@@ -20,3 +22,7 @@ public class MirrorToggle : UdonSharpBehaviour
     }
 
 }
+
+#else
+public class MirrorToggle : MonoBehaviour { }
+#endif

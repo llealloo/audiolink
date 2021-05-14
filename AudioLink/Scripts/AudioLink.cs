@@ -70,18 +70,21 @@ public class AudioLink : MonoBehaviour
     float[] _samples2 = new float[1023];
     float[] _samples3 = new float[1023];
     
-    private float _inputVolume = 0.01f;                        // smallify input source volume, re-multiplied by AudioSpectrum.shader
+    private float _audioLinkInputVolume = 0.01f;                        // smallify input source volume, re-multiplied by AudioSpectrum.shader
     private bool _audioSource2D = false;
 
     void Start()
     {
         UpdateSettings();
+        if (audioSource.name.Equals("AudioLinkInput"))
+        {
+            audioSource.volume = _audioLinkInputVolume;
+        } else {
+            _audioSource2D = true;
+        }
         gameObject.SetActive(true);                             // client disables extra cameras, so set it true
         transform.position = new Vector3(0f, 10000000f, 0f);    // keep this in a far away place
-        audioSource.volume = _inputVolume;
         audioTextureExport.SetActive(audioTextureToggle);
-
-        if (!audioSource.name.Equals("AudioLinkInput")) _audioSource2D = true;
     }
 
     private void Update() 
@@ -185,7 +188,3 @@ public class AudioLinkEditor : Editor
     
 }
 #endif
-
-
-
-
