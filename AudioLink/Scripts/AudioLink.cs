@@ -60,7 +60,7 @@ public class AudioLink : MonoBehaviour
     [Tooltip("The number of spectrum bands and their crossover points out of 1023 elements")]
     public float[] audioBands = {0f, 0.25f, 0.5f, .75f};
     [Tooltip("The gain settings of each spectrum band from 0-1")]
-    public float[] audioThresholds = {0.45f, 0.45f, 0.45f, 0.45f};
+    public float[] audioThresholds = {0.75f, 0.5f, 0.4f, 0.5f};
 
     float[] _spectrumValues = new float[1024];
     float[] _spectrumValuesTrim = new float[1023];

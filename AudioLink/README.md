@@ -17,7 +17,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### New features
 - Full waveform, VU meter, and 240 point spectrogram (all data is also accessible to avatars)
 - New _AudioTexture (avatar texture) size: now 128x64 instead of 32x4. Make sure your avatar and world shaders are updated to the latest & compatible.
-- Compatibility in Avatar SDK3 projects for easy local testing with avatars
+- *Coming soon* Compatibility in Avatar SDK3 projects for easy local testing with avatars
 - New controller with greatly enhanced crossover system & live spectral analysis
 - AudioReactiveSurfaceArray prefab: for controlling tens or hundreds of objects using AudioReactiveSurface shader at once w/ GPU instancing
 - AudioReactiveSurface pulse: adds a pulse across the UV of the mesh w/ customizable rotation and pulse scale
@@ -27,11 +27,11 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ### Migrating from v1 to v2
 1. Make sure you have the latest VRChat SDK3 and UdonSharp installed.
-1. Using Explorer (Close unity),  delete the AudioLink directory in your Project/Assets folder as well as the associated AudioLink.meta file
-2. Open your project in unity again, and install the latest AudioLink v2 package
-3. In your scene, remove AudioLink4 + AudioLink4Controller (which will show up as missing prefabs)
-4. Re-add AudioLink and AudioLinkController to the scene
-5. Follow "Getting Started" section to relink audio source and existing sound reactive objects.
+2. In your scene, remove AudioLink4 + AudioLink4Controller
+3. Close Unity. Using Explorer, delete the AudioLink directory in your Project/Assets folder as well as the associated AudioLink.meta file
+4. Open your project in unity again, and install the latest AudioLink v2 package
+5. Re-add AudioLink and AudioLinkController to the scene
+6. Follow "Getting Started" section to relink audio source and existing sound reactive objects.
 
 ## Setup
 
