@@ -1,15 +1,17 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using System;
+
+#if UDON
+using UdonSharp;
+using VRC.Udon;
 
 public class AudioReactiveLight : UdonSharpBehaviour
 {
     public UdonBehaviour audioLink;
     public int band;
-    [Range(0, 31)]
+    [Range(0, 127)]
     public int delay;
     public bool affectIntensity = true;
     public float intensityMultiplier = 1f;
@@ -23,7 +25,7 @@ public class AudioReactiveLight : UdonSharpBehaviour
     {
         _light = transform.GetComponent<Light>();
         _initialColor = _light.color;
-        _dataIndex = (band * 32) + delay;
+        _dataIndex = (band * 128) + delay;
 
     }
 
@@ -46,3 +48,7 @@ public class AudioReactiveLight : UdonSharpBehaviour
         return Color.HSVToRGB(h, s, v);
     }
 }
+
+#else
+public class AudioReactiveLight : MonoBehaviour { }
+#endif

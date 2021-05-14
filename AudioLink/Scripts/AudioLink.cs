@@ -1,10 +1,11 @@
 ﻿
-using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
-using VRC.Udon;
 using UnityEngine.UI;
 using System;
+
+#if UDON
+using UdonSharp;
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR
 using UnityEditor;
@@ -16,6 +17,9 @@ using System.Collections.Immutable;
 #endif
 
 public class AudioLink : UdonSharpBehaviour
+#else
+public class AudioLink : MonoBehaviour
+#endif
 {
     [Header("Main Settings")]
     [Tooltip("Enable Udon audioData array")]
@@ -49,35 +53,57 @@ public class AudioLink : UdonSharpBehaviour
     public Material audioMaterial;
     public GameObject audioTextureExport;
     public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
-    [Tooltip("Using other audio sources could lead to unepexcted behavior.")]
+    [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
     public AudioSource audioSource;
     [Tooltip("Audio reactive noodle seasoning")]
     public Color[] audioData;
-    [Tooltip("The number of spectrum bands and their crossover points")]
-    public float[] spectrumBands = {20f, 100f, 500f, 2500f};
+    [Tooltip("The number of spectrum bands and their crossover points out of 1023 elements")]
+    public float[] audioBands = {0f, 0.25f, 0.5f, .75f};
+    [Tooltip("The gain settings of each spectrum band from 0-1")]
+    public float[] audioThresholds = {0.75f, 0.5f, 0.4f, 0.5f};
 
     float[] _spectrumValues = new float[1024];
     float[] _spectrumValuesTrim = new float[1023];
-    float[] _lut;
-    float[] _chunks;
+    float[] _audioFrames = new float[1023*4];
+    float[] _samples0 = new float[1023];
+    float[] _samples1 = new float[1023];
+    float[] _samples2 = new float[1023];
+    float[] _samples3 = new float[1023];
     
-    private float _inputVolume = 0.01f;                        // smallify input source volume, re-multiplied by AudioSpectrum.shader
+    private float _audioLinkInputVolume = 0.01f;                        // smallify input source volume, re-multiplied by AudioSpectrum.shader
+    private bool _audioSource2D = false;
 
     void Start()
     {
         UpdateSettings();
+        if (audioSource.name.Equals("AudioLinkInput"))
+        {
+            audioSource.volume = _audioLinkInputVolume;
+        } else {
+            _audioSource2D = true;
+        }
         gameObject.SetActive(true);                             // client disables extra cameras, so set it true
         transform.position = new Vector3(0f, 10000000f, 0f);    // keep this in a far away place
-        audioSource.volume = _inputVolume;
         audioTextureExport.SetActive(audioTextureToggle);
     }
 
-    private void Update()
+    private void Update() 
     {
         if (audioSource == null) return;
-        audioSource.GetSpectrumData(_spectrumValues, 0, FFTWindow.Hamming);
-        Array.Copy(_spectrumValues, 0, _spectrumValuesTrim, 0, 1023);
-        audioMaterial.SetFloatArray("Spectrum", _spectrumValuesTrim);
+        audioSource.GetOutputData(_audioFrames, 0);
+        System.Array.Copy(_audioFrames, 4092-1023*4, _samples0, 0, 1023);
+        System.Array.Copy(_audioFrames, 4092-1023*3, _samples1, 0, 1023);
+        System.Array.Copy(_audioFrames, 4092-1023*2, _samples2, 0, 1023);
+        System.Array.Copy(_audioFrames, 4092-1023*1, _samples3, 0, 1023);
+        audioMaterial.SetFloatArray("_Samples0", _samples0);
+        audioMaterial.SetFloatArray("_Samples1", _samples1);
+        audioMaterial.SetFloatArray("_Samples2", _samples2);
+        audioMaterial.SetFloatArray("_Samples3", _samples3);
+
+        #if UNITY_EDITOR
+        audioMaterial.SetFloatArray("_AudioBands", audioBands);
+        audioMaterial.SetFloatArray("_AudioThresholds", audioThresholds);
+        #endif
     }
 
     void OnPostRender()
@@ -91,10 +117,9 @@ public class AudioLink : UdonSharpBehaviour
 
     public void UpdateSettings()
     {
-        UpdateLUT();
         audioTextureExport.SetActive(audioTextureToggle);
-        audioMaterial.SetFloatArray("Lut", _lut);
-        audioMaterial.SetFloatArray("Chunks", _chunks);
+        audioMaterial.SetFloatArray("_AudioBands", audioBands);
+        audioMaterial.SetFloatArray("_AudioThresholds", audioThresholds);
         audioMaterial.SetFloat("_Gain", gain);
         audioMaterial.SetFloat("_FadeLength", fadeLength);
         audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
@@ -103,27 +128,7 @@ public class AudioLink : UdonSharpBehaviour
         audioMaterial.SetFloat("_ContrastSlope", contrastSlope);
         audioMaterial.SetFloat("_ContrastOffset", contrastOffset);
         audioMaterial.SetFloat("_LogAttenuation", logAttenuation);
-    }
-
-    private void UpdateLUT()
-    {
-        _lut = new float[spectrumBands.Length];
-        _chunks = new float[spectrumBands.Length];
-        for(var i=0; i<spectrumBands.Length; i++)
-        {
-            spectrumBands[i] = Mathf.Clamp(spectrumBands[i], 20f, 20000f);
-            float bandStart = Mathf.Floor(Remap(spectrumBands[i], 20f, 20000f, 0f, 1023f));
-            float bandEnd;
-            if(i != spectrumBands.Length-1) 
-            { 
-                bandEnd = Mathf.Floor(Remap(spectrumBands[i+1], 20f, 20000f, 0f, 1023f)); 
-            } else { 
-                bandEnd = 1023f; 
-            }
-            _lut[i] = bandStart;
-            _chunks[i] = bandEnd - bandStart;
-            Debug.Log("Band " + i.ToString() + ": " + bandStart.ToString() + ", " + _chunks[i].ToString());
-        }
+        audioMaterial.SetFloat("_AudioSource2D", _audioSource2D?1f:0f);
     }
 
     private float Remap(float t, float a, float b, float u, float v)
@@ -132,10 +137,7 @@ public class AudioLink : UdonSharpBehaviour
     }
 }
 
-
-
-
-#if !COMPILER_UDONSHARP && UNITY_EDITOR
+#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
 [CustomEditor(typeof(AudioLink))]
 public class AudioLinkEditor : Editor
 {
@@ -143,30 +145,10 @@ public class AudioLinkEditor : Editor
     {
         if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
         EditorGUILayout.Space();
-        if (GUILayout.Button(new GUIContent("Link all " + /*AudioReactiveObjectsCount().ToString() +*/ "sound reactive objects to this AudioLink", "Links all UdonBehaviours with 'audioLink' parameter to this object."))) { LinkAll(); }
+        if (GUILayout.Button(new GUIContent("Link all sound reactive objects to this AudioLink", "Links all UdonBehaviours with 'audioLink' parameter to this object."))) { LinkAll(); }
         EditorGUILayout.Space();
         base.OnInspectorGUI();
     }
-
-    /*int AudioReactiveObjectsCount()
-    {
-        int numObjects = 0;
-        UdonBehaviour[] allBehaviours = UnityEngine.Object.FindObjectsOfType<UdonBehaviour>();
-        foreach (UdonBehaviour behaviour in allBehaviours)
-        {
-            //Debug.Log("Counting a behaviour");
-            var program = behaviour.programSource.SerializedProgramAsset.RetrieveProgram();
-            ImmutableArray<string> exportedSymbolNames = program.SymbolTable.GetExportedSymbols();
-            foreach (string exportedSymbolName in exportedSymbolNames)
-            {
-                if (exportedSymbolName.Equals("audioLink"))
-                {
-                    numObjects++;
-                }
-            }
-        }
-        return numObjects;
-    }*/
 
     void LinkAll()
     {
@@ -179,7 +161,6 @@ public class AudioLinkEditor : Editor
             {
                 if (exportedSymbolName.Equals("audioLink"))
                 {
-                    //Debug.Log(behaviour.name);
                     var variableValue = UdonSharpEditorUtility.GetBackingUdonBehaviour((UdonSharpBehaviour)target);
                     System.Type symbolType = program.SymbolTable.GetSymbolType(exportedSymbolName);
                     if (!behaviour.publicVariables.TrySetVariableValue("audioLink", variableValue))
@@ -188,9 +169,6 @@ public class AudioLinkEditor : Editor
                         {
                             Debug.LogError($"Failed to set public variable '{exportedSymbolName}' value.");
                         }
-                        //var proxy = UdonSharpEditorUtility.GetProxyBehaviour(behaviour);
-                        //Debug.Log(proxy);
-                        //proxy.UpdateProxy();
 
                         if(PrefabUtility.IsPartOfPrefabInstance(behaviour))
                         {
@@ -200,7 +178,6 @@ public class AudioLinkEditor : Editor
                 }
             }
         }
-        //UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UdonSharpEditorUtility.GetBackingUdonBehaviour((UdonSharpBehaviour)target).gameObject.scene);
     }
 
     IUdonVariable CreateUdonVariable(string symbolName, object value, System.Type type)
@@ -211,7 +188,3 @@ public class AudioLinkEditor : Editor
     
 }
 #endif
-
-
-
-
