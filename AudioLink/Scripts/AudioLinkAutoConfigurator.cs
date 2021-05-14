@@ -6,6 +6,7 @@ using UnityEngine;
 using UdonSharp;
 using UdonSharpEditor;
 using VRC.SDK3.Components;
+using VRC.SDK3.Video.Components.AVPro;
 using VRC.Udon;
 #endif
 
@@ -83,6 +84,7 @@ public class AudioLinkConfiguratorEditor : Editor
     scriptFolder = scriptFolder.Replace(assetsPath, "Assets");
     var audioLinkProgram = scriptFolder + "/AudioLink.asset";
     uB.programSource = AssetDatabase.LoadAssetAtPath<UdonSharpProgramAsset>(audioLinkProgram);
+    t.audioSource.gameObject.AddComponent<VRCAVProVideoSpeaker>();
     var spatial = t.audioSource.gameObject.AddComponent<VRCSpatialAudioSource>();
     Undo.RecordObject(spatial, "Adjusted Spatialization");
     spatial.EnableSpatialization = false;
