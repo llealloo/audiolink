@@ -34,7 +34,9 @@ public class AudioLinkConfiguratorEditor : Editor
       return;
     }
     base.OnInspectorGUI();
-    EditorGUILayout.LabelField("This script can be safely removed", new GUIStyle("helpBox"));
+    if (PrefabStageUtility.GetCurrentPrefabStage() == null) {
+      EditorGUILayout.LabelField("This script can be safely removed", new GUIStyle("helpBox"));
+    }
 
     // if we are in PREFAB EDIT mode - we keep the configurator
     #if UDON
