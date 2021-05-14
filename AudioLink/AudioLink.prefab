@@ -191,6 +191,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8800328340110197118}
   - component: {fileID: 8800328340110197116}
+  - component: {fileID: 3057225131768260520}
   m_Layer: 0
   m_Name: AudioLinkInput
   m_TagString: Untagged
@@ -308,3 +309,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3057225131768260520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800328340110197117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1361866905, guid: 661092b4961be7145bfbe56e1e62337b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 0}
+  mode: 0
