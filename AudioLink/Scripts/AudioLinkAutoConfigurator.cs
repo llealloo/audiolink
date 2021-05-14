@@ -39,10 +39,6 @@ public class AudioLinkConfiguratorEditor : Editor
     // if we are in PREFAB EDIT mode - we keep the configurator
     #if UDON
     if (PrefabStageUtility.GetCurrentPrefabStage() != null) {
-      if (GUILayout.Button("Remove Configurator")) {
-        DestroyImmediate(t);
-        return;
-      }
       // if you somehow end up with an udon behaviour and other world-speicifc scripts inside the prefab
       // this button can clean it up before the publish
       if (GUILayout.Button("Clean up for prefab publishing")) {
@@ -62,24 +58,6 @@ public class AudioLinkConfiguratorEditor : Editor
     }
     #endif
     
-    #if UDON
-    // this gets the UdonSharpBehaviour in WORLD projects and sets the important references
-    var uB = t.gameObject.GetComponent<UdonBehaviour>();
-    if (!uB) return;
-    var aL = UdonSharpEditorUtility.GetProxyBehaviour(uB) as AudioLink;
-    if (!aL) return;
-    Undo.RecordObject(aL, "Filled the Audio Link variables");
-
-    // if you'll want to set more values - you can do it here
-    // you can even add more public fields to the configurator on the very top
-    // and reference them same way, like `aL.myFloatField = t.myFloatField;`
-    aL.audioMaterial = t.audioMaterial;
-    aL.audioTextureExport = t.audioTextureExport;
-    aL.audioData2D = t.audioData2d;
-    aL.audioSource = t.audioSource;
-    UdonSharpEditorUtility.CopyProxyToUdon(aL);
-
-    #else
     // this gets the AudioLink MonoBehaviour in AVATAR projects and sets the important references
     var aL = t.gameObject.GetComponent<AudioLink>();
     if (!aL) return;
@@ -90,14 +68,15 @@ public class AudioLinkConfiguratorEditor : Editor
     var audioTextureExport = sO.FindProperty("audioTextureExport");
     var audioData2D = sO.FindProperty("audioData2D");
     var audioSource = sO.FindProperty("audioSource");
+    var audioDataToggle = sO.FindProperty("audioDataToggle");
     // once we get the properties, we can set them to saved values same way as we do for WORLD code
     audioMaterial.objectReferenceValue = t.audioMaterial;
     audioTextureExport.objectReferenceValue = t.audioTextureExport;
     audioData2D.objectReferenceValue = t.audioData2d;
     audioSource.objectReferenceValue = t.audioSource;
+    audioDataToggle.boolValue = false;
     sO.ApplyModifiedProperties();
-    
-    #endif
+
     valuesSet = true;
   }
 
@@ -108,35 +87,9 @@ public class AudioLinkConfiguratorEditor : Editor
       return;
     }
     
-    #if UDON
-    // create WORLD project behaviour
-    if (t.gameObject.GetComponent<UdonBehaviour>() != null) return;
-    var uB = t.gameObject.AddComponent<UdonBehaviour>();
-    var ms = MonoScript.FromMonoBehaviour(t);
-    var scriptFilePath = AssetDatabase.GetAssetPath( ms );
-    var fileInfo = new FileInfo(scriptFilePath);
-    var dirInfo = fileInfo.Directory;
-    var scriptFolder = dirInfo.ToString().Replace("\\", "/");
-    var assetsPath = Application.dataPath;
-    scriptFolder = scriptFolder.Replace(assetsPath, "Assets");
-    var audioLinkProgram = scriptFolder + "/AudioLink.asset";
-    uB.programSource = AssetDatabase.LoadAssetAtPath<UdonSharpProgramAsset>(audioLinkProgram);
-
-    // create VRC AvPro Video Speaker
-    t.audioSource.gameObject.AddComponent<VRCAVProVideoSpeaker>();
-
-    // create VRC Spatial Audio Source
-    var spatial = t.audioSource.gameObject.AddComponent<VRCSpatialAudioSource>();
-    Undo.RecordObject(spatial, "Adjusted Spatialization");
-    spatial.EnableSpatialization = false;
-    spatial.Gain = 0;
-    
-    #else
     // create AVATAR project behaviour
     if (t.gameObject.GetComponent<AudioLink>() != null) return;
     var aL = t.gameObject.AddComponent<AudioLink>();
-    
-    #endif
   }
 }
 #endif
