@@ -66,7 +66,7 @@ Material:
     m_Floats:
     - _AudioSource2D: 1
     - _Bands: 4
-    - _BaseAmplitude: 0.4
+    - _BaseAmplitude: 250
     - _Bass: 1
     - _BottomFrequency: 13.75
     - _BumpScale: 1
@@ -101,8 +101,12 @@ Material:
     - _SortNotes: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Threshold0: 0.45
+    - _Threshold1: 0.45
+    - _Threshold2: 0.45
+    - _Threshold3: 0.45
     - _Treble: 1
-    - _TrebleCorrection: 3000
+    - _TrebleCorrection: 5
     - _UVSec: 0
     - _UniAmp: 12
     - _UniCutoff: 0
@@ -110,6 +114,9 @@ Material:
     - _UniNerfFromQ: 0.05
     - _UniSumPeak: 0.1
     - _Uniformity: 1.5
+    - _X1: 0.25
+    - _X2: 0.5
+    - _X3: 0.75
     - _ZWrite: 1
     - __dirty: 0
     m_Colors:

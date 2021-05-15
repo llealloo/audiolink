@@ -6,47 +6,40 @@ Shader "AudioLink/AudioLink"
 
     Properties
     {
-        // Phase 1 (Audio DFT)
-        _BottomFrequency("BottomFrequency", float ) = 13.75
-        _IIRCoefficient("IIR Coefficient", float) = 0.85
-        _BaseAmplitude("Base Amplitude Multiplier", float) = 2.0
-        _DecayCoefficient("Decay Coefficient", float) = 0.01
-        _PhiDeltaCorrection("Phi Delta Correction", float) = 4
-        _DFTMode( "DFT mode", float) = 0.0
-        _DFTQ( "Q Value", float ) = 4.0
-
-        // Phase 2 (Waveform Data)
-        // This has no parameters.
+        
 
         // Phase 3 (AudioLink 4 Band)
-        _Bands("Bands (Rows)", Float) = 4
-        _Gain("Gain", Range(0 , 10)) = 0.2724236
-        _TrebleCorrection("Treble Correction", Float) = 10
-        _LogAttenuation("Log Attenuation", Range(0 , 1)) = 0
-        _ContrastSlope("Contrast Slope", Range(0 , 1)) = 0
-        _ContrastOffset("Contrast Offset", Range(0 , 1)) = 0
+        _Gain("Gain", Range(0 , 2)) = 1.0
+
         _FadeLength("Fade Length", Range(0 , 1)) = 0
         _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3144608
         _Bass("Bass", Range(0 , 4)) = 1
         _Treble("Treble", Range(0 , 4)) = 1
-        _FreqFloor("Frequency Floor", Range(0, 1)) = 0
-        _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
+        
+        _X1("X1", Range(0.04882813, 0.2988281)) = 0.25
+        _X2("X2", Range(0.375, 0.625)) = 0.5
+        _X3("X3", Range(0.7021484, 0.953125)) = 0.75
+
+        _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
+        _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
+        _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
+        _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
         
         // ColorChord Notes (Pass 6)
-        _PeakDecay ("Peak Decay", float) = 0.7
-        _PeakCloseEnough ("Close Enough" , float) = 2.0
-        _PeakMinium ("Peak Minimum", float) = 0.005
-        _SortNotes ("Sort Notes", int) = 0
-        _OctaveMerge ("Octave Merge", int) = 1
-        
-        _Uniformity( "Uniformitvity", float ) = 1.5
-        _UniCutoff( "Uniformitvity Cutoff", float) = 0.0
-        _UniAmp( "Uniformitvity Amplitude", float ) = 12.0
-        _UniMaxPeak( "Uniformitvity Peak Reduction", float ) = 0.0
-        _UniSumPeak( "Uniformitvity Sum Reduction", float ) = 0.1
-        _UniNerfFromQ ("Uniformitvity Nerf from Bad Q", float ) = 0.05
-
-        _AudioSource2D("Audio Source 2D", Float) = 0
+        ////_PeakDecay ("Peak Decay", float) = 0.7
+        //_PeakCloseEnough ("Close Enough" , float) = 2.0
+        //_PeakMinium ("Peak Minimum", float) = 0.005
+        //_SortNotes ("Sort Notes", int) = 0
+        //_OctaveMerge ("Octave Merge", int) = 1
+        //
+        //_Uniformity( "Uniformitvity", float ) = 1.5
+        //_UniCutoff( "Uniformitvity Cutoff", float) = 0.0
+        //_UniAmp( "Uniformitvity Amplitude", float ) = 12.0
+        //_UniMaxPeak( "Uniformitvity Peak Reduction", float ) = 0.0
+        //_UniSumPeak( "Uniformitvity Sum Reduction", float ) = 0.1
+        //_UniNerfFromQ ("Uniformitvity Nerf from Bad Q", float ) = 0.05
+//
+        _AudioSource2D("Audio Source 2D", float) = 0
 
     }
     SubShader
@@ -79,6 +72,9 @@ Shader "AudioLink/AudioLink"
             #define EXPOCT 10
             #define ETOTALBINS ((EXPBINS)*(EXPOCT))
             #define _SamplesPerSecond 48000
+
+            // AudioLink
+
 
             // AUDIO_LINK_ALPHA_START is a shortcut macro you can use at the top of your
             // fragment shader to quickly get coordinateLocal and coordinateGlobal.
@@ -117,6 +113,15 @@ Shader "AudioLink/AudioLink"
                 //return tex2D( _SelfTexture2D, float2( pixelcoord*_SelfTexture2D_TexelSize.xy) );
                 return _SelfTexture2D[pixelcoord];
             }
+            
+            // DFT
+            const static float _BottomFrequency = 13.75;
+            const static float _IIRCoefficient = 0.75;
+            const static float _BaseAmplitude = 250.0;
+            const static float _DecayCoefficient = 0.01;
+            const static float _PhiDeltaCorrection = 4.0;
+            const static float _DFTMode = 0.0;
+            const static float _DFTQ = 4.0;
 
             // AudioLink
             uniform float _FadeLength;
@@ -124,28 +129,41 @@ Shader "AudioLink/AudioLink"
             uniform float _Gain;
             uniform float _Bass;
             uniform float _Treble;
-            uniform float _Bands;
-            uniform float _LogAttenuation;
-            uniform float _ContrastSlope;
-            uniform float _ContrastOffset;
-            uniform float _TrebleCorrection;
-            uniform float _FreqFloor;
-            uniform float _FreqCeiling;
+            uniform float _X1;
+            uniform float _X2;
+            uniform float _X3;
+            uniform float _Threshold0;
+            uniform float _Threshold1;
+            uniform float _Threshold2;
+            uniform float _Threshold3;
             uniform float _AudioSource2D;
+
+            const static float _FreqFloor = 0.123;
+            const static float _FreqCeiling = 1.0;
+            const static float _TrebleCorrection = 5.0;
+
+            const static float _LogAttenuation = 0.68;
+            const static float _ContrastSlope = 0.63;
+            const static float _ContrastOffset = 0.62;
+
             ENDCG
 
             Name "Pass1AudioDFT"
             
             CGPROGRAM
 
-            uniform float _BottomFrequency;
-            uniform float _IIRCoefficient;
-            uniform float _BaseAmplitude;
-            uniform float _DecayCoefficient;
-            uniform float _PhiDeltaCorrection;
-
-            uniform float _DFTMode;
-            uniform float _DFTQ;
+            const static float lut[240] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.008, 0.01,
+0.012, 0.014, 0.017, 0.02, 0.022, 0.025, 0.029, 0.032, 0.036, 0.04, 0.044, 0.048, 0.053, 0.057, 0.062, 0.067, 0.072, 0.078, 0.083, 0.089,
+0.095, 0.101, 0.107, 0.114, 0.121, 0.128, 0.135, 0.142, 0.149, 0.157, 0.164, 0.172, 0.18, 0.188, 0.196, 0.205, 0.213, 0.222, 0.23, 0.239,
+0.248, 0.257, 0.266, 0.276, 0.285, 0.294, 0.304, 0.313, 0.323, 0.333, 0.342, 0.352, 0.362, 0.372, 0.381, 0.391, 0.401, 0.411, 0.421, 0.431,
+0.441, 0.451, 0.46, 0.47, 0.48, 0.49, 0.499, 0.509, 0.519, 0.528, 0.538, 0.547, 0.556, 0.565, 0.575, 0.584, 0.593, 0.601, 0.61, 0.619,
+0.627, 0.636, 0.644, 0.652, 0.66, 0.668, 0.676, 0.684, 0.691, 0.699, 0.706, 0.713, 0.72, 0.727, 0.734, 0.741, 0.747, 0.754, 0.76, 0.766,
+0.772, 0.778, 0.784, 0.79, 0.795, 0.801, 0.806, 0.811, 0.816, 0.821, 0.826, 0.831, 0.835, 0.84, 0.844, 0.848, 0.853, 0.857, 0.861, 0.864,
+0.868, 0.872, 0.875, 0.879, 0.882, 0.885, 0.888, 0.891, 0.894, 0.897, 0.899, 0.902, 0.904, 0.906, 0.909, 0.911, 0.913, 0.914, 0.916, 0.918,
+0.919, 0.921, 0.922, 0.924, 0.925, 0.926, 0.927, 0.928, 0.928, 0.929, 0.929, 0.93, 0.93, 0.93, 0.931, 0.931, 0.93, 0.93, 0.93, 0.93,
+0.929, 0.929, 0.928, 0.927, 0.926, 0.925, 0.924, 0.923, 0.922, 0.92, 0.919, 0.917, 0.915, 0.913, 0.911, 0.909, 0.907, 0.905, 0.903, 0.9};
 
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
@@ -164,7 +182,7 @@ Shader "AudioLink/AudioLink"
         
                 float4 last = GetSelfPixelData( coordinateGlobal );
 
-                int note = coordinateLocal.y* 128 + coordinateLocal.x;
+                int note = coordinateLocal.y * 128 + coordinateLocal.x;
 
                 float2 ampl = 0.;
                 float pha = 0;
@@ -252,26 +270,16 @@ Shader "AudioLink/AudioLink"
                 float freqNormalized = note / float(EXPOCT*EXPBINS);
 
                 // Treble compensation
-                mag *= (freqNormalized * _TrebleCorrection + 1.0);
+                mag *= (lut[min(note, 239)] * _TrebleCorrection + 1);
 
                 //Z component contains filtered output.
                 float magfilt = lerp(mag, last.z, _IIRCoefficient);
 
                 float magEQ = magfilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 
-                // Treble compensation
-                //float lastMagnitude = last.g;
-
-                // Fade
-                //lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);
-                // FadeExpFalloff
-                //lastMagnitude = lastMagnitude * (1.0 + ( pow(lastMagnitude-1.0, 4.0) * _FadeExpFalloff ) - _FadeExpFalloff);
-                // Do the fade
-                //mag2 = (max(lastMagnitude, mag2));
-
                 return float4( 
                     mag,    //Red:   Spectrum power
-                    magEQ,   //Green: Filtered power
+                    magEQ,   //Green: Filtered power EQ'd, used by AudioLink
                     magfilt,      //Blue:  Filtered spectrum (For CC)
                     1 );
             }
@@ -286,8 +294,6 @@ Shader "AudioLink/AudioLink"
             // RED CHANNEL: Mono Audio
             // GREEN/BLUE: Reserved (may be left/right)
             //   8 Rows, each row contains 128 samples. Note: The last sample may be repeated.
-
-            float _BaseAmplitude;
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
@@ -317,76 +323,44 @@ Shader "AudioLink/AudioLink"
             Name "Pass3AudioLink4Band"
             CGPROGRAM
 
-            
-            
-            //uniform float _Lut[4];
-            //uniform float _Chunks[4];
-            uniform float _AudioBands[4];
-            uniform float _AudioThresholds[4];
-
-            float LinearEQ( float gain, float bassLevel, float trebleLevel, float freq )
-            {
-                return gain*(((1.0-freq)*bassLevel)+(freq*trebleLevel));
-            }
-            float LogAttenuation( float input, float attenuation )
-            {
-                return saturate(input * (log(1.1)/(log(1.1+pow(attenuation, 4)*(1.0-input)))));
-            }
-            float InvCubeRemap( float input )
-            {
-                return -1.0 * pow(input-1.0, 3);
-            }
-            float CubicAttenuation( float input, float attenuation )
-            {
-                return saturate(input * (1.0 + ( pow(input-1.0, 4.0) * attenuation ) - attenuation));
-            }
-            float Contrast( float input, float slope, float offset )
-            {
-                return saturate(input*tan(1.57*slope) + input + offset*tan(1.57*slope) - tan(1.57*slope));
-            }
-
-            float Remap(float t, float a, float b, float u, float v)
-            {
-                return ( (t-a) / (b-a) ) * (v-u) + u;
-            }
+            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_THREE_OFFSET )
 
-                int band = coordinateLocal.y;
+                float audioBands[4] = {0., _X1, _X2, _X3};
+                float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
+
+                int band = min(coordinateLocal.y, 3);
                 int delay = coordinateLocal.x;
-                //int pointer = (int)_Lut[band];
-                //int size = (int)_Chunks[band];
-                // If leftmost pixel (where band averaging occurs)
                 if (delay == 0) 
                 {
+                    // Get average of samples in the band
                     float total = 0.;
                     uint totalBins = EXPBINS * EXPOCT;
-                    uint binStart = Remap(_AudioBands[band], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins);
-                    uint binEnd = (band != 3) ? Remap(_AudioBands[band + 1], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins) : _FreqCeiling * totalBins;
-                    float threshold = _AudioThresholds[band];
-                    //float maxValue = 0.;
-                    //float lastValue = 0.;
-
+                    uint binStart = Remap(audioBands[band], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins);
+                    uint binEnd = (band != 3) ? Remap(audioBands[band + 1], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins) : _FreqCeiling * totalBins;
+                    float threshold = audioThresholds[band];
                     for (uint i=binStart; i<binEnd; i++)
                     {
                         int2 spectrumCoord = int2(i % 128, i / 128);
-                        float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].b;
-                        rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / totalBins);
+                        float rawMagnitude = _SelfTexture2D[PASS_ONE_OFFSET + spectrumCoord].g;
+                        //rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / totalBins);
                         total += rawMagnitude;
-                        //lastValue = max(rawMagnitude, lastValue);
                     }
-                    //total /= size;
-
                     float magnitude = total / (binEnd - binStart);
-                    //float magnitude = lastValue;
-                    magnitude = LogAttenuation(magnitude, _LogAttenuation) / pow(threshold, 2);
-                    magnitude = Contrast(magnitude, _ContrastSlope, _ContrastOffset);
 
-                    float lastMagnitude = _SelfTexture2D[PASS_THREE_OFFSET + int2(0, band)].b;
-                    lastMagnitude -= InvCubeRemap(_FadeLength);
-                    lastMagnitude = CubicAttenuation(lastMagnitude, _FadeExpFalloff);
+                    // Log attenuation
+                    magnitude = saturate(magnitude * (log(1.1) / (log(1.1 + pow(_LogAttenuation, 4) * (1.0 - magnitude))))) / pow(threshold, 2);
+
+                    // Contrast
+                    magnitude = saturate(magnitude * tan(1.57 * _ContrastSlope) + magnitude + _ContrastOffset * tan(1.57 * _ContrastSlope) - tan(1.57 * _ContrastSlope));
+
+                    // Fade
+                    float lastMagnitude = _SelfTexture2D[PASS_THREE_OFFSET + int2(0, band)].g;
+                    lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);                                                                            // Inverse cubic remap
+                    lastMagnitude = saturate(lastMagnitude * (1.0 + ( pow(lastMagnitude - 1.0, 4.0) * _FadeExpFalloff) - _FadeExpFalloff));     // Exp falloff
 
                     magnitude = max(lastMagnitude, magnitude);
 
@@ -398,32 +372,7 @@ Shader "AudioLink/AudioLink"
                     return _SelfTexture2D[PASS_THREE_OFFSET + int2(coordinateLocal.x - 1, coordinateLocal.y)];
                 }
             }
-
-
             ENDCG
-        }
-
-        Pass 
-        {
-            Name "TestPass"
-            CGPROGRAM
-
-
-
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
-            {
-
-                AUDIO_LINK_ALPHA_START( int2(0, 0) )
-
-                if (coordinateLocal.x > 64) 
-                {
-                    return float4(1., 1., 1., 1.);
-                } else {
-                    return float4(0., 0., 0., 1.);
-                }
-                
-            }
-            ENDCG 
         }
         
         Pass
@@ -434,8 +383,6 @@ Shader "AudioLink/AudioLink"
             // RED CHANNEL: Peak Amplitude
             // GREEN CHANNEL: RMS Amplitude.
             // BLUE CHANNEL: RESERVED.
-
-            float _BaseAmplitude;
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {

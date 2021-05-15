@@ -22,6 +22,8 @@ public class AudioLink : MonoBehaviour
 #endif
 {
     [Header("Main Settings")]
+    [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
+    public AudioSource audioSource;
     [Tooltip("Enable Udon audioData array")]
     public bool audioDataToggle = true;
     [Tooltip("Enable global _AudioTexture")]
@@ -35,13 +37,23 @@ public class AudioLink : MonoBehaviour
     [Range(0.0f, 2.0f)][Tooltip("Warning: this setting might be taken over by AudioLinkController")]
     public float treble = 1f;
 
-    [Header("Advanced EQ")]
-    [Range(0.0f, 1.0f)][Tooltip("This applies a logarithmic amplitude scale")]
-    public float logAttenuation = 0.68f;
-    [Range(0.0f, 1.0f)][Tooltip("Applies a contrast-like effect to the spectrum values. Brights become brighter and darks become darker")]
-    public float contrastSlope = 0.63f;
-    [Range(0.0f, 1.0f)][Tooltip("Offsets the contrast effect above, kind of like brightness")]
-    public float contrastOffset = 0.62f;
+    [Header("4 Band Crossover")]
+    [Range(0.04882813f, 0.2988281f)][Tooltip("Bass / low mid crossover")]
+    public float x1 = 0.25f;
+    [Range(0.375f, 0.625f)][Tooltip("Low mid / high mid crossover")]
+    public float x2 = 0.5f;
+    [Range(0.7021484f, 0.953125f)][Tooltip("High mid / treble crossover")]
+    public float x3 = 0.75f;
+
+    [Header("4 Band Threshold Points (Sensitivity)")]
+    [Range(0.0f, 1.0f)][Tooltip("Bass threshold level (lower is more sensitive)")]
+    public float threshold0 = 0.45f;
+    [Range(0.0f, 1.0f)][Tooltip("Low mid threshold level (lower is more sensitive)")]
+    public float threshold1 = 0.45f;
+    [Range(0.0f, 1.0f)][Tooltip("High mid threshold level (lower is more sensitive)")]
+    public float threshold2 = 0.45f;
+    [Range(0.0f, 1.0f)][Tooltip("Treble threshold level (lower is more sensitive)")]
+    public float threshold3 = 0.45f;
 
     [Header("Fade Controls")]
     [Range(0.0f, 1.0f)][Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
@@ -49,28 +61,20 @@ public class AudioLink : MonoBehaviour
     [Range(0.0f, 1.0f)][Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
     public float fadeExpFalloff = 0.3f;
 
-    [Header("Internal")]
+    [Header("Internal (Do not modify)")]
     public Material audioMaterial;
     public GameObject audioTextureExport;
     public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
-    [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
-    public AudioSource audioSource;
-    [Tooltip("Audio reactive noodle seasoning")]
     public Color[] audioData;
-    [Tooltip("The number of spectrum bands and their crossover points out of 1023 elements")]
-    public float[] audioBands = {0f, 0.25f, 0.5f, .75f};
-    [Tooltip("The gain settings of each spectrum band from 0-1")]
-    public float[] audioThresholds = {0.45f, 0.45f, 0.45f, 0.45f};
 
-    float[] _spectrumValues = new float[1024];
-    float[] _spectrumValuesTrim = new float[1023];
-    float[] _audioFrames = new float[1023*4];
-    float[] _samples0 = new float[1023];
-    float[] _samples1 = new float[1023];
-    float[] _samples2 = new float[1023];
-    float[] _samples3 = new float[1023];
-    
-    private float _audioLinkInputVolume = 0.01f;                        // smallify input source volume, re-multiplied by AudioSpectrum.shader
+    private float[] _spectrumValues = new float[1024];
+    private float[] _spectrumValuesTrim = new float[1023];
+    private float[] _audioFrames = new float[1023*4];
+    private float[] _samples0 = new float[1023];
+    private float[] _samples1 = new float[1023];
+    private float[] _samples2 = new float[1023];
+    private float[] _samples3 = new float[1023];
+    private float _audioLinkInputVolume = 0.01f;                        // smallify input source volume level
     private bool _audioSource2D = false;
 
     void Start()
@@ -101,8 +105,7 @@ public class AudioLink : MonoBehaviour
         audioMaterial.SetFloatArray("_Samples3", _samples3);
 
         #if UNITY_EDITOR
-        audioMaterial.SetFloatArray("_AudioBands", audioBands);
-        audioMaterial.SetFloatArray("_AudioThresholds", audioThresholds);
+        UpdateSettings();
         #endif
     }
 
@@ -118,16 +121,18 @@ public class AudioLink : MonoBehaviour
     public void UpdateSettings()
     {
         audioTextureExport.SetActive(audioTextureToggle);
-        audioMaterial.SetFloatArray("_AudioBands", audioBands);
-        audioMaterial.SetFloatArray("_AudioThresholds", audioThresholds);
+        audioMaterial.SetFloat("_X1", x1);
+        audioMaterial.SetFloat("_X2", x2);
+        audioMaterial.SetFloat("_X3", x3);
+        audioMaterial.SetFloat("_Threshold0", threshold0);
+        audioMaterial.SetFloat("_Threshold1", threshold1);
+        audioMaterial.SetFloat("_Threshold2", threshold2);
+        audioMaterial.SetFloat("_Threshold3", threshold3);
         audioMaterial.SetFloat("_Gain", gain);
         audioMaterial.SetFloat("_FadeLength", fadeLength);
         audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
         audioMaterial.SetFloat("_Bass", bass);
         audioMaterial.SetFloat("_Treble", treble);
-        audioMaterial.SetFloat("_ContrastSlope", contrastSlope);
-        audioMaterial.SetFloat("_ContrastOffset", contrastOffset);
-        audioMaterial.SetFloat("_LogAttenuation", logAttenuation);
         audioMaterial.SetFloat("_AudioSource2D", _audioSource2D?1f:0f);
     }
 

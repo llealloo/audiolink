@@ -53,17 +53,13 @@ public class AudioLinkController : UdonSharpBehaviour
     #if UNITY_EDITOR
     void Update()
     {
-        /*float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
-        float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");
-
-        audioSpectrumDisplay.SetFloatArray("_audioBands", audioBands);
-        audioSpectrumDisplay.SetFloatArray("_audioThresholds", audioThresholds);*/
-        UpdateSettings();
+        //UpdateSettings();
     }
     #endif
 
     void Start()
     {
+        if (audioLink == null) Debug.Log("Controller not connected to AudioLink");
         _initGain = gainSlider.value;
         _initTreble = trebleSlider.value;
         _initBass = bassSlider.value;
@@ -106,19 +102,20 @@ public class AudioLinkController : UdonSharpBehaviour
         audioLink.SetProgramVariable("fadeExpFalloff", fadeExpFalloffSlider.value);
 
         // Crossover settings
-        float[] audioBands = (float[])audioLink.GetProgramVariable("audioBands");
-        audioBands[1] = x1Slider.value;
-        audioBands[2] = x2Slider.value;
-        audioBands[3] = x3Slider.value;
-        audioLink.SetProgramVariable("audioBands", audioBands);
-        audioSpectrumDisplay.SetFloatArray("_AudioBands", audioBands);
-        float[] audioThresholds = (float[])audioLink.GetProgramVariable("audioThresholds");
-        audioThresholds[0] = threshold0Slider.value;
-        audioThresholds[1] = threshold1Slider.value;
-        audioThresholds[2] = threshold2Slider.value;
-        audioThresholds[3] = threshold3Slider.value;
-        audioLink.SetProgramVariable("audioThresholds", audioThresholds);
-        audioSpectrumDisplay.SetFloatArray("_AudioThresholds", audioThresholds);
+        audioLink.SetProgramVariable("x1", x1Slider.value);
+        audioLink.SetProgramVariable("x2", x2Slider.value);
+        audioLink.SetProgramVariable("x3", x3Slider.value);
+        audioLink.SetProgramVariable("threshold0", threshold0Slider.value);
+        audioLink.SetProgramVariable("threshold1", threshold1Slider.value);
+        audioLink.SetProgramVariable("threshold2", threshold2Slider.value);
+        audioLink.SetProgramVariable("threshold3", threshold3Slider.value);
+        audioSpectrumDisplay.SetFloat("_X1", x1Slider.value);
+        audioSpectrumDisplay.SetFloat("_X2", x2Slider.value);
+        audioSpectrumDisplay.SetFloat("_X3", x3Slider.value);
+        audioSpectrumDisplay.SetFloat("_Threshold0", threshold0Slider.value);
+        audioSpectrumDisplay.SetFloat("_Threshold1", threshold1Slider.value);
+        audioSpectrumDisplay.SetFloat("_Threshold2", threshold2Slider.value);
+        audioSpectrumDisplay.SetFloat("_Threshold3", threshold3Slider.value);
 
         audioLink.SendCustomEvent("UpdateSettings");
     }
@@ -150,30 +147,3 @@ public class AudioLinkController2 : MonoBehaviour
 {
 }
 #endif
-
-
-/*#if !COMPILER_UDONSHARP// && UNITY_EDITOR
-[ExecuteInEditMode]
-public class AudioLinkControllerEditUpdater : MonoBehaviour
-{
-    void Update()
-    {
-        Debug.Log("test");
-    }
-}
-#endif
-
-*/
-
-
-
-
-
-
-
-// && UDON
-//[CustomEditor(typeof(AudioLinkController))]
-
- 
-        //UdonSharpBehaviour thisGuy = GetUdonSharpComponent<UdonSharpBehaviour>();
-        //Debug.Log(thisGuy);
