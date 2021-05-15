@@ -31,6 +31,15 @@ Shader "AudioLink/AudioLink"
         _Treble("Treble", Range(0 , 4)) = 1
         _FreqFloor("Frequency Floor", Range(0, 1)) = 0
         _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
+
+        _X1("X1", Range(0.04882813, 0.2988281)) = 0.25
+        _X2("X2", Range(0.375, 0.625)) = 0.5
+        _X3("X3", Range(0.7021484, 0.953125)) = 0.75
+
+        _Threshold0("Threshold 0", Range(0, 1)) = 0.45
+        _Threshold1("Threshold 1", Range(0, 1)) = 0.45
+        _Threshold2("Threshold 2", Range(0, 1)) = 0.45
+        _Threshold3("Threshold 3", Range(0, 1)) = 0.45
         
         // ColorChord Notes (Pass 6)
         _PeakDecay ("Peak Decay", float) = 0.7
@@ -321,8 +330,15 @@ Shader "AudioLink/AudioLink"
             
             //uniform float _Lut[4];
             //uniform float _Chunks[4];
-            uniform float _AudioBands[4];
-            uniform float _AudioThresholds[4];
+
+            uniform float _X1;
+            uniform float _X2;
+            uniform float _X3;
+
+            uniform float _Threshold0;
+            uniform float _Threshold1;
+            uniform float _Threshold2;
+            uniform float _Threshold3;
 
             float LinearEQ( float gain, float bassLevel, float trebleLevel, float freq )
             {
@@ -354,6 +370,10 @@ Shader "AudioLink/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START( PASS_THREE_OFFSET )
 
+
+                float audioBands[4] = {0, _X1, _X2, _X3};
+                float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
+
                 int band = coordinateLocal.y;
                 int delay = coordinateLocal.x;
                 //int pointer = (int)_Lut[band];
@@ -363,9 +383,9 @@ Shader "AudioLink/AudioLink"
                 {
                     float total = 0.;
                     uint totalBins = EXPBINS * EXPOCT;
-                    uint binStart = Remap(_AudioBands[band], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins);
-                    uint binEnd = (band != 3) ? Remap(_AudioBands[band + 1], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins) : _FreqCeiling * totalBins;
-                    float threshold = _AudioThresholds[band];
+                    uint binStart = Remap(audioBands[band], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins);
+                    uint binEnd = (band != 3) ? Remap(audioBands[band + 1], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins) : _FreqCeiling * totalBins;
+                    float threshold = audioThresholds[band];
                     //float maxValue = 0.;
                     //float lastValue = 0.;
 
