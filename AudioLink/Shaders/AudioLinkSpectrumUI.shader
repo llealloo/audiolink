@@ -31,15 +31,14 @@ Shader "AudioLink/AudioLinkSpectrumUI"
         _FreqFloor("Frequency Floor", Range(0, 1)) = 0
         _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
 
-
         _X1("X1", Range(0.04882813, 0.2988281)) = 0.25
         _X2("X2", Range(0.375, 0.625)) = 0.5
         _X3("X3", Range(0.7021484, 0.953125)) = 0.75
 
-        _Threshold0("Threshold 0", Range(0, 1)) = 0.45
-        _Threshold1("Threshold 1", Range(0, 1)) = 0.45
-        _Threshold2("Threshold 2", Range(0, 1)) = 0.45
-        _Threshold3("Threshold 3", Range(0, 1)) = 0.45
+        _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
+        _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
+        _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
+        _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
         
     }
     SubShader
@@ -80,6 +79,15 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             sampler2D _AudioLinkTexture;
             uniform float4 _AudioLinkTexture_TexelSize;
 
+            // usually {0, 256, 512, 768} by default
+            //uniform float _AudioBands[4];
+            // usually {0.5, 0.5, 0.5, 0.5} by default
+            //uniform float _AudioThresholds[4];
+
+            uniform float _FreqFloor;
+            uniform float _FreqCeiling;
+
+
             uniform float _X1;
             uniform float _X2;
             uniform float _X3;
@@ -88,9 +96,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             uniform float _Threshold1;
             uniform float _Threshold2;
             uniform float _Threshold3;
-
-            uniform float _FreqFloor;
-            uniform float _FreqCeiling;
             
             float _SpectrumGain;
             float _SpectrumColorMix;
@@ -156,12 +161,13 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             {
                 float2 iuv = IN.uv;
 
+
+                float audioBands[4] = {0., _X1, _X2, _X3};
+                float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
+
                 float4 intensity = 0;
 
                 uint totalBins = EXPBINS * EXPOCT;
-
-                float audioBands[4] = {0, _X1, _X2, _X3};
-                float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
 
                 int noteno = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT; 
                 float notenof = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT;

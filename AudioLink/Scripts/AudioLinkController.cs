@@ -53,12 +53,13 @@ public class AudioLinkController : UdonSharpBehaviour
     #if UNITY_EDITOR
     void Update()
     {
-        UpdateSettings();
+        //UpdateSettings();
     }
     #endif
 
     void Start()
     {
+        if (audioLink == null) Debug.Log("Controller not connected to AudioLink");
         _initGain = gainSlider.value;
         _initTreble = trebleSlider.value;
         _initBass = bassSlider.value;
@@ -146,30 +147,3 @@ public class AudioLinkController2 : MonoBehaviour
 {
 }
 #endif
-
-
-/*#if !COMPILER_UDONSHARP// && UNITY_EDITOR
-[ExecuteInEditMode]
-public class AudioLinkControllerEditUpdater : MonoBehaviour
-{
-    void Update()
-    {
-        Debug.Log("test");
-    }
-}
-#endif
-
-*/
-
-
-
-
-
-
-
-// && UDON
-//[CustomEditor(typeof(AudioLinkController))]
-
- 
-        //UdonSharpBehaviour thisGuy = GetUdonSharpComponent<UdonSharpBehaviour>();
-        //Debug.Log(thisGuy);

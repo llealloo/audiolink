@@ -89,10 +89,17 @@ Material:
     - _SpectrumVisMode: 3
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Threshold0: 0.45
+    - _Threshold1: 0.45
+    - _Threshold2: 0.45
+    - _Threshold3: 0.45
     - _ThresholdDottedLine: 0.012
     - _ThresholdThickness: 0.01
     - _UVSec: 0
     - _VUOpacity: 0.5
+    - _X1: 0.25
+    - _X2: 0.5
+    - _X3: 0.75
     - _ZWrite: 1
     m_Colors:
     - _Band0Color: {r: 0.3019608, g: 0.07058824, b: 0.07058824, a: 1}
