@@ -17,7 +17,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### New features
 - Full waveform, VU meter, and 240 point spectrogram (all data is also accessible to avatars)
 - New _AudioTexture (avatar texture) size: now 128x64 instead of 32x4. Make sure your avatar and world shaders are updated to the latest & compatible.
-- *Coming soon* Compatibility in Avatar SDK3 projects for easy local testing with avatars
+- Compatibility in Avatar SDK3 projects for easy local testing with avatars
 - New controller with greatly enhanced crossover system & live spectral analysis
 - AudioReactiveSurfaceArray prefab: for controlling tens or hundreds of objects using AudioReactiveSurface shader at once w/ GPU instancing
 - AudioReactiveSurface pulse: adds a pulse across the UV of the mesh w/ customizable rotation and pulse scale
@@ -60,8 +60,14 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### Note about default settings
 This is set up by default to export the AudioTexture grab pass (which enables avatar shader link). To disable this feature, uncheck "Audio Texture Toggle" on the AudioLink object.
 
-### Other examples
-Also included are 2 versions of the base module setup with more spectrum band data points (32 and 128). They are useful in their own way, i.e. for making an equalizer, but the data is dirtier/noisier and less useful when in use with the other prefab objects so far in this toolkit.
+### Installing to test Avatar projects
+1. Import AudioLink into your avatar project
+2. Drag AudioLinkAvatar prefab into scene with your avatar
+3. Add your favorite music track to test with to your project
+4. Drag your music track from the Project panel into the Hierarchy to create a new AudioSource GameObject
+5. Drag the AudioSource object that was created in the Hierarchy into AudioLinkAvatar/audioSource parameter
+6. Adjust the Gain/Bass/Treble settings on AudioLinkAvatar if necessary
+7. Hit play!
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
