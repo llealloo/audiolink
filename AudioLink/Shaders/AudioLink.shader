@@ -703,7 +703,7 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START( PASS_SEVEN_OFFSET )
                 uint i;
 
-                #define EMAXBIN 160
+                #define EMAXBIN 144
                 #define EBASEBIN 0
 
                 float PlaceInWave = (float)coordinateLocal.x;

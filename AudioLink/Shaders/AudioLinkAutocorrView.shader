@@ -137,7 +137,7 @@
 
                         //Also, play with this.
                         rlen *= 1.0;
-                        return _Brightness * rlen * GetAudioPixelData( int2( PASS_EIGHT_OFFSET + int2( rlen * 128 , 0 ) ) );
+                        return _Brightness * rlen * GetAudioPixelData( int2( PASS_EIGHT_OFFSET + int2( clamp( rlen * 250, 0, 127) , 0 ) ) );
                     }
                     else
                     {
