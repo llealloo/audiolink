@@ -43,17 +43,43 @@ Shader "AudioLink/AudioLink"
             CGINCLUDE
 
             // This determines the bottom-left corner of the various passes.
-            #define PASS_ONE_OFFSET    int2(0,4)   //Pass 1: DFT: 4,5 10.66 octaves, with 24 bins per octave.
-            //Row 9: Reserved.
-            #define PASS_TWO_OFFSET    int2(0,10)  //Pass 2: Sample Data 10->19 10x128 samples = 1280 samples total.
+            
+            //Pass 1: DFT: 4,5 10.66 octaves, with 24 bins per octave.
+            
+            #define PASS_ONE_OFFSET    int2(0,4)  
 
-            #define PASS_THREE_OFFSET  int2(0,0)  //Pass 3: Traditional 4 bands of AudioLink
-            #define PASS_FOUR_OFFSET   int2(1,0)  //Pass 4: History from 4 bands of AudioLink
+            //Pass 2: Raw Waveform Data
+            //   Red: 24kSPS, with 2046 samples
+            // Green: 48kSPS, with 2046 samples
+            //  Blue: Reserved
+            // Alpha: Reserved
+            
+            #define PASS_TWO_OFFSET    int2(0,6)
 
-            #define PASS_FIVE_OFFSET   int2(0,20) //Pass 5: VU Meter
-            #define PASS_SIX_OFFSET    int2(4,20) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
+            //Pass 3: Traditional 4 bands of AudioLink
+            
+            #define PASS_THREE_OFFSET  int2(0,0)
+            
+            //Pass 4: History from 4 bands of AudioLink
+            
+            #define PASS_FOUR_OFFSET   int2(1,0) 
 
-            #define SAMPHIST 2046
+            //Pass 5: General information and VU Meter
+            //  PX 0:  AudioLink Version
+            //  PX 1:  AudioLink Frame #
+            //  PX 8:  Current VU Level
+            //  PX 9:  Historical VU Marker Value
+            //  PX 10: Historical VU Marker Times
+            
+            #define PASS_FIVE_OFFSET   int2(0,22)  
+
+            // Pass 6: ColorChord Internal Note Data
+            //   PX 0: ColorChord Notes Summary
+            //   PX 1-11: 10 ColorChord Notes.
+            
+            #define PASS_SIX_OFFSET    int2(12,22)
+
+            #define SAMPHIST 3069
             #define EXPBINS 24
             #define EXPOCT 10
             #define ETOTALBINS ((EXPBINS)*(EXPOCT))
@@ -132,7 +158,7 @@ Shader "AudioLink/AudioLink"
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
 
-			#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
+            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
 
             ENDCG
 
@@ -194,18 +220,30 @@ Shader "AudioLink/AudioLink"
                     float HalfWindowSize;
                     HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
 
+//#define OPERATE_AT_24K
+
+#ifdef OPERATE_AT_24K
+                    HalfWindowSize/=2; //Only 24kSPS
+                    phadelta *= 2.;
+#endif
                     int windowrange = floor(HalfWindowSize)+1;
                     int idx;
 
                     // For ??? reason, this is faster than doing a clever
                     // indexing which only searches the space that will be used.
 
+#ifdef OPERATE_AT_24K
+                    for( idx = 0; idx < SAMPHIST / 2; idx++ )
+                    {
+                        float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize) ) );
+                        float af = (_AudioFrames[idx*2+0] + _AudioFrames[idx*2+1])/2;
+#else
                     for( idx = 0; idx < SAMPHIST; idx++ )
                     {
                         float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST-HalfWindowSize) ) );
-
                         float af = _AudioFrames[idx];
 
+#endif
                         //Sin and cosine components to convolve.
                         float2 sc; sincos( pha, sc.x, sc.y );
 
@@ -298,8 +336,8 @@ Shader "AudioLink/AudioLink"
                 //return float4( frame/1000., coordinateLocal/10., 1. );
 
                 return float4( 
-                    _AudioFrames[frame],    //Red:   Spectrum power
-                    0,      //Green: Reserved
+                    (_AudioFrames[frame*2+0] + _AudioFrames[frame*2+1])/2.,    //Red:   Spectrum power
+                    _AudioFrames[frame],      //Green: Reserved
                     0,      //Blue:  Reserved
                     1 );
             }
@@ -365,7 +403,7 @@ Shader "AudioLink/AudioLink"
         
         Pass
         {
-            Name "Pass5-VU-Meter"
+            Name "Pass5-VU-Meter-And-Other-Info"
             CGPROGRAM
             // The structure of the output is:
             // RED CHANNEL: Peak Amplitude
@@ -377,19 +415,23 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START( PASS_FIVE_OFFSET )
                 int i;
                 
+                //XXX Hack: Force the compiler to keep Samples0 and Samples1.
+                if(guv.x < 0)
+                    return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0] + _AudioFrames[0]; // slick, thanks @lox9973
+
+
                 float total = 0;
                 float Peak = 0;
-                for( i = 0; i < 1023; i++ )
+                for( i = 0; i < SAMPHIST; i++ )
                 {
                     float af = _AudioFrames[i];
                     total += af*af;
-                    Peak = max( Peak, af );
-                    Peak = max( Peak, -af );
+                    Peak = max( Peak, abs( af ) );
                 }
 
-                float PeakRMS = sqrt( total / 1023. );
-                float4 MarkerValue = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
-                float4 MarkerTimes = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 2, 0 ) );
+                float PeakRMS = sqrt( total / float(SAMPHIST) );
+                float4 MarkerValue = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 9, 0 ) );
+                float4 MarkerTimes = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 10, 0 ) );
                 float Time = _Time.y;
                 
                 if( Time - MarkerTimes.x > 1.0 ) MarkerValue.x = -1;
@@ -407,27 +449,50 @@ Shader "AudioLink/AudioLink"
                     MarkerTimes.y = Time;
                 }
 
-
-                if( coordinateLocal.x == 0 )
+                if( coordinateLocal.x >= 8 )
                 {
-                    //First pixel: Current value.
-                    return float4( PeakRMS, Peak, 0., 1. );
-                }
-                else if( coordinateLocal.x == 1 )
-                {
-                    //Second pixel: Limit Output
-                    return MarkerValue;
-                }
-                else if( coordinateLocal.x == 2 )
-                {
-                    //Second pixel: Limit Time
-                    return MarkerTimes;
+                    if( coordinateLocal.x == 8 )
+                    {
+                        //First pixel: Current value.
+                        return float4( PeakRMS, Peak, 0, 1. );
+                    }
+                    else if( coordinateLocal.x == 9 )
+                    {
+                        //Second pixel: Limit Output
+                        return MarkerValue;
+                    }
+                    else if( coordinateLocal.x == 10 )
+                    {
+                        //Second pixel: Limit Time
+                        return MarkerTimes;
+                    }
+                    else if( coordinateLocal.x == 11 )
+                    {
+                        //Third pixel: 1. (RESERVED)
+                        return 1.;
+                    }
                 }
                 else
                 {
-                    //Reserved
-                    return 0;
+                    if( coordinateLocal.x == 0 )
+                    {
+                        //Pixel 0 = Version
+                        return 2; //Version number
+                    }
+                    else if( coordinateLocal.x == 1 )
+                    {
+                        //Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
+                        float framecount = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
+                        framecount++;
+                        if( framecount >= 7776000 ) //24 hours.
+                            framecount = 0;
+                        return framecount;
+                    }
+                    // TODO: Profiling information?
                 }
+
+                //Reserved
+                return 0;
             }
             ENDCG
         }
@@ -470,7 +535,7 @@ Shader "AudioLink/AudioLink"
                 #define EBASEBIN 24
                 
                 static const float NOTECLOSEST = 3.5;
-                static const float NOTE_MINIMUM = 0.5;
+                static const float NOTE_MINIMUM = 0.3;
                 static const float IIR1_DECAY = 0.90;
                 static const float CONSTANT1_DECAY = 0.01;
                 static const float IIR2_DECAY = 0.85;
