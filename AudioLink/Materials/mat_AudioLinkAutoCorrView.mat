@@ -25,5 +25,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AutocorrIntensitiy: 0.1
-    - _AutocorrNormalize: 0
+    - _AutocorrNormalize: 1
+    - _AutocorrRound: 1
+    - _Brightness: 2
+    - _BubbleOffset: 0.5
+    - _BubbleRotationMultiply: 1
+    - _BubbleRotationOffset: -1
+    - _BubbleRotationSpeed: 0
+    - _BubbleSize: 2.5
+    - _ColorChord: 1
+    - _YOffset: 0
     m_Colors: []

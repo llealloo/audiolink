@@ -166,7 +166,9 @@ Shader "AudioLink/AudioLink"
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
 
+            #ifndef glsl_mod
             #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
+            #endif
 
             ENDCG
 
@@ -532,7 +534,7 @@ Shader "AudioLink/AudioLink"
                 #define EBASEBIN 24
                 
                 static const float NOTECLOSEST = 3.5;
-                static const float NOTE_MINIMUM = 0.3;
+                static const float NOTE_MINIMUM = 0.2;
                 static const float IIR1_DECAY = 0.90;
                 static const float CONSTANT1_DECAY = 0.01;
                 static const float IIR2_DECAY = 0.85;
