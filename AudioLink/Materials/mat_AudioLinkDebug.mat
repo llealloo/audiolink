@@ -21,7 +21,7 @@ Material:
     m_TexEnvs:
     - _AudioLinkTexture:
         m_Texture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
-        m_Scale: {x: 1.25, y: 1}
+        m_Scale: {x: 1.25, y: 1.15}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}

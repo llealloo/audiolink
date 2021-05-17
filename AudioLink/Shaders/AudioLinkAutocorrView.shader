@@ -4,7 +4,7 @@
     {
         _AudioLinkTexture ("Texture", 2D) = "white" {}
         _AutocorrIntensitiy ("Autocorr Intensity", Float) = 0.1
-        [Toggle] _AutocorrNormalize("Normalize Waveform", Float) = 0
+        [ToggleUI] _AutocorrNormalize("Normalize Waveform", Float) = 0
 
     }
     SubShader
