@@ -194,14 +194,6 @@ Shader "AudioLink/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START( PASS_ONE_OFFSET )
 
-#define OPERATE_AT_24K
-
-#ifndef OPERATE_AT_24K
-                //XXX Hack: Force the compiler to keep Samples0 and Samples1.
-                if(guv.x < 0)
-                    return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0] + _AudioFrames[0]; // slick, thanks @lox9973
-#endif
-
                 //Uncomment to enable debugging of where on the CRT this pass is.
                 //return float4( coordinateLocal, 0., 1. );
 
@@ -232,29 +224,21 @@ Shader "AudioLink/AudioLink"
                     HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
 
 
-#ifdef OPERATE_AT_24K
                     HalfWindowSize/=2; //Only 24kSPS
                     phadelta *= 2.;
-#endif
+
                     int windowrange = floor(HalfWindowSize)+1;
                     int idx;
 
                     // For ??? reason, this is faster than doing a clever
                     // indexing which only searches the space that will be used.
 
-#ifdef OPERATE_AT_24K
                     for( idx = 0; idx < SAMPHIST / 2; idx++ )
                     {
+                        // XXX TODO: Try better windows, this is just a triangle.
                         float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize) ) );
-                        //float af = (_AudioFrames[idx*2+0] + _AudioFrames[idx*2+1])/2;
-                    float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( idx%128, idx/128 ) ).r;
-#else
-                    for( idx = 0; idx < SAMPHIST; idx++ )
-                    {
-                        float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST-HalfWindowSize) ) );
-                        float af = _AudioFrames[idx];
-
-#endif
+                        float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( idx%128, idx/128 ) ).r;
+                        
                         //Sin and cosine components to convolve.
                         float2 sc; sincos( pha, sc.x, sc.y );
 
@@ -263,42 +247,13 @@ Shader "AudioLink/AudioLink"
                         ampl += sc * af * window;
 
                         totalwindow += window;
-
                         pha += phadelta;
                     }
                 }
                 else
                 {
-                    //Method 2: Convolve only a set number of sampler per bin.
-                    float fvpha;
-                    int place;
-                    
-                    #define WINDOWSIZE (6.28*_DFTQ)
-                    #define STEP 0.06
-                    #define EXTENT ((int)(WINDOWSIZE/STEP))
-                    float invphaadv = STEP / phadelta;
-                    
-                    float fra = SAMPHIST/2 - (invphaadv*EXTENT); //We want the center to line up.
-                    
-                    for( place = -EXTENT; place <= EXTENT; place++ )
-                    {
-                        float fvpha = place * STEP;
-                        //Sin and cosine components to convolve.
-                        float2 sc; sincos( fvpha, sc.x, sc.y );
-                        float window = WINDOWSIZE - abs(fvpha);
-                        
-                        float af = _AudioFrames[round( fra )];
-                        
-                        // Step through, one sample at a time, multiplying the sin
-                        // and cos values by the incoming signal.
-                        ampl += sc * af * window;
-                        
-                        fra += invphaadv;
-
-                        totalwindow += window;
-                    }
+                    // XXX TODO CNL: Do fixed update count DFT.
                 }
-
                 float mag = length( ampl );
                 mag /= totalwindow;
                 mag *= _BaseAmplitude * _Gain * ((_AudioSource2D == 1.) ? 0.01 : 1.);
