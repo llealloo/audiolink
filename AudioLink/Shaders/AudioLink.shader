@@ -80,7 +80,7 @@ Shader "AudioLink/AudioLink"
             #define PASS_SIX_OFFSET    int2(12,22)
 
             // Pass 7: Autocorrelator output
-			//  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
+            //  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
             #define PASS_SEVEN_OFFSET    int2(0,24)
 
             #define SAMPHIST 3069
@@ -717,24 +717,24 @@ Shader "AudioLink/AudioLink"
 
                 #define MAXNOTES 10
 
-                #define EMAXBIN 128
+                #define EMAXBIN 160
                 #define EBASEBIN 0
-                
-				float PlaceInWave = (float)coordinateLocal.x;
 
-				float fvtot = 0;
-				
-				float fvr = 20.;
-				
-				for( i = EBASEBIN; i < EMAXBIN; i++ )
-				{
-					float Bin = GetSelfPixelData( PASS_ONE_OFFSET + uint2( EBASEBIN + i, 0 ) ).b;
-					float freq = pow( 2, i/24. ) * _BottomFrequency / _SamplesPerSecond * 3.14159 * 2.;
-					float csv =  cos( freq * PlaceInWave * fvr );
-					fvtot += csv * (Bin*Bin);
-				}
-				
-				return fvtot;
+                float PlaceInWave = (float)coordinateLocal.x;
+
+                float fvtot = 0;
+
+                float fvr = 15.;
+
+                for( i = EBASEBIN; i < EMAXBIN; i++ )
+                {
+                    float Bin = GetSelfPixelData( PASS_ONE_OFFSET + uint2( i%128, i/128 ) ).b;
+                    float freq = pow( 2, i/24. ) * _BottomFrequency / _SamplesPerSecond * 3.14159 * 2.;
+                    float csv =  cos( freq * PlaceInWave * fvr );
+                    fvtot += csv * (Bin*Bin);
+                }
+
+                return fvtot;
             }
             ENDCG
         }

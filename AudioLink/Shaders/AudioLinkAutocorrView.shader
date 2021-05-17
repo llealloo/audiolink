@@ -3,7 +3,9 @@
     Properties
     {
         _AudioLinkTexture ("Texture", 2D) = "white" {}
-		_AutocorrIntensitiy ("Autocorr Intensity", Float) = 0.1
+        _AutocorrIntensitiy ("Autocorr Intensity", Float) = 0.1
+        [Toggle] _AutocorrNormalize("Normalize Waveform", Float) = 0
+
     }
     SubShader
     {
@@ -36,8 +38,9 @@
             sampler2D _AudioLinkTexture;
             float4 _AudioLinkTexture_TexelSize;
             float4 _AudioLinkTexture_ST;
-			float _AutocorrIntensitiy;
-			
+            float _AutocorrIntensitiy;
+            float _AutocorrNormalize;
+
             float4 GetAudioPixelData( int2 pixelcoord )
             {
                 return tex2D( _AudioLinkTexture, float2( pixelcoord*_AudioLinkTexture_TexelSize.xy) );
@@ -70,13 +73,16 @@
             fixed4 frag (v2f i) : SV_Target
             {
 
-				// Get whole waveform would be / 1.
-				float sinpull = abs(i.uv.x*256-128);
-				float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
-					 float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+24./64.)) );
+                // Get whole waveform would be / 1.
+                float sinpull = abs(i.uv.x*256-128);
+                float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
+                     float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+24./64.)) );
 
-				sinewaveval *= _AutocorrIntensitiy;
-				
+                if( _AutocorrNormalize > 0.5 )
+                    sinewaveval *= rsqrt( GetAudioPixelData( int2( 0, 24 ) ) );
+
+                sinewaveval *= _AutocorrIntensitiy;
+
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return sinewaveval > (i.uv.y-0.5);
