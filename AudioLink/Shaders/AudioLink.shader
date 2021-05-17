@@ -730,15 +730,9 @@ Shader "AudioLink/AudioLink"
 				{
 					float Bin = GetSelfPixelData( PASS_ONE_OFFSET + uint2( EBASEBIN + i, 0 ) ).b;
 					float freq = pow( 2, i/24. ) * _BottomFrequency / _SamplesPerSecond * 3.14159 * 2.;
-					fvtot += cos( freq * PlaceInWave * fvr ) * Bin;
+					float csv =  cos( freq * PlaceInWave * fvr );
+					fvtot += csv * (Bin*Bin);
 				}
-				
-				//Nerf more centered bins.
-				
-				//TODO: Adjust this so it looks better, since we're doing a fake autocorr.
-				fvtot *= (PlaceInWave+6)/40.;
-				
-				fvtot *= 1.-PlaceInWave/128.;
 				
 				return fvtot;
             }
