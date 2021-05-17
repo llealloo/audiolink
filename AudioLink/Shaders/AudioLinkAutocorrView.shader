@@ -5,7 +5,16 @@
         _AudioLinkTexture ("Texture", 2D) = "white" {}
         _AutocorrIntensitiy ("Autocorr Intensity", Float) = 0.1
         [ToggleUI] _AutocorrNormalize("Normalize Waveform", Float) = 0
-
+        [ToggleUI] _AutocorrRound("Arroundate", Float) = 0
+        [ToggleUI] _ColorChord("ColorChord", Float) = 0
+        
+        _BubbleSize ("Bubble Size", Float) = 2.
+        _BubbleOffset ("Bubble Offset", Float) = .4
+        _YOffset ("Y Offset", Float) = .1
+        _BubbleRotationSpeed ("Bubble Rotation Speed", Float ) = 0
+        _BubbleRotationMultiply ("Bubble Rotation Multiply", Float ) = 1
+        _BubbleRotationOffset ("Bubble Rotation Offset",Float ) = -1
+        _Brightness ("Colorcoded Brightness", Float )= 2.
     }
     SubShader
     {
@@ -40,6 +49,23 @@
             float4 _AudioLinkTexture_ST;
             float _AutocorrIntensitiy;
             float _AutocorrNormalize;
+            float _AutocorrRound;
+            float _ColorChord;
+            
+            float _BubbleSize;
+            float _BubbleOffset;
+            float _YOffset;
+            float _BubbleRotationSpeed;
+            float _BubbleRotationMultiply;
+            float _BubbleRotationOffset;
+            float _Brightness;
+            
+            #ifndef glsl_mod
+            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
+            #endif
+
+            #define PASS_EIGHT_OFFSET    int2(0,23)
+
 
             float4 GetAudioPixelData( int2 pixelcoord )
             {
@@ -74,7 +100,21 @@
             {
 
                 // Get whole waveform would be / 1.
-                float sinpull = abs(i.uv.x*256-128);
+                float sinpull;
+                
+
+                float2 uvcenter = float2( i.uv.x, i.uv.y + _YOffset ) * 2 - 1;
+                
+                // Dear anyone who tries to understand the following line of code.
+                //   I'm sorry.
+                //     - Charles
+                
+                if( _AutocorrRound )
+                    sinpull = glsl_mod( abs( glsl_mod( _BubbleRotationMultiply * atan2( uvcenter.x, uvcenter.y ) / 3.14159 + _BubbleRotationSpeed * _Time.y + _BubbleRotationOffset, 2.0 ) - 1.0 ) *127.5, 128 );
+                else
+                    sinpull = abs(i.uv.x*256-128);
+                
+                
                 float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
                      float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+24./64.)) );
 
@@ -85,7 +125,29 @@
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
-                return sinewaveval > (i.uv.y-0.5);
+                
+                
+                if( _AutocorrRound )
+                {
+                    if( _ColorChord )
+                    {
+                        //XXX TODO: Play with this function.
+                        float rlen = sinewaveval * _BubbleSize - (length(uvcenter)-_BubbleOffset);
+                        if( rlen < 0 ) return 0.;
+
+                        //Also, play with this.
+                        rlen *= 1.0;
+                        return _Brightness * rlen * GetAudioPixelData( int2( PASS_EIGHT_OFFSET + int2( rlen * 128 , 0 ) ) );
+                    }
+                    else
+                    {
+                        return sinewaveval * _BubbleSize > (length(uvcenter)-_BubbleOffset);
+                    }
+                }
+                else
+                {
+                    return sinewaveval > (i.uv.y-0.5);
+                }
             }
             ENDCG
         }
