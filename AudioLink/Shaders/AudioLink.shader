@@ -210,6 +210,9 @@ Shader "AudioLink/AudioLink"
                 float integraldec = 0.;
                 float totalwindow = 0;
 
+                // 2 here because we're at 24kSPS
+                phadelta *= 2.;
+
                 // Align phase so 0 phaseis center of window.
                 pha = -phadelta * SAMPHIST/2;
 
@@ -222,10 +225,6 @@ Shader "AudioLink/AudioLink"
                     
                     float HalfWindowSize;
                     HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
-
-
-                    HalfWindowSize/=2; //Only 24kSPS
-                    phadelta *= 2.;
 
                     int windowrange = floor(HalfWindowSize)+1;
                     int idx;
@@ -252,7 +251,37 @@ Shader "AudioLink/AudioLink"
                 }
                 else
                 {
-                    // XXX TODO CNL: Do fixed update count DFT.
+                    //Method 2: Convolve only a set number of sampler per bin.
+                    // Note, while this takes ~40us instead of ~90us, it
+                    // doesn't look quite right.
+                    float fvpha;
+                    int place;
+
+                    #define WINDOWSIZE (6.28*_DFTQ)
+                    #define STEP 0.06
+                    #define EXTENT ((int)(WINDOWSIZE/STEP))
+                    float invphaadv = STEP / phadelta;
+
+                    float fra = SAMPHIST/4 - (invphaadv*EXTENT); //We want the center to line up.
+
+                    for( place = -EXTENT; place <= EXTENT; place++ )
+                    {
+                        float fvpha = place * STEP;
+                        //Sin and cosine components to convolve.
+                        float2 sc; sincos( fvpha, sc.x, sc.y );
+                        float window = WINDOWSIZE - abs(fvpha);
+
+                        uint idx = round( clamp( fra, 0, 2046 ) );
+                        float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( idx%128, idx/128 ) ).r;
+
+                        // Step through, one sample at a time, multiplying the sin
+                        // and cos values by the incoming signal.
+                        ampl += sc * af * window;
+
+                        fra += invphaadv;
+
+                        totalwindow += window;
+                    }
                 }
                 float mag = length( ampl );
                 mag /= totalwindow;
