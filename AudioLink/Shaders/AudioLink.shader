@@ -24,21 +24,7 @@ Shader "AudioLink/AudioLink"
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
-        
-        // ColorChord Notes (Pass 6)
-        ////_PeakDecay ("Peak Decay", float) = 0.7
-        //_PeakCloseEnough ("Close Enough" , float) = 2.0
-        //_PeakMinium ("Peak Minimum", float) = 0.005
-        //_SortNotes ("Sort Notes", int) = 0
-        //_OctaveMerge ("Octave Merge", int) = 1
-        //
-        //_Uniformity( "Uniformitvity", float ) = 1.5
-        //_UniCutoff( "Uniformitvity Cutoff", float) = 0.0
-        //_UniAmp( "Uniformitvity Amplitude", float ) = 12.0
-        //_UniMaxPeak( "Uniformitvity Peak Reduction", float ) = 0.0
-        //_UniSumPeak( "Uniformitvity Sum Reduction", float ) = 0.1
-        //_UniNerfFromQ ("Uniformitvity Nerf from Bad Q", float ) = 0.05
-//
+ 
         _AudioSource2D("Audio Source 2D", float) = 0
 
     }
@@ -145,6 +131,8 @@ Shader "AudioLink/AudioLink"
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
+
+			#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
 
             ENDCG
 
@@ -444,7 +432,7 @@ Shader "AudioLink/AudioLink"
             ENDCG
         }
 
-        /*Pass
+        Pass
         {
             Name "Pass6ColorChord-Notes"
             CGPROGRAM
@@ -461,268 +449,201 @@ Shader "AudioLink/AudioLink"
             float _UniSumPeak;
             float _UniNerfFromQ;
             
+            float NoteWrap( float Note1, float Note2 )
+            {
+                float diff = Note2 - Note1;
+                diff = glsl_mod( diff, EXPBINS );
+                if( diff > EXPBINS/2 )
+                    return diff - EXPBINS;
+                else
+                    return diff;
+            }
+            
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_SIX_OFFSET )
+                uint i;
 
-                #define MAXPEAKS 16
-                float3 Peaks[MAXPEAKS];
-                int NumPeaks = 0;
+                #define MAXNOTES 10
 
-                int notes = MAXPEAKS;
-                int noteno = coordinateLocal.x-1;
-                float4 LastPeaksSummary = GetSelfPixelData( PASS_SIX_OFFSET );
+                #define EMAXBIN 192
+                #define EBASEBIN 24
                 
-                // This finds the peaks and assigns them to notes.
+                static const float NOTECLOSEST = 3.5;
+                static const float NOTE_MINIMUM = 0.5;
+                static const float IIR1_DECAY = 0.90;
+                static const float CONSTANT1_DECAY = 0.01;
+                static const float IIR2_DECAY = 0.85;
+                static const float CONSTANT2_DECAY = 0.00;
                 
+                float4 NoteSummary = GetSelfPixelData( PASS_SIX_OFFSET );
+                
+                //Note structure:
+                // .x = Note frequency (0...ETOTALBINS, but floating point)
+                // .y = Re-porp intensity.
+                // .z = Lagged intensity.
+                // .a = Quicker lagged intensity.
+                float4 Notes[MAXNOTES];
+                
+                
+                
+                for( i = 0; i < MAXNOTES; i++ )
                 {
-                    float bindata[ETOTALBINS];
-                    int bins = EXPBINS;//round( 1./_DFTData_TexelSize.x );
-                    int octs = EXPOCT;//round( 1./_DFTData_TexelSize.y );
-
-                    uint o;
-                    uint i;
-                    for( o = 0; o < EXPOCT; o++ )
-                    {
-                        uint b;
-                        for( b = 0; b < EXPBINS; b++ )
-                        {
-                            bindata[o*EXPBINS+b] = GetSelfPixelData( PASS_ONE_OFFSET + int2( (o%2)*64 + b, o/2 ) ).r;
-                        }
-                    }
-                
-#if 0
-                    if( noteno == 0 )
-                    {
-                        int besti = -1;
-                        float bb = 0;
-                        for( i = 0; i < 64*8; i++ )
-                            if(  bindata[i] > bb ) { bb = bindata[i]; besti = i; }
-                        return float4( besti, 10, 0, 1 );
-                    }
-#endif
-                    int check[ETOTALBINS];
-                    for( i = 0; i < ETOTALBINS; i++ )
-                    {
-                        check[i] = 0;
-                    }
-                    int bestbin;
-                    float bestbval;
-                    //Fill out the Peaks structure.
-                    [loop]
-                    for( i = 0; i < MAXPEAKS; i++ )
-                    {
-                        float prev = bindata[0];
-                        float this = bindata[1];
-                        bestbin = ETOTALBINS;
-                        bestbval = 0.;
-                        int b;
-                        [loop]
-                        for( b = 1; b < ETOTALBINS-1; b++ )
-                        {
-                            float next = bindata[b+1];
-                            
-                            if( this > bestbval && this > prev && this > next && check[b] == 0 )
-                            {
-                                bestbin = b;
-                                bestbval = this;
-                            }
-                            
-                            prev = this;
-                            this = next;
-                        }
-
-                        if( bestbin < ETOTALBINS )
-                        {
-                            check[bestbin] = 1;
-                            
-                            float analogbin = bestbin;
-                            float bd = bindata[b];
-                            float tweakbinDown = bd - bindata[b-1];
-                            float tweakbinUp = bd - bindata[b+1];
-                            if( tweakbinDown < tweakbinUp )
-                            {
-                                //closer to bottom bin
-                                float diff = tweakbinDown / tweakbinUp;
-                                //The closer to 1, the closer to center.
-                                //The closer to 0, the further toward the lower bin.
-                                //Mathematically, this should be limited from 0 to 1.
-                                analogbin -= 0.5*(1.-diff);
-                            }
-                            else
-                            {
-                                //Closer to top bin.
-                                float diff = tweakbinUp / tweakbinDown;
-                                //The closer to 1, the closer to center.
-                                //The closer to 0, the further toward the upper bin.
-                                //Mathematically, this should be limited from 0 to 1.
-                                analogbin += 0.5*(1.-diff);
-                            }
-                            
-                            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
-                            
-                            float q = (tweakbinDown + tweakbinUp) / (bd*2);
-
-                            if( !!_OctaveMerge ) analogbin = glsl_mod( analogbin, EXPBINS );
-
-                            Peaks[i] = float3( analogbin, bestbval, q );
-                            NumPeaks++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                    Notes[i] = GetSelfPixelData( PASS_SIX_OFFSET + uint2( i+1, 0 ) );
+                    Notes[i].y = 0;
                 }
 
-
+                float Last = GetSelfPixelData( PASS_ONE_OFFSET + uint2( EBASEBIN, 0 ) ).b;
+                float This = GetSelfPixelData( PASS_ONE_OFFSET + uint2( 1+EBASEBIN, 0 ) ).b;
+                for( i = EBASEBIN+2; i < EMAXBIN; i++ )
                 {
-                    //OK! Now, we have NumPeaks in Peaks array.
-                    //Next, we scour through last frame's array.
-                    //In order to merge in the peaks.
-                    float3 NewPeaks[MAXPEAKS];
-                    int NumNewPeaks;
-                    int p, np;
-                    [loop]
-                    for( p = 0; p < MAXPEAKS; p++ )
+                    float Next = GetSelfPixelData( PASS_ONE_OFFSET + uint2( i % 128, i / 128 ) ).b;
+                    if( This > Last && This > Next && This > NOTE_MINIMUM )
                     {
-                        float3 Peak = GetSelfPixelData( PASS_SIX_OFFSET + int2( p+1, 0 ) );
-                        if( Peak.x >= 0 )
+                        //Find actual peak by looking ahead and behind.
+                        float DiffA = This - Next;
+                        float DiffB = This - Last;
+                        float NoteFreq = glsl_mod( i - 1, EXPBINS );
+                        if( DiffA < DiffB )
                         {
-                            Peak.y *= _PeakDecay;
-                            [loop]
-                            for( np = 0; np < MAXPEAKS; np++ )
-                            {
-                                float3 ThisPeak = Peaks[np];
-                                float diff = abs( ThisPeak.x - Peak.x );
-
-                                if( diff < _PeakCloseEnough )
-                                {
-                                    //Roll Peak[np] into last peak.
-                                    float percentage = ThisPeak.y / (ThisPeak.y + Peak.y);
-                                    Peak.y += ThisPeak.y;
-                                    Peak.x = lerp( Peak.x, ThisPeak.x, percentage );
-                                    Peak.z = lerp( Peak.z, ThisPeak.z, percentage );
-                                    Peaks[np] = -1;
-                                }
-                            }
-                            if( Peak.y < _PeakMinium )
-                            {
-                                //Nix this peak.
-                                Peak = -1;
-                            }
-                            NewPeaks[p] = Peak;
+                            //Behind
+                            NoteFreq -= 1.-DiffA/DiffB; //Ratio must be between 0 .. 0.5
                         }
                         else
                         {
-                            NewPeaks[p] = -1;
+                            //Ahead
+                            NoteFreq += 1.-DiffB/DiffA;
+                        }
+                        
+
+                        uint j;
+                        int closest_note = -1;
+                        int free_note = -1;
+                        float closest_note_distance = NOTECLOSEST;
+                                                
+                        // Search notes to see what the closest note to this peak is.
+                        // also look for any empty notes.
+                        for( j = 0; j < MAXNOTES; j++ )
+                        {
+                            float dist = abs( NoteWrap( Notes[j].x, NoteFreq ) );
+                            if( Notes[j].z <= 0 )
+                            {
+                                if( free_note == -1 )
+                                    free_note = j;
+                            }
+                            else if( dist < closest_note_distance )
+                            {
+                                closest_note_distance = dist;
+                                closest_note = j;
+                            }
+                        }
+                        
+                        
+                        if( closest_note != -1 )
+                        {
+                            float4 n = Notes[closest_note];
+                            // Note to combine peak to has been found, roll note in.
+                            
+                            float drag = NoteWrap( n.x, NoteFreq ) * 0.05;//This/(This+n.z);
+
+                            Notes[closest_note] = float4( n.x + drag, n.y + This, n.z + This, n.a );
+                        }
+                        else if( free_note != -1 )
+                        {
+                            // Couldn't find note.  Create a new note.
+                            Notes[free_note] = float4( NoteFreq, This, This, This );
+                        }
+                        else
+                        {
+                            // Whelp, the note fell off the wagon.  Oh well!
                         }
                     }
-                    
-                    //Next, load in any remaining unassigned peaks.
-                    for( np = 0; np < NumPeaks; np++ )
-                    {
-                        float3 ThisPeak = Peaks[np];
+                    Last = This;
+                    This = Next;
+                }
 
-                        if( ThisPeak.y >= _PeakMinium )
+                float4 NewNoteSummary = 0.;
+
+                [loop]
+                for( i = 0; i < MAXNOTES; i++ )
+                {
+                    uint j;
+                    float4 n1 = Notes[i];
+
+                    
+                    [loop]
+                    for( j = 0; j < MAXNOTES; j++ )
+                    {
+                        // 🤮 Shader compiler can't do triangular loops.
+                        // We don't want to iterate over a cube just compare ith and jth note once.
+
+                         float4 n2 = Notes[j];
+                        if( n2.z > 0 && j > i && n1.z > 0 )
                         {
-                            //Find an open slot in the peaks list and drop this in.
-                            for( p = 0; p < MAXPEAKS; p++ )
+                            //XXX NOTE: Do not condense notes.
+                            // A little weird, we use the i index to see if we should condense notes.
+                            // if( n1.x < 0 )
+                            //{
+                            //    // We know ith note is missing and can be filled in with jth note.
+                            //    n1 = n2;
+                            //    Notes[j] = 0;
+                            //}
+                            //else
                             {
-                                if( NewPeaks[np].y < 0 )
+                                // Potentially combine noets.
+                                float dist = abs( NoteWrap( n1.x, n2.x ) );
+                                if( dist < NOTECLOSEST )
                                 {
-                                    NewPeaks[np] = ThisPeak;
+                                    //Found combination of notes.  Nil out second.
+                                    float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
+                                    n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
+                                    Notes[j] = 0;
                                 }
                             }
                         }
                     }
-
-                    //We are no longer going to use "Peaks"
-
-                    if( !!_SortNotes )
+                    
+                    //Filter n1.z from n1.y.
+                    if( n1.z >= 0 )
                     {
-                        //Lastly, we need to sort the New Peaks.
-                        //Let's use insertion sort, because we're a mostly sorted list.
-                        for( np = 0; np < MAXPEAKS; np++ )
+                        n1.z = lerp( n1.y, n1.z, IIR1_DECAY ) - CONSTANT1_DECAY; //Make decay slow.
+                        n1.w = lerp( n1.y, n1.w, IIR2_DECAY ) - CONSTANT2_DECAY; //Make decay slow.
+                        
+                        if( n1.z < NOTE_MINIMUM )
                         {
-                            float3 SelectedItem = NewPeaks[np];
-                            for( p = np+1; p < MAXPEAKS; p++ )
-                            {
-                                if( SelectedItem.y > NewPeaks[p].y )
-                                {
-                                    SelectedItem = NewPeaks[p];
-                                }
-                                else
-                                {
-                                    NewPeaks[p-1] = NewPeaks[p];
-                                    NewPeaks[p] = SelectedItem;
-                                }
-                            }
+                            n1 = -1;
                         }
+                        //XXX TODO: Do uniformity calculation on n1 for n1.a.
                     }
                     
-                    //Find the most intense peak + PEak totals.
-                    float maxpeak = 0.0;
-                    float peaktot = 0.0;
-                    for( np = 0; np <= MAXPEAKS-1; np++ )
-                    {
-                        float peakamp = NewPeaks[np].y;
-                        if( peakamp > maxpeak )
-                            maxpeak = peakamp;
-                        if( peakamp > 0.0 )
-                        {
-                            peaktot += peakamp;
-                        }
-                    }
-                    float peaktotrun = lerp( LastPeaksSummary.z, peaktot, 0.9 );
+                    n1.y = max( 0, pow( n1.z, 1.5 ) - 50. );
+                    n1.y = 0;
                     
-                    if( noteno == -1 )
+                    if( n1.z >= 0 )
                     {
-                        //This is the first, special pixel that gives metadata instead.
-                        
-                        float unitot = 0.0;
-                        for( np = 0; np < MAXPEAKS-1; np++ )
-                        {
-                            float peakamp = NewPeaks[np].y;
-                            if( peakamp > 0.0 )
-                            {
-
-                                float pu = ( pow( peakamp, _Uniformity )) * _UniAmp  - _UniCutoff - pow( maxpeak, _Uniformity ) * _UniMaxPeak + (1. - NewPeaks[np].z*_UniNerfFromQ) -  pow( peaktotrun, _Uniformity ) * _UniSumPeak;
-                                if( pu > 0. )
-                                    unitot += pu;
-                            }
-                        }
-                        
-                        float avgphase1 = 0;
-
-                        uint o, b;
-                        for( o = 0; o < EXPOCT; o++ )
-                        for( b = 0; b < EXPBINS; b++ )
-                        {
-                            avgphase1 += GetSelfPixelData( PASS_ONE_OFFSET + uint2( (o%2)*64 + b, o/2 ) ).r;
-                        }
-                        avgphase1 /= (EXPOCT*EXPBINS);
-                        
-                        return float4( peaktot, avgphase1, peaktotrun, unitot );
-                    }   
-
-
-                    //We've now merged any of the peaks we could.
-                    //Next, forget dead peaks.
-                    
-                    float3 thisNote =  NewPeaks[noteno];
-
-                    if( noteno >= NumPeaks || thisNote.y <= 0.0 )
-                        return float4( -1, -1, -1, -1 );
-                    else
-                    {
-                        float pu = ( pow( thisNote.y, _Uniformity )) * _UniAmp  - _UniCutoff - pow( maxpeak, _Uniformity ) * _UniMaxPeak  + (1. - thisNote.z*_UniNerfFromQ) - pow( peaktotrun, _Uniformity ) * _UniSumPeak;
-                        return float4( thisNote, pu );
+                        NewNoteSummary += float4( 0, n1.y, n1.z, n1.w );
                     }
+                    
+                    Notes[i] = n1;
+                }
+
+                // We now have a condensed list of all Notes that are playing.
+                if( coordinateLocal.x == 0 )
+                {
+                    //Summary note.
+                    return NewNoteSummary;
+                }
+                else
+                {
+                    float4 selnote = Notes[coordinateLocal.x-1];
+
+                    // Make sure we're wrapped correctly.
+                    selnote.x = glsl_mod( selnote.x, EXPBINS );
+                    return selnote;
                 }
             }
             ENDCG
-        }*/
+        }
 
         Pass 
         {
