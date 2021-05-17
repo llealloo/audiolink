@@ -83,6 +83,10 @@ Shader "AudioLink/AudioLink"
             //  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
             #define PASS_SEVEN_OFFSET    int2(0,24)
 
+            // Pass 7: ColorChord Strip
+            //  Whole line, able to map directly to textues.
+            #define PASS_EIGHT_OFFSET    int2(0,23)
+
             #define SAMPHIST 3069
             #define EXPBINS 24
             #define EXPOCT 10
@@ -188,16 +192,17 @@ Shader "AudioLink/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START( PASS_ONE_OFFSET )
 
+#define OPERATE_AT_24K
+
+#ifndef OPERATE_AT_24K
                 //XXX Hack: Force the compiler to keep Samples0 and Samples1.
                 if(guv.x < 0)
                     return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0] + _AudioFrames[0]; // slick, thanks @lox9973
+#endif
 
                 //Uncomment to enable debugging of where on the CRT this pass is.
                 //return float4( coordinateLocal, 0., 1. );
 
-                if(guv.x < 0)
-                    return _Samples0[0] + _Samples1[0]; // slick, thanks @lox9973
-        
                 float4 last = GetSelfPixelData( coordinateGlobal );
 
                 int note = coordinateLocal.y * 128 + coordinateLocal.x;
@@ -224,7 +229,6 @@ Shader "AudioLink/AudioLink"
                     float HalfWindowSize;
                     HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
 
-//#define OPERATE_AT_24K
 
 #ifdef OPERATE_AT_24K
                     HalfWindowSize/=2; //Only 24kSPS
@@ -240,7 +244,8 @@ Shader "AudioLink/AudioLink"
                     for( idx = 0; idx < SAMPHIST / 2; idx++ )
                     {
                         float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize) ) );
-                        float af = (_AudioFrames[idx*2+0] + _AudioFrames[idx*2+1])/2;
+                        //float af = (_AudioFrames[idx*2+0] + _AudioFrames[idx*2+1])/2;
+                    float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( idx%128, idx/128 ) ).r;
 #else
                     for( idx = 0; idx < SAMPHIST; idx++ )
                     {
@@ -417,23 +422,20 @@ Shader "AudioLink/AudioLink"
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_FIVE_OFFSET )
-                int i;
-                
-                //XXX Hack: Force the compiler to keep Samples0 and Samples1.
-                if(guv.x < 0)
-                    return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0] + _AudioFrames[0]; // slick, thanks @lox9973
-
+                uint i;
 
                 float total = 0;
                 float Peak = 0;
-                for( i = 0; i < SAMPHIST; i++ )
+                
+                // Only VU over 1024 24kSPS samples
+                for( i = 0; i < 1024; i++ )
                 {
-                    float af = _AudioFrames[i];
+                    float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( i%128, i/128 ) ).r;
                     total += af*af;
                     Peak = max( Peak, abs( af ) );
                 }
 
-                float PeakRMS = sqrt( total / float(SAMPHIST) );
+                float PeakRMS = sqrt( total / 1024 );
                 float4 MarkerValue = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 9, 0 ) );
                 float4 MarkerTimes = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 10, 0 ) );
                 float Time = _Time.y;
@@ -715,8 +717,6 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START( PASS_SEVEN_OFFSET )
                 uint i;
 
-                #define MAXNOTES 10
-
                 #define EMAXBIN 160
                 #define EBASEBIN 0
 
@@ -735,6 +735,101 @@ Shader "AudioLink/AudioLink"
                 }
 
                 return fvtot;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "Pass8-ColorChord-Linear"
+            CGPROGRAM
+            
+            #ifndef CCclamp
+            #define CCclamp(x,y,z) clamp( x, y, z )
+            #endif
+
+            float3 CCHSVtoRGB(float3 HSV)
+            {
+                float3 RGB = 0;
+                float C = HSV.z * HSV.y;
+                float H = HSV.x * 6;
+                float X = C * (1 - abs(fmod(H, 2) - 1));
+                if (HSV.y != 0)
+                {
+                    float I = floor(H);
+                    if (I == 0) { RGB = float3(C, X, 0); }
+                    else if (I == 1) { RGB = float3(X, C, 0); }
+                    else if (I == 2) { RGB = float3(0, C, X); }
+                    else if (I == 3) { RGB = float3(0, X, C); }
+                    else if (I == 4) { RGB = float3(X, 0, C); }
+                    else { RGB = float3(C, 0, X); }
+                }
+                float M = HSV.z - C;
+                return RGB + M;
+            }
+
+            float3 CCtoRGB( float bin, float intensity, int RootNote )
+            {
+                float note = bin / EXPBINS;
+
+                float hue = 0.0;
+                note *= 12.0;
+                note = glsl_mod( 4.-note + RootNote, 12.0 );
+                {
+                    if( note < 4.0 )
+                    {
+                        //Needs to be YELLOW->RED
+                        hue = (note) / 24.0;
+                    }
+                    else if( note < 8.0 )
+                    {
+                        //            [4]  [8]
+                        //Needs to be RED->BLUE
+                        hue = ( note-2.0 ) / 12.0;
+                    }
+                    else
+                    {
+                        //             [8] [12]
+                        //Needs to be BLUE->YELLOW
+                        hue = ( note - 4.0 ) / 8.0;
+                    }
+                }
+                float val = intensity-.1;
+                return CCHSVtoRGB( float3( fmod(hue,1.0), 1.0, CCclamp( val, 0.0, 1.0 ) ) );
+            }
+
+
+            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START( PASS_EIGHT_OFFSET )
+
+                int p;
+                
+                const float Brightness = 2.0;
+                const float RootNote = 0;
+                
+                #define MAXNOTES 10
+
+                float4 NotesSummary =  GetSelfPixelData( PASS_SIX_OFFSET );
+
+                float TotalPower = 0.0;
+                TotalPower = NotesSummary.z;
+
+                float PowerPlace = 0.0;
+                for( p = 0; p < MAXNOTES; p++ )
+                {
+                    float4 Peak = GetSelfPixelData( PASS_SIX_OFFSET + int2( 1+p, 0 ) );
+                    if( Peak.z <= 0 ) continue;
+
+                    float Power = Peak.z/TotalPower;
+                    PowerPlace += Power;
+                    if( PowerPlace >= IN.globalTexcoord.x ) 
+                    {
+                        return fixed4( CCtoRGB( Peak.x, Peak.a*0.5 * Brightness, 0 ), 1.0 );
+                    }
+                }
+                
+                return fixed4( 0., 0., 0., 1. );
             }
             ENDCG
         }
