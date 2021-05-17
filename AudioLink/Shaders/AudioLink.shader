@@ -79,6 +79,10 @@ Shader "AudioLink/AudioLink"
             
             #define PASS_SIX_OFFSET    int2(12,22)
 
+            // Pass 7: Autocorrelator output
+			//  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
+            #define PASS_SEVEN_OFFSET    int2(0,24)
+
             #define SAMPHIST 3069
             #define EXPBINS 24
             #define EXPOCT 10
@@ -504,15 +508,6 @@ Shader "AudioLink/AudioLink"
             float _PeakDecay;
             float _PeakCloseEnough;
             float _PeakMinium;
-            int _SortNotes;
-            int _OctaveMerge;
-            
-            float _Uniformity;
-            float _UniCutoff;
-            float _UniAmp;
-            float _UniMaxPeak;
-            float _UniSumPeak;
-            float _UniNerfFromQ;
             
             float NoteWrap( float Note1, float Note2 )
             {
@@ -706,6 +701,46 @@ Shader "AudioLink/AudioLink"
                     selnote.x = glsl_mod( selnote.x, EXPBINS );
                     return selnote;
                 }
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "Pass7-AutoCorrelator"
+            CGPROGRAM
+
+            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START( PASS_SEVEN_OFFSET )
+                uint i;
+
+                #define MAXNOTES 10
+
+                #define EMAXBIN 128
+                #define EBASEBIN 0
+                
+				float PlaceInWave = (float)coordinateLocal.x;
+
+				float fvtot = 0;
+				
+				float fvr = 20.;
+				
+				for( i = EBASEBIN; i < EMAXBIN; i++ )
+				{
+					float Bin = GetSelfPixelData( PASS_ONE_OFFSET + uint2( EBASEBIN + i, 0 ) ).b;
+					float freq = pow( 2, i/24. ) * _BottomFrequency / _SamplesPerSecond * 3.14159 * 2.;
+					fvtot += cos( freq * PlaceInWave * fvr ) * Bin;
+				}
+				
+				//Nerf more centered bins.
+				
+				//TODO: Adjust this so it looks better, since we're doing a fake autocorr.
+				fvtot *= (PlaceInWave+6)/40.;
+				
+				fvtot *= 1.-PlaceInWave/128.;
+				
+				return fvtot;
             }
             ENDCG
         }
