@@ -64,7 +64,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AudioSource2D: 1
+    - _AudioSource2D: 0
     - _Bands: 4
     - _BaseAmplitude: 250
     - _Bass: 1
