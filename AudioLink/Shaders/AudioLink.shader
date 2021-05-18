@@ -83,15 +83,24 @@ Shader "AudioLink/AudioLink"
             //  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
             #define PASS_SEVEN_OFFSET    int2(0,24)
 
-            // Pass 7: ColorChord Strip
+            // Pass 8: ColorChord Strip
             //  Whole line, able to map directly to textues.
             #define PASS_EIGHT_OFFSET    int2(0,23)
 
+            // Pass 9: ColorChord Individual Lights
+            //  Row 25: Individual Light Colors (128 qty)
+            //                R/G/B Color
+            //  Row 26: Internal Data for Colors
+            #define PASS_NINE_OFFSET    int2(0,25)
+
+
+            #define CCMAXNOTES 10
             #define SAMPHIST 3069
             #define EXPBINS 24
             #define EXPOCT 10
             #define ETOTALBINS ((EXPBINS)*(EXPOCT))
             #define _SamplesPerSecond 48000
+            #define _RootNote 0
 
             // AudioLink
 
@@ -169,6 +178,63 @@ Shader "AudioLink/AudioLink"
             #ifndef glsl_mod
             #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
             #endif
+
+            //ColorChord related utility functions.
+
+            #ifndef CCclamp
+            #define CCclamp(x,y,z) clamp( x, y, z )
+            #endif
+
+            float3 CCHSVtoRGB(float3 HSV)
+            {
+                float3 RGB = 0;
+                float C = HSV.z * HSV.y;
+                float H = HSV.x * 6;
+                float X = C * (1 - abs(fmod(H, 2) - 1));
+                if (HSV.y != 0)
+                {
+                    float I = floor(H);
+                    if (I == 0) { RGB = float3(C, X, 0); }
+                    else if (I == 1) { RGB = float3(X, C, 0); }
+                    else if (I == 2) { RGB = float3(0, C, X); }
+                    else if (I == 3) { RGB = float3(0, X, C); }
+                    else if (I == 4) { RGB = float3(X, 0, C); }
+                    else { RGB = float3(C, 0, X); }
+                }
+                float M = HSV.z - C;
+                return RGB + M;
+            }
+
+            float3 CCtoRGB( float bin, float intensity, int RootNote )
+            {
+                float note = bin / EXPBINS;
+
+                float hue = 0.0;
+                note *= 12.0;
+                note = glsl_mod( 4.-note + RootNote, 12.0 );
+                {
+                    if( note < 4.0 )
+                    {
+                        //Needs to be YELLOW->RED
+                        hue = (note) / 24.0;
+                    }
+                    else if( note < 8.0 )
+                    {
+                        //            [4]  [8]
+                        //Needs to be RED->BLUE
+                        hue = ( note-2.0 ) / 12.0;
+                    }
+                    else
+                    {
+                        //             [8] [12]
+                        //Needs to be BLUE->YELLOW
+                        hue = ( note - 4.0 ) / 8.0;
+                    }
+                }
+                float val = intensity-.1;
+                return CCHSVtoRGB( float3( fmod(hue,1.0), 1.0, CCclamp( val, 0.0, 1.0 ) ) );
+            }
+
 
             ENDCG
 
@@ -512,7 +578,7 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START( PASS_SIX_OFFSET )
                 uint i;
 
-                #define MAXNOTES 10
+                #define CCMAXNOTES 10
 
                 #define EMAXBIN 192
                 #define EBASEBIN 24
@@ -531,11 +597,11 @@ Shader "AudioLink/AudioLink"
                 // .y = Re-porp intensity.
                 // .z = Lagged intensity.
                 // .a = Quicker lagged intensity.
-                float4 Notes[MAXNOTES];
+                float4 Notes[CCMAXNOTES];
                 
                 
                 
-                for( i = 0; i < MAXNOTES; i++ )
+                for( i = 0; i < CCMAXNOTES; i++ )
                 {
                     Notes[i] = GetSelfPixelData( PASS_SIX_OFFSET + uint2( i+1, 0 ) );
                     Notes[i].y = 0;
@@ -571,7 +637,7 @@ Shader "AudioLink/AudioLink"
                                                 
                         // Search notes to see what the closest note to this peak is.
                         // also look for any empty notes.
-                        for( j = 0; j < MAXNOTES; j++ )
+                        for( j = 0; j < CCMAXNOTES; j++ )
                         {
                             float dist = abs( NoteWrap( Notes[j].x, NoteFreq ) );
                             if( Notes[j].z <= 0 )
@@ -613,14 +679,14 @@ Shader "AudioLink/AudioLink"
                 float4 NewNoteSummary = 0.;
 
                 [loop]
-                for( i = 0; i < MAXNOTES; i++ )
+                for( i = 0; i < CCMAXNOTES; i++ )
                 {
                     uint j;
                     float4 n1 = Notes[i];
 
                     
                     [loop]
-                    for( j = 0; j < MAXNOTES; j++ )
+                    for( j = 0; j < CCMAXNOTES; j++ )
                     {
                         // 🤮 Shader compiler can't do triangular loops.
                         // We don't want to iterate over a cube just compare ith and jth note once.
@@ -628,28 +694,17 @@ Shader "AudioLink/AudioLink"
                          float4 n2 = Notes[j];
                         if( n2.z > 0 && j > i && n1.z > 0 )
                         {
-                            //XXX NOTE: Do not condense notes.
-                            // A little weird, we use the i index to see if we should condense notes.
-                            // if( n1.x < 0 )
-                            //{
-                            //    // We know ith note is missing and can be filled in with jth note.
-                            //    n1 = n2;
-                            //    Notes[j] = 0;
-                            //}
-                            //else
-                            {
-                                // Potentially combine noets.
-                                float dist = abs( NoteWrap( n1.x, n2.x ) );
-                                if( dist < NOTECLOSEST )
-                                {
-                                    //Found combination of notes.  Nil out second.
-                                    float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
-                                    n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
-                                    Notes[j] = 0;
-                                }
-                            }
-                        }
-                    }
+							// Potentially combine notes
+							float dist = abs( NoteWrap( n1.x, n2.x ) );
+							if( dist < NOTECLOSEST )
+							{
+								//Found combination of notes.  Nil out second.
+								float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
+								n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
+								Notes[j] = 0;
+							}
+						}
+					}
                     
                     //Filter n1.z from n1.y.
                     if( n1.z >= 0 )
@@ -703,7 +758,7 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START( PASS_SEVEN_OFFSET )
                 uint i;
 
-                #define EMAXBIN 144
+                #define EMAXBIN 120
                 #define EBASEBIN 0
 
                 float PlaceInWave = (float)coordinateLocal.x;
@@ -730,61 +785,6 @@ Shader "AudioLink/AudioLink"
             Name "Pass8-ColorChord-Linear"
             CGPROGRAM
             
-            #ifndef CCclamp
-            #define CCclamp(x,y,z) clamp( x, y, z )
-            #endif
-
-            float3 CCHSVtoRGB(float3 HSV)
-            {
-                float3 RGB = 0;
-                float C = HSV.z * HSV.y;
-                float H = HSV.x * 6;
-                float X = C * (1 - abs(fmod(H, 2) - 1));
-                if (HSV.y != 0)
-                {
-                    float I = floor(H);
-                    if (I == 0) { RGB = float3(C, X, 0); }
-                    else if (I == 1) { RGB = float3(X, C, 0); }
-                    else if (I == 2) { RGB = float3(0, C, X); }
-                    else if (I == 3) { RGB = float3(0, X, C); }
-                    else if (I == 4) { RGB = float3(X, 0, C); }
-                    else { RGB = float3(C, 0, X); }
-                }
-                float M = HSV.z - C;
-                return RGB + M;
-            }
-
-            float3 CCtoRGB( float bin, float intensity, int RootNote )
-            {
-                float note = bin / EXPBINS;
-
-                float hue = 0.0;
-                note *= 12.0;
-                note = glsl_mod( 4.-note + RootNote, 12.0 );
-                {
-                    if( note < 4.0 )
-                    {
-                        //Needs to be YELLOW->RED
-                        hue = (note) / 24.0;
-                    }
-                    else if( note < 8.0 )
-                    {
-                        //            [4]  [8]
-                        //Needs to be RED->BLUE
-                        hue = ( note-2.0 ) / 12.0;
-                    }
-                    else
-                    {
-                        //             [8] [12]
-                        //Needs to be BLUE->YELLOW
-                        hue = ( note - 4.0 ) / 8.0;
-                    }
-                }
-                float val = intensity-.1;
-                return CCHSVtoRGB( float3( fmod(hue,1.0), 1.0, CCclamp( val, 0.0, 1.0 ) ) );
-            }
-
-
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_EIGHT_OFFSET )
@@ -794,15 +794,13 @@ Shader "AudioLink/AudioLink"
                 const float Brightness = 2.0;
                 const float RootNote = 0;
                 
-                #define MAXNOTES 10
-
                 float4 NotesSummary =  GetSelfPixelData( PASS_SIX_OFFSET );
 
                 float TotalPower = 0.0;
                 TotalPower = NotesSummary.z;
 
                 float PowerPlace = 0.0;
-                for( p = 0; p < MAXNOTES; p++ )
+                for( p = 0; p < CCMAXNOTES; p++ )
                 {
                     float4 Peak = GetSelfPixelData( PASS_SIX_OFFSET + int2( 1+p, 0 ) );
                     if( Peak.z <= 0 ) continue;
@@ -811,7 +809,7 @@ Shader "AudioLink/AudioLink"
                     PowerPlace += Power;
                     if( PowerPlace >= IN.globalTexcoord.x ) 
                     {
-                        return fixed4( CCtoRGB( Peak.x, Peak.a*0.5 * Brightness, 0 ), 1.0 );
+                        return fixed4( CCtoRGB( Peak.x, Peak.a*0.5 * Brightness, _RootNote ), 1.0 );
                     }
                 }
                 
@@ -819,6 +817,121 @@ Shader "AudioLink/AudioLink"
             }
             ENDCG
         }
+        
+        
+        
+        Pass
+        {
+            Name "Pass9-ColorChord-Lights"
+            CGPROGRAM
+
+
+            static const float _PickNewSpeed = 1.0;
+            
+            float tinyrand(float3 uvw)
+            {
+                return frac(cos(dot(uvw, float3(137.945, 942.32, 593.46))) * 442.5662);
+            }
+
+            float SetNewCellValue( float a )
+            {
+                return a*.5;
+            }
+
+
+            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START( PASS_NINE_OFFSET )
+                
+                float4 NotesSummary = GetSelfPixelData( PASS_SIX_OFFSET );
+                
+                #define NOTESUFFIX( n )  pow(n.z, 1.5)
+                
+                float4 ComputeCell = GetSelfPixelData( PASS_NINE_OFFSET + int2( coordinateLocal.x, 1 ) );
+                //ComputeCell
+                //    .x = Mated Cell # (Or -1 for black)
+                //    .y = Minimum Brightness Before Jump
+                //    .z = ???
+                
+                float4 ThisNote = GetSelfPixelData( PASS_SIX_OFFSET + int2( ComputeCell.x + 1, 0 ) );
+                //  Each element:
+                //   R: Peak Location (Note #)
+                //   G: Peak Intensity
+                //   B: Calm Intensity
+                //   A: Other Intensity
+
+                if( NOTESUFFIX( ThisNote ) < ComputeCell.y || ComputeCell.y <= 0 || ThisNote.z < 0 )
+                {
+                    //Need to select new cell.
+                    float min_to_acquire = tinyrand( float3( coordinateLocal.xy, _Time.x ) );
+                    
+                    int n;
+                    float4 SelectedNote = 0.;
+                    int SelectedNoteNo = -1;
+                    
+                    float cumulative = 0.0;
+                    for( n = 0; n < CCMAXNOTES; n++ )
+                    {
+                        float4 Note = GetSelfPixelData( PASS_SIX_OFFSET + int2( n + 1, 0 ) );
+                        float unic = NOTESUFFIX( Note );
+                        if( unic > 0 )
+                            cumulative += unic;
+                    }
+
+                    float sofar = 0.0;
+                    for( n = 0; n < CCMAXNOTES; n++ )
+                    {
+                        float4 Note = GetSelfPixelData( PASS_SIX_OFFSET + int2( n + 1, 0 ) );
+                        float unic = NOTESUFFIX( Note );
+                        if( unic > 0 ) 
+                        {
+                            sofar += unic;
+                            if( sofar/cumulative > min_to_acquire )
+                            {
+                                SelectedNote = Note;
+                                SelectedNoteNo = n;
+                                break;
+                            }
+                        }
+                    }
+                    
+                
+                    if( SelectedNote.z > 0.0 )
+                    {
+                        ComputeCell.x = SelectedNoteNo;
+                        ComputeCell.y = SetNewCellValue( NOTESUFFIX(SelectedNote) );
+                    }
+                    else
+                    {
+                        ComputeCell.x = 0;
+                        ComputeCell.y = 0;
+                    }
+                }
+                else
+                {
+                    ComputeCell.y -= _PickNewSpeed*0.01;
+                }
+                
+                ThisNote = GetSelfPixelData( PASS_SIX_OFFSET + int2( ComputeCell.x + 1, 0 ) );
+
+                if( coordinateLocal.y < 0.5 )
+                {
+                    // the light color output
+                    if( ComputeCell.y <= 0 )
+                    {
+                        return 0.;
+                    }
+                    return fixed4( CCtoRGB( glsl_mod( ThisNote.x,48.0 ), ThisNote.z, _RootNote ), 1.0 );
+                }
+                else
+                {
+                    // the compute output
+                    return ComputeCell;
+                }
+            }
+            ENDCG
+        }
+
 
         Pass 
         {
@@ -828,6 +941,4 @@ Shader "AudioLink/AudioLink"
             
         }
     }
-
-
 }
