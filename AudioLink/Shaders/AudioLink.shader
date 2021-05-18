@@ -145,7 +145,7 @@ Shader "AudioLink/AudioLink"
             
             // DFT
             const static float _BottomFrequency = 13.75;
-            const static float _IIRCoefficient = 0.75;
+            const static float _IIRCoefficient = 0.3;
             const static float _BaseAmplitude = 250.0;
             const static float _DecayCoefficient = 0.01;
             const static float _PhiDeltaCorrection = 4.0;
@@ -184,6 +184,8 @@ Shader "AudioLink/AudioLink"
             #ifndef CCclamp
             #define CCclamp(x,y,z) clamp( x, y, z )
             #endif
+
+            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
 
             float3 CCHSVtoRGB(float3 HSV)
             {
@@ -360,7 +362,8 @@ Shader "AudioLink/AudioLink"
                 mag *= (lut[min(note, 239)] * _TrebleCorrection + 1);
 
                 //Z component contains filtered output.
-                float magfilt = lerp(mag, last.z, _IIRCoefficient);
+                //float magfilt = lerp(mag, last.z, _IIRCoefficient);
+                float magfilt = lerp(mag, last.z, Remap(_FadeLength, 0., 1., 0.3, 0.8));
 
                 float magEQ = magfilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 
@@ -410,7 +413,7 @@ Shader "AudioLink/AudioLink"
             Name "Pass3AudioLink4Band"
             CGPROGRAM
 
-            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
+            
 
             fixed4 frag (v2f_customrendertexture IN) : SV_Target
             {
