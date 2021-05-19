@@ -57,7 +57,7 @@ public class AudioLink : MonoBehaviour
 
     [Header("Fade Controls")]
     [Range(0.0f, 1.0f)][Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
-    public float fadeLength = 0.85f;
+    public float fadeLength = 0.8f;
     [Range(0.0f, 1.0f)][Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
     public float fadeExpFalloff = 0.3f;
 
