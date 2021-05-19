@@ -258,7 +258,7 @@ Shader "AudioLink/AudioLink"
 0.929, 0.929, 0.928, 0.927, 0.926, 0.925, 0.924, 0.923, 0.922, 0.92, 0.919, 0.917, 0.915, 0.913, 0.911, 0.909, 0.907, 0.905, 0.903, 0.9};
 
 
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_ONE_OFFSET )
 
@@ -385,7 +385,7 @@ Shader "AudioLink/AudioLink"
             // GREEN/BLUE: Reserved (may be left/right)
             //   8 Rows, each row contains 128 samples. Note: The last sample may be repeated.
 
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_TWO_OFFSET )
 
@@ -415,7 +415,7 @@ Shader "AudioLink/AudioLink"
 
             
 
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_THREE_OFFSET )
 
@@ -474,7 +474,7 @@ Shader "AudioLink/AudioLink"
             // GREEN CHANNEL: RMS Amplitude.
             // BLUE CHANNEL: RESERVED.
 
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_FIVE_OFFSET )
                 uint i;
@@ -576,7 +576,7 @@ Shader "AudioLink/AudioLink"
                     return diff;
             }
             
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_SIX_OFFSET )
                 uint i;
@@ -756,7 +756,7 @@ Shader "AudioLink/AudioLink"
             Name "Pass7-AutoCorrelator"
             CGPROGRAM
 
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_SEVEN_OFFSET )
                 uint i;
@@ -788,7 +788,7 @@ Shader "AudioLink/AudioLink"
             Name "Pass8-ColorChord-Linear"
             CGPROGRAM
             
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_EIGHT_OFFSET )
 
@@ -812,11 +812,11 @@ Shader "AudioLink/AudioLink"
                     PowerPlace += Power;
                     if( PowerPlace >= IN.globalTexcoord.x ) 
                     {
-                        return fixed4( CCtoRGB( Peak.x, Peak.a*0.5 * Brightness, _RootNote ), 1.0 );
+                        return float4( CCtoRGB( Peak.x, Peak.a*0.5 * Brightness, _RootNote ), 1.0 );
                     }
                 }
                 
-                return fixed4( 0., 0., 0., 1. );
+                return float4( 0., 0., 0., 1. );
             }
             ENDCG
         }
@@ -842,7 +842,7 @@ Shader "AudioLink/AudioLink"
             }
 
 
-            fixed4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START( PASS_NINE_OFFSET )
                 
@@ -924,7 +924,7 @@ Shader "AudioLink/AudioLink"
                     {
                         return 0.;
                     }
-                    return fixed4( CCtoRGB( glsl_mod( ThisNote.x,48.0 ), ThisNote.z, _RootNote ), 1.0 );
+                    return float4( CCtoRGB( glsl_mod( ThisNote.x,48.0 ), ThisNote.z, _RootNote ), 1.0 );
                 }
                 else
                 {
