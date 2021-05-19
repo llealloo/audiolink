@@ -4,9 +4,12 @@
     {
         _AudioLinkTexture ("Texture", 2D) = "white" {}
         _AutocorrIntensitiy ("Autocorr Intensity", Float) = 0.1
-        [ToggleUI] _AutocorrNormalize("Normalize Waveform", Float) = 0
-        [ToggleUI] _AutocorrRound("Arroundate", Float) = 0
-        [ToggleUI] _ColorChord("ColorChord", Float) = 0
+        _AutocorrNormalization("Normalization Amount", Float) = 1
+        _AutocorrRound("Arroundate", Range(0,1)) = 1
+        _ColorChord("ColorChord", Range(-1,1)) = 1
+		_Fadeyness("Fadeyness",Range(-2,2))=1
+		_ColorForeground("Color Foreground", Color) = (1, 1, 1, 1)
+		_ColorBackground("Color Background", Color) = (0, 0, 0, 1)
         
         _BubbleSize ("Bubble Size", Float) = 2.
         _BubbleOffset ("Bubble Offset", Float) = .4
@@ -48,7 +51,7 @@
             float4 _AudioLinkTexture_TexelSize;
             float4 _AudioLinkTexture_ST;
             float _AutocorrIntensitiy;
-            float _AutocorrNormalize;
+            float _AutocorrNormalization;
             float _AutocorrRound;
             float _ColorChord;
             
@@ -59,7 +62,11 @@
             float _BubbleRotationMultiply;
             float _BubbleRotationOffset;
             float _Brightness;
-            
+            float _Fadeyness;
+			
+			float4 _ColorForeground;
+			float4 _ColorBackground;
+			
             #ifndef glsl_mod
             #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
             #endif
@@ -114,40 +121,35 @@
                 else
                     sinpull = abs(i.uv.x*256-128);
                 
+				sinpull = lerp(
+					abs(i.uv.x*256-128),
+					glsl_mod( abs( glsl_mod( _BubbleRotationMultiply * atan2( uvcenter.x, uvcenter.y ) / 3.14159 + _BubbleRotationSpeed * _Time.y + _BubbleRotationOffset, 2.0 ) - 1.0 ) *127.5, 128 ),
+					_AutocorrRound );
                 
                 float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
                      float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+24./64.)) );
 
-                if( _AutocorrNormalize > 0.5 )
-                    sinewaveval *= rsqrt( GetAudioPixelData( int2( 0, 24 ) ) );
+				sinewaveval *= lerp( 1.0, rsqrt( GetAudioPixelData( int2( 0, 24 ) ) ), _AutocorrNormalization );
 
                 sinewaveval *= _AutocorrIntensitiy;
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 
-                
-                if( _AutocorrRound )
-                {
-                    if( _ColorChord )
-                    {
-                        //XXX TODO: Play with this function.
-                        float rlen = sinewaveval * _BubbleSize - (length(uvcenter)-_BubbleOffset);
-                        if( rlen < 0 ) return 0.;
+				float reoff = lerp( _BubbleOffset, -_BubbleOffset,_AutocorrRound)*_ColorChord;
+				float pullStrength = lerp( uvcenter.y, length(uvcenter),  _AutocorrRound );
 
-                        //Also, play with this.
-                        rlen *= 1.0;
-                        return _Brightness * rlen * GetAudioPixelData( int2( PASS_EIGHT_OFFSET + int2( clamp( rlen * 250, 0, 127) , 0 ) ) );
-                    }
-                    else
-                    {
-                        return sinewaveval * _BubbleSize > (length(uvcenter)-_BubbleOffset);
-                    }
-                }
-                else
-                {
-                    return sinewaveval > (i.uv.y-0.5);
-                }
+				pullStrength  = lerp( pullStrength, abs(pullStrength )-reoff,_ColorChord );
+				
+				float rlen = sinewaveval * _BubbleSize - (pullStrength-(_AutocorrRound));
+                
+				float4 cccolor = GetAudioPixelData( 
+						int2( PASS_EIGHT_OFFSET + int2( clamp( abs(rlen * 250), 0, 127) , 0 ) ) );
+				float4 color = lerp( (rlen > 0)?_ColorForeground:_ColorBackground,  cccolor
+					, _ColorChord );
+					
+				color = lerp( (_Fadeyness<0)?1:((rlen<0)?0:1), rlen, _Fadeyness ) *color;
+				return _Brightness * color;
             }
             ENDCG
         }
