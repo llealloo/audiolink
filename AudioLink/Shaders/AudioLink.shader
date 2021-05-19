@@ -11,10 +11,10 @@ Shader "AudioLink/AudioLink"
         // Phase 3 (AudioLink 4 Band)
         _Gain("Gain", Range(0 , 2)) = 1.0
 
-        _FadeLength("Fade Length", Range(0 , 1)) = 0
-        _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3144608
-        _Bass("Bass", Range(0 , 4)) = 1
-        _Treble("Treble", Range(0 , 4)) = 1
+        _FadeLength("Fade Length", Range(0 , 1)) = 0.8
+        _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3
+        _Bass("Bass", Range(0 , 4)) = 1.0
+        _Treble("Treble", Range(0 , 4)) = 1.0
         
         _X1("X1", Range(0.04882813, 0.2988281)) = 0.25
         _X2("X2", Range(0.375, 0.625)) = 0.5
@@ -145,7 +145,7 @@ Shader "AudioLink/AudioLink"
             
             // DFT
             const static float _BottomFrequency = 13.75;
-            const static float _IIRCoefficient = 0.3;
+            //const static float _IIRCoefficient = 0.8;
             const static float _BaseAmplitude = 250.0;
             const static float _DecayCoefficient = 0.01;
             const static float _PhiDeltaCorrection = 4.0;
@@ -363,7 +363,7 @@ Shader "AudioLink/AudioLink"
 
                 //Z component contains filtered output.
                 //float magfilt = lerp(mag, last.z, _IIRCoefficient);
-                float magfilt = lerp(mag, last.z, Remap(_FadeLength, 0., 1., 0.3, 0.8));
+                float magfilt = lerp(mag, last.z, lerp(0.3, 0.9, _FadeLength));
 
                 float magEQ = magfilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 

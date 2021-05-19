@@ -79,7 +79,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _FadeExpFalloff: 0.3
-    - _FadeLength: 0.85
+    - _FadeLength: 0.8
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
     - _Gain: 1
@@ -102,9 +102,9 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold0: 0.45
-    - _Threshold1: 0.341
-    - _Threshold2: 0.289
-    - _Threshold3: 0.355
+    - _Threshold1: 0.45
+    - _Threshold2: 0.45
+    - _Threshold3: 0.45
     - _Treble: 1
     - _TrebleCorrection: 5
     - _UVSec: 0

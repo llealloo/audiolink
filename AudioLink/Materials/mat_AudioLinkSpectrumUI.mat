@@ -90,9 +90,9 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold0: 0.45
-    - _Threshold1: 0.341
-    - _Threshold2: 0.289
-    - _Threshold3: 0.355
+    - _Threshold1: 0.45
+    - _Threshold2: 0.45
+    - _Threshold3: 0.45
     - _ThresholdDottedLine: 0.012
     - _ThresholdThickness: 0.01
     - _UVSec: 0
