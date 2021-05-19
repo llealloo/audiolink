@@ -7,7 +7,7 @@
         _AutocorrNormalization("Normalization Amount", Float) = 1
         _AutocorrRound("Arroundate", Range(0,1)) = 1
         _ColorChord("ColorChord", Range(-1,1)) = 1
-		
+		_Fadeyness("Fadeyness",Range(-2,2))=1
 		_ColorForeground("Color Foreground", Color) = (1, 1, 1, 1)
 		_ColorBackground("Color Background", Color) = (0, 0, 0, 1)
         
@@ -62,7 +62,8 @@
             float _BubbleRotationMultiply;
             float _BubbleRotationOffset;
             float _Brightness;
-            
+            float _Fadeyness;
+			
 			float4 _ColorForeground;
 			float4 _ColorBackground;
 			
@@ -144,8 +145,10 @@
                 
 				float4 cccolor = GetAudioPixelData( 
 						int2( PASS_EIGHT_OFFSET + int2( clamp( abs(rlen * 250), 0, 127) , 0 ) ) );
-				float4 color = lerp( (rlen > 0)?_ColorForeground:_ColorBackground,  rlen * cccolor
+				float4 color = lerp( (rlen > 0)?_ColorForeground:_ColorBackground,  cccolor
 					, _ColorChord );
+					
+				color = lerp( (_Fadeyness<0)?1:((rlen<0)?0:1), rlen, _Fadeyness ) *color;
 				return _Brightness * color;
             }
             ENDCG
