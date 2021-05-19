@@ -295,7 +295,7 @@ Shader "AudioLink/AudioLink"
                     HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
 
                     int windowrange = floor(HalfWindowSize)+1;
-                    int idx;
+                    uint idx;
 
                     // For ??? reason, this is faster than doing a clever
                     // indexing which only searches the space that will be used.
