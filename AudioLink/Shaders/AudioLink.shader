@@ -26,6 +26,9 @@ Shader "AudioLink/AudioLink"
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
  
         _AudioSource2D("Audio Source 2D", float) = 0
+        
+        
+        [HideInInspector]_FrameTimeProp("Frame Time Internal",Vector) = (0,0,0,0)
 
     }
     SubShader
@@ -67,6 +70,7 @@ Shader "AudioLink/AudioLink"
             //Pass 5: General information and VU Meter
             //  PX 0:  AudioLink Version
             //  PX 1:  AudioLink Frame #
+            //  PX 2:  < Current time in ms % 2^24, # of rollovers, 0, 0 >
             //  PX 8:  Current VU Level
             //  PX 9:  Historical VU Marker Value
             //  PX 10: Historical VU Marker Times
@@ -166,6 +170,7 @@ Shader "AudioLink/AudioLink"
             uniform float _Threshold2;
             uniform float _Threshold3;
             uniform float _AudioSource2D;
+            uniform float4 _FrameTimeProp;
 
             const static float _FreqFloor = 0.123;
             const static float _FreqCeiling = 1.0;
@@ -545,9 +550,13 @@ Shader "AudioLink/AudioLink"
                         //Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
                         float framecount = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
                         framecount++;
-                        if( framecount >= 7776000 ) //24 hours.
+                        if( framecount >= 7776000 ) //~24 hours.
                             framecount = 0;
                         return framecount;
+                    }
+                    else if( coordinateLocal.x == 2 )
+                    {
+                        return 1000000.f; //_FrameTimeProp;
                     }
                     // TODO: Profiling information?
                 }
@@ -697,17 +706,17 @@ Shader "AudioLink/AudioLink"
                          float4 n2 = Notes[j];
                         if( n2.z > 0 && j > i && n1.z > 0 )
                         {
-							// Potentially combine notes
-							float dist = abs( NoteWrap( n1.x, n2.x ) );
-							if( dist < NOTECLOSEST )
-							{
-								//Found combination of notes.  Nil out second.
-								float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
-								n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
-								Notes[j] = 0;
-							}
-						}
-					}
+                            // Potentially combine notes
+                            float dist = abs( NoteWrap( n1.x, n2.x ) );
+                            if( dist < NOTECLOSEST )
+                            {
+                                //Found combination of notes.  Nil out second.
+                                float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
+                                n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
+                                Notes[j] = 0;
+                            }
+                        }
+                    }
                     
                     //Filter n1.z from n1.y.
                     if( n1.z >= 0 )
