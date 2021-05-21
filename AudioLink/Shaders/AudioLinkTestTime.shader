@@ -124,7 +124,7 @@
 
             float4 frag (v2f i) : SV_Target
             {
-				float4 timeinfo = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 2, 0 ) ) );
+				float value ;
 				
 				float2 iuv = i.uv;
 				iuv.y = 1.-iuv.y;
@@ -133,11 +133,17 @@
 				float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
 				uint2 mxy = (uint2)(fmxy);
 				
+				if( dig.y == 0 )
+						value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 2, 0 ) ) );
+				else if( dig.y == 1 )
+						value = GetAudioPixelData( int2( int2( 2, 0 ) ) );
+				else
+						value = 0;
 
 				float4 col = 0.;
-				if( dig.y == 0 )
+
 				{
-					col = PrintNumberOnLine( timeinfo.x, 9, dig.x, mxy );
+					col = PrintNumberOnLine( value, 9, dig.x, mxy );
 				}
 				
 

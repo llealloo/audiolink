@@ -122,4 +122,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FrameTimeProp: {r: 377169, g: 0, b: 6139.885, a: 0}
+    - _FrameTimeProp: {r: 47795, g: 0, b: 77813.66, a: 0}

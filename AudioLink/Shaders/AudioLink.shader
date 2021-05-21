@@ -422,6 +422,7 @@ Shader "AudioLink/AudioLink"
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
+				return .99;
                 AUDIO_LINK_ALPHA_START( PASS_THREE_OFFSET )
 
                 float audioBands[4] = {0., _X1, _X2, _X3};
