@@ -27,8 +27,11 @@ Shader "AudioLink/AudioLink"
  
         _AudioSource2D("Audio Source 2D", float) = 0
         
-        
+        [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
+		_AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
+		
         [HideInInspector]_FrameTimeProp("Frame Time Internal",Vector) = (0,0,0,0)
+        [HideInInspector]_DayTimeProp("Day Time Internal",Vector) = (0,0,0,0)
 
     }
     SubShader
@@ -170,8 +173,13 @@ Shader "AudioLink/AudioLink"
             uniform float _Threshold2;
             uniform float _Threshold3;
             uniform float _AudioSource2D;
-            uniform float4 _FrameTimeProp;
 
+			// Extra Properties
+            uniform float4 _FrameTimeProp;
+            uniform float4 _DayTimeProp;
+			uniform float _EnableAutogain;
+            uniform float _AutogainDerate;
+			
             const static float _FreqFloor = 0.123;
             const static float _FreqCeiling = 1.0;
             const static float _TrebleCorrection = 5.0;
@@ -404,11 +412,30 @@ Shader "AudioLink/AudioLink"
                 //Uncomment to enable debugging of where on the CRT this pass is.
                 //return float4( frame/1000., coordinateLocal/10., 1. );
 
+				float Blue = 0;
+				if( frame*4 < SAMPHIST )
+					Blue = (_AudioFrames[frame*4+0] + _AudioFrames[frame*4+1] + _AudioFrames[frame*4+2] + _AudioFrames[frame*2+3])/4.;
+
+
+
+				
+				float GAIN = 1;
+				
+				// Enable/Disable autogain.
+				if( _EnableAutogain )
+				{
+					float4 LastAutogain = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 11, 0 ) );
+
+					//Divide by the running volume.
+					GAIN = 1./(LastAutogain.x + _AutogainDerate);
+				}
+				
+
                 return float4( 
-                    (_AudioFrames[frame*2+0] + _AudioFrames[frame*2+1])/2.,    //Red:   Spectrum power
-                    _AudioFrames[frame],      //Green: Reserved
-                    0,      //Blue:  Reserved
-                    1 );
+                    (_AudioFrames[frame*2+0] + _AudioFrames[frame*2+1])/2., //RED: 24kSPS
+                    _AudioFrames[frame],      //Green: 48kSPS
+                    Blue,      //Blue:  12kSPS 
+                    1 ) * GAIN;
             }
             ENDCG
         }
@@ -418,11 +445,9 @@ Shader "AudioLink/AudioLink"
             Name "Pass3AudioLink4Band"
             CGPROGRAM
 
-            
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-				return .99;
                 AUDIO_LINK_ALPHA_START( PASS_THREE_OFFSET )
 
                 float audioBands[4] = {0., _X1, _X2, _X3};
@@ -488,17 +513,18 @@ Shader "AudioLink/AudioLink"
                 float total = 0;
                 float Peak = 0;
                 
-                // Only VU over 1024 24kSPS samples
-                for( i = 0; i < 1024; i++ )
+                // Only VU over 768 12kSPS samples
+                for( i = 0; i < 768; i++ )
                 {
-                    float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( i%128, i/128 ) ).r;
+                    float af = GetSelfPixelData( PASS_TWO_OFFSET + uint2( i%128, i/128 ) ).b;
                     total += af*af;
                     Peak = max( Peak, abs( af ) );
                 }
 
-                float PeakRMS = sqrt( total / 1024 );
+                float PeakRMS = sqrt( total / i );
                 float4 MarkerValue = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 9, 0 ) );
                 float4 MarkerTimes = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 10, 0 ) );
+                float4 LastAutogain = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 11, 0 ) );
                 float Time = _Time.y;
                 
                 if( Time - MarkerTimes.x > 1.0 ) MarkerValue.x = -1;
@@ -535,8 +561,20 @@ Shader "AudioLink/AudioLink"
                     }
                     else if( coordinateLocal.x == 11 )
                     {
-                        //Third pixel: 1. (RESERVED)
-                        return 1.;
+                        //Third pixel: Auto Gain
+						
+						//Compensate for the fact that we've already gain'd our samples.
+						float deratePeak = Peak / ( LastAutogain.x + _AutogainDerate );
+						
+                        if( deratePeak > LastAutogain.x )
+						{
+							LastAutogain.x = lerp( deratePeak, LastAutogain.x, .5 ); //Make attack quick
+						}
+						else
+						{
+							LastAutogain.x = lerp( deratePeak, LastAutogain.x, .995 ); //Make decay long.
+						}
+						return LastAutogain;
                     }
                 }
                 else
@@ -549,17 +587,34 @@ Shader "AudioLink/AudioLink"
                     else if( coordinateLocal.x == 1 )
                     {
                         //Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
-                        float framecount = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
+						// Note: This is also used to measure FPS.
+						
+						float4 lastval = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
+                        float framecount = lastval.r;
+						float framecountfps = lastval.g;
+						float framecountlastfps = lastval.b;
+						float lasttimefps = lastval.a;
                         framecount++;
                         if( framecount >= 7776000 ) //~24 hours.
                             framecount = 0;
-                        return framecount;
+							
+						framecountfps++;
+						if( _Time.y > lasttimefps + 1 )
+						{
+							framecountlastfps = framecountfps;
+							framecountfps = 0;
+							lasttimefps = _Time.y;
+						}
+                        return float4( framecount, framecountfps, framecountlastfps, lasttimefps );
                     }
                     else if( coordinateLocal.x == 2 )
                     {
-                        return 1000000.f; //_FrameTimeProp;
+                        return _FrameTimeProp;
                     }
-                    // TODO: Profiling information?
+                    else if( coordinateLocal.x == 3 )
+                    {
+                        return _DayTimeProp;
+                    }
                 }
 
                 //Reserved

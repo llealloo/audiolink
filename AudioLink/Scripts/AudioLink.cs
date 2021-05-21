@@ -147,10 +147,20 @@ public class AudioLink : MonoBehaviour
                 _masterInstanceJoinServerTimeStampMs +
                 timeSinceLevelLoadMs  );
             audioMaterial.SetVector( "_FrameTimeProp", new Vector4(
-                (float)( nowMs & 0xffffff ), // Supports up to 16,777,215 ms, or 4.66 hours, so aliasing is limited to 4ms.
-                (float)( nowMs >> 24 ),
-                (float)( DateTime.Now.TimeOfDay.TotalSeconds ), 
-                  0 ) );
+                (float)( nowMs & 0x3ff ),
+                (float)( (nowMs >> 10 ) & 0x3ff ),
+                (float)( (nowMs >> 20 ) & 0x3ff ),
+                (float)( (nowMs >> 30 ) & 0x3ff )
+                ) );
+
+			double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
+			UInt32 ts = Convert.ToUInt32( nowSeconds * 1000.0 ); 
+            audioMaterial.SetVector( "_DayTimeProp", new Vector4(
+                (float)( ts & 0x3ff ),
+                (float)( (ts >> 10 ) & 0x3ff ),
+                (float)( (ts >> 20 ) & 0x3ff ),
+                (float)( (ts >> 30 ) & 0x3ff )
+                ) );
         }
 
         #if UNITY_EDITOR
@@ -164,7 +174,6 @@ public class AudioLink : MonoBehaviour
         {
             audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
             audioData = audioData2D.GetPixels();
-			Debug.Log( $"{audioData[0]}" );
         }
     }
 
