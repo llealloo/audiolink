@@ -65,6 +65,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AudioSource2D: 1
+    - _AutogainDerate: 0.1
     - _Bands: 4
     - _BaseAmplitude: 250
     - _Bass: 1
@@ -78,6 +79,7 @@ Material:
     - _DecayCoefficient: 0.01
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EnableAutogain: 1
     - _FadeExpFalloff: 0.3
     - _FadeLength: 0.8
     - _FreqCeiling: 1
@@ -121,5 +123,6 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DayTimeProp: {r: 410, g: 454, b: 78, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FrameTimeProp: {r: 47795, g: 0, b: 77813.66, a: 0}
+    - _FrameTimeProp: {r: 77, g: 334, b: 0, a: 0}

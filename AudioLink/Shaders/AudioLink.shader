@@ -599,6 +599,14 @@ Shader "AudioLink/AudioLink"
                             framecount = 0;
 							
 						framecountfps++;
+
+						// See if we've been reset.
+						if( lasttimefps > _Time.y )
+						{
+							lasttimefps = 0;
+						}
+
+						// After one second, take the running FPS and present it as the now FPS.
 						if( _Time.y > lasttimefps + 1 )
 						{
 							framecountlastfps = framecountfps;
