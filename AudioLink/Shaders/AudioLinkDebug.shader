@@ -19,12 +19,12 @@ Shader "AudioLink/AudioLinkDebug"
         _SpectrumVertOffset( "Spectrum Vertical OFfset", Float ) = 0.0
         _SampleThickness ("Sample Thickness", Float) = .02
         _SpectrumThickness ("Spectrum Thickness", Float) = .01
-		
-		_WaveformZoom ("Waveform Zoom", Float) = 2.0
-		
-		_VUOpacity( "VU Opacity", Float) = 0.5
-		
-		[Toggle] _ShowVUInMain("Show VU In Main", Float) = 0
+        
+        _WaveformZoom ("Waveform Zoom", Float) = 2.0
+        
+        _VUOpacity( "VU Opacity", Float) = 0.5
+        
+        [Toggle] _ShowVUInMain("Show VU In Main", Float) = 0
 
     }
     SubShader
@@ -45,7 +45,7 @@ Shader "AudioLink/AudioLinkDebug"
             #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
             #define EXPBINS 24
             #define EXPOCT 10
-			#define MAXNOTES 10
+            #define MAXNOTES 10
             #define ETOTALBINS (EXPOCT*EXPBINS)         
 
             #define _RootNote 0
@@ -117,7 +117,7 @@ Shader "AudioLink/AudioLinkDebug"
             };
 
             sampler2D _AudioLinkTexture;
-			float4 _AudioLinkTexture_ST;
+            float4 _AudioLinkTexture_ST;
             uniform float4 _AudioLinkTexture_TexelSize;
             
             float _SpectrumGain;
@@ -135,11 +135,11 @@ Shader "AudioLink/AudioLinkDebug"
             float4 _UnderSpectrumColor;
             
             float _SpectrumVertOffset;
-			
-			float _VUOpacity;
-			float _ShowVUInMain;
-			float _WaveformZoom;
-			
+            
+            float _VUOpacity;
+            float _ShowVUInMain;
+            float _WaveformZoom;
+            
             v2f vert (appdata v)
             {
                 v2f o;
@@ -190,150 +190,150 @@ Shader "AudioLink/AudioLinkDebug"
                 float4 coloro = _BaseColor;
 
 
-				//Output any debug notes
-				{
-					#define MAXNOTES 10
-					#define PASS_SIX_OFFSET    int2(12,22) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
+                //Output any debug notes
+                {
+                    #define MAXNOTES 10
+                    #define PASS_SIX_OFFSET    int2(12,22) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
 
-					int selnote = (int)(iuv.x * 10);
-					float4 NoteSummary = tex2D( _AudioLinkTexture, float2( PASS_SIX_OFFSET*_AudioLinkTexture_TexelSize.xy) );
-					float4 Note = tex2D( _AudioLinkTexture, float2( (PASS_SIX_OFFSET + uint2(selnote+1,0) )*_AudioLinkTexture_TexelSize.xy) );	
+                    int selnote = (int)(iuv.x * 10);
+                    float4 NoteSummary = tex2D( _AudioLinkTexture, float2( PASS_SIX_OFFSET*_AudioLinkTexture_TexelSize.xy) );
+                    float4 Note = tex2D( _AudioLinkTexture, float2( (PASS_SIX_OFFSET + uint2(selnote+1,0) )*_AudioLinkTexture_TexelSize.xy) );    
 
-					float intensity = clamp( Note.z * .01, 0, 1 );
-					if( abs( iuv.y - intensity ) < 0.05 && intensity > 0 )
-					{
-						return float4(CCtoRGB( Note.x, 1.0, _RootNote ), 1.);
-					}
-				}
-				
-				if( iuv.y > 1 )
-				{
-					#define PASS_EIGHT_OFFSET    int2(0,23)
-					//Output Linear
-					return tex2D( _AudioLinkTexture, float2( (PASS_EIGHT_OFFSET + uint2(iuv.x*128,0) )*_AudioLinkTexture_TexelSize ) );
-				}
+                    float intensity = clamp( Note.z * .01, 0, 1 );
+                    if( abs( iuv.y - intensity ) < 0.05 && intensity > 0 )
+                    {
+                        return float4(CCtoRGB( Note.x, 1.0, _RootNote ), 1.);
+                    }
+                }
+                
+                if( iuv.y > 1 )
+                {
+                    #define PASS_EIGHT_OFFSET    int2(0,23)
+                    //Output Linear
+                    return tex2D( _AudioLinkTexture, float2( (PASS_EIGHT_OFFSET + uint2(iuv.x*128,0) )*_AudioLinkTexture_TexelSize ) );
+                }
 
 
-				if( iuv.x < 1. )
-				{
-					//The first-note-segmenters
-					float3 vertical_bars = max(0.,1.3-length(readnof-1.3) );
-					coloro += float4( vertical_bars * _SeparatorColor, 1. );
-					
-					//Waveform
-					// Get whole waveform would be / 1.
-					float sinpull = (EXPBINS*EXPOCT - 1 - notenof )/ _WaveformZoom; //2. zooms into the first half.
-					float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
-						 float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+6./64.)) ) * _SampleGain;
-						 
-					//If line has more significant slope, roll it extra wide.
-					float ddd = 1.+length(float2(ddx( sinewaveval ),ddy(sinewaveval)))*20;
-					coloro += _SampleColor * max( 100.*((_SampleThickness*ddd)-abs( sinewaveval - iuv.y*2.+1. + _SampleVertOffset )), 0. );
-					
-					//Under-spectrum first
-					float rval = clamp( _SpectrumThickness - iuv.y + spectrum_value.z + _SpectrumVertOffset, 0., 1. );
-					rval = min( 1., 1000*rval );
-					coloro = lerp( coloro, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
-					
-					//Spectrum-Line second
-					rval = max( _SpectrumThickness - abs( spectrum_value.z - iuv.y + _SpectrumVertOffset), 0. );
-					rval = min( 1., 1000*rval );
-					coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, _RootNote ), _SpectrumFixedColor, _SpectrumColorMix ), 1.0 ), rval );
+                if( iuv.x < 1. )
+                {
+                    //The first-note-segmenters
+                    float3 vertical_bars = max(0.,1.3-length(readnof-1.3) );
+                    coloro += float4( vertical_bars * _SeparatorColor, 1. );
+                    
+                    //Waveform
+                    // Get whole waveform would be / 1.
+                    float sinpull = (EXPBINS*EXPOCT - 1 - notenof )/ _WaveformZoom; //2. zooms into the first half.
+                    float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
+                         float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+6./64.)) ) * _SampleGain;
+                         
+                    //If line has more significant slope, roll it extra wide.
+                    float ddd = 1.+length(float2(ddx( sinewaveval ),ddy(sinewaveval)))*20;
+                    coloro += _SampleColor * max( 100.*((_SampleThickness*ddd)-abs( sinewaveval - iuv.y*2.+1. + _SampleVertOffset )), 0. );
+                    
+                    //Under-spectrum first
+                    float rval = clamp( _SpectrumThickness - iuv.y + spectrum_value.z + _SpectrumVertOffset, 0., 1. );
+                    rval = min( 1., 1000*rval );
+                    coloro = lerp( coloro, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
+                    
+                    //Spectrum-Line second
+                    rval = max( _SpectrumThickness - abs( spectrum_value.z - iuv.y + _SpectrumVertOffset), 0. );
+                    rval = min( 1., 1000*rval );
+                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, _RootNote ), _SpectrumFixedColor, _SpectrumColorMix ), 1.0 ), rval );
 
-					//Other Spectrum-Line second
-					rval = max( _SpectrumThickness - abs( spectrum_value.x - iuv.y + _SpectrumVertOffset), 0. );
-					rval = min( 1., 1000*rval );
-					coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, _RootNote ), _SpectrumFixedColorForSlow, _SpectrumColorMix ), 1.0 ), rval );
-				}
-				
-				//Potentially draw 
-				if( _ShowVUInMain > 0.5 && iuv.x > 1-1/8. && iuv.x < 1. && iuv.y > 0.5 )
-				{
-					iuv.x = (((iuv.x * 8.)-7) + 1.);
-					iuv.y = (iuv.y*2.) -1.;
-				}
+                    //Other Spectrum-Line second
+                    rval = max( _SpectrumThickness - abs( spectrum_value.x - iuv.y + _SpectrumVertOffset), 0. );
+                    rval = min( 1., 1000*rval );
+                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, _RootNote ), _SpectrumFixedColorForSlow, _SpectrumColorMix ), 1.0 ), rval );
+                }
+                
+                //Potentially draw 
+                if( _ShowVUInMain > 0.5 && iuv.x > 1-1/8. && iuv.x < 1. && iuv.y > 0.5 )
+                {
+                    iuv.x = (((iuv.x * 8.)-7) + 1.);
+                    iuv.y = (iuv.y*2.) -1.;
+                }
 
-				if( iuv.x >= 1 && iuv.x < 2. )
-				{
-					float UVy = iuv.y;
-					float UVx = iuv.x-1.;
-					
-					
-					float Marker = 0.;
-					float Value = 0.;
-					float4 Marker4 = GetAudioPixelData( int2( 9, 22 ) );
-					float4 Value4 = GetAudioPixelData( int2( 8, 22 ) );
-					if( UVx < 0.125 )
-					{
-						//P-P
-						Marker = Marker4.x;
-						Value = Value4.x;
-					}
-					else
-					{
-						//RMS
-						Marker = Marker4.y;
-						Value = Value4.y;
-					}
+                if( iuv.x >= 1 && iuv.x < 2. )
+                {
+                    float UVy = iuv.y;
+                    float UVx = iuv.x-1.;
+                    
+                    
+                    float Marker = 0.;
+                    float Value = 0.;
+                    float4 Marker4 = GetAudioPixelData( int2( 9, 22 ) );
+                    float4 Value4 = GetAudioPixelData( int2( 8, 22 ) );
+                    if( UVx < 0.125 )
+                    {
+                        //P-P
+                        Marker = Marker4.x;
+                        Value = Value4.x;
+                    }
+                    else
+                    {
+                        //RMS
+                        Marker = Marker4.y;
+                        Value = Value4.y;
+                    }
 
-					Marker = log( Marker ) * 10.;
-					Value  = log( Value  ) * 10.;
-					
-					float4 VUColor = 0.;
-					
-					int c = floor( UVy * 20 );
-					float cp = glsl_mod( UVy * 20, 1. );
+                    Marker = log( Marker ) * 10.;
+                    Value  = log( Value  ) * 10.;
+                    
+                    float4 VUColor = 0.;
+                    
+                    int c = floor( UVy * 20 );
+                    float cp = glsl_mod( UVy * 20, 1. );
 
-					float guard_separator = 0.02;
-					float gsx = guard_separator * (.8-100.*length( float2( ddx(UVx), ddy(UVx))) )*1.;
-					float gsy = guard_separator * (.8-100.*length( float2( ddx(UVy), ddy(UVy))) )*1.;
+                    float guard_separator = 0.02;
+                    float gsx = guard_separator * (.8-100.*length( float2( ddx(UVx), ddy(UVx))) )*1.;
+                    float gsy = guard_separator * (.8-100.*length( float2( ddx(UVy), ddy(UVy))) )*1.;
 
-					if( UVx > 0.50 + gsx )
-					{
-						if( c > 18 )
-							VUColor = float4( 1., 0., 0., 1. );
-						else if( c > 15 )
-							VUColor = float4( 0.8, 0.8, 0., 1. );
-						else
-							VUColor = float4( 0., 1., 0., 1. );
-					}
-					else if( UVx <= 0.50 - gsx )
-					{
-						if( c > 15 )
-							VUColor = float4( 1., 0., 0., 1. );
-						else if( c > 12 )
-							VUColor = float4( 0.8, 0.8, 0., 1. );
-						else
-							VUColor = float4( 0., 1., 0., 1. );
-					}
-					
-					float thisdb = (-1+UVy) * 30;
-					
-					float VUColorspectrum_valuesity = 0.;
-					
-					//Historical Peak
-					if( abs( thisdb - Marker ) < 0.2 ) 
-					{
-						VUColorspectrum_valuesity = 1.;
-					}
-					else
-					{
-						if( cp > gsy*20. )
-						{
-							if( thisdb < Value )
-							{
-								VUColorspectrum_valuesity = 0.4;
-							}
-						}
-						else
-						{
-								VUColorspectrum_valuesity = 0.02;
-						}
-					}
-					VUColor *= VUColorspectrum_valuesity;
+                    if( UVx > 0.50 + gsx )
+                    {
+                        if( c > 18 )
+                            VUColor = float4( 1., 0., 0., 1. );
+                        else if( c > 15 )
+                            VUColor = float4( 0.8, 0.8, 0., 1. );
+                        else
+                            VUColor = float4( 0., 1., 0., 1. );
+                    }
+                    else if( UVx <= 0.50 - gsx )
+                    {
+                        if( c > 15 )
+                            VUColor = float4( 1., 0., 0., 1. );
+                        else if( c > 12 )
+                            VUColor = float4( 0.8, 0.8, 0., 1. );
+                        else
+                            VUColor = float4( 0., 1., 0., 1. );
+                    }
+                    
+                    float thisdb = (-1+UVy) * 30;
+                    
+                    float VUColorspectrum_valuesity = 0.;
+                    
+                    //Historical Peak
+                    if( abs( thisdb - Marker ) < 0.2 ) 
+                    {
+                        VUColorspectrum_valuesity = 1.;
+                    }
+                    else
+                    {
+                        if( cp > gsy*20. )
+                        {
+                            if( thisdb < Value )
+                            {
+                                VUColorspectrum_valuesity = 0.4;
+                            }
+                        }
+                        else
+                        {
+                                VUColorspectrum_valuesity = 0.02;
+                        }
+                    }
+                    VUColor *= VUColorspectrum_valuesity;
 
-					coloro = lerp( VUColor, coloro, _VUOpacity );
-				}
+                    coloro = lerp( VUColor, coloro, _VUOpacity );
+                }
 
                 
                 return coloro;

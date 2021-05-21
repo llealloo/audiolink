@@ -76,9 +76,29 @@ public class AudioLink : MonoBehaviour
     private float[] _samples3 = new float[1023];
     private float _audioLinkInputVolume = 0.01f;                        // smallify input source volume level
     private bool _audioSource2D = false;
+    
+    // Mechanism to provide sync'd instance time to all avatars.
+    [UdonSynced] private Int32 _masterInstanceJoinServerTimeStampMs;
+    private Int32 _instanceJoinServerTimeStampMs;
 
     void Start()
     {
+
+        {
+            // Handle sync'd time stuff.
+            
+            //Will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
+            Int32 startTime = Networking.GetServerTimeInMilliseconds();
+            if (Networking.IsMaster)
+            {
+                _masterInstanceJoinServerTimeStampMs = startTime;
+                RequestSerialization();
+            }
+            Int32 timeSinceLevelLoadAtInstanceJoinMs = (Int32)(Time.timeSinceLevelLoad * 1000); 
+            _instanceJoinServerTimeStampMs = startTime - timeSinceLevelLoadAtInstanceJoinMs;
+            Debug.Log($"AudioLink Time Sync Debug: {startTime} {Networking.IsMaster} {_masterInstanceJoinServerTimeStampMs} {_instanceJoinServerTimeStampMs} {timeSinceLevelLoadAtInstanceJoinMs}.");
+        }
+
         UpdateSettings();
         if (audioSource.name.Equals("AudioLinkInput"))
         {
@@ -103,6 +123,45 @@ public class AudioLink : MonoBehaviour
         audioMaterial.SetFloatArray("_Samples1", _samples1);
         audioMaterial.SetFloatArray("_Samples2", _samples2);
         audioMaterial.SetFloatArray("_Samples3", _samples3);
+
+        {
+            /* General Notes:
+                As of now, we convert the current "now" time to milliseconds.
+                All times are locked to milliseconds.
+
+                If a user is in a level for > 18 hours, the aliasing on 
+                Time.timeSinceLevelLoad will exceed 4ms, this restriction can
+                be lifted when VRC moves to 2020+. and timeSinceLevelLoadAsDouble
+                can be used in the below code.
+                
+                The user can safely use the red channel to read a value that
+                loops over and over from instance start from 0 to 16,777,215ms
+                
+                Then the green channel will increment.
+            */
+
+            double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
+            UInt32 timeSinceLevelLoadMs = (UInt32)( TimeSinceLoadSeconds * 1000.0 ) & 0xffffffff;
+            UInt32 nowMs = (UInt32) (
+                _instanceJoinServerTimeStampMs -
+                _masterInstanceJoinServerTimeStampMs +
+                timeSinceLevelLoadMs  );
+            audioMaterial.SetVector( "_FrameTimeProp", new Vector4(
+                (float)( nowMs & 0x3ff ),
+                (float)( (nowMs >> 10 ) & 0x3ff ),
+                (float)( (nowMs >> 20 ) & 0x3ff ),
+                (float)( (nowMs >> 30 ) & 0x3ff )
+                ) );
+
+			double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
+			UInt32 ts = Convert.ToUInt32( nowSeconds * 1000.0 ); 
+            audioMaterial.SetVector( "_DayTimeProp", new Vector4(
+                (float)( ts & 0x3ff ),
+                (float)( (ts >> 10 ) & 0x3ff ),
+                (float)( (ts >> 20 ) & 0x3ff ),
+                (float)( (ts >> 30 ) & 0x3ff )
+                ) );
+        }
 
         #if UNITY_EDITOR
         UpdateSettings();
