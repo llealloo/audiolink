@@ -111,7 +111,7 @@
                             selnum = ((uint)( number * l10 ));
 
                             //Disable leading 0's?
-                            if( !leadzero && selnum == 0 && dmfd < 0.5 ) return 0;
+                            if( !leadzero && dmfd != -1 && selnum == 0 && dmfd < 0.5 ) return 0;
                             selnum %= (uint)10;
                         }
                     }
@@ -130,7 +130,7 @@
                 
                 float2 iuv = i.uv;
                 iuv.y = 1.-iuv.y;
-				const int rows = 6;
+				const int rows = 7;
 				const int cols = 12;
 				
                 float2 pos = iuv*float2(cols,rows);
