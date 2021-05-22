@@ -130,77 +130,96 @@
                 
                 float2 iuv = i.uv;
                 iuv.y = 1.-iuv.y;
-				const int rows = 7;
-				const int cols = 12;
-				
+                const int rows = 7;
+                const int cols = 10;
+                
                 float2 pos = iuv*float2(cols,rows);
                 uint2 dig = (uint2)(pos);
                 float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
                 uint2 mxy = (uint2)(fmxy);
  
-				int offset = 0;
-				
+                int offset = 0;
+                int xoffset = 0;
+                int leadingzero = 0;
                 if( dig.y == 0 )
-				{
-					// Time since level start in milliseconds.
+                {
+                    // Time since level start in milliseconds.
                     value = DecodeLongFloat( GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 2, 0 ) ) ) );
-				}
+                }
                 else if( dig.y == 1 )
-				{
-					// Time of day.
+                {
+                    // Time of day.
                     value = DecodeLongFloat( GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 3, 0 ) ) ) ) / 1000;
-					float seconds = glsl_mod( value, 60 );
-					int minutes = (value/60) % 60;
-					int hours = (value/3600);
-					value = hours * 10000 + minutes * 100 + seconds;
-					
-					if( dig.x < 3 )
-					{
-						return PrintNumberOnLine( hours, 2, dig.x, mxy, 1, 0 );
-					}
-					else if( dig.x < 6 )
-					{
-						return PrintNumberOnLine( minutes, 2, dig.x - 3, mxy, 1, 1 );
-					}
-					else
-					{
-						return PrintNumberOnLine( seconds, 2, dig.x - 6, mxy, 1, 1 );
-					}
-					return 0;
-				}
+                    float seconds = glsl_mod( value, 60 );
+                    int minutes = (value/60) % 60;
+                    int hours = (value/3600);
+                    value = hours * 10000 + minutes * 100 + seconds;
+                    
+                    if( dig.x < 3 )
+                    {
+                        value = hours;
+                        xoffset = 8;
+                        leadingzero = 1;
+                    }
+                    else if( dig.x < 6 )
+                    {
+                        value = minutes;
+                        xoffset = 5;
+                        leadingzero = 1;
+                    }
+                    else
+                    {
+                        value = seconds;
+                        xoffset = 2;
+                        leadingzero = 1;
+                    }
+                }
                 else if( dig.y == 2 )
-				{
+                {
                     value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 11, 0 ) ) ); //Autogain Debug
-					offset = 6;
-				}
+                    offset = 6;
+                }
                 else if( dig.y == 3 )
-				{
+                {
                     value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 8, 0 ) ) ).x; //RMS
-					offset = 6;
-				}
+                    offset = 6;
+                }
                 else if( dig.y == 4 )
-				{
+                {
                     value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 8, 0 ) ) ).y; //Peak
-					offset = 6;
-				}
+                    offset = 6;
+                }
                 else if( dig.y == 5 )
-				{
-                    value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 1, 0 ) ) ).b; //FPS
-				}
+                {
+                    if( dig.x < 6 )
+                    {
+                        value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 0, 0 ) ) ).b; //True FPS
+                        xoffset = 4;
+                    }
+                    else
+                    {
+                        value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 1, 0 ) ) ).b; //AudioLink FPS
+                    }
+                }
+                else if( dig.y == 6 )
+                {
+                    value = GetAudioPixelData( int2( PASS_FIVE_OFFSET + int2( 4, 0 ) ) ).a; //100,000 sentinal test
+                    offset = 0;
+                }
                 else
-				{
+                {
                     value = 0;
-					offset = 6;
-				}
+                    offset = 6;
+                }
                 float4 col = 0.;
 
                 {
-                    col = PrintNumberOnLine( value, cols-offset, dig.x, mxy, offset, 0 );
+                    col = PrintNumberOnLine( value, cols-offset, dig.x + xoffset, mxy, offset, leadingzero );
                 }
                 
 
-				//Add bars between numbers.
-				//col += clamp( 1.-abs(2.-fmxy.y*5.), 0, 1 );
+                //Add bars between numbers.
+                //col += clamp( 1.-abs(2.-fmxy.y*5.), 0, 1 );
  
                 return col;
                 

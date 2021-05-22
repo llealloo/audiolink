@@ -21,7 +21,10 @@ public class AudioLink : UdonSharpBehaviour
 public class AudioLink : MonoBehaviour
 #endif
 {
+    const float AUDIOLINK_VERSION_NUMBER = 2.04f;
+
     [Header("Main Settings")]
+
     [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
     public AudioSource audioSource;
     [Tooltip("Enable Udon audioData array")]
@@ -80,6 +83,8 @@ public class AudioLink : MonoBehaviour
     // Mechanism to provide sync'd instance time to all avatars.
     [UdonSynced] private Int32 _masterInstanceJoinServerTimeStampMs;
     private Int32 _instanceJoinServerTimeStampMs;
+    private double NextFPSTime;
+    private int    FPSCount;
 
     void Start()
     {
@@ -153,14 +158,22 @@ public class AudioLink : MonoBehaviour
                 (float)( (nowMs >> 30 ) & 0x3ff )
                 ) );
 
-			double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
-			UInt32 ts = Convert.ToUInt32( nowSeconds * 1000.0 ); 
+            double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
+            UInt32 ts = Convert.ToUInt32( nowSeconds * 1000.0 ); 
             audioMaterial.SetVector( "_DayTimeProp", new Vector4(
                 (float)( ts & 0x3ff ),
                 (float)( (ts >> 10 ) & 0x3ff ),
                 (float)( (ts >> 20 ) & 0x3ff ),
                 (float)( (ts >> 30 ) & 0x3ff )
                 ) );
+
+            FPSCount++;
+            if( TimeSinceLoadSeconds >= NextFPSTime )
+            {
+                audioMaterial.SetVector( "_VersionNumberAndFPSProperty", new Vector4( AUDIOLINK_VERSION_NUMBER, 0, FPSCount, 1 ) );
+                FPSCount = 0;
+                NextFPSTime++;
+            }
         }
 
         #if UNITY_EDITOR

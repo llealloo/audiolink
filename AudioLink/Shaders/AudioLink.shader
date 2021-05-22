@@ -28,11 +28,11 @@ Shader "AudioLink/AudioLink"
         _AudioSource2D("Audio Source 2D", float) = 0
         
         [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
-		_AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
-		
+        _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
+        
         [HideInInspector]_FrameTimeProp("Frame Time Internal",Vector) = (0,0,0,0)
         [HideInInspector]_DayTimeProp("Day Time Internal",Vector) = (0,0,0,0)
-
+        [HideInInspector]_VersionNumberAndFPSProperty("Version Number and FPS",Vector) = (0,0,0,0)
     }
     SubShader
     {
@@ -88,11 +88,11 @@ Shader "AudioLink/AudioLink"
 
             // Pass 7: Autocorrelator output
             //  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
-            #define PASS_SEVEN_OFFSET    int2(0,24)
+            #define PASS_SEVEN_OFFSET    int2(0,28)
 
             // Pass 8: ColorChord Strip
             //  Whole line, able to map directly to textues.
-            #define PASS_EIGHT_OFFSET    int2(0,23)
+            #define PASS_EIGHT_OFFSET    int2(0,24)
 
             // Pass 9: ColorChord Individual Lights
             //  Row 25: Individual Light Colors (128 qty)
@@ -153,7 +153,7 @@ Shader "AudioLink/AudioLink"
             // DFT
             const static float _BottomFrequency = 13.75;
             //const static float _IIRCoefficient = 0.8;
-            const static float _BaseAmplitude = 250.0;
+            const static float _BaseAmplitude = 2.5;
             const static float _DecayCoefficient = 0.01;
             const static float _PhiDeltaCorrection = 4.0;
             const static float _DFTMode = 0.0;
@@ -174,12 +174,15 @@ Shader "AudioLink/AudioLink"
             uniform float _Threshold3;
             uniform float _AudioSource2D;
 
-			// Extra Properties
+            // Extra Properties
             uniform float4 _FrameTimeProp;
             uniform float4 _DayTimeProp;
-			uniform float _EnableAutogain;
+            uniform float4 _VersionNumberAndFPSProperty;
+
+
+            uniform float _EnableAutogain;
             uniform float _AutogainDerate;
-			
+            
             const static float _FreqFloor = 0.123;
             const static float _FreqCeiling = 1.0;
             const static float _TrebleCorrection = 5.0;
@@ -366,7 +369,7 @@ Shader "AudioLink/AudioLink"
                 }
                 float mag = length( ampl );
                 mag /= totalwindow;
-                mag *= _BaseAmplitude * _Gain * ((_AudioSource2D == 1.) ? 0.01 : 1.);
+                mag *= _BaseAmplitude * _Gain;
 
                 //float mag2 = mag;
                 float freqNormalized = note / float(EXPOCT*EXPBINS);
@@ -412,30 +415,27 @@ Shader "AudioLink/AudioLink"
                 //Uncomment to enable debugging of where on the CRT this pass is.
                 //return float4( frame/1000., coordinateLocal/10., 1. );
 
-				float Blue = 0;
-				if( frame*4 < SAMPHIST )
-					Blue = (_AudioFrames[frame*4+0] + _AudioFrames[frame*4+1] + _AudioFrames[frame*4+2] + _AudioFrames[frame*2+3])/4.;
+                float Blue = 0;
+                if( frame*4 < SAMPHIST )
+                    Blue = (_AudioFrames[frame*4+0] + _AudioFrames[frame*4+1] + _AudioFrames[frame*4+2] + _AudioFrames[frame*2+3])/4.;
+                
+                float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
+                
+                // Enable/Disable autogain.
+                if( _EnableAutogain )
+                {
+                    float4 LastAutogain = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 11, 0 ) );
 
-
-
-				
-				float GAIN = 1;
-				
-				// Enable/Disable autogain.
-				if( _EnableAutogain )
-				{
-					float4 LastAutogain = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 11, 0 ) );
-
-					//Divide by the running volume.
-					GAIN = 1./(LastAutogain.x + _AutogainDerate);
-				}
-				
+                    //Divide by the running volume.
+                    incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
+                }
+                
 
                 return float4( 
                     (_AudioFrames[frame*2+0] + _AudioFrames[frame*2+1])/2., //RED: 24kSPS
                     _AudioFrames[frame],      //Green: 48kSPS
                     Blue,      //Blue:  12kSPS 
-                    1 ) * GAIN;
+                    1 ) * incomingGain;
             }
             ENDCG
         }
@@ -562,19 +562,19 @@ Shader "AudioLink/AudioLink"
                     else if( coordinateLocal.x == 11 )
                     {
                         //Third pixel: Auto Gain
-						
-						//Compensate for the fact that we've already gain'd our samples.
-						float deratePeak = Peak / ( LastAutogain.x + _AutogainDerate );
-						
+                        
+                        //Compensate for the fact that we've already gain'd our samples.
+                        float deratePeak = Peak / ( LastAutogain.x + _AutogainDerate );
+                        
                         if( deratePeak > LastAutogain.x )
-						{
-							LastAutogain.x = lerp( deratePeak, LastAutogain.x, .5 ); //Make attack quick
-						}
-						else
-						{
-							LastAutogain.x = lerp( deratePeak, LastAutogain.x, .995 ); //Make decay long.
-						}
-						return LastAutogain;
+                        {
+                            LastAutogain.x = lerp( deratePeak, LastAutogain.x, .5 ); //Make attack quick
+                        }
+                        else
+                        {
+                            LastAutogain.x = lerp( deratePeak, LastAutogain.x, .995 ); //Make decay long.
+                        }
+                        return LastAutogain;
                     }
                 }
                 else
@@ -582,37 +582,37 @@ Shader "AudioLink/AudioLink"
                     if( coordinateLocal.x == 0 )
                     {
                         //Pixel 0 = Version
-                        return 2; //Version number
+                        return _VersionNumberAndFPSProperty;
                     }
                     else if( coordinateLocal.x == 1 )
                     {
                         //Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
-						// Note: This is also used to measure FPS.
-						
-						float4 lastval = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
+                        // Note: This is also used to measure FPS.
+                        
+                        float4 lastval = GetSelfPixelData( PASS_FIVE_OFFSET + int2( 1, 0 ) );
                         float framecount = lastval.r;
-						float framecountfps = lastval.g;
-						float framecountlastfps = lastval.b;
-						float lasttimefps = lastval.a;
+                        float framecountfps = lastval.g;
+                        float framecountlastfps = lastval.b;
+                        float lasttimefps = lastval.a;
                         framecount++;
                         if( framecount >= 7776000 ) //~24 hours.
                             framecount = 0;
-							
-						framecountfps++;
+                            
+                        framecountfps++;
 
-						// See if we've been reset.
-						if( lasttimefps > _Time.y )
-						{
-							lasttimefps = 0;
-						}
+                        // See if we've been reset.
+                        if( lasttimefps > _Time.y )
+                        {
+                            lasttimefps = 0;
+                        }
 
-						// After one second, take the running FPS and present it as the now FPS.
-						if( _Time.y > lasttimefps + 1 )
-						{
-							framecountlastfps = framecountfps;
-							framecountfps = 0;
-							lasttimefps = _Time.y;
-						}
+                        // After one second, take the running FPS and present it as the now FPS.
+                        if( _Time.y > lasttimefps + 1 )
+                        {
+                            framecountlastfps = framecountfps;
+                            framecountfps = 0;
+                            lasttimefps = _Time.y;
+                        }
                         return float4( framecount, framecountfps, framecountlastfps, lasttimefps );
                     }
                     else if( coordinateLocal.x == 2 )
@@ -622,6 +622,10 @@ Shader "AudioLink/AudioLink"
                     else if( coordinateLocal.x == 3 )
                     {
                         return _DayTimeProp;
+                    }
+                    else if( coordinateLocal.x == 4 )
+                    {
+                        return float4( 0, 0, 0, 0 );
                     }
                 }
 
