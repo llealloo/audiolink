@@ -46,12 +46,12 @@ CustomRenderTexture:
     updateZoneSize: {x: 128, y: 16, z: 1}
     rotation: 0
     passIndex: 1
-    needSwap: 0
+    needSwap: 1
   - updateZoneCenter: {x: 64, y: 59, z: 0.5}
     updateZoneSize: {x: 128, y: 2, z: 1}
     rotation: 0
     passIndex: 0
-    needSwap: 0
+    needSwap: 1
   - updateZoneCenter: {x: 64, y: 62, z: 0.5}
     updateZoneSize: {x: 128, y: 4, z: 1}
     rotation: 0
@@ -67,12 +67,12 @@ CustomRenderTexture:
     rotation: 0
     passIndex: 4
     needSwap: 0
-  - updateZoneCenter: {x: 64, y: 39, z: 0.5}
+  - updateZoneCenter: {x: 64, y: 36, z: 0.5}
     updateZoneSize: {x: 128, y: 1, z: 1}
     rotation: 0
     passIndex: 5
     needSwap: 0
-  - updateZoneCenter: {x: 64, y: 40, z: 0.5}
+  - updateZoneCenter: {x: 64, y: 39, z: 0.5}
     updateZoneSize: {x: 128, y: 1, z: 1}
     rotation: 0
     passIndex: 6

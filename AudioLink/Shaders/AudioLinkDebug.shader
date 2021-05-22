@@ -208,7 +208,7 @@ Shader "AudioLink/AudioLinkDebug"
                 
                 if( iuv.y > 1 )
                 {
-                    #define PASS_EIGHT_OFFSET    int2(0,23)
+                    #define PASS_EIGHT_OFFSET    int2(0,24)
                     //Output Linear
                     return tex2D( _AudioLinkTexture, float2( (PASS_EIGHT_OFFSET + uint2(iuv.x*128,0) )*_AudioLinkTexture_TexelSize ) );
                 }
