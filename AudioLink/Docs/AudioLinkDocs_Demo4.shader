@@ -56,8 +56,9 @@
                 
                 // Squish in the sides, and make it so it only perterbs
                 // the surface.
-                autocorrvalue = autocorrvalue * (.8-abs(vp.y)) * 0.3 + .6;
+                autocorrvalue = autocorrvalue * (.5-abs(vp.y)) * 0.4 + .6;
 
+                // Modify the original vertices by this amount.
                 vp *= autocorrvalue;
 
                 o.vpXform = vp;                
@@ -68,13 +69,13 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 // Decide how we want to color from colorchord.
-                float ccplace = length( i.vpXform.z );
+                float ccplace = length( i.vpXform.xz ) * 2.;
                 
                 // Get a color from ColorChord
                 float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP + float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
 
                 // Shade the color a little.
-                colorchordcolor *= length( i.vpXform.xyz ) * 10. - 1.0;
+                colorchordcolor *= length( i.vpXform.xyz ) * 15. - 2.0;
                 return colorchordcolor;
             }
             ENDCG

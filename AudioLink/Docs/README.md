@@ -129,9 +129,9 @@ float4 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. 
 
 //If we are below the spectrum line, discard the pixel.
 if( i.uv.y < spectrum_value.z )
-	discard;
+    discard;
 else if( i.uv.y < spectrum_value.z + 0.01 )
-	return 1.;
+    return 1.;
 return 0.1;
 ```
  
@@ -147,48 +147,49 @@ This demo does several more things.
 ```glsl
 v2f vert (appdata v)
 {
-	v2f o;
-	float3 vp = v.vertex;
+    v2f o;
+    float3 vp = v.vertex;
 
-	o.vpOrig = vp;
+    o.vpOrig = vp;
 
-	// Generate a value for how far around the circle you are.
-	// atan2 generates a number from -pi to pi.  We want to map
-	// this from -1..1.  Tricky: add 0.001 to x otherwise
-	// we lose a vertex at the poll because atan2 is undefined.
-	float phi = atan2( vp.x+0.001, vp.z ) / 3.14159;
-	
-	// We want to mirror the -1..1 so that it's actually 0..1 but
-	// mirrored.
-	float placeinautocorrelator = abs( phi );
-	
-	// Note: We don't need lerp multiline because the autocorrelator
-	// is only a single line.
-	float autocorrvalue = AudioLinkLerp( ALPASS_AUTOCORRELATOR +
-		float2( placeinautocorrelator * AUDIOLINK_WIDTH, 0. ) );
-	
-	// Squish in the sides, and make it so it only perterbs
-	// the surface.
-	autocorrvalue = autocorrvalue * (.8-abs(vp.y)) * 0.3 + .6;
+    // Generate a value for how far around the circle you are.
+    // atan2 generates a number from -pi to pi.  We want to map
+    // this from -1..1.  Tricky: add 0.001 to x otherwise
+    // we lose a vertex at the poll because atan2 is undefined.
+    float phi = atan2( vp.x+0.001, vp.z ) / 3.14159;
+    
+    // We want to mirror the -1..1 so that it's actually 0..1 but
+    // mirrored.
+    float placeinautocorrelator = abs( phi );
+    
+    // Note: We don't need lerp multiline because the autocorrelator
+    // is only a single line.
+    float autocorrvalue = AudioLinkLerp( ALPASS_AUTOCORRELATOR +
+        float2( placeinautocorrelator * AUDIOLINK_WIDTH, 0. ) );
+    
+    // Squish in the sides, and make it so it only perterbs
+    // the surface.
+    autocorrvalue = autocorrvalue * (.5-abs(vp.y)) * 0.4 + .6;
 
-	vp *= autocorrvalue;
+    // Modify the original vertices by this amount.
+    vp *= autocorrvalue;
 
-	o.vpXform = vp;                
-	o.vertex = UnityObjectToClipPos(vp);
-	return o;
+    o.vpXform = vp;                
+    o.vertex = UnityObjectToClipPos(vp);
+    return o;
 }
 
 fixed4 frag (v2f i) : SV_Target
 {
-	// Decide how we want to color from colorchord.
-	float ccplace = length( i.vpXform.z );
-	
-	// Get a color from ColorChord
-	float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP + float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
+    // Decide how we want to color from colorchord.
+    float ccplace = length( i.vpXform.xz ) * 2.;
+    
+    // Get a color from ColorChord
+    float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP + float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
 
-	// Shade the color a little.
-	colorchordcolor *= length( i.vpXform.xyz ) * 10. - 1.0;
-	return colorchordcolor;
+    // Shade the color a little.
+    colorchordcolor *= length( i.vpXform.xyz ) * 15. - 2.0;
+    return colorchordcolor;
 }
 ```
 
@@ -240,8 +241,8 @@ As it currently stands, because the `rt_AudioLink` texture is used as both the i
 
 This is what sinewave would look like if one were to use `AudioLinkData`
 
-{ TODO: Link Image! }
+![None Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/AudioLink/Docs/AudioLinkDocs_ComparisonLookupNone.png)
 
-This is the same output, but with AudioLinkLerp.
+This is the same output, but with `AudioLinkLerp`.
 
-{ TODO: Link Image! }
+![Lerp Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/AudioLink/Docs/AudioLinkDocs_ComparisonLookupLerp.png)
