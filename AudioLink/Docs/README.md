@@ -14,7 +14,7 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want.
 
-![AudioLinkBaseTexture](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/AudioLinkImageBase.png?raw=true)
+![AudioLinkBaseTexture](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/AudioLink/Docs/AudioLinkDocs_BaseImage.png)
 
 { Llealloo, Insert Avatar map }
 
