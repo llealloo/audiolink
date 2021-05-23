@@ -165,7 +165,7 @@ Shader "AudioLink/AudioLinkDebug"
             
             float4 GetAudioPixelData( int2 pixelcoord )
             {
-                return tex2D( _AudioLinkTexture, float2( pixelcoord*_AudioLinkTexture_TexelSize.xy) );
+                return tex2Dlod( _AudioLinkTexture, float4( pixelcoord*_AudioLinkTexture_TexelSize.xy, 0, 0 ) );
             }
             
             fixed4 frag (v2f i) : SV_Target

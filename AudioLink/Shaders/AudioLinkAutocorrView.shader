@@ -129,7 +129,7 @@
                 float sinewaveval = forcefilt( _AudioLinkTexture, _AudioLinkTexture_TexelSize, 
                      float2((fmod(sinpull,128))/128.,((floor(sinpull/128.))/64.+27./64.)) );
 
-                sinewaveval *= lerp( 1.0, rsqrt( GetAudioPixelData( int2( 0, 27 ) ) ), _AutocorrNormalization );
+                sinewaveval *= lerp( 1.0, rsqrt( GetAudioPixelData( int2( 0, 27 ) ).r ), _AutocorrNormalization );
 
                 sinewaveval *= _AutocorrIntensitiy;
 
