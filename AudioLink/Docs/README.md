@@ -52,7 +52,7 @@ Shader "MyTestShader"
 
 ```
 
-### What is in AudioLink.cginc.
+## What is in AudioLink.cginc.
 
 
 ```hlsl
@@ -70,7 +70,7 @@ Shader "MyTestShader"
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
 
-#### ALPASS_DFT
+### `ALPASS_DFT`
 
 A 128 x 2 block of data containing a DFT (like an FFT, but even intervals in chromatic space and discarding phase information).  There are a total of ten octaves of audio data, each octave taking up 24 pixels and having the following format per pixel:
  * RED: "mag" : Raw spectrum magnitude.
@@ -85,7 +85,7 @@ AudioLink reserves the right to change:
  * The alpha channel.
  * What bins 240-255 are used for.
 
-#### ALPASS_WAVEFORM
+### `ALPASS_WAVEFORM`
 
 Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sample points.  The format per pixel is:
  * RED: 24,000 SPS audio, amplitude. Contains 2046 samples.
@@ -110,7 +110,7 @@ if( _EnableAutogain )
 }
 ```
 
-#### ALPASS_AUDIOLINK
+### `ALPASS_AUDIOLINK`
 
 AudioLink is the 1 x 4 px data at the far corner of the texture.  It is updated every frame with bass, low-mid, high-mid and treble ranges.  It triggers in amplitude, and contains the most recent frame.
 
@@ -121,40 +121,40 @@ The channels are:
  
 AudioLink v1 note: The 32x4 section of the AudioLink texture is still compatible with AudioLink v1 at the time of writing this.
 
-#### ALPASS_AUDIOLINKHISTORY
+### `ALPASS_AUDIOLINKHISTORY`
 
 The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest copies of ALPASS_AUDIOLINK on the far right.
 
-#### ALPASS_GENERALVU
+### `ALPASS_GENERALVU`
 
 This is the General Data and VU Data block. Note that for intensities, we use RMS and Peak, and do not currently take into account A and C weighting.
 
 Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is used to encode a precise value into a half-float pixel, which can output an int32, uint32, or float, depending on context.
 
 It contains the following dedicated pixels:
-  
+
 | Pixel | Description | Red | Green | Blue | Alpha |
 | --- | --- | --- | --- | --- | --- |
 | 0, 0 | Version Number and FPS | Version (Version Minor) | 0 (Version Major) | System FPS | |
 | 1, 0 | AudioLink FPS | | AudioLink FPS | | |
-| 2, 0 | Milliseconds Since Instance Start | LF | LF | LF | LF |
-| 3, 0 | Milliseconds Since 12:00 AM Local Time | LF | LF | LF | LF |
+| 2, 0 | Milliseconds Since Instance Start | LFR | LFG | LFB | LFA |
+| 3, 0 | Milliseconds Since 12:00 AM Local Time | LFR | LFG | LFB | LFA |
 | 8, 0 | Current Intensity | RMS | Peak | | |
 | 9, 0 | Marker Value | RMS | Peak | | |
 | 10, 0 | Marker Times | RMS | Peak | | |
 | 11, 0 | Autogain | Asymmetrically Filtered Volume | Symmetrically filtered Volume | | |
 
-#### ALPASS_CCINTERNAL
+### `ALPASS_CCINTERNAL`
 
 Internal ColorChord note representation.  Subject to change.
 
-#### ALPASS_CCSTRIP
+### `ALPASS_CCSTRIP`
 
 A single linear strip of ColorChord, think of it as a linear pie chart.  You can directly apply the colors here directly to surfaces.
 
 ![CCStrip](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_CCStrip.png)
 
-#### ALPASS_CCLIGHTS
+### `ALPASS_CCLIGHTS`
 
 ![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_CCLights.png)
 
@@ -162,7 +162,7 @@ Two rows, the bottom row contains raw colorchord light values.  Useful for if yo
 
 The top (0,1) row is used to track internal aspects of ColorChord state.  Subject to change. Do not use.
 
-#### define ALPASS_AUTOCORRELATOR   int2(0,27)
+### `ALPASS_AUTOCORRELATOR`
 
 The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
 
@@ -170,7 +170,7 @@ The red channel of this row provides a fake autocorrelation of the waveform.  It
 
 Green, Blue, Alpha are reserved.
 
-#### Other defines
+### Other defines
 
 ```hlsl
 // Some basic constants to use (Note, these should be compatible with
@@ -196,6 +196,7 @@ A couple utility macros/functions
  * `float4 CCHSVtoRGB( float3 hsv )` - Standard HSV/L to RGB function.
  * `float4 CCtoRGB( float bin, float intensity, int RootNote )` - ColorChord's standard color generation function.
 
+## Examples
 
 ### Basic Test with AudioLink
 Once you have these pasted into your new shader and you drag the AudioLink texture onto your material, you can now retrieve data directly from the AudioLink texture.  For instance in this code 
