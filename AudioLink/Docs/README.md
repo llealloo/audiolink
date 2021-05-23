@@ -68,6 +68,109 @@ Shader "MyTestShader"
 #define ALPASS_AUTOCORRELATOR   int2(0,27)
 ```
 
+These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
+
+#### ALPASS_DFT
+
+A 128 x 2 block of data containing a DFT (like an FFT, but even intervals in chromatic space and discarding phase information).  There are a total of ten octaves of audio data, each octave taking up 24 pixels and having the following format per pixel:
+ * RED: "mag" : Raw spectrum magnitude.
+ * GRN: "magEQ" : Filtered power EQ'd, used by AudioLink
+ * BLU: "magfilt" : Heavily filtered spectrum for use in ColorChord
+ * ALP: RESERVED.
+
+AudioLink reserves the right to change:
+ * The window that is used for calculations.
+ * The type of DFT performed.
+ * The way the parts are EQd or IIRd
+ * The alpha channel.
+ * What bins 240-255 are used for.
+
+#### ALPASS_WAVEFORM
+
+Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sample points.  The format per pixel is:
+ * RED: 24,000 SPS audio, amplitude. Contains 2046 samples.
+ * GRN: 48,000 SPS audio, amplitude. Contains 2048 samples.
+ * BLU: 12,000 SPS audio, amplitude. Contains 1023 samples.
+ * ALP: RESERVED.
+
+The reason for the numbers are off by one is because shader parameters can only store 1023 values, not 1024 and AudioLink uses 4 blocks.
+
+Every sample has the following gain applied to it:
+
+```glsl
+float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
+
+// Enable/Disable autogain.
+if( _EnableAutogain )
+{
+	float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
+
+	//Divide by the running volume.
+	incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
+}
+```
+
+#### ALPASS_AUDIOLINK
+
+AudioLink is the 1 x 4 px data at the far corner of the texture.  It is updated every frame with bass, low-mid, high-mid and treble ranges.  It triggers in amplitude, and contains the most recent frame.
+
+The channels are:
+ * RED: AudioLink Impulse Data
+ * GRN / BLU: Currently the same as RED, but considering changing so that they may have sligthly different impulse response.
+ * ALP: Reserved.
+ 
+AudioLink v1 note: The 32x4 section of the AudioLink texture is still compatible with AudioLink v1 at the time of writing this.
+
+#### ALPASS_AUDIOLINKHISTORY
+
+The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest copies of ALPASS_AUDIOLINK on the far right.
+
+#### ALPASS_GENERALVU
+
+This is the General Data and VU Data block. Note that for intensities, we use RMS and Peak, and do not currently take into account A and C weighting.
+
+Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is used to encode a precise value into a half-float pixel, which can output an int32, uint32, or float, depending on context.
+
+It contains the following dedicated pixels:
+  
+| Pixel | Description | Red | Green | Blue | Alpha |
+| 0, 0 | Version Number and FPS | Version (Version Minor) | 0 (Version Major) | System FPS | |
+| 1, 0 | AudioLink FPS | | AudioLink FPS | | |
+| 2, 0 | Milliseconds Since Instance Start | LF | LF | LF | LF |
+| 3, 0 | Milliseconds Since 12:00 AM Local Time | LF | LF | LF | LF |
+| 8, 0 | Current Intensity | RMS | Peak | | |
+| 9, 0 | Marker Value | RMS | Peak | | |
+| 10, 0 | Marker Times | RMS | Peak | | |
+| 11, 0 | Autogain | Asymmetrically Filtered Volume | Symmetrically filtered Volume | | | |
+
+#### ALPASS_CCINTERNAL
+
+Internal ColorChord note representation.  Subject to change.
+
+#### ALPASS_CCSTRIP
+
+A single linear strip of ColorChord, think of it as a linear pie chart.  You can directly apply the colors here directly to surfaces.
+
+![CCStrip](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_CCStrip.png)
+
+#### ALPASS_CCLIGHTS
+
+![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_CCStrip.png)
+
+Two rows, the bottom row contains raw colorchord light values.  Useful for if you have individual objects or lights which need a sound-correlated color that are discrete.  I.e. pieces of confetti, lamps, speakers, blocks, etc.
+
+The top (0,1) row is used to track internal aspects of ColorChord state.  Subject to change. Do not use.
+
+#### define ALPASS_AUTOCORRELATOR   int2(0,27)
+
+The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
+
+![Autocor](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Autocor.png)
+
+Green, Blue, Alpha are reserved.
+
+#### Other defines
+
 ```glsl
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -193,8 +296,60 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-         
 ![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo4.gif)
+
+### Using Ordinal UVs to make some neat speakers.
+
+UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anything ±3.4028 × 10³⁸.  They don't care. So, while we can make the factional part of a UV still represent something meaningful in a texture or otherwise, we can use the whole number (ordinal) part to represent something else.  For instance, the band of AudioLink we want an object to respond to.
+
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo5.gif)
+
+```glsl
+v2f vert (appdata v)
+{
+	v2f o;
+	float3 vp = v.vertex;
+
+	// Pull out the ordinal value
+	int whichzone = floor(v.uv.x-1);
+	
+	//Only affect it if the v.uv.x was greater than or equal to 1.0
+	if( whichzone >= 0 )
+	{
+		float alpressure = AudioLinkData( ALPASS_AUDIOLINK + int2( 0, whichzone ) ).x;
+		vp.x -= alpressure * .5;
+	}
+
+	o.opos = vp;
+	o.uvw = float3( frac( v.uv ), whichzone + 0.5 );                
+	o.vertex = UnityObjectToClipPos(vp);
+	o.normal = UnityObjectToWorldNormal( v.normal );
+	return o;
+}
+
+fixed4 frag (v2f i) : SV_Target
+{
+	float radius = length( i.uvw.xy - 0.5 ) * 30;
+	float3 color = 0;
+	if( i.uvw.z >= 0 )
+	{
+		// If a speaker, color it with a random ColorChord light.
+		color = AudioLinkData( ALPASS_AUDIOLINK + int2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
+		
+		//Adjust the coloring on the speaker by the normal
+		color = (dot(i.normal.xyz,float3(1,1,-1)))*.2;
+		
+		color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
+	}
+	else
+	{
+		// If the box, use the normal to color it.
+		color = abs(i.normal.xyz)*.01+.02;
+	}
+	
+	return float4( color ,1. );
+}
+```
 
 ### Application of ColorChord Lights
 
@@ -205,9 +360,10 @@ TODO
 TODO
 
 
+
 ## Pertinent Notes and Tradeoffs.
 
-### Texture2D &lt float4 &gt vs sampler2D
+### Texture2D &lt;float4&gt; vs sampler2D
 
 You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampler2D` and `tex2Dlod`.  We strongly recommend using the `Texture2D<float4>` method over the traditional `sampler2D` method.  This is both because of usabiity as well as a **measurable increase in perf**.  HOWEVER - in a traditional surface shader you cannot use the newer HLSL syntax.  AudioLink will automatically fallback to the old texture indexing but if you want to do it manually, you may `#define AUDIOLINK_STANDARD_INDEXING`.
 
@@ -246,3 +402,73 @@ This is what sinewave would look like if one were to use `AudioLinkData`
 This is the same output, but with `AudioLinkLerp`.
 
 ![Lerp Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/AudioLink/Docs/AudioLinkDocs_ComparisonLookupLerp.png)
+
+### IIRs
+
+IIR stands for infinite impulse response.  When things need to be filtered from frame to frame it is possible to use more complicated FIRs (Finite Impulse Response) filters, however, an IIR is absurdly simple to implement in GPUs and turn into a single `lerp` command.
+
+Filtered Value = New Value * ( 1 - Filter Constant ) + Last Frame's Filtered Value * Filter Constant.
+
+Or, in GPU Land, it turns into:
+
+```glsl
+	filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
+```
+
+Where filter constant is between 0 and 1, where 0 is bypass, as though the filter doesn't exist, and 1 completely blocks any new values.  A value of 0.9 weights the incoming value smally, but after a few frames, the output will track it.
+
+This makes new values impact the filtered value most, and as time goes on the impact of values diminishes to zero.
+
+This is particularly useful as this sort of tracks the way we perceive information.
+
+
+
+
+### Junk drawer
+
+```hlsl
+v2f vert (appdata v)
+{
+	v2f o;
+	float3 vp = v.vertex;
+
+	// Pull out the ordinal value
+	int whichzone = floor(v.uv.x-1);
+	
+	//Only affect it if the v.uv.x was greater than or equal to 1.0
+	if( whichzone >= 0 )
+	{
+		float alpressure = AudioLinkData( ALPASS_AUDIOLINK + int2( 0, whichzone ) ).x;
+		vp.x -= alpressure * .5;
+	}
+
+	o.opos = vp;
+	o.uvw = float3( frac( v.uv ), whichzone + 0.5 );                
+	o.vertex = UnityObjectToClipPos(vp);
+	o.normal = UnityObjectToWorldNormal( v.normal );
+	return o;
+}
+
+fixed4 frag (v2f i) : SV_Target
+{
+	float radius = length( i.uvw.xy - 0.5 ) * 30;
+	float3 color = 0;
+	if( i.uvw.z >= 0 )
+	{
+		// If a speaker, color it with a random ColorChord light.
+		color = AudioLinkData( ALPASS_AUDIOLINK + int2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
+		
+		//Adjust the coloring on the speaker by the normal
+		color = (dot(i.normal.xyz,float3(1,1,-1)))*.2;
+		
+		color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
+	}
+	else
+	{
+		// If the box, use the normal to color it.
+		color = abs(i.normal.xyz)*.01+.02;
+	}
+	
+	return float4( color ,1. );
+}
+```
