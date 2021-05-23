@@ -19,6 +19,7 @@
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+			#include "AudioLink.cginc"
 
             struct appdata
             {
@@ -33,21 +34,8 @@
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _AudioLinkTexture;
-            float4 _AudioLinkTexture_TexelSize;
             float4 _AudioLinkTexture_ST;
 			
-            #ifndef glsl_mod
-            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
-            #endif
-
-            #define PASS_NINE_OFFSET    int2(0,25)
-
-            float4 GetAudioPixelData( int2 pixelcoord )
-            {
-                return tex2D( _AudioLinkTexture, float2( pixelcoord*_AudioLinkTexture_TexelSize.xy) );
-            }
-
             v2f vert (appdata v)
             {
                 v2f o;
@@ -59,9 +47,8 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-
 				int lampno = floor(i.uv.x*16) + floor(i.uv.y*8)*16;
-				return GetAudioPixelData( int2( PASS_NINE_OFFSET + int2( lampno, 0 ) ) );
+				return AudioLinkData( int2( ALPASS_CCLIGHTS + int2( lampno, 0 ) ) );
             }
             ENDCG
         }
