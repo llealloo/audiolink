@@ -14,7 +14,7 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want.
 
-![AudioLinkBaseTexture](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/AudioLinkImageBase.png?raw=true)
+![AudioLinkBaseTexture](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/AudioLink/Docs/AudioLinkDocs_BaseImage.png)
 
 { Llealloo, Insert Avatar map }
 
@@ -104,7 +104,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo1](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo1.gif?raw=true)
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo1.gif)
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the 
@@ -114,7 +114,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-![Demo2](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo2.gif?raw=true)
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo2.gif)
 
 ### Using the spectrogram
 
@@ -135,9 +135,14 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
  
-TODO: LINK VIDEO
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo3.gif)
 
 ### AutoCorrelator + ColorChord Linear + Geometry
+
+This demo does several more things.
+ * It operates in the vertex shader instead of the fragment shader mostly. 
+ * It also reads the autocorrelator instead of the DFT or the Waveform data.  
+ * It reads colorchord to apply some color to the object.
 
 ```glsl
 v2f vert (appdata v)
@@ -186,7 +191,9 @@ fixed4 frag (v2f i) : SV_Target
 	return colorchordcolor;
 }
 ```
-TODO : LINK VIDEO / FINISH WRITEUP
+
+         
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo4.gif)
 
 ### Application of ColorChord Lights
 
