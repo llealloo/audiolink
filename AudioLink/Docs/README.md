@@ -22,7 +22,7 @@ The basic map is sort of a hodgepodge of various features avatars may want.
 
 When using the AudioLink texture, there's a few things that may make sense to add to your shader.  You may either use `AudioLink.cginc` (recommended) or copy-paste the header info.
 
-```glsl
+```hlsl
 
 Shader "MyTestShader"
 {
@@ -55,7 +55,7 @@ Shader "MyTestShader"
 ### What is in AudioLink.cginc.
 
 
-```glsl
+```hlsl
 // Map of where features in AudioLink are.
 #define ALPASS_DFT              int2(0,4)  
 #define ALPASS_WAVEFORM         int2(0,6)
@@ -97,7 +97,7 @@ The reason for the numbers are off by one is because shader parameters can only 
 
 Every sample has the following gain applied to it:
 
-```glsl
+```hlsl
 float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
 
 // Enable/Disable autogain.
@@ -134,6 +134,7 @@ Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is u
 It contains the following dedicated pixels:
   
 | Pixel | Description | Red | Green | Blue | Alpha |
+| --- | --- | --- | --- | --- | --- |
 | 0, 0 | Version Number and FPS | Version (Version Minor) | 0 (Version Major) | System FPS | |
 | 1, 0 | AudioLink FPS | | AudioLink FPS | | |
 | 2, 0 | Milliseconds Since Instance Start | LF | LF | LF | LF |
@@ -141,7 +142,7 @@ It contains the following dedicated pixels:
 | 8, 0 | Current Intensity | RMS | Peak | | |
 | 9, 0 | Marker Value | RMS | Peak | | |
 | 10, 0 | Marker Times | RMS | Peak | | |
-| 11, 0 | Autogain | Asymmetrically Filtered Volume | Symmetrically filtered Volume | | | |
+| 11, 0 | Autogain | Asymmetrically Filtered Volume | Symmetrically filtered Volume | | |
 
 #### ALPASS_CCINTERNAL
 
@@ -155,7 +156,7 @@ A single linear strip of ColorChord, think of it as a linear pie chart.  You can
 
 #### ALPASS_CCLIGHTS
 
-![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_CCStrip.png)
+![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_CCLights.png)
 
 Two rows, the bottom row contains raw colorchord light values.  Useful for if you have individual objects or lights which need a sound-correlated color that are discrete.  I.e. pieces of confetti, lamps, speakers, blocks, etc.
 
@@ -171,7 +172,7 @@ Green, Blue, Alpha are reserved.
 
 #### Other defines
 
-```glsl
+```hlsl
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
 #define CCMAXNOTES 10
@@ -200,7 +201,7 @@ A couple utility macros/functions
 Once you have these pasted into your new shader and you drag the AudioLink texture onto your material, you can now retrieve data directly from the AudioLink texture.  For instance in this code 
 snippet, we can make a cube display just the current 4 AudioLink values.  We set the X component in the texture to 0, and the Y component to be based on the Y coordinate in the texture.
 
-```glsl
+```hlsl
 fixed4 frag (v2f i) : SV_Target
 {
     return AudioLinkData( ALPASS_AUDIOLINK + int2( 0, i.uv.y * 4. ) ).rrrr;
@@ -212,7 +213,7 @@ fixed4 frag (v2f i) : SV_Target
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the 
 
-```glsl
+```hlsl
 float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 0 ) ).r;
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
@@ -225,7 +226,7 @@ This demo shows off a few things.
  * Reading the spectrogram from `ALPASS_DFT`
  * Doing something a little more interesting with the surface
 
-```glsl
+```hlsl
 float noteno = i.uv.x*ETOTALBINS;
 
 float4 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) )  + 0.5;
@@ -247,7 +248,7 @@ This demo does several more things.
  * It also reads the autocorrelator instead of the DFT or the Waveform data.  
  * It reads colorchord to apply some color to the object.
 
-```glsl
+```hlsl
 v2f vert (appdata v)
 {
     v2f o;
@@ -304,7 +305,7 @@ UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anythin
 
 ![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo5.gif)
 
-```glsl
+```hlsl
 v2f vert (appdata v)
 {
 	v2f o;
@@ -369,14 +370,14 @@ You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampl
 
 There are situations where you may need to interpolate between two points in a shader, and we find that it's still worthwhile to just do it using the indexing method.
 
-```glsl
+```hlsl
 Texture2D<float4>   _SelfTexture2D;
 #define GetAudioPixelData(xy) _SelfTexture2D[xy]
 ```
 
 And the less recommended method.
 
-```glsl
+```hlsl
 // We recommend against this more traditional mechanism,
 sampler2D _AudioLinkTexture;
 uniform float4 _AudioLinkTexture_TexelSize;
@@ -411,7 +412,7 @@ Filtered Value = New Value * ( 1 - Filter Constant ) + Last Frame's Filtered Val
 
 Or, in GPU Land, it turns into:
 
-```glsl
+```hlsl
 	filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
 ```
 
@@ -425,50 +426,3 @@ This is particularly useful as this sort of tracks the way we perceive informati
 
 
 ### Junk drawer
-
-```hlsl
-v2f vert (appdata v)
-{
-	v2f o;
-	float3 vp = v.vertex;
-
-	// Pull out the ordinal value
-	int whichzone = floor(v.uv.x-1);
-	
-	//Only affect it if the v.uv.x was greater than or equal to 1.0
-	if( whichzone >= 0 )
-	{
-		float alpressure = AudioLinkData( ALPASS_AUDIOLINK + int2( 0, whichzone ) ).x;
-		vp.x -= alpressure * .5;
-	}
-
-	o.opos = vp;
-	o.uvw = float3( frac( v.uv ), whichzone + 0.5 );                
-	o.vertex = UnityObjectToClipPos(vp);
-	o.normal = UnityObjectToWorldNormal( v.normal );
-	return o;
-}
-
-fixed4 frag (v2f i) : SV_Target
-{
-	float radius = length( i.uvw.xy - 0.5 ) * 30;
-	float3 color = 0;
-	if( i.uvw.z >= 0 )
-	{
-		// If a speaker, color it with a random ColorChord light.
-		color = AudioLinkData( ALPASS_AUDIOLINK + int2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
-		
-		//Adjust the coloring on the speaker by the normal
-		color = (dot(i.normal.xyz,float3(1,1,-1)))*.2;
-		
-		color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
-	}
-	else
-	{
-		// If the box, use the normal to color it.
-		color = abs(i.normal.xyz)*.01+.02;
-	}
-	
-	return float4( color ,1. );
-}
-```
