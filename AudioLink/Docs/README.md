@@ -207,13 +207,13 @@ TODO
 
 ## Pertinent Notes and Tradeoffs.
 
-### Texture2D<float4> vs sampler2D
+### Texture2D &lt float4 &gt vs sampler2D
 
 You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampler2D` and `tex2Dlod`.  We strongly recommend using the `Texture2D<float4>` method over the traditional `sampler2D` method.  This is both because of usabiity as well as a **measurable increase in perf**.  HOWEVER - in a traditional surface shader you cannot use the newer HLSL syntax.  AudioLink will automatically fallback to the old texture indexing but if you want to do it manually, you may `#define AUDIOLINK_STANDARD_INDEXING`.
 
 There are situations where you may need to interpolate between two points in a shader, and we find that it's still worthwhile to just do it using the indexing method.
 
-`glsl
+```glsl
 Texture2D<float4>   _SelfTexture2D;
 #define GetAudioPixelData(xy) _SelfTexture2D[xy]
 ```
