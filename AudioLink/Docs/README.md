@@ -6,15 +6,19 @@ AudioLink can be used in 2 ways.
 
 ## Using AudioLink in Udon
 
-{ See main readme and examples }
+{ Llealloo, should this link to main page? See main readme and examples }
 
-## Using the AudioLink Texture
+## The AudioLink Texture
 
 The AudioLink Texture is a 128 x 64 px RGBA texture which contains several features which allow for the linking of audio and other data to avatars of a world.  It contains space for many more features than are currently implemented and may periodically add functionality. 
 
-{ Insert Avatar map }
+The basic map is sort of a hodgepodge of various features avatars may want.
 
-## Fundamentals
+![AudioLinkBaseTexture](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/AudioLinkImageBase.png?raw=true)
+
+{ Llealloo, Insert Avatar map }
+
+## Using the AudioLink Texture
 
 When using the AudioLink texture, there's a few things that may make sense to add to your shader.  You may either use `AudioLink.cginc` (recommended) or copy-paste the header info.
 
@@ -44,51 +48,51 @@ Shader "MyTestShader"
             
             ... OR ...
 
-			// Map of where features in AudioLink are.
-			#define ALPASS_DFT              int2(0,4)  
-			#define ALPASS_WAVEFORM         int2(0,6)
-			#define ALPASS_AUDIOLINK        int2(0,0)
-			#define ALPASS_AUDIOLINKHISTORY int2(1,0) 
-			#define ALPASS_GENERALVU        int2(0,22)  
-			#define ALPASS_CCINTERNAL       int2(12,22)
-			#define ALPASS_CCSTRIP          int2(0,24)
-			#define ALPASS_CCLIGHTS         int2(0,25)
-			#define ALPASS_AUTOCORRELATOR   int2(0,28)
+            // Map of where features in AudioLink are.
+            #define ALPASS_DFT              int2(0,4)  
+            #define ALPASS_WAVEFORM         int2(0,6)
+            #define ALPASS_AUDIOLINK        int2(0,0)
+            #define ALPASS_AUDIOLINKHISTORY int2(1,0) 
+            #define ALPASS_GENERALVU        int2(0,22)  
+            #define ALPASS_CCINTERNAL       int2(12,22)
+            #define ALPASS_CCSTRIP          int2(0,24)
+            #define ALPASS_CCLIGHTS         int2(0,25)
+            #define ALPASS_AUTOCORRELATOR   int2(0,28)
 
-			// Some basic constants to use (Note, these should be compatible with
-			// future version of AudioLink, but may change.
-			#define CCMAXNOTES 10
-			#define SAMPHIST 3069 //Internal use for algos, do not change.
-			#define SAMPLEDATA24 2046
-			#define EXPBINS 24
-			#define EXPOCT 10
-			#define ETOTALBINS ((EXPBINS)*(EXPOCT))
-			#define AUDIOLINK_WIDTH  128
-			#define _SamplesPerSecond 48000
-			#define _RootNote 0
+            // Some basic constants to use (Note, these should be compatible with
+            // future version of AudioLink, but may change.
+            #define CCMAXNOTES 10
+            #define SAMPHIST 3069 //Internal use for algos, do not change.
+            #define SAMPLEDATA24 2046
+            #define EXPBINS 24
+            #define EXPOCT 10
+            #define ETOTALBINS ((EXPBINS)*(EXPOCT))
+            #define AUDIOLINK_WIDTH  128
+            #define _SamplesPerSecond 48000
+            #define _RootNote 0
 
-			// We use glsl_mod for most calculations because it behaves better
-			// on negative numbers, and in some situations actually outperforms
-			// HLSL's modf().
-			#ifndef glsl_mod
-			#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
-			#endif
+            // We use glsl_mod for most calculations because it behaves better
+            // on negative numbers, and in some situations actually outperforms
+            // HLSL's modf().
+            #ifndef glsl_mod
+            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
+            #endif
 
-			// Mechanism to index into texture.
-			Texture2D<float4>   _AudioLinkTexture;
-			uniform half4       _AudioLinkTexture_TexelSize; 
+            // Mechanism to index into texture.
+            Texture2D<float4>   _AudioLinkTexture;
+            uniform half4       _AudioLinkTexture_TexelSize; 
 
-			// Simply read data from the AudioLink texture
-			#define AudioLinkData(xycoord) _AudioLinkTexture[uint2(xycoord)]
+            // Simply read data from the AudioLink texture
+            #define AudioLinkData(xycoord) _AudioLinkTexture[uint2(xycoord)]
 
-			// Convenient mechanism to read from the AudioLink texture that handles reading off the end of one line and onto the next above it.
-			float4 AudioLinkDataMultiline( uint2 xycoord) { return _AudioLinkTexture[uint2(xycoord.x % AUDIOLINK_WIDTH, xycoord.y + xycoord.x/AUDIOLINK_WIDTH)]; }
+            // Convenient mechanism to read from the AudioLink texture that handles reading off the end of one line and onto the next above it.
+            float4 AudioLinkDataMultiline( uint2 xycoord) { return _AudioLinkTexture[uint2(xycoord.x % AUDIOLINK_WIDTH, xycoord.y + xycoord.x/AUDIOLINK_WIDTH)]; }
 
-			// Mechanism to sample between two adjacent pixels and lerp between them, like "linear" supesampling
-			float4 AudioLinkLerp(float2 xy) { return lerp( AudioLinkData(xy), AudioLinkData(xy+int2(1,0)), frac( xy.x ) ); }
+            // Mechanism to sample between two adjacent pixels and lerp between them, like "linear" supesampling
+            float4 AudioLinkLerp(float2 xy) { return lerp( AudioLinkData(xy), AudioLinkData(xy+int2(1,0)), frac( xy.x ) ); }
 
-			// Same as AudioLinkLerp but properly handles multiline reading.
-			float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(xy), AudioLinkDataMultiline(xy+float2(1,0)), frac( xy.x ) ); }
+            // Same as AudioLinkLerp but properly handles multiline reading.
+            float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(xy), AudioLinkDataMultiline(xy+float2(1,0)), frac( xy.x ) ); }
 
             ...
         }
@@ -105,12 +109,11 @@ snippet, we can make a cube display just the current 4 AudioLink values.  We set
 ```glsl
 fixed4 frag (v2f i) : SV_Target
 {
-	return AudioLinkData( ALPASS_AUDIOLINK + int2( 0, i.uv.y * 4. ) ).rrrr;
+    return AudioLinkData( ALPASS_AUDIOLINK + int2( 0, i.uv.y * 4. ) ).rrrr;
 }
 ```
 
-<<connect gif link>>
-
+![Demo1](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo1.gif?raw=true)
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the 
@@ -120,7 +123,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-<<<connect gif link>>
+![Demo2](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo2.gif?raw=true)
 
 ### Demo showing moving of geometry
 
