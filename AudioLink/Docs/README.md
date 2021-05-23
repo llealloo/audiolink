@@ -135,9 +135,14 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
  
-TODO: LINK VIDEO
+![Demo3](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo3.gif?raw=true)
 
 ### AutoCorrelator + ColorChord Linear + Geometry
+
+This demo does several more things.
+ * It operates in the vertex shader instead of the fragment shader mostly. 
+ * It also reads the autocorrelator instead of the DFT or the Waveform data.  
+ * It reads colorchord to apply some color to the object.
 
 ```glsl
 v2f vert (appdata v)
@@ -186,7 +191,8 @@ fixed4 frag (v2f i) : SV_Target
 	return colorchordcolor;
 }
 ```
-TODO : LINK VIDEO / FINISH WRITEUP
+
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo4.gif?raw=true)
 
 ### Application of ColorChord Lights
 
