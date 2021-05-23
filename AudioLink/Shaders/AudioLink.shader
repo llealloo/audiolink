@@ -75,7 +75,7 @@ Shader "AudioLink/AudioLink"
             //  PX 8:  Current VU Level
             //  PX 9:  Historical VU Marker Value
             //  PX 10: Historical VU Marker Times
-            
+            //  PX 11: Slower response to volume.
             #define ALPASS_GENERALVU   int2(0,22)  
 
             // Pass 6: ColorChord Internal Note Data
@@ -86,7 +86,7 @@ Shader "AudioLink/AudioLink"
 
             // Pass 7: Autocorrelator output
             //  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
-            #define ALPASS_AUTOCORRELATOR    int2(0,28)
+            #define ALPASS_AUTOCORRELATOR    int2(0,27)
 
             // Pass 8: ColorChord Strip
             //  Whole line, able to map directly to textues.
@@ -142,11 +142,10 @@ Shader "AudioLink/AudioLink"
             };
             
             // This pulls data from this texture.
-			#define GetSelfPixelData(xy) _SelfTexture2D[xy]
+            #define GetSelfPixelData(xy) _SelfTexture2D[xy]
             
             // DFT
             const static float _BottomFrequency = 13.75;
-            //const static float _IIRCoefficient = 0.8;
             const static float _BaseAmplitude = 2.5;
             const static float _DecayCoefficient = 0.01;
             const static float _PhiDeltaCorrection = 4.0;
@@ -555,7 +554,7 @@ Shader "AudioLink/AudioLink"
                     }
                     else if( coordinateLocal.x == 11 )
                     {
-                        //Third pixel: Auto Gain
+                        //Third pixel: Auto Gain / Volume Monitor for ColorChord
                         
                         //Compensate for the fact that we've already gain'd our samples.
                         float deratePeak = Peak / ( LastAutogain.x + _AutogainDerate );
@@ -568,6 +567,8 @@ Shader "AudioLink/AudioLink"
                         {
                             LastAutogain.x = lerp( deratePeak, LastAutogain.x, .995 ); //Make decay long.
                         }
+                        
+                        LastAutogain.y = lerp( Peak, LastAutogain.y, 0.95 );
                         return LastAutogain;
                     }
                 }
@@ -657,8 +658,10 @@ Shader "AudioLink/AudioLink"
                 #define EMAXBIN 192
                 #define EBASEBIN 24
                 
+                float VUAmplitudeSlow = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) ).y;
+                float NOTE_MINIMUM = 0.02 + 0.2 * VUAmplitudeSlow;
+                
                 static const float NOTECLOSEST = 3.5;
-                static const float NOTE_MINIMUM = 0.2;
                 static const float IIR1_DECAY = 0.90;
                 static const float CONSTANT1_DECAY = 0.01;
                 static const float IIR2_DECAY = 0.85;
@@ -793,7 +796,6 @@ Shader "AudioLink/AudioLink"
                         //XXX TODO: Do uniformity calculation on n1 for n1.a.
                     }
                     
-                    n1.y = max( 0, pow( n1.z, 1.5 ) - 50. );
                     n1.y = 0;
                     
                     if( n1.z >= 0 )

@@ -11,8 +11,8 @@
 
         Pass
         {
-			Cull Off
-			
+            Cull Off
+            
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -44,17 +44,17 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-				float noteno = i.uv.x*ETOTALBINS;
+                float noteno = i.uv.x*ETOTALBINS;
 
-                float4 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) )  + 0.5;
+                float4 spectrum_value = -AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) ) * 0.5  + 0.55;
 
                 //If we are below the spectrum line, discard the pixel.
-				if( i.uv.y < spectrum_value.z )
-					discard;
-			    else if( i.uv.y < spectrum_value.z + 0.01 )
-					return 1.;
+                if( i.uv.y < spectrum_value.z )
+                    discard;
+                else if( i.uv.y < spectrum_value.z + 0.01 )
+                    return 1.;
 
-				return 0.1;
+                return 0.1;
             }
             ENDCG
         }
