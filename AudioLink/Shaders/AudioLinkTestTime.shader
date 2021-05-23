@@ -65,13 +65,10 @@
                 switch( dig.y )
                 {
                 case 0:
-                    // Time since level start in milliseconds.
-                    value = DecodeLongFloat( AudioLinkData( int2( ALPASS_GENERALVU + int2( 2, 0 ) ) ) );
-                    break;
-                    
-                case 1:
-                    // Time of day.
-                    value = DecodeLongFloat( AudioLinkData( int2( ALPASS_GENERALVU + int2( 3, 0 ) ) ) ) / 1000;
+				case 1:
+                    // 2: Time since level start in milliseconds.
+                    // 3: Time of day.
+                    value = DecodeLongFloat( AudioLinkData( int2( ALPASS_GENERALVU + int2( dig.y+2, 0 ) ) ) ) / 1000;
                     float seconds = glsl_mod( value, 60 );
                     int minutes = (value/60) % 60;
                     int hours = (value/3600);
@@ -131,6 +128,7 @@
                 default:
                     break;
                 }
+
                 return PrintNumberOnLine( value, cols-offset, dig.x + xoffset, fmxy, offset, leadingzero );                
             }
             ENDCG
