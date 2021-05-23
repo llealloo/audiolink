@@ -45,61 +45,52 @@ Shader "MyTestShader"
             ...
             
             #include "../AudioLink/Shaders/AudioLink.cginc"
-            
-            ... OR ...
-
-            // Map of where features in AudioLink are.
-            #define ALPASS_DFT              int2(0,4)  
-            #define ALPASS_WAVEFORM         int2(0,6)
-            #define ALPASS_AUDIOLINK        int2(0,0)
-            #define ALPASS_AUDIOLINKHISTORY int2(1,0) 
-            #define ALPASS_GENERALVU        int2(0,22)  
-            #define ALPASS_CCINTERNAL       int2(12,22)
-            #define ALPASS_CCSTRIP          int2(0,24)
-            #define ALPASS_CCLIGHTS         int2(0,25)
-            #define ALPASS_AUTOCORRELATOR   int2(0,28)
-
-            // Some basic constants to use (Note, these should be compatible with
-            // future version of AudioLink, but may change.
-            #define CCMAXNOTES 10
-            #define SAMPHIST 3069 //Internal use for algos, do not change.
-            #define SAMPLEDATA24 2046
-            #define EXPBINS 24
-            #define EXPOCT 10
-            #define ETOTALBINS ((EXPBINS)*(EXPOCT))
-            #define AUDIOLINK_WIDTH  128
-            #define _SamplesPerSecond 48000
-            #define _RootNote 0
-
-            // We use glsl_mod for most calculations because it behaves better
-            // on negative numbers, and in some situations actually outperforms
-            // HLSL's modf().
-            #ifndef glsl_mod
-            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
-            #endif
-
-            // Mechanism to index into texture.
-            Texture2D<float4>   _AudioLinkTexture;
-            uniform half4       _AudioLinkTexture_TexelSize; 
-
-            // Simply read data from the AudioLink texture
-            #define AudioLinkData(xycoord) _AudioLinkTexture[uint2(xycoord)]
-
-            // Convenient mechanism to read from the AudioLink texture that handles reading off the end of one line and onto the next above it.
-            float4 AudioLinkDataMultiline( uint2 xycoord) { return _AudioLinkTexture[uint2(xycoord.x % AUDIOLINK_WIDTH, xycoord.y + xycoord.x/AUDIOLINK_WIDTH)]; }
-
-            // Mechanism to sample between two adjacent pixels and lerp between them, like "linear" supesampling
-            float4 AudioLinkLerp(float2 xy) { return lerp( AudioLinkData(xy), AudioLinkData(xy+int2(1,0)), frac( xy.x ) ); }
-
-            // Same as AudioLinkLerp but properly handles multiline reading.
-            float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(xy), AudioLinkDataMultiline(xy+float2(1,0)), frac( xy.x ) ); }
-
             ...
         }
     }
 }
 
 ```
+
+### What is in AudioLink.cginc.
+
+
+```glsl
+// Map of where features in AudioLink are.
+#define ALPASS_DFT              int2(0,4)  
+#define ALPASS_WAVEFORM         int2(0,6)
+#define ALPASS_AUDIOLINK        int2(0,0)
+#define ALPASS_AUDIOLINKHISTORY int2(1,0) 
+#define ALPASS_GENERALVU        int2(0,22)  
+#define ALPASS_CCINTERNAL       int2(12,22)
+#define ALPASS_CCSTRIP          int2(0,24)
+#define ALPASS_CCLIGHTS         int2(0,25)
+#define ALPASS_AUTOCORRELATOR   int2(0,27)
+```
+
+```glsl
+// Some basic constants to use (Note, these should be compatible with
+// future version of AudioLink, but may change.
+#define CCMAXNOTES 10
+#define SAMPHIST 3069 //Internal use for algos, do not change.
+#define SAMPLEDATA24 2046
+#define EXPBINS 24
+#define EXPOCT 10
+#define ETOTALBINS ((EXPBINS)*(EXPOCT))
+#define AUDIOLINK_WIDTH  128
+#define _SamplesPerSecond 48000
+#define _RootNote 0
+```
+
+A couple utility macros/functions
+
+ * `glsl_mod( x, y )` - returns a well behaved in negative version of `fmod()`
+ * `float4 AudioLinkData( int2 coord )` - Retrieve a bit of data from _AudioLinkTexture, using whole numbers.
+ * `float4 AudioLinkDataMultiline( int2 coord )` - Same as `AudioLinkData` except that if you read off the end of one line, it continues reading onthe next.
+ * `float4 AudioLinkLerp( float2 fcoord )` - Interpolate between two pixels, useful for making shaders not look jaggedy.
+ * `float4 AudioLinkLerpMultiline( float2 fcoord )` - `AudioLinkLerp` but wraps lines correctly.
+ * `float4 CCHSVtoRGB( float3 hsv )` - Standard HSV/L to RGB function.
+ * `float4 CCtoRGB( float bin, float intensity, int RootNote )` - ColorChord's standard color generation function.
 
 
 ### Basic Test with AudioLink
@@ -125,13 +116,77 @@ return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 
 ![Demo2](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo2.gif?raw=true)
 
-### Demo showing moving of geometry
+### Using the spectrogram
 
-TODO
+This demo shows off a few things.
+ * Reading the spectrogram from `ALPASS_DFT`
+ * Doing something a little more interesting with the surface
 
-### AutoCorrelator + ColorChord Linear
+```glsl
+float noteno = i.uv.x*ETOTALBINS;
 
-TODO
+float4 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) )  + 0.5;
+
+//If we are below the spectrum line, discard the pixel.
+if( i.uv.y < spectrum_value.z )
+	discard;
+else if( i.uv.y < spectrum_value.z + 0.01 )
+	return 1.;
+return 0.1;
+```
+ 
+TODO: LINK VIDEO
+
+### AutoCorrelator + ColorChord Linear + Geometry
+
+```glsl
+v2f vert (appdata v)
+{
+	v2f o;
+	float3 vp = v.vertex;
+
+	o.vpOrig = vp;
+
+	// Generate a value for how far around the circle you are.
+	// atan2 generates a number from -pi to pi.  We want to map
+	// this from -1..1.  Tricky: add 0.001 to x otherwise
+	// we lose a vertex at the poll because atan2 is undefined.
+	float phi = atan2( vp.x+0.001, vp.z ) / 3.14159;
+	
+	// We want to mirror the -1..1 so that it's actually 0..1 but
+	// mirrored.
+	float placeinautocorrelator = abs( phi );
+	
+	// Note: We don't need lerp multiline because the autocorrelator
+	// is only a single line.
+	float autocorrvalue = AudioLinkLerp( ALPASS_AUTOCORRELATOR +
+		float2( placeinautocorrelator * AUDIOLINK_WIDTH, 0. ) );
+	
+	// Squish in the sides, and make it so it only perterbs
+	// the surface.
+	autocorrvalue = autocorrvalue * (.8-abs(vp.y)) * 0.3 + .6;
+
+	vp *= autocorrvalue;
+
+	o.vpXform = vp;                
+	o.vertex = UnityObjectToClipPos(vp);
+	return o;
+}
+
+fixed4 frag (v2f i) : SV_Target
+{
+	// Decide how we want to color from colorchord.
+	float ccplace = length( i.vpXform.z );
+	
+	// Get a color from ColorChord
+	float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP + float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
+
+	// Shade the color a little.
+	colorchordcolor *= length( i.vpXform.xyz ) * 10. - 1.0;
+	return colorchordcolor;
+}
+```
+TODO : LINK VIDEO / FINISH WRITEUP
 
 ### Application of ColorChord Lights
 
@@ -146,9 +201,9 @@ TODO
 
 ### Texture2D<float4> vs sampler2D
 
-You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampler2D` and `tex2Dlod`.  We strongly recommend using the `Texture2D<float4>` method over the traditional `sampler2D` method.  This is both because of usabiity as well as a **measurable increase in perf**.
+You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampler2D` and `tex2Dlod`.  We strongly recommend using the `Texture2D<float4>` method over the traditional `sampler2D` method.  This is both because of usabiity as well as a **measurable increase in perf**.  HOWEVER - in a traditional surface shader you cannot use the newer HLSL syntax.  AudioLink will automatically fallback to the old texture indexing but if you want to do it manually, you may `#define AUDIOLINK_STANDARD_INDEXING`.
 
-There are situations where you may need to interpolate between two points in a shader, and we find that it's still worthwhile to  
+There are situations where you may need to interpolate between two points in a shader, and we find that it's still worthwhile to just do it using the indexing method.
 
 `glsl
 Texture2D<float4>   _SelfTexture2D;
