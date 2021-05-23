@@ -233,3 +233,15 @@ float4 GetAudioPixelData( int2 pixelcoord )
 ### FP16 vs FP32 (half/float)
 
 As it currently stands, because the `rt_AudioLink` texture is used as both the input and output of the camera attached to the AudioLink object, it goes through an "Effect" pass which drives the precision to FP16 (half) from the `float` that the texture is by default.  Though, internally, the AudioLink texture is `float`, it means the values avatars are allowed to retrieve from it are limited to `half` precision.
+
+### AudioLinkLerp vs AudioLinkData
+
+`AudioLinkData` is designed to read a cell's data with the most integrety possible, i.e. not mixing colors or anything else.  But, sometimes you really want to get a filtered capture.  Instead of using a hardware interpolator, at this time, for control we just use lerp ourselves.
+
+This is what sinewave would look like if one were to use `AudioLinkData`
+
+{ TODO: Link Image! }
+
+This is the same output, but with AudioLinkLerp.
+
+{ TODO: Link Image! }

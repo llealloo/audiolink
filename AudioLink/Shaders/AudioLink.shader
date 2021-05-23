@@ -146,7 +146,6 @@ Shader "AudioLink/AudioLink"
             
             // DFT
             const static float _BottomFrequency = 13.75;
-            //const static float _IIRCoefficient = 0.8;
             const static float _BaseAmplitude = 2.5;
             const static float _DecayCoefficient = 0.01;
             const static float _PhiDeltaCorrection = 4.0;
