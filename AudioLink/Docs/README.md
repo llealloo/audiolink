@@ -104,7 +104,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo1](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo1.gif?raw=true)
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo1.gif)
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the 
@@ -114,7 +114,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-![Demo2](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo2.gif?raw=true)
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo2.gif)
 
 ### Using the spectrogram
 
@@ -135,7 +135,7 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
  
-![Demo3](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo3.gif?raw=true)
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo3.gif)
 
 ### AutoCorrelator + ColorChord Linear + Geometry
 
@@ -192,7 +192,8 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/blob/dev/AudioLink/Docs/Demo4.gif?raw=true)
+         
+![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo4.gif)
 
 ### Application of ColorChord Lights
 
