@@ -193,7 +193,6 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-         
 ![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo4.gif)
 
 ### Application of ColorChord Lights
@@ -204,10 +203,14 @@ TODO
 
 TODO
 
+### Using Ordinal UVs to make some neat speakers.
+
+TODO
+
 
 ## Pertinent Notes and Tradeoffs.
 
-### Texture2D &lt float4 &gt vs sampler2D
+### Texture2D &lt;float4&gt; vs sampler2D
 
 You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampler2D` and `tex2Dlod`.  We strongly recommend using the `Texture2D<float4>` method over the traditional `sampler2D` method.  This is both because of usabiity as well as a **measurable increase in perf**.  HOWEVER - in a traditional surface shader you cannot use the newer HLSL syntax.  AudioLink will automatically fallback to the old texture indexing but if you want to do it manually, you may `#define AUDIOLINK_STANDARD_INDEXING`.
 
