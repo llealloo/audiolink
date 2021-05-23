@@ -46,7 +46,7 @@
             {
 				float noteno = i.uv.x*ETOTALBINS;
 
-                float4 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) )  + 0.5;
+                float4 spectrum_value = -AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) )  + 0.6;
 
                 //If we are below the spectrum line, discard the pixel.
 				if( i.uv.y < spectrum_value.z )
