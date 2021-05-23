@@ -27,8 +27,6 @@ public class AudioLink : MonoBehaviour
 
     [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
     public AudioSource audioSource;
-    [Tooltip("Enable Udon audioData array")]
-    public bool audioDataToggle = true;
     [Tooltip("Enable global _AudioTexture")]
     public bool audioTextureToggle = true;
 
@@ -67,8 +65,12 @@ public class AudioLink : MonoBehaviour
     [Header("Internal (Do not modify)")]
     public Material audioMaterial;
     public GameObject audioTextureExport;
-    public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
+
+    [Header("Experimental (Limits performance)")]
+    [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
+    public bool audioDataToggle = false;
     public Color[] audioData;
+    public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
 
     private float[] _spectrumValues = new float[1024];
     private float[] _spectrumValuesTrim = new float[1023];
