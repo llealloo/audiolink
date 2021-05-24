@@ -32,7 +32,7 @@
 #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
 #endif
 
-uniform float4               _AudioLinkTexture_TexelSize; 
+uniform float4               _AudioTexture_TexelSize; 
 
 #ifdef SHADER_TARGET_SURFACE_ANALYSIS
 #define AUDIOLINK_STANDARD_INDEXING
@@ -40,11 +40,11 @@ uniform float4               _AudioLinkTexture_TexelSize;
 
 // Mechanism to index into texture.
 #ifdef AUDIOLINK_STANDARD_INDEXING
-    sampler2D _AudioLinkTexture;
-    #define AudioLinkData(xycoord) tex2Dlod( _AudioLinkTexture, float4( uint2(xycoord) * _AudioLinkTexture_TexelSize.xy, 0, 0 ) )
+    sampler2D _AudioTexture;
+    #define AudioLinkData(xycoord) tex2Dlod( _AudioTexture, float4( uint2(xycoord) * _AudioTexture_TexelSize.xy, 0, 0 ) )
 #else
-    uniform Texture2D<float4>   _AudioLinkTexture;
-    #define AudioLinkData(xycoord) _AudioLinkTexture[uint2(xycoord)]
+    uniform Texture2D<float4>   _AudioTexture;
+    #define AudioLinkData(xycoord) _AudioTexture[uint2(xycoord)]
 #endif
 
 // Convenient mechanism to read from the AudioLink texture that handles reading off the end of one line and onto the next above it.
@@ -136,6 +136,143 @@ float3 CCtoRGB( float bin, float intensity, int RootNote )
 }
 
 
+
+
+
+
+
+////////////////////////////////////////////////////////////////////
+// General debug functions below here
+
+
+
+
+// Shockingly, including the ability to render text doesn't
+// slow down number printing if text isn't used.
+// A basic versino of the debug screen without text was only 134
+// instructions.
+
+float PrintChar( uint selchar, float2 mxy )
+{
+    const static uint BitmapNumberFont[40] = {
+        15379168,  // '0' 1110 1010 1010 1010 1110 0000
+        4473920,   // '1' 0100 0100 0100 0100 0100 0000
+        14870752,  // '2' 1110 0010 1110 1000 1110 0000
+        14836448,  // '3' 1110 0010 0110 0010 1110 0000
+        11199008,  // '4' 1010 1010 1110 0010 0010 0000
+        15262432,  // '5' 1110 1000 1110 0010 1110 0000
+        15264480,  // '6' 1110 1000 1110 1010 1110 0000
+        14836800,  // '7' 1110 0010 0110 0100 0100 0000
+        15395552,  // '8' 1110 1010 1110 1010 1110 0000
+        15393376,  // '9' 1110 1010 1110 0010 0110 0000
+        64,        // '.' 0000 0000 0000 0000 0100 0000
+        57344,     // '-' 0000 0000 1110 0000 0000 0000
+        0,         // ' '
+        15395488,  // 'A' 1110 1010 1110 1010 1010 0000
+        15395552,  // 'B' 1110 1010 1110 1010 1110 0000
+        15239392,  // 'C' 1110 1000 1000 1000 1110 0000
+        15379168,  // 'D' 1110 1010 1010 1010 1110 0000
+        15255776,  // 'E' 1110 1000 1100 1000 1110 0000
+        15255680,  // 'F' 1110 1000 1100 1000 1000 0000
+        15264480,  // 'G' 1110 1000 1110 1010 1110 0000
+        11201184,  // 'H' 1010 1010 1110 1010 1010 0000
+        14959840,  // 'I' 1110 0100 0100 0100 1110 0000
+        14823136,  // 'J' 1110 0010 0010 1110 1110 0000
+        11201184,  // 'K' 1010 1010 1110 1010 1010 0000
+        8947936 ,  // 'L' 1000 1000 1000 1000 1110 0000
+        11446944,  // 'M' 1010 1110 1010 1010 1010 0000
+        9349792 ,  // 'N' 1000 1110 1010 1010 1010 0000
+        15379168,  // 'O' 1110 1010 1010 1010 1110 0000
+        15394944,  // 'P' 1110 1010 1110 1000 1000 0000
+        15380192,  // 'Q' 1110 1010 1010 1110 1110 0000
+        15395488,  // 'R' 1110 1010 1110 1010 1010 0000
+        15262432,  // 'S' 1110 1000 1110 0010 1110 0000
+        14959680,  // 'T' 1110 0100 0100 0100 0100 0000
+        11184864,  // 'U' 1010 1010 1010 1010 1110 0000
+        11184704,  // 'V' 1010 1010 1010 1010 0100 0000
+        11464256,  // 'W' 1010 1010 1110 1110 0100 0000
+        11160224,  // 'X' 1010 1010 0100 1010 1010 0000
+        11199552,  // 'Y' 1010 1010 1110 0100 0100 0000
+        14829792,  // 'Z' 1110 0010 0100 1000 1110 0000
+        658144,  // ':)'0000 1010 0000 1010 1110 0000
+    };
+    const static uint BitmapNumberFontPartial[40] = {
+        15379168,  // '0' 1110 1010 1010 1010 1110 0000
+        4473920,   // '1' 0100 0100 0100 0100 0100 0000
+        14870752,  // '2' 1110 0010 1110 1000 1110 0000
+        14836448,  // '3' 1110 0010 0110 0010 1110 0000
+        11199008,  // '4' 1010 1010 1110 0010 0010 0000
+        15262432,  // '5' 1110 1000 1110 0010 1110 0000
+        15264480,  // '6' 1110 1000 1110 1010 1110 0000
+        14836800,  // '7' 1110 0010 0110 0100 0100 0000
+        15395552,  // '8' 1110 1010 1110 1010 1110 0000
+        15393376,  // '9' 1110 1010 1110 0010 0110 0000
+        64,        // '.' 0000 0000 0000 0000 0100 0000
+        57344,     // '-' 0000 0000 1110 0000 0000 0000
+        0,         // ' '
+        15395488,  // 'A' 1110 1010 1110 1010 1010 0000
+        13298368,  // 'B' 1100 1010 1110 1010 1100 0000
+        15239392,  // 'C' 1110 1000 1000 1000 1110 0000
+        13281984,  // 'D' 1100 1010 1010 1010 1100 0000
+        15255776,  // 'E' 1110 1000 1100 1000 1110 0000
+        15255680,  // 'F' 1110 1000 1100 1000 1000 0000
+        15248096,  // 'G' 1110 1000 1010 1010 1110 0000
+        11201184,  // 'H' 1010 1010 1110 1010 1010 0000
+        14959840,  // 'I' 1110 0100 0100 0100 0100 0000
+        14822080,  // 'J' 1110 0010 0010 1010 1100 0000
+        11192992,  // 'K' 1010 1010 1100 1010 1010 0000
+        8947936 ,  // 'L' 1000 1000 1000 1000 1110 0000
+        11446944,  // 'M' 1010 1110 1010 1010 1010 0000
+        9218720 ,  // 'N' 1000 1100 1010 1010 1010 0000
+        15379168,  // 'O' 1110 1010 1010 1010 1110 0000
+        15394944,  // 'P' 1110 1010 1110 1000 1000 0000
+        15379040,  // 'Q' 1110 1010 1010 1010 0110 0000
+        15387296,  // 'R' 1110 1010 1100 1010 1010 0000
+        15262432,  // 'S' 1110 1000 1110 0010 1110 0000
+        14959680,  // 'T' 1110 0100 0100 0100 0100 0000
+        11184864,  // 'U' 1010 1010 1010 1010 1110 0000
+        11185728,  // 'V' 1010 1010 1010 1110 0100 0000
+        11464256,  // 'W' 1010 1010 1110 1110 0100 0000
+        11160224,  // 'X' 1010 1010 0100 1010 1010 0000
+        11199552,  // 'Y' 1010 1010 1110 0100 0100 0000
+        14829792,  // 'Z' 1110 0010 0100 1000 1110 0000
+        657984,  // ':)'0000 1010 0000 1010 0100 0000
+    };
+    
+    uint bitmap = BitmapNumberFont[selchar];
+    uint bitmappartial = BitmapNumberFontPartial[selchar];
+    if( 0 )
+    {
+        // Ugly, line-drawing
+        int2 lumx = mxy;
+        return ((bitmap >> (lumx.x+lumx.y*4)) & 1)?1.0:0.0;
+    }
+    else
+    {
+        // Smooth style drawing.
+        int2 lumx = mxy;
+        int index = lumx.x + lumx.y * 4;
+        int4 tolerp = (int4(
+            ((bitmap >> (index + 0))),
+            ((bitmap >> (index + 1))),
+            ((bitmap >> (index + 4))),
+            ((bitmap >> (index + 5))) ) & 1)
+            +
+            (int4(
+            ((bitmappartial >> (index + 0))),
+            ((bitmappartial >> (index + 1))),
+            ((bitmappartial >> (index + 4))),
+            ((bitmappartial >> (index + 5))) ) & 1)
+            ;
+        float2 shift = smoothstep( 0, 1, frac(mxy) );
+        float ov = lerp( 
+            lerp( tolerp.x, tolerp.y, shift.x ), 
+            lerp( tolerp.z, tolerp.w, shift.x ), shift.y ) / 2.;
+        return saturate( ov * 20 - 10 );
+    }
+}
+
+
 // Used for debugging
 float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, int offset, bool leadzero )
 {
@@ -175,44 +312,6 @@ float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, in
         }
     }
 
-    const static uint BitmapNumberFont[13] = {
-        15379168,  // '0' 1110 1010 1010 1010 1110 0000
-        4473920,   // '1' 0100 0100 0100 0100 0100 0000
-        14870752,  // '2' 1110 0010 1110 1000 1110 0000
-        14836448,  // '3' 1110 0010 0110 0010 1110 0000
-        11199008,  // '4' 1010 1010 1110 0010 0010 0000
-        15262432,  // '5' 1110 1000 1110 0010 1110 0000
-        15264480,  // '6' 1110 1000 1110 1010 1110 0000
-        14836800,  // '7' 1110 0010 0110 0100 0100 0000
-        15395552,  // '8' 1110 1010 1110 1010 1110 0000
-        15393376,  // '9' 1110 1010 1110 0010 0110 0000
-        64,        // '.' 0000 0000 0000 0000 0100 0000
-        57344,     // '-' 0000 0000 1110 0000 0000 0000
-        0,         // ' '
-    };
-    
-    uint bitmap = BitmapNumberFont[selnum];
-    if( 0 )
-    {
-        // Ugly, line-drawing
-        int2 lumx = mxy;
-        return ((bitmap >> (lumx.x+lumx.y*4)) & 1)?1.0:0.0;
-    }
-    else
-    {
-        // Smooth style drawing.
-        int2 lumx = mxy;
-        int index = lumx.x + lumx.y * 4;
-        int4 tolerp = int4(
-            ((bitmap >> (index + 0))),
-            ((bitmap >> (index + 1))),
-            ((bitmap >> (index + 4))),
-            ((bitmap >> (index + 5))) ) & 1;
-        float2 shift = smoothstep( 0, 1, frac(mxy) );
-        float ov = lerp( 
-            lerp( tolerp.x, tolerp.y, shift.x ), 
-            lerp( tolerp.z, tolerp.w, shift.x ), shift.y );
-        return saturate( ov * 20 - 10 );
-    }
+    return PrintChar( selnum, mxy );
 }
 

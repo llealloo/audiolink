@@ -2,7 +2,6 @@
 {
     Properties
     {
-        _AudioLinkTexture ("AudioLink Texture", 2D) = "" {}
     }
     SubShader
     {
