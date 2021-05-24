@@ -212,7 +212,7 @@ float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, in
         float ov = lerp( 
             lerp( tolerp.x, tolerp.y, shift.x ), 
             lerp( tolerp.z, tolerp.w, shift.x ), shift.y );
-        return ov * 20 - 10;
+        return saturate( ov * 20 - 10 );
     }
 }
 
