@@ -3,7 +3,11 @@
 #define ALPASS_WAVEFORM         int2(0,6)
 #define ALPASS_AUDIOLINK        int2(0,0)
 #define ALPASS_AUDIOLINKHISTORY int2(1,0) 
-#define ALPASS_GENERALVU        int2(0,22)  
+#define ALPASS_GENERALVU        int2(0,22)
+
+#define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
+
 #define ALPASS_CCINTERNAL       int2(12,22)
 #define ALPASS_CCSTRIP          int2(0,24)
 #define ALPASS_CCLIGHTS         int2(0,25)
@@ -56,7 +60,25 @@ float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(x
 #define DecodeLongFloat( vALValue )  (vALValue.r + vALValue.g*1024 + vALValue.b * 1048576 + vALValue.a * 1073741824 )
 
 
+// Extra utility functions for time.
+uint ALDecodeDataAsUInt( uint2 sample )
+{
+    half4 rpx = AudioLinkData( sample );
+    return DecodeLongFloat( rpx );
+}
+
+
+//Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
+// if your code will alias sooner, you will need to use a different function.
+float ALDecodeDataAsFloat( uint2 sample )
+{
+    return (ALDecodeDataAsUInt( sample ) & 0x7ffffff) / 1000.;
+}
+
+
+
 // ColorChord features
+
 #ifndef CCclamp
 #define CCclamp(x,y,z) clamp( x, y, z )
 #endif

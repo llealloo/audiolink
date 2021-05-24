@@ -144,6 +144,13 @@ It contains the following dedicated pixels:
 | 10, 0 | Marker Times | RMS | Peak | | |
 | 11, 0 | Autogain | Asymmetrically Filtered Volume | Symmetrically filtered Volume | | |
 
+Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsFloat(...)`
+
+```hlsl
+#define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
+```
+
 ### `ALPASS_CCINTERNAL`
 
 Internal ColorChord note representation.  Subject to change.
@@ -304,7 +311,7 @@ fixed4 frag (v2f i) : SV_Target
 
 UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anything ±3.4028 × 10³⁸.  They don't care. So, while we can make the factional part of a UV still represent something meaningful in a texture or otherwise, we can use the whole number (ordinal) part to represent something else.  For instance, the band of AudioLink we want an object to respond to.
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo5.gif)
+![Demo5](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo5.gif)
 
 ```hlsl
 v2f vert (appdata v)
@@ -336,10 +343,10 @@ fixed4 frag (v2f i) : SV_Target
 	if( i.uvw.z >= 0 )
 	{
 		// If a speaker, color it with a random ColorChord light.
-		color = AudioLinkData( ALPASS_AUDIOLINK + int2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
+		color = AudioLinkLerp( ALPASS_AUDIOLINK + float2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
 		
 		//Adjust the coloring on the speaker by the normal
-		color = (dot(i.normal.xyz,float3(1,1,-1)))*.2;
+		color *= (dot(i.normal.xyz,float3(1,1,-1)))*.2;
 		
 		color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
 	}
@@ -352,6 +359,67 @@ fixed4 frag (v2f i) : SV_Target
 	return float4( color ,1. );
 }
 ```
+
+### Using Virtual Clocks
+
+You can virtually sync objects, which means they will be synced across the instance for all users, however they use no networking, syncing or Udon to do so.  Application would be effects that you want to have be in motion and appear the same on all player's screens.
+
+If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsFloat(ALPASS_GENERALVU_INSTANCE_TIME)` then all players will see your effect exactly the same.
+
+![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/AudioLink/Docs/AudioLinkDocs_Demo6.gif)
+
+```hlsl
+// Utility function to check if a point lies in the unit square. (0 ... 1)
+float inUnit( float2 px ) { float2 tmp = step( 0, px ) - step( 1, px ); return tmp.x * tmp.y; }
+
+float2 hash12(float2 n){ return frac( sin(dot(n, 4.1414)) * float2( 43758.5453, 38442.558 ) ); }
+
+fixed4 frag (v2f i) : SV_Target
+{
+	// 23 and 31 LCM of 713 cycles for same corner bounce.
+	const float2 collisiondiv = float2( 23, 31 );
+
+	// Make the default size of the logo take up .2 of the overall object,
+	// but let the user scale the size of their logo using the texture
+	// repeat sliders.
+	float2 logoSize = .2*_Logo_ST.xy;
+	
+	// Calculate the remaining area that the logo can bounce around.
+	float2 remainder = 1. - logoSize;
+
+	// Retrieve the instance time.
+	float instanceTime = ALDecodeDataAsFloat( ALPASS_GENERALVU_INSTANCE_TIME );
+
+	// Calculate the total progress made along X and Y irrespective of
+	// the total number of bounces made.  But then compute where the
+	// logo would have ended up after that long period of time.
+	float2 logoUV = i.uv.xy / logoSize;
+	float2 xyprogress = instanceTime * 1/collisiondiv;
+	int totalbounces = floor( xyprogress * 2. ).x + floor( xyprogress * 2. ).y;
+	float2 xyoffset = abs( frac( xyprogress ) * 2. - 1. );
+
+	// Update the logo position with that location.
+	logoUV -= (remainder*xyoffset)/logoSize;
+
+	// Read that pixel.
+	float4 logoTexel =  tex2D( _Logo, logoUV );
+	
+	// Change the color any time it would have hit a corner.
+	float2 hash = hash12( totalbounces );
+	
+	// Abuse the colorchord hue function here to randomly color the logo.
+	logoTexel.rgb *= CCHSVtoRGB( float3( hash.x, hash.y*0.5 + 0.5, 1. ) );
+
+	// If we are looking for the logo where the logo is not
+	// zero it out.
+	logoTexel *= inUnit( logoUV );
+
+	// Alpha blend the logo onto the background.
+	float3 color = lerp( _Background.rgb, logoTexel.rgb, logoTexel.a ); 
+	return clamp( float4( color, _Background.a + logoTexel.a ), 0, 1 );
+}
+```
+
 
 ### Application of ColorChord Lights
 
@@ -422,8 +490,3 @@ Where filter constant is between 0 and 1, where 0 is bypass, as though the filte
 This makes new values impact the filtered value most, and as time goes on the impact of values diminishes to zero.
 
 This is particularly useful as this sort of tracks the way we perceive information.
-
-
-
-
-### Junk drawer

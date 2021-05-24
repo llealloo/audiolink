@@ -63,10 +63,10 @@
 				if( i.uvw.z >= 0 )
 				{
 					// If a speaker, color it with a random ColorChord light.
-					color = AudioLinkData( ALPASS_AUDIOLINK + int2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
+					color = AudioLinkLerp( ALPASS_AUDIOLINK + float2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
 					
 					//Adjust the coloring on the speaker by the normal
-					color = (dot(i.normal.xyz,float3(1,1,-1)))*.2;
+					color *= (dot(i.normal.xyz,float3(1,1,-1)))*.2;
 					
 					color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
 				}
