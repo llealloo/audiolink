@@ -87,6 +87,19 @@ public class AudioLink : MonoBehaviour
     private Int32 _instanceJoinServerTimeStampMs;
     private double NextFPSTime;
     private int    FPSCount;
+    
+    Int32 ConvertUInt64ToInt32( UInt64 u6t )
+    {
+        Int64 intermediate = (UInt32)(u6t & 0xffffffffUL);
+        if( intermediate >= 0x80000000 )
+        {
+            return (Int32)(intermediate - 0x100000000);
+        }
+        else
+        {
+            return (Int32)intermediate;            
+        }
+    }
 
     void Start()
     {
@@ -94,8 +107,13 @@ public class AudioLink : MonoBehaviour
         {
             // Handle sync'd time stuff.
             
-            //Will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
+            //Originally used GetServerTimeInMilliseconds
+            //GetServerTimeInMilliseconds will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
+            //We still alias, but TCL suggested using Networking.GetNetworkDateTime.
+            DateTime currentDate = Networking.GetNetworkDateTime();
+            UInt64 currentTimeTicks = (UInt64)(currentDate.Ticks/TimeSpan.TicksPerMillisecond);
             Int32 startTime = Networking.GetServerTimeInMilliseconds();
+
             if (Networking.IsMaster)
             {
                 _masterInstanceJoinServerTimeStampMs = startTime;
@@ -145,29 +163,34 @@ public class AudioLink : MonoBehaviour
                 loops over and over from instance start from 0 to 16,777,215ms
                 
                 Then the green channel will increment.
+
+                NOTE: The 0xffffffff is here to make it clear what is happening.
+                The code should safely roll over either way.
             */
 
             double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
-            UInt32 timeSinceLevelLoadMs = (UInt32) ( Convert.ToUInt64( TimeSinceLoadSeconds * 1000.0 ) & 0xffffffff );
-            UInt32 nowMs = (UInt32) (
-                (_instanceJoinServerTimeStampMs -
+            Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32( (UInt64)(TimeSinceLoadSeconds * 1000.0) );
+            Int32 nowMs =
+                _instanceJoinServerTimeStampMs -
                 _masterInstanceJoinServerTimeStampMs +
-                timeSinceLevelLoadMs) & 0xffffffff  );
+                timeSinceLevelLoadMs;
             audioMaterial.SetVector( "_FrameTimeProp", new Vector4(
                 (float)( nowMs & 0x3ff ),
                 (float)( (nowMs >> 10 ) & 0x3ff ),
                 (float)( (nowMs >> 20 ) & 0x3ff ),
                 (float)( (nowMs >> 30 ) & 0x3ff )
                 ) );
-
+                
             double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
-            UInt32 ts = (UInt32)( Convert.ToUInt64( nowSeconds * 1000.0 ) & 0xffffffff ); 
+            Int32 ts = ConvertUInt64ToInt32( (UInt64)(nowSeconds * 1000.0) ); 
             audioMaterial.SetVector( "_DayTimeProp", new Vector4(
                 (float)( ts & 0x3ff ),
                 (float)( (ts >> 10 ) & 0x3ff ),
                 (float)( (ts >> 20 ) & 0x3ff ),
                 (float)( (ts >> 30 ) & 0x3ff )
                 ) );
+
+            FPSCount++;
 
             FPSCount++;
             if( TimeSinceLoadSeconds >= NextFPSTime )

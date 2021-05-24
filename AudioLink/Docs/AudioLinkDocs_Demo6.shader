@@ -2,7 +2,6 @@
 {
     Properties
     {
-        _AudioLinkTexture ("AudioLink Texture", 2D) = "" {}
 		_Logo ("Logo", 2D) = "" {}
 		_Background("Background", Color) = (0, 0, 0, 1)
     }
