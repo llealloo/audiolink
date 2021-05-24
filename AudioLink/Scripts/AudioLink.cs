@@ -145,6 +145,9 @@ public class AudioLink : MonoBehaviour
                 loops over and over from instance start from 0 to 16,777,215ms
                 
                 Then the green channel will increment.
+
+                NOTE: The 0xffffffff is here to make it clear what is happening.
+                The code should safely roll over either way.
             */
 
             double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
