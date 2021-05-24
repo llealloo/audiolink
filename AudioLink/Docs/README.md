@@ -133,16 +133,17 @@ Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is u
 
 It contains the following dedicated pixels:
 
-| Pixel | Description | Red | Green | Blue | Alpha |
-| --- | --- | --- | --- | --- | --- |
-| 0, 0 | Version Number and FPS | Version (Version Minor) | 0 (Version Major) | System FPS | |
-| 1, 0 | AudioLink FPS | | AudioLink FPS | | |
-| 2, 0 | Milliseconds Since Instance Start | LFR | LFG | LFB | LFA |
-| 3, 0 | Milliseconds Since 12:00 AM Local Time | LFR | LFG | LFB | LFA |
-| 8, 0 | Current Intensity | RMS | Peak | | |
-| 9, 0 | Marker Value | RMS | Peak | | |
-| 10, 0 | Marker Times | RMS | Peak | | |
-| 11, 0 | Autogain | Asymmetrically Filtered Volume | Symmetrically filtered Volume | | |
+<table>
+<tr><th>Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr	>
+<tr><td>0, 0 </td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
+<tr><td>1, 0 </td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
+<tr><td>2, 0 </td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
+<tr><td>3, 0 </td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>8, 0 </td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>9, 0 </td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>10, 0</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>11, 0</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+</table>
 
 Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsFloat(...)`
 
@@ -193,15 +194,40 @@ Green, Blue, Alpha are reserved.
 #define _RootNote 0
 ```
 
-A couple utility macros/functions
-
- * `glsl_mod( x, y )` - returns a well behaved in negative version of `fmod()`
+The tools to read the data out of AudioLink.
  * `float4 AudioLinkData( int2 coord )` - Retrieve a bit of data from _AudioLinkTexture, using whole numbers.
  * `float4 AudioLinkDataMultiline( int2 coord )` - Same as `AudioLinkData` except that if you read off the end of one line, it continues reading onthe next.
  * `float4 AudioLinkLerp( float2 fcoord )` - Interpolate between two pixels, useful for making shaders not look jaggedy.
  * `float4 AudioLinkLerpMultiline( float2 fcoord )` - `AudioLinkLerp` but wraps lines correctly.
+
+A couple utility macros/functions
+
+ * `glsl_mod( x, y )` - returns a well behaved in negative version of `fmod()`
  * `float4 CCHSVtoRGB( float3 hsv )` - Standard HSV/L to RGB function.
  * `float4 CCtoRGB( float bin, float intensity, int RootNote )` - ColorChord's standard color generation function.
+
+
+### Table for does it make sense to index with?
+
+Where the following mapping is used:
+
+ * Data = `AudioLinkData( ... )`
+ * DataMultiline = `AudioLinkDataMultiline( ... )`
+ * Lerp = `AudioLinkLerp( ... )`
+ * LerpMultiline = `AudioLinkLerpMultiline( ... )`
+
+| | Data | DataMultiline | Lerp | LerpMultiline |
+| --- | --- | --- | --- | --- |
+| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ |
+| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ |
+| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  |
+| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  |
+| ALPASS_GENERALVU  | ✅ |  |  |  |
+| ALPASS_CCINTERNAL  | ✅ |  |  |  |
+| ALPASS_CCSTRIP  | ✅ |   | ✅ |   |
+| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   |
+| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   |
+
 
 ## Examples
 
@@ -490,3 +516,7 @@ Where filter constant is between 0 and 1, where 0 is bypass, as though the filte
 This makes new values impact the filtered value most, and as time goes on the impact of values diminishes to zero.
 
 This is particularly useful as this sort of tracks the way we perceive information.
+
+### What is ColorChord?
+
+ColorChord is another project for doing sound reactive lighting IRL.  More info can be found on it here: https://github.com/cnlohr/colorchord
