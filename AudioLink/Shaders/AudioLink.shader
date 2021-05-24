@@ -23,14 +23,10 @@ Shader "AudioLink/AudioLink"
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
  
-        _AudioSource2D("Audio Source 2D", float) = 0
+        [ToggleUI] _AudioSource2D("Audio Source 2D", float) = 0
         
         [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
         _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
-        
-        // [HideInInspector]_FrameTimeProp("Frame Time Internal",Vector) = (0,0,0,0)
-        // [HideInInspector]_DayTimeProp("Day Time Internal",Vector) = (0,0,0,0)
-        // [HideInInspector]_VersionNumberAndFPSProperty("Version Number and FPS",Vector) = (0,0,0,0)
     }
     SubShader
     {
