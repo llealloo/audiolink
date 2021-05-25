@@ -157,15 +157,15 @@ Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is u
 It contains the following dedicated pixels:
 
 <table>
-<tr><th>Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr	>
-<tr><td>0, 0 </td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
-<tr><td>1, 0 </td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>8, 0 </td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>9, 0 </td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>10, 0</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>11, 0</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+<tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr	>
+<tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
+<tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
 </table>
 
 Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsFloat(...)`
