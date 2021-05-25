@@ -26631,7 +26631,7 @@ TextMesh:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1800130411}
-  m_Text: AudioLink Prefab (Core Module)
+  m_Text: AudioLink Prefab (Core Module v0.2.4 Alpha)
   m_OffsetZ: 0
   m_CharacterSize: 1
   m_LineSpacing: 1
