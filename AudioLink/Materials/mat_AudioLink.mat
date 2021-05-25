@@ -64,7 +64,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AudioSource2D: 0
+    - _AudioSource2D: 1
     - _AutogainDerate: 0.1
     - _Bands: 4
     - _BaseAmplitude: 250
@@ -84,7 +84,7 @@ Material:
     - _FadeLength: 0.8
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
-    - _Gain: 1.1
+    - _Gain: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -104,9 +104,9 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold0: 0.45
-    - _Threshold1: 0.35
-    - _Threshold2: 0.3
-    - _Threshold3: 0.35
+    - _Threshold1: 0.45
+    - _Threshold2: 0.45
+    - _Threshold3: 0.45
     - _Treble: 1
     - _TrebleCorrection: 5
     - _UVSec: 0
@@ -123,7 +123,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DayTimeProp: {r: 976, g: 824, b: 79, a: 0}
+    - _DayTimeProp: {r: 393, g: 831, b: 8, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FrameTimeProp: {r: 77, g: 20, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 146, a: 1}
+    - _FrameTimeProp: {r: 783, g: 1, b: 0, a: 0}
+    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 184, a: 1}
