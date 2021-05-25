@@ -835,19 +835,22 @@ Shader "AudioLink/AudioLink"
 
                 float PlaceInWave = (float)coordinateLocal.x;
 
-                float fvtot = 0;
+                float2 fvtot = 0;
 
                 float fvr = 15.;
 
+                // This computes both the regular autocorrelator in the R channel
+                // as well as a uncorrelated autocorrelator in the G channel
                 for( i = EBASEBIN; i < EMAXBIN; i++ )
                 {
                     float Bin = GetSelfPixelData( ALPASS_DFT + uint2( i%128, i/128 ) ).b;
                     float freq = pow( 2, i/24. ) * _BottomFrequency / _SamplesPerSecond * 3.14159 * 2.;
-                    float csv =  cos( freq * PlaceInWave * fvr );
+                    float2 csv = float2( cos( freq * PlaceInWave * fvr ),  cos( freq * PlaceInWave * fvr + i * .32 ) );
+                    csv.g *= step(i % 4, 1) * 4.;
                     fvtot += csv * (Bin*Bin);
                 }
 
-                return float4( fvtot, 0, 0, 1 );
+                return float4( fvtot, 0, 1 );
             }
             ENDCG
         }
