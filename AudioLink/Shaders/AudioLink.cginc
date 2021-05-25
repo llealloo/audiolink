@@ -61,18 +61,18 @@ float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(x
 
 
 // Extra utility functions for time.
-uint ALDecodeDataAsUInt( uint2 sample )
+uint ALDecodeDataAsUInt( uint2 indexloc )
 {
-    half4 rpx = AudioLinkData( sample );
+    half4 rpx = AudioLinkData( indexloc );
     return DecodeLongFloat( rpx );
 }
 
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
 // if your code will alias sooner, you will need to use a different function.
-float ALDecodeDataAsFloat( uint2 sample )
+float ALDecodeDataAsFloat( uint2 indexloc )
 {
-    return (ALDecodeDataAsUInt( sample ) & 0x7ffffff) / 1000.;
+    return (ALDecodeDataAsUInt( indexloc ) & 0x7ffffff) / 1000.;
 }
 
 
@@ -194,7 +194,7 @@ float PrintChar( uint selchar, float2 mxy )
         11160224,  // 'X' 1010 1010 0100 1010 1010 0000
         11199552,  // 'Y' 1010 1010 1110 0100 0100 0000
         14829792,  // 'Z' 1110 0010 0100 1000 1110 0000
-        658144,  // ':)'0000 1010 0000 1010 1110 0000
+        658144     // ':)'0000 1010 0000 1010 1110 0000
     };
     const static uint BitmapNumberFontPartial[40] = {
         15379168,  // '0' 1110 1010 1010 1010 1110 0000
@@ -236,7 +236,7 @@ float PrintChar( uint selchar, float2 mxy )
         11160224,  // 'X' 1010 1010 0100 1010 1010 0000
         11199552,  // 'Y' 1010 1010 1110 0100 0100 0000
         14829792,  // 'Z' 1110 0010 0100 1000 1110 0000
-        657984,  // ':)'0000 1010 0000 1010 0100 0000
+        657984     // ':)'0000 1010 0000 1010 0100 0000
     };
     
     uint bitmap = BitmapNumberFont[selchar];
