@@ -14,7 +14,7 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want.
 
-![AudioLinkBaseTexture](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png)
+<img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
 { Llealloo, Insert Avatar map }
 
@@ -85,6 +85,11 @@ AudioLink reserves the right to change:
  * The alpha channel.
  * What bins 240-255 are used for.
 
+A mechanism to use this field on a texture would be:
+```hlsl
+	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * ETOTALBINS, 0 ) ).rrrr;
+```
+
 ### `ALPASS_WAVEFORM`
 
 Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sample points.  The format per pixel is:
@@ -110,6 +115,13 @@ if( _EnableAutogain )
 }
 ```
 
+
+A mechanism to use this field on a texture would be:
+```hlsl
+	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * 1024, 0 ) ).rrrr;
+```
+
+
 ### `ALPASS_AUDIOLINK`
 
 AudioLink is the 1 x 4 px data at the far corner of the texture.  It is updated every frame with bass, low-mid, high-mid and treble ranges.  It triggers in amplitude, and contains the most recent frame.
@@ -121,9 +133,20 @@ The channels are:
  
 AudioLink v1 note: The 32x4 section of the AudioLink texture is still compatible with AudioLink v1 at the time of writing this.
 
+A mechanism to use this field on a texture would be:
+```hlsl
+	return AudioLinkData( ALPASS_AUDIOLINK + uint2( 0, i.uv.y * 4. ) ).rrrr;
+```
+
 ### `ALPASS_AUDIOLINKHISTORY`
 
-The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest copies of ALPASS_AUDIOLINK on the far right.
+The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest copies of `ALPASS_AUDIOLINK` on the far right.
+
+A mechanism to use this field smoothly would be the following - note that we use the `ALPASS_AUDIOLINK` instead of `ALPASS_AUDIOLINKHISTORY`:
+```hlsl
+	return AudioLinkLerp( ALPASS_AUDIOLINK + float2( i.uv.x * 128., i.uv.y * 4. ) ).rrrr;
+```
+
 
 ### `ALPASS_GENERALVU`
 
@@ -134,15 +157,15 @@ Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is u
 It contains the following dedicated pixels:
 
 <table>
-<tr><th>Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr	>
-<tr><td>0, 0 </td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
-<tr><td>1, 0 </td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>8, 0 </td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>9, 0 </td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>10, 0</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>11, 0</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+<tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr	>
+<tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
+<tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
 </table>
 
 Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsFloat(...)`
@@ -152,6 +175,20 @@ Note that for milliseconds since instance start, and milliseconds since 12:00 AM
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
 ```
 
+
+Various Usages of this field would be:
+```hlsl
+	AudioLinkData( ALPASS_GENERALVU + uint2( 0, 0 )).x;  //2.04 for AudioLink 2.4.
+	AudioLinkData( ALPASS_GENERALVU + uint2( 1, 0 )).x;  //System FPS
+	ALDecodeDataAsfloat( ALPASS_GENERALVU_INSTANCE_TIME ); //Time that matches for all players
+	ALDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
+	AudioLinkData( ALPASS_GENERALVU + uint2( 8, 0 )).x;  // Current intensity of sound.
+	AudioLinkData( ALPASS_GENERALVU + uint2( 11, 0 )).y;  // slow responce of volume of incoming sound.
+```
+
+
+
+
 ### `ALPASS_CCINTERNAL`
 
 Internal ColorChord note representation.  Subject to change.
@@ -160,23 +197,38 @@ Internal ColorChord note representation.  Subject to change.
 
 A single linear strip of ColorChord, think of it as a linear pie chart.  You can directly apply the colors here directly to surfaces.
 
-![CCStrip](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCStrip.png)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCStrip.png width=512 height=20>
+
+A mechanism to use this field smoothly would be:
+```hlsl
+	return AudioLinkLerp( ALPASS_CCSTRIP + float2( i.uv.x * 128., 0 ) ).rgba;
+```
 
 ### `ALPASS_CCLIGHTS`
 
-![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCLights.png)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCLights.png width=512 height=20>
 
 Two rows, the bottom row contains raw colorchord light values.  Useful for if you have individual objects or lights which need a sound-correlated color that are discrete.  I.e. pieces of confetti, lamps, speakers, blocks, etc.
 
 The top (0,1) row is used to track internal aspects of ColorChord state.  Subject to change. Do not use.
 
+A mechanism to use this field smoothly would be:
+```hlsl
+	return AudioLinkData( ALPASS_CCLIGHTS + uint2( uint( i.uv.x * 8 ) + uint(i.uv.y * 16) * 8, 0 ) ).rgba;
+```
+
 ### `ALPASS_AUTOCORRELATOR`
 
 The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
 
-![Autocor](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png width=512 height=20>
 
 Green, Blue, Alpha are reserved.
+
+```hlsl
+	return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * 128., 0 ) ).rgba;
+```
+
 
 ### Other defines
 
@@ -242,7 +294,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif width=512 height=288>
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the 
@@ -252,7 +304,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo2.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo2.gif width=512 height=288>
 
 ### Using the spectrogram
 
@@ -273,7 +325,7 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
  
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif width=512 height=288>
 
 ### AutoCorrelator + ColorChord Linear + Geometry
 
@@ -331,13 +383,13 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo4.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo4.gif width=512 height=288>
 
 ### Using Ordinal UVs to make some neat speakers.
 
 UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anything ±3.4028 × 10³⁸.  They don't care. So, while we can make the factional part of a UV still represent something meaningful in a texture or otherwise, we can use the whole number (ordinal) part to represent something else.  For instance, the band of AudioLink we want an object to respond to.
 
-![Demo5](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo5.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo5.gif width=512 height=288>
 
 ```hlsl
 v2f vert (appdata v)
@@ -392,7 +444,7 @@ You can virtually sync objects, which means they will be synced across the insta
 
 If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsFloat(ALPASS_GENERALVU_INSTANCE_TIME)` then all players will see your effect exactly the same.
 
-![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif)
+![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif =512x288)
 
 ```hlsl
 // Utility function to check if a point lies in the unit square. (0 ... 1)
@@ -493,11 +545,11 @@ As it currently stands, because the `rt_AudioLink` texture is used as both the i
 
 This is what sinewave would look like if one were to use `AudioLinkData`
 
-![None Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupNone.png)
+<img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupNone.png width=512 height=288>
 
 This is the same output, but with `AudioLinkLerp`.
 
-![Lerp Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupLerp.png)
+<img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupLerp.png width=512 height=288>
 
 ### IIRs
 
