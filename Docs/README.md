@@ -85,6 +85,11 @@ AudioLink reserves the right to change:
  * The alpha channel.
  * What bins 240-255 are used for.
 
+A mechanism to use this field on a texture would be:
+```hlsl
+	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * ETOTALBINS, 0 ) ).rrrr;
+```
+
 ### `ALPASS_WAVEFORM`
 
 Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sample points.  The format per pixel is:
@@ -110,6 +115,13 @@ if( _EnableAutogain )
 }
 ```
 
+
+A mechanism to use this field on a texture would be:
+```hlsl
+	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * 1024, 0 ) ).rrrr;
+```
+
+
 ### `ALPASS_AUDIOLINK`
 
 AudioLink is the 1 x 4 px data at the far corner of the texture.  It is updated every frame with bass, low-mid, high-mid and treble ranges.  It triggers in amplitude, and contains the most recent frame.
@@ -121,9 +133,20 @@ The channels are:
  
 AudioLink v1 note: The 32x4 section of the AudioLink texture is still compatible with AudioLink v1 at the time of writing this.
 
+A mechanism to use this field on a texture would be:
+```hlsl
+	return AudioLinkData( ALPASS_AUDIOLINK + uint2( 0, i.uv.y * 4. ) ).rrrr;
+```
+
 ### `ALPASS_AUDIOLINKHISTORY`
 
-The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest copies of ALPASS_AUDIOLINK on the far right.
+The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest copies of `ALPASS_AUDIOLINK` on the far right.
+
+A mechanism to use this field smoothly would be the following - note that we use the `ALPASS_AUDIOLINK` instead of `ALPASS_AUDIOLINKHISTORY`:
+```hlsl
+	return AudioLinkLerp( ALPASS_AUDIOLINK + float2( i.uv.x * 128., i.uv.y * 4. ) ).rrrr;
+```
+
 
 ### `ALPASS_GENERALVU`
 
@@ -152,6 +175,20 @@ Note that for milliseconds since instance start, and milliseconds since 12:00 AM
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
 ```
 
+
+Various Usages of this field would be:
+```hlsl
+	AudioLinkData( ALPASS_GENERALVU + uint2( 0, 0 )).x;  //2.04 for AudioLink 2.4.
+	AudioLinkData( ALPASS_GENERALVU + uint2( 1, 0 )).x;  //System FPS
+	ALDecodeDataAsfloat( ALPASS_GENERALVU_INSTANCE_TIME ); //Time that matches for all players
+	ALDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
+	AudioLinkData( ALPASS_GENERALVU + uint2( 8, 0 )).x;  // Current intensity of sound.
+	AudioLinkData( ALPASS_GENERALVU + uint2( 11, 0 )).y;  // slow responce of volume of incoming sound.
+```
+
+
+
+
 ### `ALPASS_CCINTERNAL`
 
 Internal ColorChord note representation.  Subject to change.
@@ -162,6 +199,11 @@ A single linear strip of ColorChord, think of it as a linear pie chart.  You can
 
 ![CCStrip](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCStrip.png)
 
+A mechanism to use this field smoothly would be:
+```hlsl
+	return AudioLinkLerp( ALPASS_CCSTRIP + float2( i.uv.x * 128., 0 ) ).rgba;
+```
+
 ### `ALPASS_CCLIGHTS`
 
 ![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCLights.png)
@@ -170,6 +212,11 @@ Two rows, the bottom row contains raw colorchord light values.  Useful for if yo
 
 The top (0,1) row is used to track internal aspects of ColorChord state.  Subject to change. Do not use.
 
+A mechanism to use this field smoothly would be:
+```hlsl
+	return AudioLinkData( ALPASS_CCLIGHTS + uint2( uint( i.uv.x * 8 ) + uint(i.uv.y * 16) * 8, 0 ) ).rgba;
+```
+
 ### `ALPASS_AUTOCORRELATOR`
 
 The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
@@ -177,6 +224,11 @@ The red channel of this row provides a fake autocorrelation of the waveform.  It
 ![Autocor](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png)
 
 Green, Blue, Alpha are reserved.
+
+```hlsl
+	return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * 128., 0 ) ).rgba;
+```
+
 
 ### Other defines
 
