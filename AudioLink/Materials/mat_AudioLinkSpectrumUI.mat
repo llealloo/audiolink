@@ -97,6 +97,7 @@ Material:
     - _ThresholdThickness: 0.01
     - _UVSec: 0
     - _VUOpacity: 0.5
+    - _X0: 0
     - _X1: 0.25
     - _X2: 0.5
     - _X3: 0.75

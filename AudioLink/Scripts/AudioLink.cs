@@ -39,11 +39,13 @@ public class AudioLink : MonoBehaviour
     public float treble = 1f;
 
     [Header("4 Band Crossover")]
-    [Range(0.04882813f, 0.2988281f)][Tooltip("Bass / low mid crossover")]
+    [Range(0.0f, 0.168f)][Tooltip("Bass / low mid crossover")]
+    public float x0 = 0.0f;
+    [Range(0.242f, 0.387f)][Tooltip("Bass / low mid crossover")]
     public float x1 = 0.25f;
-    [Range(0.375f, 0.625f)][Tooltip("Low mid / high mid crossover")]
+    [Range(0.461f, 0.628f)][Tooltip("Low mid / high mid crossover")]
     public float x2 = 0.5f;
-    [Range(0.7021484f, 0.953125f)][Tooltip("High mid / treble crossover")]
+    [Range(0.704f, 0.953f)][Tooltip("High mid / treble crossover")]
     public float x3 = 0.75f;
 
     [Header("4 Band Threshold Points (Sensitivity)")]
@@ -225,6 +227,7 @@ public class AudioLink : MonoBehaviour
     public void UpdateSettings()
     {
         audioTextureExport.SetActive(audioTextureToggle);
+        audioMaterial.SetFloat("_X0", x0);
         audioMaterial.SetFloat("_X1", x1);
         audioMaterial.SetFloat("_X2", x2);
         audioMaterial.SetFloat("_X3", x3);

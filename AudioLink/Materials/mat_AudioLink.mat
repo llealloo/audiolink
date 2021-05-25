@@ -116,6 +116,7 @@ Material:
     - _UniNerfFromQ: 0.05
     - _UniSumPeak: 0.1
     - _Uniformity: 1.5
+    - _X0: 0
     - _X1: 0.25
     - _X2: 0.5
     - _X3: 0.75
@@ -123,7 +124,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DayTimeProp: {r: 393, g: 831, b: 8, a: 0}
+    - _DayTimeProp: {r: 528, g: 537, b: 50, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FrameTimeProp: {r: 783, g: 1, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 184, a: 1}
+    - _FrameTimeProp: {r: 307, g: 0, b: 0, a: 0}
+    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 2, a: 1}

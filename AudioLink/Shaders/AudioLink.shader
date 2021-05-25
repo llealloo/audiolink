@@ -14,9 +14,10 @@ Shader "AudioLink/AudioLink"
         _Bass("Bass", Range(0 , 4)) = 1.0
         _Treble("Treble", Range(0 , 4)) = 1.0
         
-        _X1("X1", Range(0.04882813, 0.2988281)) = 0.25
-        _X2("X2", Range(0.375, 0.625)) = 0.5
-        _X3("X3", Range(0.7021484, 0.953125)) = 0.75
+        _X0("X0", Range(0.0, 0.168)) = 0.25
+        _X1("X1", Range(0.242, 0.387)) = 0.25
+        _X2("X2", Range(0.461, 0.628)) = 0.5
+        _X3("X3", Range(0.704, 0.953)) = 0.75
 
         _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
@@ -154,6 +155,7 @@ Shader "AudioLink/AudioLink"
             uniform float _Gain;
             uniform float _Bass;
             uniform float _Treble;
+            uniform float _X0;
             uniform float _X1;
             uniform float _X2;
             uniform float _X3;
@@ -439,7 +441,7 @@ Shader "AudioLink/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START( ALPASS_AUDIOLINK )
 
-                float audioBands[4] = {0., _X1, _X2, _X3};
+                float audioBands[4] = {_X0, _X1, _X2, _X3};
                 float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
 
                 int band = min(coordinateLocal.y, 3);

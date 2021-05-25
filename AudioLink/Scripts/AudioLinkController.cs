@@ -24,6 +24,7 @@ public class AudioLinkController : UdonSharpBehaviour
     public Slider fadeLengthSlider;
     public Text fadeExpFalloffLabel;
     public Slider fadeExpFalloffSlider;
+    public Slider x0Slider;
     public Slider x1Slider;
     public Slider x2Slider;
     public Slider x3Slider;
@@ -37,6 +38,7 @@ public class AudioLinkController : UdonSharpBehaviour
     private float _initBass;
     private float _initFadeLength;
     private float _initFadeExpFalloff;
+    private float _initX0;
     private float _initX1;
     private float _initX2;
     private float _initX3;
@@ -65,6 +67,7 @@ public class AudioLinkController : UdonSharpBehaviour
         _initBass = bassSlider.value;
         _initFadeLength = fadeLengthSlider.value;
         _initFadeExpFalloff = fadeExpFalloffSlider.value;
+        _initX0 = x0Slider.value;
         _initX1 = x1Slider.value;
         _initX2 = x2Slider.value;
         _initX3 = x3Slider.value;
@@ -88,7 +91,7 @@ public class AudioLinkController : UdonSharpBehaviour
         bassLabel.text = "Bass: " + ((int)Remap( bassSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
 
         // Update 
-        threshold0Slider.transform.localPosition = new Vector3(Remap(x1Slider.value / 2f, 0f, 1f, -349f, 349f), _initThreshold0SliderPosition.y, 0f);
+        threshold0Slider.transform.localPosition = new Vector3(Remap((x0Slider.value + x1Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold0SliderPosition.y, 0f);
         threshold1Slider.transform.localPosition = new Vector3(Remap((x1Slider.value + x2Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold1SliderPosition.y, 0f);
         threshold2Slider.transform.localPosition = new Vector3(Remap((x2Slider.value + x3Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold2SliderPosition.y, 0f);
         threshold3Slider.transform.localPosition = new Vector3(Remap((x3Slider.value + 1f) / 2f, 0f, 1f, -349f, 349f), _initThreshold3SliderPosition.y, 0f);
@@ -102,6 +105,7 @@ public class AudioLinkController : UdonSharpBehaviour
         audioLink.SetProgramVariable("fadeExpFalloff", fadeExpFalloffSlider.value);
 
         // Crossover settings
+        audioLink.SetProgramVariable("x0", x0Slider.value);
         audioLink.SetProgramVariable("x1", x1Slider.value);
         audioLink.SetProgramVariable("x2", x2Slider.value);
         audioLink.SetProgramVariable("x3", x3Slider.value);
@@ -109,6 +113,7 @@ public class AudioLinkController : UdonSharpBehaviour
         audioLink.SetProgramVariable("threshold1", threshold1Slider.value);
         audioLink.SetProgramVariable("threshold2", threshold2Slider.value);
         audioLink.SetProgramVariable("threshold3", threshold3Slider.value);
+        audioSpectrumDisplay.SetFloat("_X0", x0Slider.value);
         audioSpectrumDisplay.SetFloat("_X1", x1Slider.value);
         audioSpectrumDisplay.SetFloat("_X2", x2Slider.value);
         audioSpectrumDisplay.SetFloat("_X3", x3Slider.value);
