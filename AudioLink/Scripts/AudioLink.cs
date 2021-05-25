@@ -88,7 +88,7 @@ public class AudioLink : MonoBehaviour
     private double NextFPSTime;
     private int    FPSCount;
     
-    Int32 ConvertUInt64ToInt32( UInt64 u6t )
+    Int32 ConvertUInt64ToInt32WithWraparound( UInt64 u6t )
     {
         Int64 intermediate = (UInt32)(u6t & 0xffffffffUL);
         if( intermediate >= 0x80000000 )
@@ -110,8 +110,9 @@ public class AudioLink : MonoBehaviour
             //Originally used GetServerTimeInMilliseconds
             //GetServerTimeInMilliseconds will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
             //We still alias, but TCL suggested using Networking.GetNetworkDateTime.
-            DateTime currentDate = Networking.GetNetworkDateTime();
-            UInt64 currentTimeTicks = (UInt64)(currentDate.Ticks/TimeSpan.TicksPerMillisecond);
+            //DateTime currentDate = Networking.GetNetworkDateTime();
+            //UInt64 currentTimeTicks = (UInt64)(currentDate.Ticks/TimeSpan.TicksPerMillisecond);
+			
             Int32 startTime = Networking.GetServerTimeInMilliseconds();
 
             if (Networking.IsMaster)
@@ -119,7 +120,7 @@ public class AudioLink : MonoBehaviour
                 _masterInstanceJoinServerTimeStampMs = startTime;
                 RequestSerialization();
             }
-            Int32 timeSinceLevelLoadAtInstanceJoinMs = (Int32)( Convert.ToUInt64(Time.timeSinceLevelLoad * 1000) & 0xffffffff ); 
+            Int32 timeSinceLevelLoadAtInstanceJoinMs = ConvertUInt64ToInt32WithWraparound( (UInt64)( Time.timeSinceLevelLoad * 1000.0 ) );
             _instanceJoinServerTimeStampMs = startTime - timeSinceLevelLoadAtInstanceJoinMs;
             Debug.Log($"AudioLink Time Sync Debug: {startTime} {Networking.IsMaster} {_masterInstanceJoinServerTimeStampMs} {_instanceJoinServerTimeStampMs} {timeSinceLevelLoadAtInstanceJoinMs}.");
         }
@@ -169,7 +170,7 @@ public class AudioLink : MonoBehaviour
             */
 
             double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
-            Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32( (UInt64)(TimeSinceLoadSeconds * 1000.0) );
+            Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32WithWraparound( (UInt64)(TimeSinceLoadSeconds * 1000.0) );
             Int32 nowMs =
                 _instanceJoinServerTimeStampMs -
                 _masterInstanceJoinServerTimeStampMs +
@@ -182,7 +183,7 @@ public class AudioLink : MonoBehaviour
                 ) );
                 
             double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
-            Int32 ts = ConvertUInt64ToInt32( (UInt64)(nowSeconds * 1000.0) ); 
+            Int32 ts = ConvertUInt64ToInt32WithWraparound( (UInt64)(nowSeconds * 1000.0) ); 
             audioMaterial.SetVector( "_DayTimeProp", new Vector4(
                 (float)( ts & 0x3ff ),
                 (float)( (ts >> 10 ) & 0x3ff ),
