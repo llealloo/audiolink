@@ -83,7 +83,10 @@ public class AudioLink : MonoBehaviour
     private bool _audioSource2D = false;
     
     // Mechanism to provide sync'd instance time to all avatars.
-    [UdonSynced] private Int32 _masterInstanceJoinServerTimeStampMs;
+    #if UDON
+    [UdonSynced]
+    #endif 
+    private Int32 _masterInstanceJoinServerTimeStampMs;
     private Int32 _instanceJoinServerTimeStampMs;
     private double NextFPSTime;
     private int    FPSCount;
@@ -103,7 +106,7 @@ public class AudioLink : MonoBehaviour
 
     void Start()
     {
-
+        #if UDON
         {
             // Handle sync'd time stuff.
             
@@ -124,6 +127,7 @@ public class AudioLink : MonoBehaviour
             _instanceJoinServerTimeStampMs = startTime - timeSinceLevelLoadAtInstanceJoinMs;
             Debug.Log($"AudioLink Time Sync Debug: {startTime} {Networking.IsMaster} {_masterInstanceJoinServerTimeStampMs} {_instanceJoinServerTimeStampMs} {timeSinceLevelLoadAtInstanceJoinMs}.");
         }
+        #endif
 
         UpdateSettings();
         if (audioSource.name.Equals("AudioLinkInput"))
@@ -150,6 +154,7 @@ public class AudioLink : MonoBehaviour
         audioMaterial.SetFloatArray("_Samples2", _samples2);
         audioMaterial.SetFloatArray("_Samples3", _samples3);
 
+        #if UDON
         {
             /* General Notes:
                 As of now, we convert the current "now" time to milliseconds.
@@ -201,6 +206,7 @@ public class AudioLink : MonoBehaviour
                 NextFPSTime++;
             }
         }
+        #endif
 
         #if UNITY_EDITOR
         UpdateSettings();
