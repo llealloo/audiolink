@@ -14,7 +14,7 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want.
 
-![AudioLinkBaseTexture](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png)
+<img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
 { Llealloo, Insert Avatar map }
 
@@ -197,7 +197,7 @@ Internal ColorChord note representation.  Subject to change.
 
 A single linear strip of ColorChord, think of it as a linear pie chart.  You can directly apply the colors here directly to surfaces.
 
-![CCStrip](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCStrip.png)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCStrip.png width=512 height=20>
 
 A mechanism to use this field smoothly would be:
 ```hlsl
@@ -206,7 +206,7 @@ A mechanism to use this field smoothly would be:
 
 ### `ALPASS_CCLIGHTS`
 
-![CCLights](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCLights.png)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_CCLights.png width=512 height=20>
 
 Two rows, the bottom row contains raw colorchord light values.  Useful for if you have individual objects or lights which need a sound-correlated color that are discrete.  I.e. pieces of confetti, lamps, speakers, blocks, etc.
 
@@ -221,7 +221,7 @@ A mechanism to use this field smoothly would be:
 
 The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
 
-![Autocor](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png width=512 height=20>
 
 Green, Blue, Alpha are reserved.
 
@@ -294,7 +294,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif width=512 height=288>
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the 
@@ -304,7 +304,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo2.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo2.gif width=512 height=288>
 
 ### Using the spectrogram
 
@@ -325,7 +325,7 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
  
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif width=512 height=288>
 
 ### AutoCorrelator + ColorChord Linear + Geometry
 
@@ -383,13 +383,13 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-![Demo4](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo4.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo4.gif width=512 height=288>
 
 ### Using Ordinal UVs to make some neat speakers.
 
 UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anything ±3.4028 × 10³⁸.  They don't care. So, while we can make the factional part of a UV still represent something meaningful in a texture or otherwise, we can use the whole number (ordinal) part to represent something else.  For instance, the band of AudioLink we want an object to respond to.
 
-![Demo5](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo5.gif)
+<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo5.gif width=512 height=288>
 
 ```hlsl
 v2f vert (appdata v)
@@ -444,7 +444,7 @@ You can virtually sync objects, which means they will be synced across the insta
 
 If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsFloat(ALPASS_GENERALVU_INSTANCE_TIME)` then all players will see your effect exactly the same.
 
-![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif)
+![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif =512x288)
 
 ```hlsl
 // Utility function to check if a point lies in the unit square. (0 ... 1)
@@ -545,11 +545,11 @@ As it currently stands, because the `rt_AudioLink` texture is used as both the i
 
 This is what sinewave would look like if one were to use `AudioLinkData`
 
-![None Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupNone.png)
+<img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupNone.png width=512 height=288>
 
 This is the same output, but with `AudioLinkLerp`.
 
-![Lerp Lookup](https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupLerp.png)
+<img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_ComparisonLookupLerp.png width=512 height=288>
 
 ### IIRs
 
