@@ -155,60 +155,57 @@ public class AudioLink : MonoBehaviour
         audioMaterial.SetFloatArray("_Samples1", _samples1);
         audioMaterial.SetFloatArray("_Samples2", _samples2);
         audioMaterial.SetFloatArray("_Samples3", _samples3);
+        
+        /* General Notes:
+            As of now, we convert the current "now" time to milliseconds.
+            All times are locked to milliseconds.
 
-        #if UDON
+            If a user is in a level for > 18 hours, the aliasing on 
+            Time.timeSinceLevelLoad will exceed 4ms, this restriction can
+            be lifted when VRC moves to 2020+. and timeSinceLevelLoadAsDouble
+            can be used in the below code.
+            
+            The user can safely use the red channel to read a value that
+            loops over and over from instance start from 0 to 16,777,215ms
+            
+            Then the green channel will increment.
+
+            NOTE: The 0xffffffff is here to make it clear what is happening.
+            The code should safely roll over either way.
+        */
+
+        double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
+        Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32WithWraparound( (UInt64)(TimeSinceLoadSeconds * 1000.0) );
+        Int32 nowMs =
+            _instanceJoinServerTimeStampMs -
+            _masterInstanceJoinServerTimeStampMs +
+            timeSinceLevelLoadMs;
+        audioMaterial.SetVector( "_FrameTimeProp", new Vector4(
+            (float)( nowMs & 0x3ff ),
+            (float)( (nowMs >> 10 ) & 0x3ff ),
+            (float)( (nowMs >> 20 ) & 0x3ff ),
+            (float)( (nowMs >> 30 ) & 0x3ff )
+            ) );
+            
+        double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
+        Int32 ts = ConvertUInt64ToInt32WithWraparound( (UInt64)(nowSeconds * 1000.0) ); 
+        audioMaterial.SetVector( "_DayTimeProp", new Vector4(
+            (float)( ts & 0x3ff ),
+            (float)( (ts >> 10 ) & 0x3ff ),
+            (float)( (ts >> 20 ) & 0x3ff ),
+            (float)( (ts >> 30 ) & 0x3ff )
+            ) );
+
+        FPSCount++;
+
+        FPSCount++;
+        if( TimeSinceLoadSeconds >= NextFPSTime )
         {
-            /* General Notes:
-                As of now, we convert the current "now" time to milliseconds.
-                All times are locked to milliseconds.
-
-                If a user is in a level for > 18 hours, the aliasing on 
-                Time.timeSinceLevelLoad will exceed 4ms, this restriction can
-                be lifted when VRC moves to 2020+. and timeSinceLevelLoadAsDouble
-                can be used in the below code.
-                
-                The user can safely use the red channel to read a value that
-                loops over and over from instance start from 0 to 16,777,215ms
-                
-                Then the green channel will increment.
-
-                NOTE: The 0xffffffff is here to make it clear what is happening.
-                The code should safely roll over either way.
-            */
-
-            double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
-            Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32WithWraparound( (UInt64)(TimeSinceLoadSeconds * 1000.0) );
-            Int32 nowMs =
-                _instanceJoinServerTimeStampMs -
-                _masterInstanceJoinServerTimeStampMs +
-                timeSinceLevelLoadMs;
-            audioMaterial.SetVector( "_FrameTimeProp", new Vector4(
-                (float)( nowMs & 0x3ff ),
-                (float)( (nowMs >> 10 ) & 0x3ff ),
-                (float)( (nowMs >> 20 ) & 0x3ff ),
-                (float)( (nowMs >> 30 ) & 0x3ff )
-                ) );
-                
-            double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
-            Int32 ts = ConvertUInt64ToInt32WithWraparound( (UInt64)(nowSeconds * 1000.0) ); 
-            audioMaterial.SetVector( "_DayTimeProp", new Vector4(
-                (float)( ts & 0x3ff ),
-                (float)( (ts >> 10 ) & 0x3ff ),
-                (float)( (ts >> 20 ) & 0x3ff ),
-                (float)( (ts >> 30 ) & 0x3ff )
-                ) );
-
-            FPSCount++;
-
-            FPSCount++;
-            if( TimeSinceLoadSeconds >= NextFPSTime )
-            {
-                audioMaterial.SetVector( "_VersionNumberAndFPSProperty", new Vector4( AUDIOLINK_VERSION_NUMBER, 0, FPSCount, 1 ) );
-                FPSCount = 0;
-                NextFPSTime++;
-            }
+            audioMaterial.SetVector( "_VersionNumberAndFPSProperty", new Vector4( AUDIOLINK_VERSION_NUMBER, 0, FPSCount, 1 ) );
+            FPSCount = 0;
+            NextFPSTime++;
         }
-        #endif
+        
 
         #if UNITY_EDITOR
         UpdateSettings();
