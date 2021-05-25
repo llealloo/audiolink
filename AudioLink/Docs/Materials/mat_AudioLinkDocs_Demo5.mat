@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AudioLinkDocs_Demo3
-  m_Shader: {fileID: 4800000, guid: 3775ab1acffc1bc4191c951a38543e0c, type: 3}
+  m_Name: mat_AudioLinkDocs_Demo5
+  m_Shader: {fileID: 4800000, guid: 15a3f7a68cd66e84dbf6a5e99214893b, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
