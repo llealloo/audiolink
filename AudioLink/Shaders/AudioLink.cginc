@@ -60,12 +60,16 @@ float4 AudioLinkLerp(float2 xy) { return lerp( AudioLinkData(xy), AudioLinkData(
 // Same as AudioLinkLerp but properly handles multiline reading.
 float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(xy), AudioLinkDataMultiline(xy+float2(1,0)), frac( xy.x ) ); }
 
-//Tests to see if Audio Link texture is available, I think this only works on VertFrag shaders. Will need another method for Surface Shaders?
+//Tests to see if Audio Link texture is available
 bool AudioLinkIsAvailableNonSurface()
 {
-    int width, height;
-    _AudioTexture.GetDimensions(width, height);
-    return width > 16;
+    #if !defined(AUDIOLINK_STANDARD_INDEXING)
+        int width, height;
+        _AudioTexture.GetDimensions(width, height);
+        return width > 16;
+    #else
+        return _AudioTexture_TexelSize.z > 16;
+    #endif
 }
 
 // Decompress a RGBA FP16 into a really big number, this is used in some sections of the info block.
