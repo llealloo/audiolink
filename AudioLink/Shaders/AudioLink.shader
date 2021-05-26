@@ -656,26 +656,30 @@ Shader "AudioLink/AudioLink"
                 #define EMAXBIN 192
                 #define EBASEBIN 24
                 
-                float VUAmplitudeSlow = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) ).y;
-                float NOTE_MINIMUM = 0.02 + 0.2 * VUAmplitudeSlow;
+                float VUAmplitudeNow = GetSelfPixelData( ALPASS_GENERALVU + int2( 8, 0 ) ).y * _Gain;
+                float NOTE_MINIMUM = 0.00 + 0.1 * VUAmplitudeNow;
                 
-                static const float NOTECLOSEST = 3.5;
+                static const float NOTECLOSEST = 3.0;
                 static const float IIR1_DECAY = 0.90;
                 static const float CONSTANT1_DECAY = 0.01;
                 static const float IIR2_DECAY = 0.85;
                 static const float CONSTANT2_DECAY = 0.00;
+                static const float _NewNoteGain = 8.;
                 
                 float4 NoteSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
                 
                 //Note structure:
                 // .x = Note frequency (0...ETOTALBINS, but floating point)
-                // .y = Re-porp intensity.
-                // .z = Lagged intensity.
-                // .a = Quicker lagged intensity.
+                // .y = The incoming intensity.
+                // .z = Lagged intensity.         ---> This is what decides if a note is going to disappear.
+                // .w = Quicker lagged intensity.
+                
+                //Summary:
+                // .x = Total number of notes.
+                // .y .z .w = sum of note's yzw.
+                
                 float4 Notes[CCMAXNOTES];
-                
-                
-                
+
                 for( i = 0; i < CCMAXNOTES; i++ )
                 {
                     Notes[i] = GetSelfPixelData( ALPASS_CCINTERNAL + uint2( i+1, 0 ) );
@@ -727,20 +731,29 @@ Shader "AudioLink/AudioLink"
                             }
                         }
                         
+                        float ThisIntensity = This*_NewNoteGain;
                         
                         if( closest_note != -1 )
                         {
                             float4 n = Notes[closest_note];
                             // Note to combine peak to has been found, roll note in.
                             
-                            float drag = NoteWrap( n.x, NoteFreq ) * 0.05;//This/(This+n.z);
+                            float drag = NoteWrap( n.x, NoteFreq ) * 0.05;
 
-                            Notes[closest_note] = float4( n.x + drag, n.y + This, n.z + This, n.a );
+                            //float2 newn = max( n.yz, ThisIntensity.xx  );
+                            
+                            float mn = max( n.y, This * _NewNoteGain )
+                                // Technically the above is incorrect without the below, additional notes found should controbute.
+                                // But I'm finding it looks better w/o it.  Well, the 0.3 is arbitrary.  But, it isn't right to
+                                // only take max.
+                                + This * _NewNoteGain * 0.3
+                                ;
+                            Notes[closest_note] = float4( n.x + drag, mn, n.z, n.a );
                         }
                         else if( free_note != -1 )
                         {
                             // Couldn't find note.  Create a new note.
-                            Notes[free_note] = float4( NoteFreq, This, This, This );
+                            Notes[free_note] = float4( NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity );
                         }
                         else
                         {
@@ -793,12 +806,14 @@ Shader "AudioLink/AudioLink"
                         }
                         //XXX TODO: Do uniformity calculation on n1 for n1.a.
                     }
-                    
-                    n1.y = 0;
-                    
+
                     if( n1.z >= 0 )
                     {
-                        NewNoteSummary += float4( 0, n1.y, n1.z, n1.w );
+                        // Compute Y to create a "unified" value.  This is good for understanding
+                        // the ratio of how "important" this note is.
+                        n1.y = pow( max( n1.z - NOTE_MINIMUM*10, 0 ), 1.5 );
+                    
+                        NewNoteSummary += float4( 1., n1.y, n1.z, n1.w );
                     }
                     
                     Notes[i] = n1;
@@ -868,25 +883,26 @@ Shader "AudioLink/AudioLink"
 
                 int p;
                 
-                const float Brightness = 2.0;
+                const float Brightness = .3;
                 const float RootNote = 0;
                 
-                float4 NotesSummary =  GetSelfPixelData( ALPASS_CCINTERNAL );
+                float4 NotesSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
 
                 float TotalPower = 0.0;
-                TotalPower = NotesSummary.z;
+                TotalPower = NotesSummary.y;
+                
 
                 float PowerPlace = 0.0;
                 for( p = 0; p < CCMAXNOTES; p++ )
                 {
                     float4 Peak = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 1+p, 0 ) );
-                    if( Peak.z <= 0 ) continue;
+                    if( Peak.y <= 0 ) continue;
 
-                    float Power = Peak.z/TotalPower;
+                    float Power = Peak.y/TotalPower;
                     PowerPlace += Power;
                     if( PowerPlace >= IN.globalTexcoord.x ) 
                     {
-                        return float4( CCtoRGB( Peak.x, Peak.a*0.5 * Brightness, _RootNote ), 1.0 );
+                        return float4( CCtoRGB( Peak.x, Peak.a*Brightness, _RootNote ), 1.0 );
                     }
                 }
                 
@@ -922,7 +938,9 @@ Shader "AudioLink/AudioLink"
                 
                 float4 NotesSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
                 
-                #define NOTESUFFIX( n )  pow(n.z, 1.5)
+                #define NOTESUFFIX( n ) n.y
+                                //was pow(n.z, 1.5)
+
                 
                 float4 ComputeCell = GetSelfPixelData( ALPASS_CCLIGHTS + int2( coordinateLocal.x, 1 ) );
                 //ComputeCell
@@ -936,6 +954,9 @@ Shader "AudioLink/AudioLink"
                 //   G: Peak Intensity
                 //   B: Calm Intensity
                 //   A: Other Intensity
+                
+                ComputeCell.y -= _PickNewSpeed*0.01;
+
 
                 if( NOTESUFFIX( ThisNote ) < ComputeCell.y || ComputeCell.y <= 0 || ThisNote.z < 0 )
                 {
@@ -984,10 +1005,6 @@ Shader "AudioLink/AudioLink"
                         ComputeCell.y = 0;
                     }
                 }
-                else
-                {
-                    ComputeCell.y -= _PickNewSpeed*0.01;
-                }
                 
                 ThisNote = GetSelfPixelData( ALPASS_CCINTERNAL + int2( ComputeCell.x + 1, 0 ) );
 
@@ -998,7 +1015,10 @@ Shader "AudioLink/AudioLink"
                     {
                         return 0.;
                     }
-                    return float4( CCtoRGB( glsl_mod( ThisNote.x,48.0 ), ThisNote.z, _RootNote ), 1.0 );
+                    
+                    //XXX TODO: REVISIT THIS!! Ths is an arbitrary value!
+                    float intensity = ThisNote.a/3;
+                    return float4( CCtoRGB( glsl_mod( ThisNote.x,48.0 ), intensity, _RootNote ), 1.0 );
                 }
                 else
                 {
