@@ -152,7 +152,7 @@ float3 CCtoRGB( float bin, float intensity, int RootNote )
 // A basic versino of the debug screen without text was only 134
 // instructions.
 
-float PrintChar( uint selchar, float2 mxy )
+float PrintChar( uint selchar, float2 mxy, float2 softness )
 {
     const static uint BitmapNumberFont[40] = {
         15379168,  // '0' 1110 1010 1010 1010 1110 0000
@@ -268,13 +268,13 @@ float PrintChar( uint selchar, float2 mxy )
         float ov = lerp( 
             lerp( tolerp.x, tolerp.y, shift.x ), 
             lerp( tolerp.z, tolerp.w, shift.x ), shift.y ) / 2.;
-        return saturate( ov * 20 - 10 );
+        return saturate( ov * softness - softness/2 );
     }
 }
 
 
 // Used for debugging
-float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, int offset, bool leadzero )
+float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, int offset, bool leadzero, float2 softness )
 {
     uint selnum;
     if( number < 0 && digit == 0 )
@@ -312,6 +312,6 @@ float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, in
         }
     }
 
-    return PrintChar( selnum, mxy );
+    return PrintChar( selnum, mxy, softness );
 }
 
