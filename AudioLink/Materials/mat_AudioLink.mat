@@ -64,7 +64,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AudioSource2D: 0
+    - _AudioSource2D: 1
     - _AutogainDerate: 0.1
     - _Bands: 4
     - _BaseAmplitude: 250
@@ -124,7 +124,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DayTimeProp: {r: 792, g: 726, b: 69, a: 0}
+    - _DayTimeProp: {r: 700, g: 172, b: 56, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FrameTimeProp: {r: 911, g: 92, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 136, a: 1}
+    - _FrameTimeProp: {r: 304, g: 1, b: 0, a: 0}
+    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 54, a: 1}

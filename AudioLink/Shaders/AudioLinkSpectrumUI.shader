@@ -210,7 +210,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 }
                 for (int k=0; k<4; k++)
                 {
-                    threshold += (band == i) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[k]))) * 1000.;
+                    threshold += (band == k) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[k]))) * 1000.;
                 }
 
                 threshold = saturate(threshold) * _ThresholdColor * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
