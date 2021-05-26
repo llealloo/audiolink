@@ -132,6 +132,7 @@ public class AudioLinkController : UdonSharpBehaviour
         bassSlider.value = _initBass;
         fadeLengthSlider.value = _initFadeLength;
         fadeExpFalloffSlider.value = _initFadeExpFalloff;
+        x0Slider.value = _initX0;
         x1Slider.value = _initX1;
         x2Slider.value = _initX2;
         x3Slider.value = _initX3;

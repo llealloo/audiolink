@@ -214,6 +214,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 }
 
                 threshold = saturate(threshold) * _ThresholdColor * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
+                threshold *= (iuv.x > _X0);
 
 
                 // Colored areas
