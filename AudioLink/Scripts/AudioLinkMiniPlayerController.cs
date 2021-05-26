@@ -1,4 +1,4 @@
-﻿
+﻿#if UDON
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -256,7 +256,7 @@ namespace AudioLinkPrefab
                         SetPlaceholderText("");
                         SetStatusText(MakeOwnerMessage());
                     }
-                    
+
                 }
             }
 
@@ -387,3 +387,4 @@ namespace AudioLinkPrefab
     }
 #endif
 }
+#endif

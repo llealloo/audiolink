@@ -1,4 +1,4 @@
-﻿
+﻿#if UDON
 using System;
 using UdonSharp;
 using UnityEngine;
@@ -29,7 +29,7 @@ namespace AudioLinkPrefab
 
         [Tooltip("Automatically loop track when finished")]
         public bool loop = false;
-        
+
         float retryTimeout = 6;
         float syncFrequency = 5;
         float syncThreshold = 1;
@@ -519,3 +519,4 @@ namespace AudioLinkPrefab
         }
     }
 }
+#endif

@@ -100,5 +100,5 @@ namespace VRCAudioLink
       var aL = t.gameObject.AddComponent<AudioLink>();
     }
   }
-  #endif
 }
+#endif
