@@ -15,7 +15,9 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ## What's new in v2
 
 ### New features
-- Full waveform, VU meter, and 240 point spectrogram (all data is also accessible to avatars)
+- ColorChord support
+- Autocorrelator waveform visualizer functionality
+- Full raw waveform, VU meter, and 240 point spectrogram (all data is also accessible to avatars)
 - New _AudioTexture (avatar texture) size: now 128x64 instead of 32x4. Make sure your avatar and world shaders are updated to the latest & compatible.
 - Compatibility in Avatar SDK3 projects for easy local testing with avatars
 - New controller with greatly enhanced crossover system & live spectral analysis
@@ -72,7 +74,8 @@ This is set up by default to export the AudioTexture grab pass (which enables av
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
 - cnlohr for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
-- lox9973 for the inspirational & tangential math help with signal processing
+- lox9973 for autocorrelator functionality and the inspirational & tangential math help with signal processing
+- Texelsaur for the AudioLinkMiniPlayer and support!
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
 - Orels1 for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
 - Thryrallo for the help setting up local AV3 testing functionality
