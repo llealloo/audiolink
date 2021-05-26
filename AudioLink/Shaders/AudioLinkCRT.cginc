@@ -58,7 +58,6 @@ float4      _CustomRenderTextureInfo; // x = width, y = height, z = depth, w = f
 
 // AudioLink specific
 Texture2D<float4>   _SelfTexture2D;
-//sampler2D   _SelfTexture2D;
 samplerCUBE _SelfTextureCube;
 sampler3D   _SelfTexture3D;
 

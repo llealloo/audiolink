@@ -21,11 +21,12 @@ public class AudioLink : UdonSharpBehaviour
 public class AudioLink : MonoBehaviour
 #endif
 {
+    const float AUDIOLINK_VERSION_NUMBER = 2.04f;
+
     [Header("Main Settings")]
+
     [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
     public AudioSource audioSource;
-    [Tooltip("Enable Udon audioData array")]
-    public bool audioDataToggle = true;
     [Tooltip("Enable global _AudioTexture")]
     public bool audioTextureToggle = true;
 
@@ -38,11 +39,13 @@ public class AudioLink : MonoBehaviour
     public float treble = 1f;
 
     [Header("4 Band Crossover")]
-    [Range(0.04882813f, 0.2988281f)][Tooltip("Bass / low mid crossover")]
+    [Range(0.0f, 0.168f)][Tooltip("Bass / low mid crossover")]
+    public float x0 = 0.0f;
+    [Range(0.242f, 0.387f)][Tooltip("Bass / low mid crossover")]
     public float x1 = 0.25f;
-    [Range(0.375f, 0.625f)][Tooltip("Low mid / high mid crossover")]
+    [Range(0.461f, 0.628f)][Tooltip("Low mid / high mid crossover")]
     public float x2 = 0.5f;
-    [Range(0.7021484f, 0.953125f)][Tooltip("High mid / treble crossover")]
+    [Range(0.704f, 0.953f)][Tooltip("High mid / treble crossover")]
     public float x3 = 0.75f;
 
     [Header("4 Band Threshold Points (Sensitivity)")]
@@ -64,8 +67,12 @@ public class AudioLink : MonoBehaviour
     [Header("Internal (Do not modify)")]
     public Material audioMaterial;
     public GameObject audioTextureExport;
-    public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
+
+    [Header("Experimental (Limits performance)")]
+    [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
+    public bool audioDataToggle = false;
     public Color[] audioData;
+    public Texture2D audioData2D;                               // Texture2D reference for hacked Blit, may eventually be depreciated
 
     private float[] _spectrumValues = new float[1024];
     private float[] _spectrumValuesTrim = new float[1023];
@@ -76,9 +83,54 @@ public class AudioLink : MonoBehaviour
     private float[] _samples3 = new float[1023];
     private float _audioLinkInputVolume = 0.01f;                        // smallify input source volume level
     private bool _audioSource2D = false;
+    
+    // Mechanism to provide sync'd instance time to all avatars.
+    #if UDON
+    [UdonSynced]
+    #endif 
+    private Int32 _masterInstanceJoinServerTimeStampMs;
+    private Int32 _instanceJoinServerTimeStampMs;
+    private double NextFPSTime;
+    private int    FPSCount;
+    
+    Int32 ConvertUInt64ToInt32WithWraparound( UInt64 u6t )
+    {
+        Int64 intermediate = (UInt32)(u6t & 0xffffffffUL);
+        if( intermediate >= 0x80000000 )
+        {
+            return (Int32)(intermediate - 0x100000000);
+        }
+        else
+        {
+            return (Int32)intermediate;            
+        }
+    }
 
     void Start()
     {
+        #if UDON
+        {
+            // Handle sync'd time stuff.
+            
+            //Originally used GetServerTimeInMilliseconds
+            //GetServerTimeInMilliseconds will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
+            //We still alias, but TCL suggested using Networking.GetNetworkDateTime.
+            //DateTime currentDate = Networking.GetNetworkDateTime();
+            //UInt64 currentTimeTicks = (UInt64)(currentDate.Ticks/TimeSpan.TicksPerMillisecond);
+			
+            Int32 startTime = Networking.GetServerTimeInMilliseconds();
+
+            if (Networking.IsMaster)
+            {
+                _masterInstanceJoinServerTimeStampMs = startTime;
+                RequestSerialization();
+            }
+            Int32 timeSinceLevelLoadAtInstanceJoinMs = ConvertUInt64ToInt32WithWraparound( (UInt64)( Time.timeSinceLevelLoad * 1000.0 ) );
+            _instanceJoinServerTimeStampMs = startTime - timeSinceLevelLoadAtInstanceJoinMs;
+            Debug.Log($"AudioLink Time Sync Debug: {startTime} {Networking.IsMaster} {_masterInstanceJoinServerTimeStampMs} {_instanceJoinServerTimeStampMs} {timeSinceLevelLoadAtInstanceJoinMs}.");
+        }
+        #endif
+
         UpdateSettings();
         if (audioSource.name.Equals("AudioLinkInput"))
         {
@@ -103,6 +155,57 @@ public class AudioLink : MonoBehaviour
         audioMaterial.SetFloatArray("_Samples1", _samples1);
         audioMaterial.SetFloatArray("_Samples2", _samples2);
         audioMaterial.SetFloatArray("_Samples3", _samples3);
+        
+        /* General Notes:
+            As of now, we convert the current "now" time to milliseconds.
+            All times are locked to milliseconds.
+
+            If a user is in a level for > 18 hours, the aliasing on 
+            Time.timeSinceLevelLoad will exceed 4ms, this restriction can
+            be lifted when VRC moves to 2020+. and timeSinceLevelLoadAsDouble
+            can be used in the below code.
+            
+            The user can safely use the red channel to read a value that
+            loops over and over from instance start from 0 to 16,777,215ms
+            
+            Then the green channel will increment.
+
+            NOTE: The 0xffffffff is here to make it clear what is happening.
+            The code should safely roll over either way.
+        */
+
+        double TimeSinceLoadSeconds = Convert.ToDouble( Time.timeSinceLevelLoad );
+        Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32WithWraparound( (UInt64)(TimeSinceLoadSeconds * 1000.0) );
+        Int32 nowMs =
+            _instanceJoinServerTimeStampMs -
+            _masterInstanceJoinServerTimeStampMs +
+            timeSinceLevelLoadMs;
+        audioMaterial.SetVector( "_FrameTimeProp", new Vector4(
+            (float)( nowMs & 0x3ff ),
+            (float)( (nowMs >> 10 ) & 0x3ff ),
+            (float)( (nowMs >> 20 ) & 0x3ff ),
+            (float)( (nowMs >> 30 ) & 0x3ff )
+            ) );
+            
+        double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
+        Int32 ts = ConvertUInt64ToInt32WithWraparound( (UInt64)(nowSeconds * 1000.0) ); 
+        audioMaterial.SetVector( "_DayTimeProp", new Vector4(
+            (float)( ts & 0x3ff ),
+            (float)( (ts >> 10 ) & 0x3ff ),
+            (float)( (ts >> 20 ) & 0x3ff ),
+            (float)( (ts >> 30 ) & 0x3ff )
+            ) );
+
+        FPSCount++;
+
+        FPSCount++;
+        if( TimeSinceLoadSeconds >= NextFPSTime )
+        {
+            audioMaterial.SetVector( "_VersionNumberAndFPSProperty", new Vector4( AUDIOLINK_VERSION_NUMBER, 0, FPSCount, 1 ) );
+            FPSCount = 0;
+            NextFPSTime++;
+        }
+        
 
         #if UNITY_EDITOR
         UpdateSettings();
@@ -121,6 +224,7 @@ public class AudioLink : MonoBehaviour
     public void UpdateSettings()
     {
         audioTextureExport.SetActive(audioTextureToggle);
+        audioMaterial.SetFloat("_X0", x0);
         audioMaterial.SetFloat("_X1", x1);
         audioMaterial.SetFloat("_X2", x2);
         audioMaterial.SetFloat("_X3", x3);

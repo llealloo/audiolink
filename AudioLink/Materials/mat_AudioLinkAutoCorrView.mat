@@ -35,7 +35,7 @@ Material:
     - _BubbleRotationSpeed: 0
     - _BubbleSize: 2
     - _ColorChord: 1
-    - _Fadeyness: 1
+    - _Fadeyness: 0.68
     - _Fdeyness: 2
     - _YOffset: 0
     m_Colors:

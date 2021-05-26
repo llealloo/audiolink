@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 8800328339556915023}
   - component: {fileID: 8800328339556915022}
   - component: {fileID: 5395514806221558607}
+  - component: {fileID: 114898744479896330}
   m_Layer: 0
   m_Name: AudioLinkAvatar
   m_TagString: Untagged
@@ -169,6 +170,47 @@ MonoBehaviour:
   audioTextureExport: {fileID: 8800328339112006311}
   audioData2d: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 3}
   audioSource: {fileID: 8800328340110197116}
+--- !u!114 &114898744479896330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800328339556915021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa856f4528fc71343ae13d211071a669, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 0
+    SerializedBytes: 2d01150000005f006200610063006b0069006e006700550064006f006e004200650068006100760069006f0075007200
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  _isValidForAutoCopy: 0
+  audioSource: {fileID: 8800328340110197116}
+  audioDataToggle: 0
+  audioTextureToggle: 1
+  gain: 1
+  bass: 1
+  treble: 1
+  x1: 0.25
+  x2: 0.5
+  x3: 0.75
+  threshold0: 0.45
+  threshold1: 0.45
+  threshold2: 0.45
+  threshold3: 0.45
+  fadeLength: 0.8
+  fadeExpFalloff: 0.3
+  audioMaterial: {fileID: 2100000, guid: 5189d837989b9144e8e43d3ce618e450, type: 2}
+  audioTextureExport: {fileID: 8800328339112006311}
+  audioData2D: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 3}
+  audioData: []
 --- !u!1 &8800328340110197117
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,7 +25,7 @@ CustomRenderTexture:
   m_TextureSettings:
     serializedVersion: 2
     m_FilterMode: 0
-    m_Aniso: 1
+    m_Aniso: 0
     m_MipBias: 0
     m_WrapU: 1
     m_WrapV: 1
@@ -56,7 +56,7 @@ CustomRenderTexture:
     updateZoneSize: {x: 128, y: 4, z: 1}
     rotation: 0
     passIndex: 2
-    needSwap: 0
+    needSwap: 1
   - updateZoneCenter: {x: 6, y: 41, z: 0.5}
     updateZoneSize: {x: 12, y: 1, z: 1}
     rotation: 0
@@ -67,12 +67,12 @@ CustomRenderTexture:
     rotation: 0
     passIndex: 4
     needSwap: 0
-  - updateZoneCenter: {x: 64, y: 39, z: 0.5}
+  - updateZoneCenter: {x: 64, y: 36, z: 0.5}
     updateZoneSize: {x: 128, y: 1, z: 1}
     rotation: 0
     passIndex: 5
     needSwap: 0
-  - updateZoneCenter: {x: 64, y: 40, z: 0.5}
+  - updateZoneCenter: {x: 64, y: 39, z: 0.5}
     updateZoneSize: {x: 128, y: 1, z: 1}
     rotation: 0
     passIndex: 6

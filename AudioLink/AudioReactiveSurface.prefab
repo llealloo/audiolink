@@ -96,6 +96,7 @@ MonoBehaviour:
   proximity: 2
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 0
+  Reliable: 0
   serializedProgramAsset: {fileID: 11400000, guid: 91e06fa56f37a58459169afb4c91e5f3,
     type: 2}
   programSource: {fileID: 11400000, guid: 3c3f68f50baf1124683ae6f8bc4d04a2, type: 2}

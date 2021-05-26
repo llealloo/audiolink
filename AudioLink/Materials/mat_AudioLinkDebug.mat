@@ -64,6 +64,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EnableColorChord: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -84,14 +85,14 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _VUOpacity: 0.5
-    - _WaveformZoom: 0.12
+    - _WaveformZoom: 0.5
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SampleColor: {r: 0.9, g: 0.9, b: 0.9, a: 1}
-    - _SeparatorColor: {r: 0.5, g: 0.5, b: 0, a: 1}
+    - _SeparatorColor: {r: 0.11320752, g: 0.11320752, b: 0, a: 1}
     - _SpectrumFixedColor: {r: 0.9, g: 0.9, b: 0.9, a: 1}
     - _SpectrumFixedColorForSlow: {r: 0.9, g: 0.9, b: 0.9, a: 1}
     - _UnderSpectrumColor: {r: 1, g: 1, b: 1, a: 0.1}

@@ -31,9 +31,10 @@ Shader "AudioLink/AudioLinkSpectrumUI"
         _FreqFloor("Frequency Floor", Range(0, 1)) = 0
         _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
 
-        _X1("X1", Range(0.04882813, 0.2988281)) = 0.25
-        _X2("X2", Range(0.375, 0.625)) = 0.5
-        _X3("X3", Range(0.7021484, 0.953125)) = 0.75
+        _X0("X0", Range(0.0, 0.168)) = 0.0
+        _X1("X1", Range(0.242, 0.387)) = 0.25
+        _X2("X2", Range(0.461, 0.628)) = 0.5
+        _X3("X3", Range(0.704, 0.953)) = 0.75
 
         _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
@@ -87,7 +88,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             uniform float _FreqFloor;
             uniform float _FreqCeiling;
 
-
+            uniform float _X0;
             uniform float _X1;
             uniform float _X2;
             uniform float _X3;
@@ -162,7 +163,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float2 iuv = IN.uv;
 
 
-                float audioBands[4] = {0., _X1, _X2, _X3};
+                float audioBands[4] = {_X0, _X1, _X2, _X3};
                 float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
 
                 float4 intensity = 0;
@@ -189,7 +190,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
                 // Band segments
                 float segment = 0.;
-                for (int i=1; i<4; i++)
+                for (int i=0; i<4; i++)
                 {
                     segment += saturate(_SegmentThickness - abs(iuv.x - audioBands[i])) * 1000.;
                 }
@@ -213,6 +214,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 }
 
                 threshold = saturate(threshold) * _ThresholdColor * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
+                threshold *= (iuv.x > _X0);
 
 
                 // Colored areas
@@ -221,6 +223,8 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 bandColor += (band == 1) * _Band1Color;
                 bandColor += (band == 2) * _Band2Color;
                 bandColor += (band == 3) * _Band3Color;
+
+                bandColor *= (iuv.x > _X0);
 
                 float bandIntensity = tex2D(_AudioLinkTexture, float2(0., (float)band * 0.015625));
                 
@@ -232,6 +236,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 // Spectrum-Line second
                 rval = max( _SpectrumThickness - abs( intensity.g - iuv.y + _SpectrumVertOffset), 0. );
                 rval = min( 1., 1000*rval );
+                rval *= (iuv.x > _X0);
                 c = lerp( c, _SpectrumFixedColor, rval * bandIntensity );
 
                 // Pulse
