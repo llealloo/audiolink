@@ -57,6 +57,13 @@
                 float2 pos = iuv*float2(cols,rows);
                 uint2 dig = (uint2)(pos);
 
+                // This line of code is tricky;  We determine how much we should soften the edge of the text
+                // based on how quickly the text is moving across our field of view.  This gives us realy nice
+                // anti-aliased edges.
+                float2 softness = 2./pow( length( float2( ddx( pos.x ), ddy( pos.y ) ) ), 0.5 );
+
+                // Another option would be to set softness to 20 and YOLO it.
+
                 float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
 
                 
@@ -81,7 +88,7 @@
                             };
                         sendchar = sendarr[dig.x+dig.y*10];
                     }
-                    return PrintChar( sendchar, fmxy );
+                    return PrintChar( sendchar, fmxy, softness );
                 }
                 
                 dig.x -= cols - number_area_cols;
@@ -158,7 +165,7 @@
                     break;
                 }
 
-                return PrintNumberOnLine( value, number_area_cols-offset, dig.x + xoffset, fmxy, offset, leadingzero );                
+                return PrintNumberOnLine( value, number_area_cols-offset, dig.x + xoffset, fmxy, offset, leadingzero, softness );                
             }
             ENDCG
         }
