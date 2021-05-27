@@ -126,7 +126,7 @@ namespace AudioLinkPrefab
 
         public void _TriggerLock()
         {
-            if (!_CanTakeControl())
+            if (!_IsAdmin())
                 return;
             if (localPlayerState != PLAYER_STATE_PLAYING)
                 return;
@@ -429,6 +429,12 @@ namespace AudioLinkPrefab
             }
         }
 
+        public bool _IsAdmin()
+        {
+            VRCPlayerApi player = Networking.LocalPlayer;
+            return player.isMaster || player.isInstanceOwner;
+        }
+
         public bool _CanTakeControl()
         {
             VRCPlayerApi player = Networking.LocalPlayer;
@@ -551,7 +557,7 @@ namespace AudioLinkPrefab
         void DebugLog(string message)
         {
             if (debugLogging)
-                Debug.Log("[VideoTXL:BasicSyncPlayer] " + message);
+                Debug.Log("[AudioLink:MiniPlayer] " + message);
         }
     }
 }
