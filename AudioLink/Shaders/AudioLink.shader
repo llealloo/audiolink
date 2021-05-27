@@ -166,8 +166,7 @@ Shader "AudioLink/AudioLink"
             uniform float _AudioSource2D;
 
             // Extra Properties
-            uniform float4 _FrameTimeProp;
-            uniform float4 _DayTimeProp;
+            uniform float4 _AdvancedTimeProps;
             uniform float4 _VersionNumberAndFPSProperty;
 
 
@@ -610,11 +609,27 @@ Shader "AudioLink/AudioLink"
                     }
                     else if( coordinateLocal.x == 2 )
                     {
-                        return _FrameTimeProp;
+                        // Output of this is daytime, in milliseconds
+                        // as an int.  But, we only have half4's.
+                        // so we have to get creative.
+
+                        //_AdvancedTimeProps.x = seconds % 1024
+                        //_AdvancedTimeProps.y = seconds / 1024
+
+                        // This is done a little awkwardly as to prevent any overflows.
+                        uint dtms = _AdvancedTimeProps.x * 1000;
+                        uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms>>10);
+                        return float4(
+                            (float)( dtms & 0x3ff ),
+                            (float)( (dtms2) & 0x3ff ),
+                            (float)( (dtms2 >> 10 ) & 0x3ff ),
+                            (float)( (dtms2 >> 20 ) & 0x3ff )
+                            );
                     }
                     else if( coordinateLocal.x == 3 )
                     {
-                        return _DayTimeProp;
+                        int ftpa = _AdvancedTimeProps.z*1000.;
+                        return float4( ftpa & 0x3ff, (ftpa>>10)&0x3ff,(ftpa>>20),0);
                     }
                     else if( coordinateLocal.x == 4 )
                     {
