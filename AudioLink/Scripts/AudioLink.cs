@@ -92,46 +92,39 @@ public class AudioLink : UdonSharpBehaviour
 #if UDON
     [UdonSynced]
 #endif
-        private Int32 _masterInstanceJoinServerTimeStampMs;
-        private Int32 _instanceJoinServerTimeStampMs;
-        private double NextFPSTime;
-        private int FPSCount;
+        private double _masterInstanceJoinTime;
+        private double _elapsedTime = 0;
+        private double _elapsedTimeMSW = 0;
+        private double _timeOffset = 0;
+        private bool   _hasInitializedTime = false;
+        private float  _FPSTime = 0;
+        private int    _FPSCount = 0;
 
-        Int32 ConvertUInt64ToInt32WithWraparound(UInt64 u6t)
-        {
-            Int64 intermediate = (UInt32) (u6t & 0xffffffffUL);
-            if (intermediate >= 0x80000000)
-            {
-                return (Int32) (intermediate - 0x100000000);
-            }
-            else
-            {
-                return (Int32) intermediate;
-            }
-        }
+
+        private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
 
         void Start()
         {
             #if UDON
             {
                 // Handle sync'd time stuff.
-
+                // OLD NOTES
                 //Originally used GetServerTimeInMilliseconds
-                //GetServerTimeInMilliseconds will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
+                //Networking.GetServerTimeInMilliseconds will alias to every 49.7 days (2^32ms). GetServerTimeInSeconds also aliases.
                 //We still alias, but TCL suggested using Networking.GetNetworkDateTime.
                 //DateTime currentDate = Networking.GetNetworkDateTime();
                 //UInt64 currentTimeTicks = (UInt64)(currentDate.Ticks/TimeSpan.TicksPerMillisecond);
+                // NEW NOTES
+                //We now just compute delta times per frame.
 
-                Int32 startTime = Networking.GetServerTimeInMilliseconds();
-
+                double startTime = GetElapsedSecondsSince2019();
+                
                 if (Networking.IsMaster)
                 {
-                    _masterInstanceJoinServerTimeStampMs = startTime;
+                    _masterInstanceJoinTime = startTime;
                     RequestSerialization();
                 }
-                Int32 timeSinceLevelLoadAtInstanceJoinMs = ConvertUInt64ToInt32WithWraparound( (UInt64)( Time.timeSinceLevelLoad * 1000.0 ) );
-                _instanceJoinServerTimeStampMs = startTime - timeSinceLevelLoadAtInstanceJoinMs;
-                Debug.Log($"AudioLink Time Sync Debug: {startTime} {Networking.IsMaster} {_masterInstanceJoinServerTimeStampMs} {_instanceJoinServerTimeStampMs} {timeSinceLevelLoadAtInstanceJoinMs}.");
+                Debug.Log($"AudioLink Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
             }
             #endif
 
@@ -152,6 +145,72 @@ public class AudioLink : UdonSharpBehaviour
 
         private void Update()
         {
+            #if UDON
+            if( !_hasInitializedTime )
+            {
+                if( _masterInstanceJoinTime > 0.00001 )
+                {
+                    //We can now do our time setup.
+                    double Now = GetElapsedSecondsSince2019();
+                    _elapsedTime = Now - _masterInstanceJoinTime;
+                    Debug.Log( $"AudioLink Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}" );
+                    _hasInitializedTime = true;
+                }
+                else if( _elapsedTime > 10 && Networking.IsMaster )
+                {
+                    //Have we gone more than 10 seconds and we're master? 
+                    Debug.Log( "AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time." );
+                    _masterInstanceJoinTime = GetElapsedSecondsSince2019();
+                    RequestSerialization();
+                    _hasInitializedTime = true;
+                    _elapsedTime = 0;
+                }
+            }
+            #endif
+
+            // Tested: There does not appear to be any drift updating it this way.
+            _elapsedTime += Time.deltaTime;
+
+            _FPSCount++;
+
+            if (_elapsedTime >= _FPSTime)
+            {
+                audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
+                _FPSCount = 0;
+                _FPSTime++;
+                
+                // Other things to handle every second.  
+
+                // This handles wrapping of the ElapsedTime so we don't lose precision
+                // onthe floating point.
+                const double ElapsedTimeMSWBoundary = 1024;
+                if( _elapsedTime >= ElapsedTimeMSWBoundary )
+                {
+                    //For particularly long running instances, i.e. several days, the first
+                    //few frames will be spent federating _elapsedTime into _elapsedTimeMSW.
+                    _FPSTime = 0;
+                    _elapsedTime -= ElapsedTimeMSWBoundary;
+                    _elapsedTimeMSW++;
+                }
+            }
+
+            audioMaterial.SetVector("_AdvancedTimeProps", new Vector4( (float)_elapsedTime, (float)_elapsedTimeMSW,  (float)DateTime.Now.TimeOfDay.TotalSeconds, 0 ) );
+
+            // General Profiling Notes:
+            //    Profiling done on 2021-05-26 on an Intel Intel Core i7-8750H CPU @ 2.20GHz
+            //    Running loop 255 times (So divide all times by 255)
+            //    Base load of system w/o for loop: ~420us in merlin profile land.
+            //    With loop, with just summer: 1.2ms / 255
+            //    Calling material.SetVeactor( ... new Vector4 ) in the loop:  2.7ms / 255
+            //    Setting a float in the loop (to see if there's a difference): 1.9ms / 255
+            //                             but setting 4 floats individually... is 3.0ms / 255
+            //    The whole shebang with Networking.GetServerTimeInMilliseconds(); 2.3ms / 255
+            //    Material.SetFloat with Networking.GetServerTimeInMilliseconds(); 2.3ms / 255
+            //    Material.SetFloat with Networking.GetServerTimeInMilliseconds(), twice; 2.9ms / 255
+            //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, twice: 5.1ms / 255
+            //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, once: 3.2ms / 255
+
+
             if (audioSource == null) return;
             audioSource.GetOutputData(_audioFrames, 0);
             System.Array.Copy(_audioFrames, 4092 - 1023 * 4, _samples0, 0, 1023);
@@ -162,57 +221,6 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloatArray("_Samples1", _samples1);
             audioMaterial.SetFloatArray("_Samples2", _samples2);
             audioMaterial.SetFloatArray("_Samples3", _samples3);
-
-            /* General Notes:
-                As of now, we convert the current "now" time to milliseconds.
-                All times are locked to milliseconds.
-
-                If a user is in a level for > 18 hours, the aliasing on
-                Time.timeSinceLevelLoad will exceed 4ms, this restriction can
-                be lifted when VRC moves to 2020+. and timeSinceLevelLoadAsDouble
-                can be used in the below code.
-
-                The user can safely use the red channel to read a value that
-                loops over and over from instance start from 0 to 16,777,215ms
-
-                Then the green channel will increment.
-
-                NOTE: The 0xffffffff is here to make it clear what is happening.
-                The code should safely roll over either way.
-            */
-
-            double TimeSinceLoadSeconds = Convert.ToDouble(Time.timeSinceLevelLoad);
-            Int32 timeSinceLevelLoadMs = ConvertUInt64ToInt32WithWraparound((UInt64) (TimeSinceLoadSeconds * 1000.0));
-            Int32 nowMs =
-                _instanceJoinServerTimeStampMs -
-                _masterInstanceJoinServerTimeStampMs +
-                timeSinceLevelLoadMs;
-            audioMaterial.SetVector("_FrameTimeProp", new Vector4(
-                (float) (nowMs & 0x3ff),
-                (float) ((nowMs >> 10) & 0x3ff),
-                (float) ((nowMs >> 20) & 0x3ff),
-                (float) ((nowMs >> 30) & 0x3ff)
-            ));
-
-            double nowSeconds = DateTime.Now.TimeOfDay.TotalSeconds;
-            Int32 ts = ConvertUInt64ToInt32WithWraparound((UInt64) (nowSeconds * 1000.0));
-            audioMaterial.SetVector("_DayTimeProp", new Vector4(
-                (float) (ts & 0x3ff),
-                (float) ((ts >> 10) & 0x3ff),
-                (float) ((ts >> 20) & 0x3ff),
-                (float) ((ts >> 30) & 0x3ff)
-            ));
-
-            FPSCount++;
-
-            FPSCount++;
-            if (TimeSinceLoadSeconds >= NextFPSTime)
-            {
-                audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, FPSCount, 1));
-                FPSCount = 0;
-                NextFPSTime++;
-            }
-
 
         #if UNITY_EDITOR
             UpdateSettings();
