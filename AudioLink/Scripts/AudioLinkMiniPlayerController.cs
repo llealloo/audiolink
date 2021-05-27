@@ -49,6 +49,8 @@ namespace AudioLinkPrefab
         string instanceOwner = "";
 
         bool loadActive = false;
+        VRCUrl pendingSubmit;
+        bool pendingFromLoadOverride = false;
 
         private void Start()
         {
@@ -64,9 +66,27 @@ namespace AudioLinkPrefab
 
         public void _HandleUrlInput()
         {
-            if (Utilities.IsValid(videoPlayer))
-                videoPlayer._ChangeUrl(urlInput.GetUrl());
+            if (!Utilities.IsValid(videoPlayer))
+                return;
+
+            pendingFromLoadOverride = loadActive;
+            pendingSubmit = urlInput.GetUrl();
+
+            SendCustomEventDelayedSeconds("_HandleUrlInputDelay", 0.5f);
+        }
+
+        public void _HandleUrlInputDelay()
+        {
+            VRCUrl url = urlInput.GetUrl();
             urlInput.SetUrl(VRCUrl.Empty);
+
+            // Hack to get around Unity always firing OnEndEdit event for submit and lost focus
+            // If loading override was on, but it's off immediately after submit, assume user closed override
+            // instead of submitting.  Half second delay is a crude defense against a UI race.
+            if (pendingFromLoadOverride && !loadActive)
+                return;
+
+            videoPlayer._ChangeUrl(url);
             loadActive = false;
         }
 
@@ -74,6 +94,16 @@ namespace AudioLinkPrefab
         {
             if (!videoPlayer._CanTakeControl())
                 _SetStatusOverride(MakeOwnerMessage(), 3);
+        }
+
+        public void _HandleUrlInputChange()
+        {
+            if (!Utilities.IsValid(videoPlayer))
+                return;
+
+            VRCUrl url = urlInput.GetUrl();
+            if (url.Get().Length > 0)
+                videoPlayer._UpdateQueuedUrl(urlInput.GetUrl());
         }
 
         public void _HandleStop()
@@ -240,6 +270,7 @@ namespace AudioLinkPrefab
                     if (videoPlayer.localPlayerState == PLAYER_STATE_STOPPED)
                     {
                         loadActive = false;
+                        pendingFromLoadOverride = false;
                         stopIcon.color = disabledColor;
                         loadIcon.color = disabledColor;
                     } else

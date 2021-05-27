@@ -36,6 +36,7 @@ namespace AudioLinkPrefab
 
         [UdonSynced]
         VRCUrl _syncUrl;
+        VRCUrl _queuedUrl;
 
         [UdonSynced]
         int _syncVideoNumber;
@@ -150,6 +151,18 @@ namespace AudioLinkPrefab
                 return;
 
             _PlayVideo(url);
+
+            _queuedUrl = VRCUrl.Empty;
+        }
+
+        public void _UpdateQueuedUrl(VRCUrl url)
+        {
+            if (_syncLocked && !_CanTakeControl())
+                return;
+            if (!Networking.IsOwner(gameObject))
+                Networking.SetOwner(Networking.LocalPlayer, gameObject);
+
+            _queuedUrl = url;
         }
 
         public void _SetTargetTime(float time)
@@ -172,11 +185,7 @@ namespace AudioLinkPrefab
             if (!isOwner && !_CanTakeControl())
                 return;
 
-            if (!Utilities.IsValid(url))
-                return;
-
-            string urlStr = url.Get();
-            if (urlStr == null || urlStr == "")
+            if (!_IsUrlValid(url))
                 return;
 
             if (!isOwner)
@@ -190,7 +199,7 @@ namespace AudioLinkPrefab
             _syncVideoStartNetworkTime = float.MaxValue;
             RequestSerialization();
 
-            _videoTargetTime = _ParseTimeFromUrl(urlStr);
+            _videoTargetTime = _ParseTimeFromUrl(url.Get());
 
             _StartVideoLoad();
         }
@@ -198,6 +207,24 @@ namespace AudioLinkPrefab
         public void _LoopVideo()
         {
             _PlayVideo(_syncUrl);
+        }
+
+        public void _PlayQueuedUrl()
+        {
+            _PlayVideo(_queuedUrl);
+            _queuedUrl = VRCUrl.Empty;
+        }
+
+        bool _IsUrlValid(VRCUrl url)
+        {
+            if (!Utilities.IsValid(url))
+                return false;
+
+            string urlStr = url.Get();
+            if (urlStr == null || urlStr == "")
+                return false;
+
+            return true;
         }
 
         // Time parsing code adapted from USharpVideo project by Merlin
@@ -359,7 +386,9 @@ namespace AudioLinkPrefab
 
             if (Networking.IsOwner(gameObject))
             {
-                if (loop)
+                if (_IsUrlValid(_queuedUrl))
+                    SendCustomEventDelayedFrames("_PlayQueuedUrl", 1);
+                else if (loop)
                     SendCustomEventDelayedFrames("_LoopVideo", 1);
                 else
                 {
