@@ -27,9 +27,6 @@ public class AudioLink : UdonSharpBehaviour
         [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
 
-        [Tooltip("Enable global _AudioTexture")]
-        public bool audioTextureToggle = true;
-
         [Header("Basic EQ")] [Range(0.0f, 2.0f)] [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
         public float gain = 1f;
 
@@ -140,7 +137,6 @@ public class AudioLink : UdonSharpBehaviour
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
-            audioTextureExport.SetActive(audioTextureToggle);
         }
 
         private void Update()
@@ -238,7 +234,6 @@ public class AudioLink : UdonSharpBehaviour
 
         public void UpdateSettings()
         {
-            audioTextureExport.SetActive(audioTextureToggle);
             audioMaterial.SetFloat("_X0", x0);
             audioMaterial.SetFloat("_X1", x1);
             audioMaterial.SetFloat("_X2", x2);
