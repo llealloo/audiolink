@@ -124,7 +124,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DayTimeProp: {r: 636, g: 527, b: 59, a: 0}
+    - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FrameTimeProp: {r: 810, g: 51, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 116, a: 1}
+    - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}
+    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 172, a: 1}
