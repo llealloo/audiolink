@@ -1,4 +1,4 @@
-Shader /*ase_name*/ "AudioLink/Lit" /*end*/
+Shader /*ase_name*/ "Hidden/AudioLink/Lit" /*end*/
 {
 	Properties
 	{
@@ -670,6 +670,7 @@ Shader /*ase_name*/ "AudioLink/Lit" /*end*/
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "AutoLight.cginc"
+			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			/*ase_pragma*/
 			struct appdata {
@@ -1114,6 +1115,7 @@ Shader /*ase_name*/ "AudioLink/Lit" /*end*/
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "AutoLight.cginc"
+			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			/*ase_pragma*/
 			struct appdata {
@@ -1485,6 +1487,7 @@ Shader /*ase_name*/ "AudioLink/Lit" /*end*/
 			#include "UnityCG.cginc"
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
+			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			/*ase_pragma*/
 			struct appdata {
@@ -1843,6 +1846,7 @@ Shader /*ase_name*/ "AudioLink/Lit" /*end*/
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "UnityMetaPass.cginc"
+			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			/*ase_pragma*/
 			struct appdata {
@@ -2090,6 +2094,7 @@ Shader /*ase_name*/ "AudioLink/Lit" /*end*/
 			#include "UnityCG.cginc"
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
+			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			/*ase_pragma*/
 			struct appdata {

@@ -68,7 +68,7 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4BandHistory"
 
 			inline float AudioLinkLerp3_g1( int Band, float Delay )
 			{
-				return AudioLinkLerp( ALPASS_AUDIOLINK + uint2( Delay, Band ) ).rrrr;;
+				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay * 128, Band ) ).r;
 			}
 			
 
@@ -129,14 +129,14 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4BandHistory"
 }
 /*ASEBEGIN
 Version=18908
-3724;23.2;2347;1269;1376.5;541.5002;1;True;False
+3251.2;23.2;2471;1118;1438.5;466.0002;1;True;False
 Node;AmplifyShaderEditor.TextureCoordinatesNode;26;-694.5,-59.5;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;27;-401.4999,42.49982;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;4;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;37;-177.5,-54.50018;Inherit;False;4BandAmplitudeHistory;-1;;1;3cf4b6e83381a9a4f84f8cf857bc3af5;0;2;2;INT;0;False;4;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;39;-177.5,-54.50018;Inherit;False;4BandAmplitudeHistory;-1;;1;3cf4b6e83381a9a4f84f8cf857bc3af5;0;2;2;INT;0;False;4;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;35;181,-63;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_4BandHistory;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
 WireConnection;27;0;26;2
-WireConnection;37;2;27;0
-WireConnection;37;4;26;1
-WireConnection;35;0;37;0
+WireConnection;39;2;27;0
+WireConnection;39;4;26;1
+WireConnection;35;0;39;0
 ASEEND*/
-//CHKSM=08A4FC53A974BA32783FFA8EF4419E5679D0BC9E
+//CHKSM=D1AE5495BD7786974535E6D589020D9408738E20

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: 4BandAmplitudeHistory
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity Asset
-    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18908\n3724;23.2;2347;1269;1173.5;633.5;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;2;-324.5,-77.5;Inherit;False;Band;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput;4;-320.5,43.5;Inherit;False;Delay;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;3;-106.5,-21.5;Inherit;False;AudioLinkLerp(
-    ALPASS_AUDIOLINK + uint2( Delay, Band ) ).rrrr@;1;Create;2;True;Band;INT;0;In;;Inherit;False;True;Delay;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;2;0;INT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;127,-46;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;0;2;0\nWireConnection;3;1;4;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=D808277A59659824A8B870BBB616D247516085D9"
+    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18908\n3251.2;23.2;2471;1118;1235.5;558;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;2;-324.5,-77.5;Inherit;False;Band;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput;4;-320.5,43.5;Inherit;False;Delay;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;3;-106.5,-21.5;Inherit;False;AudioLinkLerp(
+    ALPASS_AUDIOLINK + float2( Delay * 128, Band ) ).r;1;Create;2;True;Band;INT;0;In;;Inherit;False;True;Delay;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;2;0;INT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;127,-46;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;0;2;0\nWireConnection;3;1;4;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=23EB9E6B87A1ACB62CFFB7281D960ABED8DACD2E"
   m_functionName: 
-  m_description: Samples from AudioLink band 0, 1, 2, or 3 also accepts a delay (history
-    level)
+  m_description: Samples from AudioLink band 0, 1, 2, or 3 also accepts a normalized
+    delay (history level 0-1)
   m_additionalIncludes:
     m_additionalIncludes: []
     m_outsideIncludes: []
