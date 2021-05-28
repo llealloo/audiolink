@@ -36,6 +36,7 @@ namespace AudioLinkPrefab
 
         [UdonSynced]
         VRCUrl _syncUrl;
+        VRCUrl _queuedUrl;
 
         [UdonSynced]
         int _syncVideoNumber;
@@ -125,8 +126,11 @@ namespace AudioLinkPrefab
 
         public void _TriggerLock()
         {
-            if (!_CanTakeControl())
+            if (!_IsAdmin())
                 return;
+            if (localPlayerState != PLAYER_STATE_PLAYING)
+                return;
+
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
 
@@ -147,6 +151,18 @@ namespace AudioLinkPrefab
                 return;
 
             _PlayVideo(url);
+
+            _queuedUrl = VRCUrl.Empty;
+        }
+
+        public void _UpdateQueuedUrl(VRCUrl url)
+        {
+            if (_syncLocked && !_CanTakeControl())
+                return;
+            if (!Networking.IsOwner(gameObject))
+                Networking.SetOwner(Networking.LocalPlayer, gameObject);
+
+            _queuedUrl = url;
         }
 
         public void _SetTargetTime(float time)
@@ -169,11 +185,7 @@ namespace AudioLinkPrefab
             if (!isOwner && !_CanTakeControl())
                 return;
 
-            if (!Utilities.IsValid(url))
-                return;
-
-            string urlStr = url.Get();
-            if (urlStr == null || urlStr == "")
+            if (!_IsUrlValid(url))
                 return;
 
             if (!isOwner)
@@ -187,7 +199,7 @@ namespace AudioLinkPrefab
             _syncVideoStartNetworkTime = float.MaxValue;
             RequestSerialization();
 
-            _videoTargetTime = _ParseTimeFromUrl(urlStr);
+            _videoTargetTime = _ParseTimeFromUrl(url.Get());
 
             _StartVideoLoad();
         }
@@ -195,6 +207,24 @@ namespace AudioLinkPrefab
         public void _LoopVideo()
         {
             _PlayVideo(_syncUrl);
+        }
+
+        public void _PlayQueuedUrl()
+        {
+            _PlayVideo(_queuedUrl);
+            _queuedUrl = VRCUrl.Empty;
+        }
+
+        bool _IsUrlValid(VRCUrl url)
+        {
+            if (!Utilities.IsValid(url))
+                return false;
+
+            string urlStr = url.Get();
+            if (urlStr == null || urlStr == "")
+                return false;
+
+            return true;
         }
 
         // Time parsing code adapted from USharpVideo project by Merlin
@@ -252,7 +282,6 @@ namespace AudioLinkPrefab
             DebugLog("Start video load " + _syncUrl);
             localPlayerState = PLAYER_STATE_LOADING;
 
-            _currentPlayer.Stop();
 #if !UNITY_EDITOR
             _currentPlayer.LoadURL(_syncUrl);
 #endif
@@ -261,20 +290,25 @@ namespace AudioLinkPrefab
         public void _StopVideo()
         {
             DebugLog("Stop video");
+
             if (seekableSource)
                 _lastVideoPosition = _currentPlayer.GetTime();
 
-            _currentPlayer.Stop();
-            _syncVideoStartNetworkTime = 0;
-            _syncOwnerPlaying = false;
-            _syncUrl = VRCUrl.Empty;
-            _videoTargetTime = 0;
-            RequestSerialization();
+            localPlayerState = PLAYER_STATE_STOPPED;
 
+            _currentPlayer.Stop();
+            _videoTargetTime = 0;
             _pendingPlayTime = 0;
             _pendingLoadTime = 0;
             _playStartTime = 0;
-            localPlayerState = PLAYER_STATE_STOPPED;
+
+            if (Networking.IsOwner(gameObject))
+            {
+                _syncVideoStartNetworkTime = 0;
+                _syncOwnerPlaying = false;
+                _syncUrl = VRCUrl.Empty;
+                RequestSerialization();
+            }
         }
 
         public override void OnVideoReady()
@@ -309,13 +343,13 @@ namespace AudioLinkPrefab
 
             if (Networking.IsOwner(gameObject))
             {
-                _syncVideoStartNetworkTime = (float)Networking.GetServerTimeInSeconds() - _videoTargetTime;
-                _syncOwnerPlaying = true;
-                RequestSerialization();
-
                 localPlayerState = PLAYER_STATE_PLAYING;
                 _playStartTime = Time.time;
 
+                _syncVideoStartNetworkTime = (float)Networking.GetServerTimeInSeconds() - _videoTargetTime;
+                _syncOwnerPlaying = true;
+                RequestSerialization();
+                
                 _currentPlayer.SetTime(_videoTargetTime);
             }
             else
@@ -330,6 +364,7 @@ namespace AudioLinkPrefab
                 {
                     localPlayerState = PLAYER_STATE_PLAYING;
                     _playStartTime = Time.time;
+
                     SyncVideo();
                 }
             }
@@ -351,7 +386,9 @@ namespace AudioLinkPrefab
 
             if (Networking.IsOwner(gameObject))
             {
-                if (loop)
+                if (_IsUrlValid(_queuedUrl))
+                    SendCustomEventDelayedFrames("_PlayQueuedUrl", 1);
+                else if (loop)
                     SendCustomEventDelayedFrames("_LoopVideo", 1);
                 else
                 {
@@ -365,7 +402,6 @@ namespace AudioLinkPrefab
         public override void OnVideoError(VideoError videoError)
         {
             _currentPlayer.Stop();
-            _videoTargetTime = 0;
 
             DebugLog("Video stream failed: " + _syncUrl);
             DebugLog("Error code: " + videoError);
@@ -377,21 +413,26 @@ namespace AudioLinkPrefab
             {
                 if (retryOnError)
                 {
-                    _currentPlayer.Stop();
                     _StartVideoLoadDelay(retryTimeout);
                 }
                 else
                 {
                     _syncVideoStartNetworkTime = 0;
+                    _videoTargetTime = 0;
                     _syncOwnerPlaying = false;
                     RequestSerialization();
                 }
             }
             else
             {
-                _currentPlayer.Stop();
                 _StartVideoLoadDelay(retryTimeout);
             }
+        }
+
+        public bool _IsAdmin()
+        {
+            VRCPlayerApi player = Networking.LocalPlayer;
+            return player.isMaster || player.isInstanceOwner;
         }
 
         public bool _CanTakeControl()
@@ -409,11 +450,12 @@ namespace AudioLinkPrefab
 
             locked = _syncLocked;
 
-            if (localPlayerState == PLAYER_STATE_PLAYING && !_syncOwnerPlaying)
-                SendCustomEventDelayedFrames("_StopVideo", 1);
-
             if (_syncVideoNumber == _loadedVideoNumber)
+            {
+                if (localPlayerState == PLAYER_STATE_PLAYING && !_syncOwnerPlaying)
+                    SendCustomEventDelayedFrames("_StopVideo", 1);
                 return;
+            }
 
             // There was some code here to bypass load owner sync bla bla
 
@@ -461,10 +503,10 @@ namespace AudioLinkPrefab
                 return;
 
             // Got go-ahead from owner, start playing video
+            localPlayerState = PLAYER_STATE_PLAYING;
+
             _waitForSync = false;
             _currentPlayer.Play();
-
-            localPlayerState = PLAYER_STATE_PLAYING;
 
             SyncVideo();
         }
@@ -515,7 +557,7 @@ namespace AudioLinkPrefab
         void DebugLog(string message)
         {
             if (debugLogging)
-                Debug.Log("[VideoTXL:BasicSyncPlayer] " + message);
+                Debug.Log("[AudioLink:MiniPlayer] " + message);
         }
     }
 }
