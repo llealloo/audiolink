@@ -125,13 +125,13 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_BasicVU"
 }
 /*ASEBEGIN
 Version=18908
-3724;23.2;2347;1269;805.7078;876.5174;1;True;False
+3724;23.2;1775;866;519.7078;675.0174;1;True;False
 Node;AmplifyShaderEditor.TextureCoordinatesNode;18;-206.7981,-509.5061;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode;39;-128.7078,-282.5174;Inherit;False;Constant;_Off;Off;0;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;38;-130.7078,-372.5174;Inherit;False;Constant;_On;On;0;0;Create;True;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.FunctionNode;40;-153.3181,-63.42688;Inherit;False;VU;-1;;7;7ec4192923c15ef4da827666f513f3b7;0;0;4;FLOAT;0;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.Compare;37;253.2922,-347.5174;Inherit;False;4;4;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;41;215.2922,-155.5174;Inherit;False;DrawLine;-1;;1;b931a6c4da53ab6489d06086e5e19048;0;4;5;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0.005;False;3;FLOAT;0.001;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;41;215.2922,-155.5174;Inherit;False;DrawLine;-1;;8;b931a6c4da53ab6489d06086e5e19048;0;4;5;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0.005;False;3;FLOAT;0.001;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;42;535.2922,-267.5174;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;34;809.942,-286.8987;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_BasicVU;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
 WireConnection;37;0;18;2
@@ -144,4 +144,4 @@ WireConnection;42;0;37;0
 WireConnection;42;1;41;0
 WireConnection;34;0;42;0
 ASEEND*/
-//CHKSM=CC24C6305EBC49823F1E6BEF472B4B5E396A2476
+//CHKSM=E2F58C730FB3D19CD04469B489523071662437D5
