@@ -4,7 +4,13 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4Band"
 {
 	Properties
 	{
-		
+		_Band0Color("Band 0 Color", Color) = (0,0,0,0)
+		_Band1Color("Band 1 Color", Color) = (0,0,0,0)
+		_Band2Color("Band 2 Color", Color) = (0,0,0,0)
+		_Band3Color("Band 3 Color", Color) = (0,0,0,0)
+		[ToggleUI]_SmoothHistory("Smooth History", Float) = 0
+		_History("History", Range( 0 , 128)) = 32
+
 	}
 	
 	SubShader
@@ -66,9 +72,15 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4Band"
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
-			inline float AudioLinkData3_g1( int Band )
+			uniform float _SmoothHistory;
+			uniform float _History;
+			uniform float4 _Band0Color;
+			uniform float4 _Band1Color;
+			uniform float4 _Band2Color;
+			uniform float4 _Band3Color;
+			inline float AudioLinkLerp3_g5( int Band, float Delay )
 			{
-				return AudioLinkData( ALPASS_AUDIOLINK + uint2( 0, Band ) ).rrrr;;
+				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
 			
 
@@ -110,13 +122,21 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4Band"
 				#ifdef ASE_NEEDS_FRAG_WORLD_POSITION
 				float3 WorldPosition = i.worldPos;
 				#endif
-				float2 texCoord26 = i.ase_texcoord1.xy * float2( 1,1 ) + float2( 0,0 );
-				int Band3_g1 = (int)( texCoord26.y * 4.0 );
-				float localAudioLinkData3_g1 = AudioLinkData3_g1( Band3_g1 );
-				float4 temp_cast_1 = (localAudioLinkData3_g1).xxxx;
+				float2 texCoord9 = i.ase_texcoord1.xy * float2( 1,1 ) + float2( 0,0 );
+				float temp_output_38_0 = ( texCoord9.y * 4.0 );
+				int Band3_g5 = (int)temp_output_38_0;
+				float temp_output_39_0 = ( _History * texCoord9.x );
+				float Delay3_g5 = (( _SmoothHistory )?( temp_output_39_0 ):( floor( temp_output_39_0 ) ));
+				float localAudioLinkLerp3_g5 = AudioLinkLerp3_g5( Band3_g5 , Delay3_g5 );
+				float4 temp_cast_1 = (localAudioLinkLerp3_g5).xxxx;
+				float4 temp_output_1_0_g3 = temp_cast_1;
+				float4 break5_g3 = temp_output_1_0_g3;
+				float band23 = floor( temp_output_38_0 );
+				float4 bandColor47 = ( ( band23 == 0.0 ? _Band0Color : float4( 0,0,0,0 ) ) + ( band23 == 1.0 ? _Band1Color : float4( 0,0,0,0 ) ) + ( band23 == 2.0 ? _Band2Color : float4( 0,0,0,0 ) ) + ( band23 == 3.0 ? _Band3Color : float4( 0,0,0,0 ) ) );
+				float4 temp_output_2_0_g3 = bandColor47;
 				
 				
-				finalColor = temp_cast_1;
+				finalColor = ( ( ( break5_g3.r * 0.2 ) + ( break5_g3.g * 0.7 ) + ( break5_g3.b * 0.1 ) ) < 0.5 ? ( 2.0 * temp_output_1_0_g3 * temp_output_2_0_g3 ) : ( 1.0 - ( 2.0 * ( 1.0 - temp_output_1_0_g3 ) * ( 1.0 - temp_output_2_0_g3 ) ) ) );
 				return finalColor;
 			}
 			ENDCG
@@ -128,13 +148,59 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4Band"
 }
 /*ASEBEGIN
 Version=18908
-3724;23.2;2347;1269;1376.5;541.5002;1;True;False
-Node;AmplifyShaderEditor.TextureCoordinatesNode;26;-694.5,-59.5;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;27;-401.4999,42.49982;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;4;False;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;36;-203.4999,-16.50018;Inherit;False;4BandAmplitude;-1;;1;f5073bb9076c4e24481a28578c80bed5;0;1;2;INT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;35;85,-61;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_4Band;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
-WireConnection;27;0;26;2
-WireConnection;36;2;27;0
-WireConnection;35;0;36;0
+3448.8;23.2;2658;1156;1047.791;418.2166;1.200976;True;False
+Node;AmplifyShaderEditor.TextureCoordinatesNode;9;-371.5333,196.0154;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;38;-17.21937,245.5924;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;4;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FloorOpNode;43;189.3487,324.8571;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.CommentaryNode;35;-415.6927,506.8273;Inherit;False;1096.091;812.7791;Color per band;14;47;18;30;26;28;22;24;6;25;7;29;5;27;4;;1,0.7122642,0.9412366,1;0;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;23;366.9301,284.259;Inherit;False;band;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;24;-157.6928,564.8274;Inherit;False;23;band;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.ColorNode;6;-361.6927,963.8274;Inherit;False;Property;_Band2Color;Band 2 Color;2;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.RangedFloatNode;46;-368.5045,99.07338;Inherit;False;Property;_History;History;5;0;Create;True;0;0;0;False;0;False;32;0;0;128;0;1;FLOAT;0
+Node;AmplifyShaderEditor.ColorNode;7;-365.6927,1139.826;Inherit;False;Property;_Band3Color;Band 3 Color;3;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.GetLocalVarNode;29;-156.1928,1100.826;Inherit;False;23;band;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.ColorNode;4;-359.6927,603.8276;Inherit;False;Property;_Band0Color;Band 0 Color;0;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.GetLocalVarNode;27;-158.1928,926.8275;Inherit;False;23;band;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;25;-156.1928,741.8275;Inherit;False;23;band;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.ColorNode;5;-363.6927,780.8275;Inherit;False;Property;_Band1Color;Band 1 Color;1;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.Compare;22;23.3072,556.8274;Inherit;False;0;4;0;FLOAT;0;False;1;FLOAT;0;False;2;COLOR;0,0,0,0;False;3;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.Compare;28;22.80721,918.8275;Inherit;False;0;4;0;FLOAT;0;False;1;FLOAT;2;False;2;COLOR;0,0,0,0;False;3;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.Compare;26;24.80723,732.8174;Inherit;False;0;4;0;FLOAT;0;False;1;FLOAT;1;False;2;COLOR;0,0,0,0;False;3;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.Compare;30;24.80723,1092.826;Inherit;False;0;4;0;FLOAT;0;False;1;FLOAT;3;False;2;COLOR;0,0,0,0;False;3;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;39;-20.82236,131.4997;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0.25;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FloorOpNode;51;168.7977,22.54166;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;18;267.3912,790.3912;Inherit;False;4;4;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;COLOR;0,0,0,0;False;3;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;47;431.3454,804.046;Inherit;False;bandColor;-1;True;1;0;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.ToggleSwitchNode;45;347.2777,88.26514;Inherit;False;Property;_SmoothHistory;Smooth History;4;0;Create;True;0;0;0;False;0;False;0;False;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;48;651.1245,284.0234;Inherit;False;47;bandColor;1;0;OBJECT;;False;1;COLOR;0
+Node;AmplifyShaderEditor.FunctionNode;50;608.4901,160.3232;Inherit;False;4BandAmplitudeLerp;-1;;5;3cf4b6e83381a9a4f84f8cf857bc3af5;0;2;2;INT;0;False;4;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;34;879.9441,222.8554;Inherit;False;BlendOverlay;-1;;3;6c2f15995e7c1bf4bafb65b1a44446b2;0;2;1;COLOR;0,0,0,0;False;2;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;36;1132.697,182.0305;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_4Band;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
+WireConnection;38;0;9;2
+WireConnection;43;0;38;0
+WireConnection;23;0;43;0
+WireConnection;22;0;24;0
+WireConnection;22;2;4;0
+WireConnection;28;0;27;0
+WireConnection;28;2;6;0
+WireConnection;26;0;25;0
+WireConnection;26;2;5;0
+WireConnection;30;0;29;0
+WireConnection;30;2;7;0
+WireConnection;39;0;46;0
+WireConnection;39;1;9;1
+WireConnection;51;0;39;0
+WireConnection;18;0;22;0
+WireConnection;18;1;26;0
+WireConnection;18;2;28;0
+WireConnection;18;3;30;0
+WireConnection;47;0;18;0
+WireConnection;45;0;51;0
+WireConnection;45;1;39;0
+WireConnection;50;2;38;0
+WireConnection;50;4;45;0
+WireConnection;34;1;50;0
+WireConnection;34;2;48;0
+WireConnection;36;0;34;0
 ASEEND*/
-//CHKSM=4FC2E67DDF4B29EBC1F06EA696E1A644EC37B59C
+//CHKSM=485CD9463FCA39B7649F1C9D91F14AF262E12F38

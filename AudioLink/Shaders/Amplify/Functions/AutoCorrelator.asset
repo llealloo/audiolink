@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: AutoCorrelator
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity Asset
-    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18908\n3724;23.2;2347;1269;1592.5;626.5;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-568.5,-23.5;Inherit;False;Sample;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SaturateNode;4;-368.5,-2.5;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-157.5,-15.5;Inherit;False;AudioLinkLerp(
-    ALPASS_AUTOCORRELATOR + float2( Sample * 128., 0 ) ).r@;1;Create;1;True;Sample;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;106,-3;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;4;0;1;0\nWireConnection;2;0;4;0\nWireConnection;0;0;2;0\nASEEND*/\n//CHKSM=9F32099B4F9BEF195CD8DD5F92584899B66466F7"
+    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18908\n3448.8;23.2;2658;1156;1748;567;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-568.5,-23.5;Inherit;False;Sample;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SaturateNode;4;-368.5,-2.5;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-157.5,-15.5;Inherit;False;AudioLinkLerp(
+    ALPASS_AUTOCORRELATOR + float2( Sample * 128., 0 ) ).r@;1;Create;1;True;Sample;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;106,-3;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;4;0;1;0\nWireConnection;2;0;4;0\nWireConnection;0;0;2;0\nASEEND*/\n//CHKSM=1ECCBBAD6E9C2989E3D6FEDEDC5FFDBFF6966FE2"
   m_functionName: 
   m_description: 
   m_additionalIncludes:

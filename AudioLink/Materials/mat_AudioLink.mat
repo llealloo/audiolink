@@ -127,4 +127,4 @@ Material:
     - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 80, a: 1}
+    - _VersionNumberAndFPSProperty: {r: 2.04, g: 0, b: 101, a: 1}
