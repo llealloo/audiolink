@@ -51,8 +51,8 @@
                 float2 iuv = i.uv;
                 iuv.y = 1.-iuv.y;
                 const uint rows = 10;
-                const uint cols = 20;
-                const uint number_area_cols = 10;
+                const uint cols = 21;
+                const uint number_area_cols = 11;
                 
                 float2 pos = iuv*float2(cols,rows);
                 uint2 dig = (uint2)(pos);
@@ -112,19 +112,19 @@
                     if( dig.x < 3 )
                     {
                         value = hours;
-                        xoffset = 8;
+                        xoffset = 9;
                         leadingzero = 1;
                     }
                     else if( dig.x < 6 )
                     {
                         value = minutes;
-                        xoffset = 5;
+                        xoffset = 6;
                         leadingzero = 1;
                     }
                     else
                     {
                         value = seconds;
-                        xoffset = 2;
+                        xoffset = 3;
                         leadingzero = 1;
                     }
                     break;
@@ -144,7 +144,7 @@
                     break;
 
                 case 5:
-                    if( dig.x < 6 )
+                    if( dig.x < 7 )
                     {
                         value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 0, 0 ) ) ).b; //True FPS
                         xoffset = 4;
@@ -159,6 +159,9 @@
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 4, 0 ) ) ).a; //100,000 sentinal test
                     break;
                 case 7:
+                    value = DecodeLongFloat( AudioLinkData( int2( ALPASS_GENERALVU + int2(2, 0 ) ) ) ) / 1000;
+                    xoffset=4;
+                    break;
                 case 8:
                 case 9:
                 default:

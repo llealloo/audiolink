@@ -170,7 +170,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
                 uint totalBins = EXPBINS * EXPOCT;
 
-                int noteno = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT; 
+                uint noteno = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT; 
                 float notenof = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT;
                 //int readno = noteno % EXPBINS;
                 //float readnof = fmod( notenof, EXPBINS );
@@ -204,13 +204,13 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float maxHeight = 0.875
                 ;
                 int band = 0;
-                for (int i=1; i<4; i++)
+                for (int j=1; j<4; j++)
                 {
-                    band += (iuv.x > audioBands[i]);
+                    band += (iuv.x > audioBands[j]);
                 }
-                for (int i=0; i<4; i++)
+                for (int k=0; k<4; k++)
                 {
-                    threshold += (band == i) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[i]))) * 1000.;
+                    threshold += (band == k) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[k]))) * 1000.;
                 }
 
                 threshold = saturate(threshold) * _ThresholdColor * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));

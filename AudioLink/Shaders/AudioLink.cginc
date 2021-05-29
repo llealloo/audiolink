@@ -1,17 +1,21 @@
 // Map of where features in AudioLink are.
-#define ALPASS_DFT              int2(0,4)
-#define ALPASS_WAVEFORM         int2(0,6)
-#define ALPASS_AUDIOLINK        int2(0,0)
-#define ALPASS_AUDIOLINKHISTORY int2(1,0) 
-#define ALPASS_GENERALVU        int2(0,22)
+#define ALPASS_DFT                       int2(0,4)
+#define ALPASS_WAVEFORM                  int2(0,6)
+#define ALPASS_AUDIOLINK                 int2(0,0)
+#define ALPASS_AUDIOBASS                 int2(0,0)
+#define ALPASS_AUDIOLOWMIDS              int2(0,1)
+#define ALPASS_AUDIOHIGHMIDS             int2(0,2)
+#define ALPASS_AUDIOTREBLE               int2(0,3)
+#define ALPASS_AUDIOLINKHISTORY          int2(1,0)
+#define ALPASS_GENERALVU                 int2(0,22)
 
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
 
-#define ALPASS_CCINTERNAL       int2(12,22)
-#define ALPASS_CCSTRIP          int2(0,24)
-#define ALPASS_CCLIGHTS         int2(0,25)
-#define ALPASS_AUTOCORRELATOR   int2(0,27)
+#define ALPASS_CCINTERNAL                int2(12,22)
+#define ALPASS_CCSTRIP                   int2(0,24)
+#define ALPASS_CCLIGHTS                  int2(0,25)
+#define ALPASS_AUTOCORRELATOR            int2(0,27)
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -29,10 +33,10 @@
 // on negative numbers, and in some situations actually outperforms
 // HLSL's modf().
 #ifndef glsl_mod
-#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
+#define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
 #endif
 
-uniform float4               _AudioTexture_TexelSize; 
+uniform float4               _AudioTexture_TexelSize;
 
 #ifdef SHADER_TARGET_SURFACE_ANALYSIS
 #define AUDIOLINK_STANDARD_INDEXING
@@ -55,6 +59,18 @@ float4 AudioLinkLerp(float2 xy) { return lerp( AudioLinkData(xy), AudioLinkData(
 
 // Same as AudioLinkLerp but properly handles multiline reading.
 float4 AudioLinkLerpMultiline(float2 xy) { return lerp( AudioLinkDataMultiline(xy), AudioLinkDataMultiline(xy+float2(1,0)), frac( xy.x ) ); }
+
+//Tests to see if Audio Link texture is available
+bool AudioLinkIsAvailableNonSurface()
+{
+    #if !defined(AUDIOLINK_STANDARD_INDEXING)
+        int width, height;
+        _AudioTexture.GetDimensions(width, height);
+        return width > 16;
+    #else
+        return _AudioTexture_TexelSize.z > 16;
+    #endif
+}
 
 // Decompress a RGBA FP16 into a really big number, this is used in some sections of the info block.
 #define DecodeLongFloat( vALValue )  (vALValue.r + vALValue.g*1024 + vALValue.b * 1048576 + vALValue.a * 1073741824 )
@@ -238,7 +254,7 @@ float PrintChar( uint selchar, float2 mxy, float2 softness )
         14829792,  // 'Z' 1110 0010 0100 1000 1110 0000
         657984     // ':)'0000 1010 0000 1010 0100 0000
     };
-    
+
     uint bitmap = BitmapNumberFont[selchar];
     uint bitmappartial = BitmapNumberFontPartial[selchar];
     if( 0 )
@@ -265,8 +281,8 @@ float PrintChar( uint selchar, float2 mxy, float2 softness )
             ((bitmappartial >> (index + 5))) ) & 1)
             ;
         float2 shift = smoothstep( 0, 1, frac(mxy) );
-        float ov = lerp( 
-            lerp( tolerp.x, tolerp.y, shift.x ), 
+        float ov = lerp(
+            lerp( tolerp.x, tolerp.y, shift.x ),
             lerp( tolerp.z, tolerp.w, shift.x ), shift.y ) / 2.;
         return saturate( ov * softness - softness/2 );
     }
@@ -304,7 +320,7 @@ float PrintNumberOnLine( float number, uint fixeddiv, uint digit, float2 mxy, in
                 selnum = ((uint)( number * l10 ));
 
                 //Disable leading 0's?
-                if( !leadzero && dmfd != -1 && selnum == 0 && dmfd < 0.5 ) 
+                if( !leadzero && dmfd != -1 && selnum == 0 && dmfd < 0.5 )
                     selnum = 12;
                 else
                     selnum %= (uint)10;

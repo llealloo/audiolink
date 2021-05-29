@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_AudioTextureImport
-  m_Shader: {fileID: 4800000, guid: 196497a78cdb5bf4b89666538fed6cff, type: 3}
+  m_Name: mat_AudioLinkAmplify_AutoCorrelator
+  m_Shader: {fileID: 4800000, guid: 71133bedeafa6384b997d9aaf675d063, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -76,6 +76,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
