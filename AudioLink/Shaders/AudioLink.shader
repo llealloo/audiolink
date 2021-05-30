@@ -680,26 +680,38 @@ Shader "AudioLink/AudioLink"
                 static const float IIR2_DECAY = 0.85;
                 static const float CONSTANT2_DECAY = 0.00;
                 static const float _NewNoteGain = 8.;
-                
-                float4 NoteSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
-                
+
                 //Note structure:
                 // .x = Note frequency (0...ETOTALBINS, but floating point)
                 // .y = The incoming intensity.
                 // .z = Lagged intensity.         ---> This is what decides if a note is going to disappear.
                 // .w = Quicker lagged intensity.
                 
+                //NoteB Structure
+                // .x = Note Number  ::: NOTE if .y < 0 this is the index of where this note _went_ or what note it was joined to.
+                // .y = Time this note has existed.
+                // .z = Sorted-by-frequency position.
+                
                 //Summary:
                 // .x = Total number of notes.
                 // .y .z .w = sum of note's yzw.
                 
+                //SummaryB:
+                // .x = Latest note number.
+                // .y = open
+                // .z = number of populated notes.
+                
                 float4 Notes[CCMAXNOTES];
+                float4 NotesB[CCMAXNOTES];
 
                 for( i = 0; i < CCMAXNOTES; i++ )
                 {
-                    Notes[i] = GetSelfPixelData( ALPASS_CCINTERNAL + uint2( i+1, 0 ) );
-                    Notes[i].y = 0;
+                    NotesB[i] = GetSelfPixelData( ALPASS_CCINTERNAL + uint2( i+1, 1 ) );
+                    Notes[i] =  GetSelfPixelData( ALPASS_CCINTERNAL + uint2( i+1, 0 ) ) * float4( 1, 0, 1, 1 );
                 }
+
+                float4 NoteSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
+                float4 NoteSummaryB = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 0, 1 ) );
 
                 float Last = GetSelfPixelData( ALPASS_DFT + uint2( EBASEBIN, 0 ) ).b;
                 float This = GetSelfPixelData( ALPASS_DFT + uint2( 1+EBASEBIN, 0 ) ).b;
@@ -769,6 +781,7 @@ Shader "AudioLink/AudioLink"
                         {
                             // Couldn't find note.  Create a new note.
                             Notes[free_note] = float4( NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity );
+                            NotesB[free_note] = float4( NoteSummaryB.x++, unity_DeltaTime.x, 0, 0 );
                         }
                         else
                         {
@@ -780,12 +793,14 @@ Shader "AudioLink/AudioLink"
                 }
 
                 float4 NewNoteSummary = 0.;
+                float4 NewNoteSummaryB = NoteSummary;
 
                 [loop]
                 for( i = 0; i < CCMAXNOTES; i++ )
                 {
                     uint j;
                     float4 n1 = Notes[i];
+                    float4 n1B = NotesB[i];
 
                     
                     [loop]
@@ -794,7 +809,8 @@ Shader "AudioLink/AudioLink"
                         // 🤮 Shader compiler can't do triangular loops.
                         // We don't want to iterate over a cube just compare ith and jth note once.
 
-                         float4 n2 = Notes[j];
+                        float4 n2 = Notes[j];
+
                         if( n2.z > 0 && j > i && n1.z > 0 )
                         {
                             // Potentially combine notes
@@ -804,7 +820,11 @@ Shader "AudioLink/AudioLink"
                                 //Found combination of notes.  Nil out second.
                                 float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
                                 n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
+
+                                //n1B unchanged.
+
                                 Notes[j] = 0;
+                                NotesB[j] = float4( n1B.x, -1, 0, 0 );
                             }
                         }
                     }
@@ -812,12 +832,20 @@ Shader "AudioLink/AudioLink"
                     //Filter n1.z from n1.y.
                     if( n1.z >= 0 )
                     {
+                        // Make sure we're wrapped correctly.
+                        n1.x = glsl_mod( n1.x, EXPBINS );
+                        
+                        // Apply filtering
                         n1.z = lerp( n1.y, n1.z, IIR1_DECAY ) - CONSTANT1_DECAY; //Make decay slow.
                         n1.w = lerp( n1.y, n1.w, IIR2_DECAY ) - CONSTANT2_DECAY; //Make decay slow.
-                        
+
+                        n1B.y += unity_DeltaTime.x;
+
+
                         if( n1.z < NOTE_MINIMUM )
                         {
                             n1 = -1;
+                            n1B = 0;
                         }
                         //XXX TODO: Do uniformity calculation on n1 for n1.a.
                     }
@@ -832,21 +860,47 @@ Shader "AudioLink/AudioLink"
                     }
                     
                     Notes[i] = n1;
+                    NotesB[i] = n1B;
+                }
+
+                // Sort by frequency and count notes.
+                // These loops are phrased funny because the unity shader compiler gets really
+                // confused easily.
+                float SortedNoteSlotValue = -1;
+                int sortplace = 0;
+                NewNoteSummaryB.z = 0;
+                [loop]
+                for( i = 0; i < CCMAXNOTES; i++ )
+                {
+                    //Count notes
+                    NewNoteSummaryB.z += (Notes[i].z>0)?1:0;
+
+                    float ClosestToSlotWithoutGoingOver = 100;
+                    int sortid = -1;
+                    int j;
+                    for( j = 0; j < CCMAXNOTES; j++ )
+                    {
+                        float4 n2 = Notes[j];
+                        if( n2.z > 0 && n2.x > SortedNoteSlotValue && n2.x < ClosestToSlotWithoutGoingOver )
+                        {
+                            ClosestToSlotWithoutGoingOver = n2.x;
+                            sortid = j;
+                        }
+                    }
+                    SortedNoteSlotValue = ClosestToSlotWithoutGoingOver;
+                    NotesB[i] = NotesB[i] * float4( 1, 1, 0, 1 ) + float4( 0, 0, sortid, 0 );
                 }
 
                 // We now have a condensed list of all Notes that are playing.
                 if( coordinateLocal.x == 0 )
                 {
-                    //Summary note.
-                    return NewNoteSummary;
+                    // Summary note.
+                    return (coordinateLocal.y)?NewNoteSummaryB:NewNoteSummary;
                 }
                 else
                 {
-                    float4 selnote = Notes[coordinateLocal.x-1];
-
-                    // Make sure we're wrapped correctly.
-                    selnote.x = glsl_mod( selnote.x, EXPBINS );
-                    return selnote;
+                    // Actual Note Data
+                    return (coordinateLocal.y)?NotesB[coordinateLocal.x-1]:Notes[coordinateLocal.x-1];
                 }
             }
             ENDCG
@@ -910,7 +964,8 @@ Shader "AudioLink/AudioLink"
                 float PowerPlace = 0.0;
                 for( p = 0; p < CCMAXNOTES; p++ )
                 {
-                    float4 Peak = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 1+p, 0 ) );
+                    float4 NotesB = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 1+p, 1 ) );
+                    float4 Peak = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 1+NotesB.z, 0 ) );
                     if( Peak.y <= 0 ) continue;
 
                     float Power = Peak.y/TotalPower;
