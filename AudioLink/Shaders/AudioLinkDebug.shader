@@ -82,7 +82,7 @@ Shader "AudioLink/AudioLinkDebug"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
+                o.uv = v.uv * float2(1.25, 1.15);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
