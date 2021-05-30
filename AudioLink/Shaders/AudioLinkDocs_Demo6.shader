@@ -22,7 +22,7 @@
 
             #include "UnityCG.cginc"
 
-            #include "../Shaders/AudioLink.cginc"
+            #include "AudioLink.cginc"
 
 
 			uniform float4 _Background;

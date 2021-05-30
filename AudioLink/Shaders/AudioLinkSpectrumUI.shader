@@ -2,8 +2,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 {
     Properties
     {
-        _AudioLinkTexture ("Texture", 2D) = "white" {}
-
         _SpectrumGain ("Spectrum Gain", Float) = 1.
         _SeparatorColor ("Seperator Color", Color) = (.5,.5,0.,1.)
 
@@ -56,6 +54,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "AudioLink.cginc"
             
             #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y))))
             #define EXPBINS 24
@@ -76,9 +75,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
-
-            sampler2D _AudioLinkTexture;
-            uniform float4 _AudioLinkTexture_TexelSize;
 
             // usually {0, 256, 512, 768} by default
             //uniform float _AudioBands[4];
@@ -148,11 +144,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                     conv.y );
             }
             
-            float4 GetAudioPixelData( int2 pixelcoord )
-            {
-                return tex2D( _AudioLinkTexture, float2( pixelcoord*_AudioLinkTexture_TexelSize.xy) );
-            }
-
             float Remap(float t, float a, float b, float u, float v)
             {
                 return ( (t-a) / (b-a) ) * (v-u) + u;
@@ -178,8 +169,10 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 //float readof = notenof/EXPBINS;
 
                 {
-                    float4 spectrum_value_lower  =  tex2D(_AudioLinkTexture, float2((fmod(noteno,128))/128.,((noteno/128)/64.+4./64.)) );
-                    float4 spectrum_value_higher =  tex2D(_AudioLinkTexture, float2((fmod((noteno+1),128))/128.,(((noteno+1)/128)/64.+4./64.)) );
+                    //float4 spectrum_value_lower  =  AudioLinkData(float2((fmod(noteno,128))/128.,((noteno/128)/64.+4./64.)) );
+                    //float4 spectrum_value_higher =  AudioLinkData(float2((fmod((noteno+1),128))/128.,(((noteno+1)/128)/64.+4./64.)) );
+                    float4 spectrum_value_lower  =  AudioLinkData(float2(fmod(noteno, 128), (noteno/128)+4.0));
+                    float4 spectrum_value_higher =  AudioLinkData(float2(fmod(noteno+1, 128), ((noteno+1)/128)+4.0));
                     intensity = lerp(spectrum_value_lower, spectrum_value_higher, frac(notenof) )* _SpectrumGain;
                 }
 
@@ -226,7 +219,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 
                 bandColor *= (iuv.x > _X0);
 
-                float bandIntensity = tex2D(_AudioLinkTexture, float2(0., (float)band * 0.015625));
+                float bandIntensity = AudioLinkData(float2(0., (float)band));
                 
                 // Under-spectrum first
                 float rval = clamp( _SpectrumThickness - iuv.y + intensity.g + _SpectrumVertOffset, 0., 1. );
@@ -253,8 +246,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                     c = 1. - 2. * (1. - a) * (1. - b);
                 }
                 
-
-                return (segment + threshold) * _SeparatorColor + c;
+                float4 finalColor = (segment + threshold) * _SeparatorColor + c;
+                UNITY_APPLY_FOG(i.fogCoord, finalColor);
+                return finalColor;
 
                 //Graph-based spectrogram.
             }

@@ -16,7 +16,7 @@
 
             #include "UnityCG.cginc"
 
-            #include "../Shaders/AudioLink.cginc"
+            #include "AudioLink.cginc"
 
             struct appdata
             {
