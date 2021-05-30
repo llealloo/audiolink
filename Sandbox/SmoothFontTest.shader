@@ -50,14 +50,14 @@
             {
                 // sample the texture
 				float2 iuvt = i.uv * _MainTex_TexelSize.zw;
-				float2 ipt = floor( iuvt ) * _MainTex_TexelSize.xy;
+				float2 ipt = ( floor( iuvt ) ) * _MainTex_TexelSize.xy;
 				
                 float4 colUL = tex2D(_MainTex, ipt+float2(0,0)*_MainTex_TexelSize.xy);
                 float4 colUR = tex2D(_MainTex, ipt+float2(1,0)*_MainTex_TexelSize.xy);
                 float4 colLL = tex2D(_MainTex, ipt+float2(0,1)*_MainTex_TexelSize.xy);
                 float4 colLR = tex2D(_MainTex, ipt+float2(1,1)*_MainTex_TexelSize.xy);
 
-				float2 shift = smoothstep( 0, 1, frac( iuvt ) );
+				float2 shift = smoothstep( 0, 1, iuvt - floor( iuvt ) );
 				float4 ov = lerp(
 					lerp( colUL, colUR, shift.x ),
 					lerp( colLL, colLR, shift.x ), shift.y );
