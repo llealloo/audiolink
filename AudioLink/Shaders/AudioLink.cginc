@@ -101,7 +101,7 @@ float ALDecodeDataAsFloat( uint2 indexloc )
 #define CCclamp(x,y,z) clamp( x, y, z )
 #endif
 
-float CCRemap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
+float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
 
 float3 CCHSVtoRGB(float3 HSV)
 {

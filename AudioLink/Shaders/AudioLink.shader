@@ -113,8 +113,6 @@ Shader "AudioLink/AudioLink"
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
 
-            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
-
             ENDCG
 
             Name "Pass1AudioDFT"

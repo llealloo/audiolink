@@ -111,8 +111,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                     conv.y );
             }
             
-            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
-            
             fixed4 frag (v2f IN) : SV_Target
             {
                 float2 iuv = IN.uv;
