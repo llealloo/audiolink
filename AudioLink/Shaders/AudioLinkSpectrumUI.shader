@@ -246,8 +246,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                     c = 1. - 2. * (1. - a) * (1. - b);
                 }
                 
-
-                return (segment + threshold) * _SeparatorColor + c;
+                float4 finalColor = (segment + threshold) * _SeparatorColor + c;
+                UNITY_APPLY_FOG(i.fogCoord, finalColor);
+                return finalColor;
 
                 //Graph-based spectrogram.
             }

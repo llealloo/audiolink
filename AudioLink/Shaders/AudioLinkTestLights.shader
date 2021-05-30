@@ -44,7 +44,9 @@
             fixed4 frag (v2f i) : SV_Target
             {
 				int lampno = floor(i.uv.x*16) + floor(i.uv.y*8)*16;
-				return AudioLinkData( int2( ALPASS_CCLIGHTS + int2( lampno, 0 ) ) );
+				float4 finalColor = AudioLinkData( int2( ALPASS_CCLIGHTS + int2( lampno, 0 ) ) );
+				UNITY_APPLY_FOG(i.fogCoord, finalColor);
+				return finalColor;
             }
             ENDCG
         }

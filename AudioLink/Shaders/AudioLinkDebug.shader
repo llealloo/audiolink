@@ -38,7 +38,6 @@ Shader "AudioLink/AudioLinkDebug"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
@@ -253,7 +252,9 @@ Shader "AudioLink/AudioLinkDebug"
                     coloro = lerp( VUColor, coloro, _VUOpacity );
                 }
 
-                
+                // apply fog
+                UNITY_APPLY_FOG(i.fogCoord, coloro);
+
                 return coloro;
 
                 //Graph-based spectrogram.
