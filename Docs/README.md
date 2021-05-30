@@ -247,7 +247,7 @@ Green, Blue, Alpha are reserved.
 ```
 
 The tools to read the data out of AudioLink.
- * `float4 AudioLinkData( int2 coord )` - Retrieve a bit of data from _AudioLinkTexture, using whole numbers.
+ * `float4 AudioLinkData( int2 coord )` - Retrieve a bit of data from _AudioTexture, using whole numbers.
  * `float4 AudioLinkDataMultiline( int2 coord )` - Same as `AudioLinkData` except that if you read off the end of one line, it continues reading onthe next.
  * `float4 AudioLinkLerp( float2 fcoord )` - Interpolate between two pixels, useful for making shaders not look jaggedy.
  * `float4 AudioLinkLerpMultiline( float2 fcoord )` - `AudioLinkLerp` but wraps lines correctly.
@@ -526,12 +526,12 @@ And the less recommended method.
 
 ```hlsl
 // We recommend against this more traditional mechanism,
-sampler2D _AudioLinkTexture;
-uniform float4 _AudioLinkTexture_TexelSize;
+sampler2D _AudioTexture;
+uniform float4 _AudioTexture_TexelSize;
 
 float4 GetAudioPixelData( int2 pixelcoord )
 {
-    return tex2Dlod( _AudioLinkTexture, float4( pixelcoord*_AudioLinkTexture_TexelSize.xy, 0, 0 ) );
+    return tex2Dlod( _AudioTexture, float4( pixelcoord*_AudioTexture_TexelSize.xy, 0, 0 ) );
 }
 ```
 
