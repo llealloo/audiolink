@@ -2,36 +2,31 @@ Shader "AudioLink/AudioLinkSpectrumUI"
 {
     Properties
     {
-        _SpectrumGain("Spectrum Gain", Float) = 1.
-        _SeparatorColor("Seperator Color", Color) = (.5,.5,0.,1.)
-        _SpectrumFixedColor("Spectrum Fixed color", Color) = (.9, .9, .9,1.)
+        _SpectrumGain("Spectrum Gain", Float) = 1
+        _SeparatorColor("Seperator Color", Color) = (0.5, 0.5, 0, 1)
+        _SpectrumFixedColor("Spectrum Fixed color", Color) = (0.9, 0.9, 0.9, 1)
         _BaseColor("Base Color", Color) = (0, 0, 0, 0)
-        _UnderSpectrumColor("Under-Spectrum Color", Color) = (1, 1, 1, .1)
+        _UnderSpectrumColor("Under-Spectrum Color", Color) = (1, 1, 1, 0.1)
 
         _SpectrumVertOffset( "Spectrum Vertical OFfset", Float ) = 0.0
-        _SpectrumThickness("Spectrum Thickness", Float) = .01
+        _SpectrumThickness("Spectrum Thickness", Float) = 0.01
 
-        _SegmentThickness("Segment Thickness", Float) = .01
-        _SegmentColor("Segment Color", Color) = (.5,.5,0.,1.)
-        _ThresholdThickness("Threshold Bar Thickness", Float) = .01
-        _ThresholdDottedLine("Threshold Dotted Line Width", Float) = .001
-        _ThresholdColor("Threshold Color", Color) = (.5,.5,0.,1.)
+        _SegmentThickness("Segment Thickness", Float) = 0.01
+        _ThresholdThickness("Threshold Bar Thickness", Float) = 0.01
+        _ThresholdDottedLine("Threshold Dotted Line Width", Float) = 0.001
 
-        _Band0Color("Band 0 Color", Color) = (.5,.5,0.,1.)
-        _Band1Color("Band 1 Color", Color) = (.5,.5,0.,1.)
-        _Band2Color("Band 2 Color", Color) = (.5,.5,0.,1.)
-        _Band3Color("Band 3 Color", Color) = (.5,.5,0.,1.)
+        _Band0Color("Band 0 Color", Color) = (0.5 , 0.5, 0, 1)
+        _Band1Color("Band 1 Color", Color) = (0.5 , 0.5, 0, 1)
+        _Band2Color("Band 2 Color", Color) = (0.5 , 0.5, 0, 1)
+        _Band3Color("Band 3 Color", Color) = (0.5 , 0.5, 0, 1)
         _BandDelayPulse("Band Delay Pulse", Float) = 0.1
         _BandDelayPulseOpacity("Band Delay Pulse", Float) = 0.5
 
-        _FreqFloor("Frequency Floor", Range(0, 1)) = 0
-        _FreqCeiling("Frequency Ceiling", Range(0, 1)) = 1
-
+        [Header(Crossover)]
         _X0("X0", Range(0.0, 0.168)) = 0.0
         _X1("X1", Range(0.242, 0.387)) = 0.25
         _X2("X2", Range(0.461, 0.628)) = 0.5
         _X3("X3", Range(0.704, 0.953)) = 0.75
-
         _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
@@ -66,8 +61,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float4 vertex : SV_POSITION;
             };
 
-            uniform float _FreqFloor;
-            uniform float _FreqCeiling;
             uniform float _X0;
             uniform float _X1;
             uniform float _X2;
@@ -88,8 +81,6 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             float _SegmentThickness;
             float _ThresholdThickness;
             float _ThresholdDottedLine;
-            float4 _ThresholdColor;
-            float4 _SegmentColor;
             float4 _Band0Color;
             float4 _Band1Color;
             float4 _Band2Color;
@@ -129,8 +120,8 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
                 float4 intensity = 0;
                 uint totalBins = EXPBINS * EXPOCT;
-                uint noteno = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT; 
-                float notenof = Remap(iuv.x, 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins); //iuv.x * EXPBINS * EXPOCT;
+                uint noteno = Remap(iuv.x, 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins);
+                float notenof = Remap(iuv.x, 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins);
 
                 {
                     float4 spectrum_value_lower  =  AudioLinkData(float2(fmod(noteno, 128), (noteno/128)+4.0));
@@ -141,15 +132,14 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float4 c = _BaseColor;
 
                 // Band segments
-                float segment = 0.;
+                float4 segment = 0.;
                 for (int i=0; i<4; i++)
                 {
                     segment += saturate(_SegmentThickness - abs(iuv.x - audioBands[i])) * 1000.;
                 }
-                segment = saturate(segment) * _SegmentColor;
 
                 // Band threshold lines
-                float threshold = 0;
+                float4 threshold = 0;
                 float minHeight = 0.186;
                 float maxHeight = 0.875;
                 int band = 0;
@@ -161,7 +151,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 {
                     threshold += (band == k) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[k]))) * 1000.;
                 }
-                threshold = saturate(threshold) * _ThresholdColor * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
+                threshold = saturate(threshold) * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
                 threshold *= (iuv.x > _X0);
 
                 // Colored areas

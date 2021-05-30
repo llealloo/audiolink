@@ -28,6 +28,8 @@
 #define AUDIOLINK_WIDTH  128
 #define _SamplesPerSecond 48000
 #define _RootNote 0
+#define AL4BAND_FREQFLOOR 0.123
+#define AL4BAND_FREQCEILING 1
 
 // We use glsl_mod for most calculations because it behaves better
 // on negative numbers, and in some situations actually outperforms
