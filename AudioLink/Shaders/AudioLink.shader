@@ -698,7 +698,7 @@ Shader "AudioLink/AudioLink"
                 
                 //SummaryB:
                 // .x = Latest note number.
-                // .y = open
+                // .y = _RootNote
                 // .z = number of populated notes.
                 
                 float4 Notes[CCMAXNOTES];
@@ -779,9 +779,10 @@ Shader "AudioLink/AudioLink"
                         }
                         else if( free_note != -1 )
                         {
+                            NoteSummaryB.x++;
                             // Couldn't find note.  Create a new note.
-                            Notes[free_note] = float4( NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity );
-                            NotesB[free_note] = float4( NoteSummaryB.x++, unity_DeltaTime.x, 0, 0 );
+                            Notes[free_note]  = float4( NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity );
+                            NotesB[free_note] = float4( NoteSummaryB.x, unity_DeltaTime.x, 0, 0 );
                         }
                         else
                         {
@@ -793,7 +794,8 @@ Shader "AudioLink/AudioLink"
                 }
 
                 float4 NewNoteSummary = 0.;
-                float4 NewNoteSummaryB = NoteSummary;
+                float4 NewNoteSummaryB = NoteSummaryB;
+                NewNoteSummaryB.y = _RootNote;
 
                 [loop]
                 for( i = 0; i < CCMAXNOTES; i++ )
@@ -881,9 +883,10 @@ Shader "AudioLink/AudioLink"
                     for( j = 0; j < CCMAXNOTES; j++ )
                     {
                         float4 n2 = Notes[j];
-                        if( n2.z > 0 && n2.x > SortedNoteSlotValue && n2.x < ClosestToSlotWithoutGoingOver )
+                        float notefreq = EXPBINS-n2.x;//glsl_mod( n2.x + 0.5, EXPBINS );
+                        if( n2.z > 0 && notefreq > SortedNoteSlotValue && notefreq < ClosestToSlotWithoutGoingOver )
                         {
-                            ClosestToSlotWithoutGoingOver = n2.x;
+                            ClosestToSlotWithoutGoingOver = notefreq;
                             sortid = j;
                         }
                     }
