@@ -43,73 +43,6 @@ Shader "AudioLink/AudioLink"
         {
             CGINCLUDE
 
-            // This determines the bottom-left corner of the various passes.
-
-            //Pass 1: DFT: 4,5 10.66 octaves, with 24 bins per octave.
-            
-            #define ALPASS_DFT    int2(0,4)  
-
-            //Pass 2: Raw Waveform Data
-            //   Red: 24kSPS, with 2046 samples
-            // Green: 48kSPS, with 2046 samples
-            //  Blue: Reserved
-            // Alpha: Reserved
-            
-            #define ALPASS_WAVEFORM    int2(0,6)
-
-            //Pass 3: Traditional 4 bands of AudioLink
-            
-            #define ALPASS_AUDIOLINK  int2(0,0)
-            
-            //Pass 4: History from 4 bands of AudioLink
-            
-            #define ALPASS_AUDIOLINKHISTORY   int2(1,0) 
-
-            //Pass 5: General information and VU Meter
-            //  PX 0:  AudioLink Version
-            //  PX 1:  AudioLink Frame #
-            //  PX 2:  < Current time in ms % 2^24, # of rollovers, 0, 0 >
-            //  PX 8:  Current VU Level
-            //  PX 9:  Historical VU Marker Value
-            //  PX 10: Historical VU Marker Times
-            //  PX 11: Slower response to volume.
-            #define ALPASS_GENERALVU   int2(0,22)  
-
-            // Pass 6: ColorChord Internal Note Data
-            //   PX 0: ColorChord Notes Summary
-            //   PX 1-11: 10 ColorChord Notes.
-            
-            #define ALPASS_CCINTERNAL    int2(12,22)
-
-            // Pass 7: Autocorrelator output
-            //  Whole line, fake autocorrelator (maybe someday a real autocorrelator)!
-            #define ALPASS_AUTOCORRELATOR    int2(0,27)
-
-            // Pass 8: ColorChord Strip
-            //  Whole line, able to map directly to textues.
-            #define ALPASS_CCSTRIP    int2(0,24)
-
-            // Pass 9: ColorChord Individual Lights
-            //  Row 25: Individual Light Colors (128 qty)
-            //                R/G/B Color
-            //  Row 26: Internal Data for Colors
-            #define ALPASS_CCLIGHTS    int2(0,25)
-
-
-            #define CCMAXNOTES 10
-            #define SAMPHIST 3069
-            #define EXPBINS 24
-            #define EXPOCT 10
-            #define ETOTALBINS ((EXPBINS)*(EXPOCT))
-            #define _SamplesPerSecond 48000
-            #define _RootNote 0
-
-            // AudioLink
-
-
-            // AUDIO_LINK_ALPHA_START is a shortcut macro you can use at the top of your
-            // fragment shader to quickly get coordinateLocal and coordinateGlobal.
-
             #if UNITY_UV_STARTS_AT_TOP
             #define AUDIO_LINK_ALPHA_START( BASECOORDY ) \
                 float2 guv = IN.globalTexcoord.xy; \
@@ -128,6 +61,7 @@ Shader "AudioLink/AudioLink"
             #pragma fragment frag
             #include "AudioLinkCRT.cginc"
             #include "UnityCG.cginc"
+            #include "AudioLink.cginc"
             uniform half4 _SelfTexture2D_TexelSize; 
 
             cbuffer SampleBuffer {
@@ -173,76 +107,13 @@ Shader "AudioLink/AudioLink"
             uniform float _EnableAutogain;
             uniform float _AutogainDerate;
             
-            const static float _FreqFloor = 0.123;
-            const static float _FreqCeiling = 1.0;
             const static float _TrebleCorrection = 5.0;
 
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
 
-            #ifndef glsl_mod
-            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
-            #endif
-
-            //ColorChord related utility functions.
-
-            #ifndef CCclamp
-            #define CCclamp(x,y,z) clamp( x, y, z )
-            #endif
-
             float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
-
-            float3 CCHSVtoRGB(float3 HSV)
-            {
-                float3 RGB = 0;
-                float C = HSV.z * HSV.y;
-                float H = HSV.x * 6;
-                float X = C * (1 - abs(fmod(H, 2) - 1));
-                if (HSV.y != 0)
-                {
-                    float I = floor(H);
-                    if (I == 0) { RGB = float3(C, X, 0); }
-                    else if (I == 1) { RGB = float3(X, C, 0); }
-                    else if (I == 2) { RGB = float3(0, C, X); }
-                    else if (I == 3) { RGB = float3(0, X, C); }
-                    else if (I == 4) { RGB = float3(X, 0, C); }
-                    else { RGB = float3(C, 0, X); }
-                }
-                float M = HSV.z - C;
-                return RGB + M;
-            }
-
-            float3 CCtoRGB( float bin, float intensity, int RootNote )
-            {
-                float note = bin / EXPBINS;
-
-                float hue = 0.0;
-                note *= 12.0;
-                note = glsl_mod( 4.-note + RootNote, 12.0 );
-                {
-                    if( note < 4.0 )
-                    {
-                        //Needs to be YELLOW->RED
-                        hue = (note) / 24.0;
-                    }
-                    else if( note < 8.0 )
-                    {
-                        //            [4]  [8]
-                        //Needs to be RED->BLUE
-                        hue = ( note-2.0 ) / 12.0;
-                    }
-                    else
-                    {
-                        //             [8] [12]
-                        //Needs to be BLUE->YELLOW
-                        hue = ( note - 4.0 ) / 8.0;
-                    }
-                }
-                float val = intensity-.1;
-                return CCHSVtoRGB( float3( fmod(hue,1.0), 1.0, CCclamp( val, 0.0, 1.0 ) ) );
-            }
-
 
             ENDCG
 
@@ -450,8 +321,8 @@ Shader "AudioLink/AudioLink"
                     // Get average of samples in the band
                     float total = 0.;
                     uint totalBins = EXPBINS * EXPOCT;
-                    uint binStart = Remap(audioBands[band], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins);
-                    uint binEnd = (band != 3) ? Remap(audioBands[band + 1], 0., 1., _FreqFloor * totalBins, _FreqCeiling * totalBins) : _FreqCeiling * totalBins;
+                    uint binStart = Remap(audioBands[band], 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins);
+                    uint binEnd = (band != 3) ? Remap(audioBands[band + 1], 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins) : AL4BAND_FREQCEILING * totalBins;
                     float threshold = audioThresholds[band];
                     for (uint i=binStart; i<binEnd; i++)
                     {
