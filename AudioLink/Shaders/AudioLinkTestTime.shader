@@ -50,7 +50,7 @@
                 
                 float2 iuv = i.uv;
                 iuv.y = 1.-iuv.y;
-                const uint rows = 10;
+                const uint rows = 20;
                 const uint cols = 21;
                 const uint number_area_cols = 11;
                 
@@ -67,32 +67,38 @@
                 float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
 
                 
-                if( dig.x < cols - number_area_cols )
+                if( dig.y < 10 )
                 {
-                    uint sendchar = 0;
-                    if( dig.y > 6 )
+                    if( dig.x < cols - number_area_cols )
                     {
-                        sendchar = (dig.y-6)*10 + dig.x;
+                        uint sendchar = 0;
+                        if( dig.y > 6 )
+                        {
+                            sendchar = (dig.y-6)*10 + dig.x;
+                        }
+                        else
+                        {
+                            #define L(x) ((uint)(x-'A'+13))
+                            const uint sendarr[70] = { 
+                                L('I'), L('N'), L('S'), L('T'), L('A'), L('N'), L('C'), L('E'), 12, 12,
+                                L('W'), L('A'), L('L'), L('L'), L('C'), L('L'), L('O'), L('C'), L('K'), 12,
+                                L('A'), L('U'), L('T'), L('O'), 12, L('G'), L('A'), L('I'), L('N'), 12,
+                                L('P'), L('E'), L('A'), L('K'), 12, L('V'), L('A'), L('L'), L('U'), L('E'),
+                                L('R'), L('M'), L('S'), 12, L('V'), L('A'), L('L'), L('U'), L('E'), 12,
+                                L('F'), L('P'), L('S'), L('E'), L('S'), 12, 12, 12, 12, 12,
+                                12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                };
+                            sendchar = sendarr[dig.x+dig.y*10];
+                        }
+                        return PrintChar( sendchar, fmxy, softness );
                     }
-                    else
-                    {
-                        #define L(x) ((uint)(x-'A'+13))
-                        const uint sendarr[70] = { 
-                            L('I'), L('N'), L('S'), L('T'), L('A'), L('N'), L('C'), L('E'), 12, 12,
-                            L('W'), L('A'), L('L'), L('L'), L('C'), L('L'), L('O'), L('C'), L('K'), 12,
-                            L('A'), L('U'), L('T'), L('O'), 12, L('G'), L('A'), L('I'), L('N'), 12,
-                            L('P'), L('E'), L('A'), L('K'), 12, L('V'), L('A'), L('L'), L('U'), L('E'),
-                            L('R'), L('M'), L('S'), 12, L('V'), L('A'), L('L'), L('U'), L('E'), 12,
-                            L('F'), L('P'), L('S'), L('E'), L('S'), 12, 12, 12, 12, 12,
-                            12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
-                            };
-                        sendchar = sendarr[dig.x+dig.y*10];
-                    }
-                    return PrintChar( sendchar, fmxy, softness );
+                    
+                    dig.x -= cols - number_area_cols;
                 }
-                
-                dig.x -= cols - number_area_cols;
- 
+                else
+                {
+                    //Colorchord territory debugging.
+                }
                 int offset = 0;
                 int xoffset = 0;
                 bool leadingzero = false;
@@ -163,8 +169,36 @@
                     xoffset=4;
                     break;
                 case 8:
+                    value = AudioLinkData( int2( ALPASS_GENERALVU + int2(0, 0 ) ) ).x;
+                    xoffset=3;
+                    break;
                 case 9:
+                    value = AudioLinkData( int2( ALPASS_GENERALVU + int2(11, 0 ) ) ).x;
+                    xoffset=3;
+                    break;
                 default:
+                    if( dig.x < 5 )
+                    {
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 0 ) ).x;
+                        xoffset = 8;
+                    }
+                    else if( dig.x < 10 )
+                    {
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 1 ) ).x;
+                        xoffset = 3;
+                    }
+                    else if( dig.x < 15 )
+                    {
+                        dig.x -= 5;
+                        xoffset = 3;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 1 ) ).y;
+                    }
+                    else if( dig.x < 20 )
+                    {
+                        dig.x -= 10;
+                        xoffset = 3;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 0 ) ).a;
+                    }
                     break;
                 }
 

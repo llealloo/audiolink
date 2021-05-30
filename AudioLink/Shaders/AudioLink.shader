@@ -690,7 +690,7 @@ Shader "AudioLink/AudioLink"
                 //NoteB Structure
                 // .x = Note Number  ::: NOTE if .y < 0 this is the index of where this note _went_ or what note it was joined to.
                 // .y = Time this note has existed.
-                // .z = Sorted-by-frequency position.
+                // .z = Sorted-by-frequency position. (With note 0 being the 0th note)
                 
                 //Summary:
                 // .x = Total number of notes.
@@ -779,7 +779,25 @@ Shader "AudioLink/AudioLink"
                         }
                         else if( free_note != -1 )
                         {
-                            NoteSummaryB.x++;
+
+                            int jc = 0;
+                            int ji = 0;
+                            // uuuggghhhh Ok, so this's is probably just me being paranoid
+                            // but I really wanted to make sure all note IDs are unique
+                            // in case another tool would care about the uniqueness.
+                            [loop]
+                            for( ji = 0; ji < CCMAXNOTES && jc != CCMAXNOTES; ji++ )
+                            {
+                                NoteSummaryB.x = NoteSummaryB.x + 1;
+                                if( NoteSummaryB.x > 1023 ) NoteSummaryB.x = 0;
+                                [loop]
+                                for( jc = 0; jc < CCMAXNOTES; jc++ )
+                                {
+                                    if( NotesB[jc].x == NoteSummaryB.x )
+                                        break;
+                                }
+                            }
+
                             // Couldn't find note.  Create a new note.
                             Notes[free_note]  = float4( NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity );
                             NotesB[free_note] = float4( NoteSummaryB.x, unity_DeltaTime.x, 0, 0 );
@@ -826,7 +844,7 @@ Shader "AudioLink/AudioLink"
                                 //n1B unchanged.
 
                                 Notes[j] = 0;
-                                NotesB[j] = float4( n1B.x, -1, 0, 0 );
+                                NotesB[j] = float4( i, -1, 0, 0 );
                             }
                         }
                     }
@@ -868,7 +886,7 @@ Shader "AudioLink/AudioLink"
                 // Sort by frequency and count notes.
                 // These loops are phrased funny because the unity shader compiler gets really
                 // confused easily.
-                float SortedNoteSlotValue = -1;
+                float SortedNoteSlotValue = -1000;
                 int sortplace = 0;
                 NewNoteSummaryB.z = 0;
                 [loop]
@@ -883,7 +901,7 @@ Shader "AudioLink/AudioLink"
                     for( j = 0; j < CCMAXNOTES; j++ )
                     {
                         float4 n2 = Notes[j];
-                        float notefreq = EXPBINS-n2.x;//glsl_mod( n2.x + 0.5, EXPBINS );
+                        float notefreq = glsl_mod( -Notes[0].x + 0.5 + n2.x , EXPBINS );
                         if( n2.z > 0 && notefreq > SortedNoteSlotValue && notefreq < ClosestToSlotWithoutGoingOver )
                         {
                             ClosestToSlotWithoutGoingOver = notefreq;
