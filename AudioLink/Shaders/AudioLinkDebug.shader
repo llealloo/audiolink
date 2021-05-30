@@ -2,7 +2,6 @@ Shader "AudioLink/AudioLinkDebug"
 {
     Properties
     {
-        _AudioLinkTexture ("Texture", 2D) = "white" {}
         _SpectrumGain ("Spectrum Gain", Float) = 1.
         _SampleGain ("Sample Gain", Float) = 1.
         _SeparatorColor ("Seperator Color", Color) = (.5,.5,0.,1.)
@@ -57,8 +56,6 @@ Shader "AudioLink/AudioLinkDebug"
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
-
-            float4 _AudioLinkTexture_ST;
             
             float _SpectrumGain;
             float _SampleGain;
@@ -86,7 +83,7 @@ Shader "AudioLink/AudioLinkDebug"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv * _AudioLinkTexture_ST;
+                o.uv = v.uv;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }

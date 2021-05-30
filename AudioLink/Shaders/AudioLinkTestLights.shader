@@ -2,8 +2,6 @@
 {
     Properties
     {
-        _AudioLinkTexture ("Texture", 2D) = "white" {}
-
     }
     SubShader
     {
@@ -33,14 +31,12 @@
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
-
-            float4 _AudioLinkTexture_ST;
 			
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _AudioLinkTexture);
+                o.uv = v.uv;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }

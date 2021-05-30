@@ -2,7 +2,6 @@
 {
     Properties
     {
-        _AudioLinkTexture ("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -29,18 +28,13 @@
             {
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
-            };
-            float4 _AudioLinkTexture_ST;
-            
-            #ifndef glsl_mod
-            #define glsl_mod(x,y) (((x)-(y)*floor((x)/(y)))) 
-            #endif            
+            };     
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _AudioLinkTexture);
+                o.uv = v.uv;
                 return o;
             }
 
