@@ -132,9 +132,9 @@ Shader "AudioLink/AudioLink"
 
                 float2 ampl = 0.;
                 float pha = 0;
-                float phadelta = pow(2, (note)/((float)EXPBINS));
+                float phadelta = pow(2, (note)/((float)AUDIOLINK_EXPBINS));
                 phadelta *= _BottomFrequency;
-                phadelta /= _SamplesPerSecond;
+                phadelta /= AUDIOLINK_SPS;
                 phadelta *= UNITY_TWO_PI;
                 float integraldec = 0.;
                 float totalwindow = 0;
@@ -143,7 +143,7 @@ Shader "AudioLink/AudioLink"
                 phadelta *= 2.;
 
                 // Align phase so 0 phaseis center of window.
-                pha = -phadelta * SAMPHIST/2;
+                pha = -phadelta * AUDIOLINK_SAMPHIST/2;
 
                 // This determines the narrowness of our peaks.
                 float Q = _DFTQ;
@@ -161,10 +161,10 @@ Shader "AudioLink/AudioLink"
                     // For ??? reason, this is faster than doing a clever
                     // indexing which only searches the space that will be used.
 
-                    for( idx = 0; idx < SAMPHIST / 2; idx++ )
+                    for( idx = 0; idx < AUDIOLINK_SAMPHIST / 2; idx++ )
                     {
                         // XXX TODO: Try better windows, this is just a triangle.
-                        float window = max(0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize)));
+                        float window = max(0, HalfWindowSize - abs(idx - (AUDIOLINK_SAMPHIST / 2 - HalfWindowSize)));
                         float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
                         
                         // Sin and cosine components to convolve.
@@ -191,7 +191,7 @@ Shader "AudioLink/AudioLink"
                     #define EXTENT ((int)(WINDOWSIZE/STEP))
                     float invphaadv = STEP / phadelta;
 
-                    float fra = SAMPHIST/4 - (invphaadv*EXTENT); //We want the center to line up.
+                    float fra = AUDIOLINK_SAMPHIST / 4 - (invphaadv * EXTENT); //We want the center to line up.
 
                     for( place = -EXTENT; place <= EXTENT; place++ )
                     {
@@ -200,7 +200,7 @@ Shader "AudioLink/AudioLink"
                         float2 sc; sincos( fvpha, sc.x, sc.y );
                         float window = WINDOWSIZE - abs(fvpha);
 
-                        uint idx = round(clamp(fra, 0, SAMPLEDATA24));
+                        uint idx = round(clamp(fra, 0, AUDIOLINK_SAMPLEDATA24));
                         float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
 
                         // Step through, one sample at a time, multiplying the sin
@@ -216,7 +216,7 @@ Shader "AudioLink/AudioLink"
                 mag /= totalwindow;
                 mag *= _BaseAmplitude * _Gain;
 
-                float freqNormalized = note / float(EXPOCT*EXPBINS);
+                float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
 
                 // Treble compensation
                 mag *= (lut[min(note, 239)] * _TrebleCorrection + 1);
@@ -253,13 +253,13 @@ Shader "AudioLink/AudioLink"
                     return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0]; // slick, thanks @lox9973
 
                 uint frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
-                if(frame >= SAMPHIST) frame = SAMPHIST - 1; //Prevent overflow.
+                if(frame >= AUDIOLINK_SAMPHIST) frame = AUDIOLINK_SAMPHIST - 1; //Prevent overflow.
 
                 // Uncomment to enable debugging of where on the CRT this pass is.
                 // return float4( frame/1000., coordinateLocal/10., 1. );
 
                 float Blue = 0;
-                if(frame*4 < SAMPHIST)
+                if(frame * 4 < AUDIOLINK_SAMPHIST)
                     Blue = (_AudioFrames[frame*4+0] + _AudioFrames[frame*4+1] + _AudioFrames[frame*4+2] + _AudioFrames[frame*2+3])/4.;
                 
                 float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
@@ -300,9 +300,9 @@ Shader "AudioLink/AudioLink"
                 {
                     // Get average of samples in the band
                     float total = 0.;
-                    uint totalBins = EXPBINS * EXPOCT;
-                    uint binStart = Remap(audioBands[band], 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins);
-                    uint binEnd = (band != 3) ? Remap(audioBands[band + 1], 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins) : AL4BAND_FREQCEILING * totalBins;
+                    uint totalBins = AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT;
+                    uint binStart = Remap(audioBands[band], 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins);
+                    uint binEnd = (band != 3) ? Remap(audioBands[band + 1], 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins) : AUDIOLINK_4BAND_FREQCEILING * totalBins;
                     float threshold = audioThresholds[band];
                     for (uint i=binStart; i<binEnd; i++)
                     {
@@ -503,9 +503,9 @@ Shader "AudioLink/AudioLink"
             float NoteWrap(float Note1, float Note2)
             {
                 float diff = Note2 - Note1;
-                diff = glsl_mod(diff, EXPBINS);
-                if(diff > EXPBINS/2)
-                    return diff - EXPBINS;
+                diff = glsl_mod(diff, AUDIOLINK_EXPBINS);
+                if(diff > AUDIOLINK_EXPBINS/2)
+                    return diff - AUDIOLINK_EXPBINS;
                 else
                     return diff;
             }
@@ -529,7 +529,7 @@ Shader "AudioLink/AudioLink"
                 static const float _NewNoteGain = 8.;
 
                 //Note structure:
-                // .x = Note frequency (0...ETOTALBINS, but floating point)
+                // .x = Note frequency (0...AUDIOLINK_ETOTALBINS, but floating point)
                 // .y = The incoming intensity.
                 // .z = Lagged intensity.         ---> This is what decides if a note is going to disappear.
                 // .w = Quicker lagged intensity.
@@ -545,13 +545,13 @@ Shader "AudioLink/AudioLink"
                 
                 //SummaryB:
                 // .x = Latest note number.
-                // .y = _RootNote
+                // .y = AUDIOLINK_ROOTNOTE
                 // .z = number of populated notes.
                 
-                float4 Notes[CCMAXNOTES];
-                float4 NotesB[CCMAXNOTES];
+                float4 Notes[AUDIOLINK_CCMAXNOTES];
+                float4 NotesB[AUDIOLINK_CCMAXNOTES];
 
-                for(i = 0; i < CCMAXNOTES; i++)
+                for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
                 {
                     NotesB[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 1));
                     Notes[i] =  GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 0)) * float4(1, 0, 1, 1);
@@ -570,7 +570,7 @@ Shader "AudioLink/AudioLink"
                         // Find actual peak by looking ahead and behind.
                         float DiffA = This - Next;
                         float DiffB = This - Last;
-                        float NoteFreq = glsl_mod(i - 1, EXPBINS);
+                        float NoteFreq = glsl_mod(i - 1, AUDIOLINK_EXPBINS);
                         if(DiffA < DiffB)
                         {
                             // Behind
@@ -590,7 +590,7 @@ Shader "AudioLink/AudioLink"
                                                 
                         // Search notes to see what the closest note to this peak is.
                         // also look for any empty notes.
-                        for(j = 0; j < CCMAXNOTES; j++)
+                        for(j = 0; j < AUDIOLINK_CCMAXNOTES; j++)
                         {
                             float dist = abs(NoteWrap(Notes[j].x, NoteFreq));
                             if(Notes[j].z <= 0)
@@ -633,12 +633,12 @@ Shader "AudioLink/AudioLink"
                             // but I really wanted to make sure all note IDs are unique
                             // in case another tool would care about the uniqueness.
                             [loop]
-                            for(ji = 0; ji < CCMAXNOTES && jc != CCMAXNOTES; ji++)
+                            for(ji = 0; ji < AUDIOLINK_CCMAXNOTES && jc != AUDIOLINK_CCMAXNOTES; ji++)
                             {
                                 NoteSummaryB.x = NoteSummaryB.x + 1;
                                 if(NoteSummaryB.x > 1023) NoteSummaryB.x = 0;
                                 [loop]
-                                for(jc = 0; jc < CCMAXNOTES; jc++)
+                                for(jc = 0; jc < AUDIOLINK_CCMAXNOTES; jc++)
                                 {
                                     if(NotesB[jc].x == NoteSummaryB.x)
                                         break;
@@ -660,17 +660,17 @@ Shader "AudioLink/AudioLink"
 
                 float4 NewNoteSummary = 0.;
                 float4 NewNoteSummaryB = NoteSummaryB;
-                NewNoteSummaryB.y = _RootNote;
+                NewNoteSummaryB.y = AUDIOLINK_ROOTNOTE;
 
                 [loop]
-                for(i = 0; i < CCMAXNOTES; i++)
+                for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
                 {
                     uint j;
                     float4 n1 = Notes[i];
                     float4 n1B = NotesB[i];
                     
                     [loop]
-                    for(j = 0; j < CCMAXNOTES; j++)
+                    for(j = 0; j < AUDIOLINK_CCMAXNOTES; j++)
                     {
                         // 🤮 Shader compiler can't do triangular loops.
                         // We don't want to iterate over a cube just compare ith and jth note once.
@@ -699,7 +699,7 @@ Shader "AudioLink/AudioLink"
                     if(n1.z >= 0)
                     {
                         // Make sure we're wrapped correctly.
-                        n1.x = glsl_mod(n1.x, EXPBINS);
+                        n1.x = glsl_mod(n1.x, AUDIOLINK_EXPBINS);
                         
                         // Apply filtering
                         n1.z = lerp(n1.y, n1.z, IIR1_DECAY) - CONSTANT1_DECAY; //Make decay slow.
@@ -736,7 +736,7 @@ Shader "AudioLink/AudioLink"
                 int sortplace = 0;
                 NewNoteSummaryB.z = 0;
                 [loop]
-                for(i = 0; i < CCMAXNOTES; i++)
+                for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
                 {
                     //Count notes
                     NewNoteSummaryB.z += (Notes[i].z > 0) ? 1 : 0;
@@ -744,10 +744,10 @@ Shader "AudioLink/AudioLink"
                     float ClosestToSlotWithoutGoingOver = 100;
                     int sortid = -1;
                     int j;
-                    for(j = 0; j < CCMAXNOTES; j++)
+                    for(j = 0; j < AUDIOLINK_CCMAXNOTES; j++)
                     {
                         float4 n2 = Notes[j];
-                        float notefreq = glsl_mod(-Notes[0].x + 0.5 + n2.x , EXPBINS);
+                        float notefreq = glsl_mod(-Notes[0].x + 0.5 + n2.x , AUDIOLINK_EXPBINS);
                         if(n2.z > 0 && notefreq > SortedNoteSlotValue && notefreq < ClosestToSlotWithoutGoingOver)
                         {
                             ClosestToSlotWithoutGoingOver = notefreq;
@@ -795,7 +795,7 @@ Shader "AudioLink/AudioLink"
                 for(i = EBASEBIN; i < EMAXBIN; i++)
                 {
                     float Bin = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    float freq = pow(2, i/24.) * _BottomFrequency / _SamplesPerSecond * UNITY_TWO_PI;
+                    float freq = pow(2, i/24.) * _BottomFrequency / AUDIOLINK_SPS * UNITY_TWO_PI;
                     float2 csv = float2(cos(freq * PlaceInWave * fvr),  cos(freq * PlaceInWave * fvr + i * .32));
                     csv.g *= step(i % 4, 1) * 4.;
                     fvtot += csv * (Bin * Bin);
@@ -826,7 +826,7 @@ Shader "AudioLink/AudioLink"
                 TotalPower = NotesSummary.y;
 
                 float PowerPlace = 0.0;
-                for(p = 0; p < CCMAXNOTES; p++)
+                for(p = 0; p < AUDIOLINK_CCMAXNOTES; p++)
                 {
                     float4 NotesB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(1 + p, 1));
                     float4 Peak = GetSelfPixelData(ALPASS_CCINTERNAL + int2(1 + NotesB.z, 0));
@@ -836,7 +836,7 @@ Shader "AudioLink/AudioLink"
                     PowerPlace += Power;
                     if(PowerPlace >= IN.globalTexcoord.x) 
                     {
-                        return float4(CCtoRGB(Peak.x, Peak.a*Brightness, _RootNote), 1.0);
+                        return float4(CCtoRGB(Peak.x, Peak.a*Brightness, AUDIOLINK_ROOTNOTE), 1.0);
                     }
                 }
                 
@@ -895,7 +895,7 @@ Shader "AudioLink/AudioLink"
                     int SelectedNoteNo = -1;
                     
                     float cumulative = 0.0;
-                    for(n = 0; n < CCMAXNOTES; n++)
+                    for(n = 0; n < AUDIOLINK_CCMAXNOTES; n++)
                     {
                         float4 Note = GetSelfPixelData(ALPASS_CCINTERNAL + int2(n + 1, 0));
                         float unic = NOTESUFFIX(Note);
@@ -904,7 +904,7 @@ Shader "AudioLink/AudioLink"
                     }
 
                     float sofar = 0.0;
-                    for(n = 0; n < CCMAXNOTES; n++)
+                    for(n = 0; n < AUDIOLINK_CCMAXNOTES; n++)
                     {
                         float4 Note = GetSelfPixelData(ALPASS_CCINTERNAL + int2(n + 1, 0));
                         float unic = NOTESUFFIX(Note);
@@ -944,7 +944,7 @@ Shader "AudioLink/AudioLink"
                     
                     //XXX TODO: REVISIT THIS!! Ths is an arbitrary value!
                     float intensity = ThisNote.a/3;
-                    return float4(CCtoRGB(glsl_mod(ThisNote.x,48.0 ),intensity, _RootNote), 1.0);
+                    return float4(CCtoRGB(glsl_mod(ThisNote.x,48.0 ),intensity, AUDIOLINK_ROOTNOTE), 1.0);
                 }
                 else
                 {

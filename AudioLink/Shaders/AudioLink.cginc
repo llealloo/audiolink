@@ -8,10 +8,8 @@
 #define ALPASS_AUDIOTREBLE               int2(0,3)
 #define ALPASS_AUDIOLINKHISTORY          int2(1,0)
 #define ALPASS_GENERALVU                 int2(0,22)
-
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
-
 #define ALPASS_CCINTERNAL                int2(12,22)
 #define ALPASS_CCSTRIP                   int2(0,24)
 #define ALPASS_CCLIGHTS                  int2(0,25)
@@ -19,17 +17,17 @@
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
-#define CCMAXNOTES 10
-#define SAMPHIST 3069 //Internal use for algos, do not change.
-#define SAMPLEDATA24 2046
-#define EXPBINS 24
-#define EXPOCT 10
-#define ETOTALBINS ((EXPBINS)*(EXPOCT))
+#define AUDIOLINK_CCMAXNOTES 10
+#define AUDIOLINK_SAMPHIST 3069 //Internal use for algos, do not change.
+#define AUDIOLINK_SAMPLEDATA24 2046
+#define AUDIOLINK_EXPBINS 24
+#define AUDIOLINK_EXPOCT 10
+#define AUDIOLINK_ETOTALBINS (AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT)
 #define AUDIOLINK_WIDTH  128
-#define _SamplesPerSecond 48000
-#define _RootNote 0
-#define AL4BAND_FREQFLOOR 0.123
-#define AL4BAND_FREQCEILING 1
+#define AUDIOLINK_SPS 48000         // Samples per second
+#define AUDIOLINK_ROOTNOTE 0
+#define AUDIOLINK_4BAND_FREQFLOOR 0.123
+#define AUDIOLINK_4BAND_FREQCEILING 1
 
 // We use glsl_mod for most calculations because it behaves better
 // on negative numbers, and in some situations actually outperforms
@@ -117,7 +115,7 @@ float3 CCHSVtoRGB(float3 HSV)
 
 float3 CCtoRGB(float bin, float intensity, int RootNote)
 {
-    float note = bin / EXPBINS;
+    float note = bin / AUDIOLINK_EXPBINS;
 
     float hue = 0.0;
     note *= 12.0;

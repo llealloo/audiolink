@@ -117,9 +117,9 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float audioBands[4] = {_X0, _X1, _X2, _X3};
                 float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
                 float4 intensity = 0;
-                uint totalBins = EXPBINS * EXPOCT;
-                uint noteno = Remap(iuv.x, 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins);
-                float notenof = Remap(iuv.x, 0., 1., AL4BAND_FREQFLOOR * totalBins, AL4BAND_FREQCEILING * totalBins);
+                uint totalBins = AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT;
+                uint noteno = Remap(iuv.x, 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins);
+                float notenof = Remap(iuv.x, 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins);
 
                 {
                     float4 spectrum_value_lower  =  AudioLinkData(float2(fmod(noteno, 128), (noteno/128)+4.0));
