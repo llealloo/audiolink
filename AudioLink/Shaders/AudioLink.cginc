@@ -90,6 +90,9 @@ bool AudioLinkIsAvailableNonSurface()
 // Decompress a RGBA FP16 into a really big number, this is used in some sections of the info block.
 #define DecodeLongFloat(vALValue)  (vALValue.r + vALValue.g*1024 + vALValue.b * 1048576 + vALValue.a * 1073741824)
 
+// This pulls data from this texture.
+#define GetSelfPixelData(xy) _SelfTexture2D[xy]
+
 // Extra utility functions for time.
 uint ALDecodeDataAsUInt(uint2 indexloc)
 {

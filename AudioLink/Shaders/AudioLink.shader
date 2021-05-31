@@ -61,11 +61,6 @@ Shader "AudioLink/AudioLink"
                 float _Samples2[1023] : packoffset(c2046);
                 float _Samples3[1023] : packoffset(c3069);
             };
-            
-            // This pulls data from this texture.
-            #define GetSelfPixelData(xy) _SelfTexture2D[xy]
-            
-            // DFT
 
             // AudioLink 4 Band
             uniform float _FadeLength;
@@ -84,10 +79,14 @@ Shader "AudioLink/AudioLink"
             uniform float _AudioSource2D;
 
             // Extra Properties
-            uniform float4 _AdvancedTimeProps;
-            uniform float4 _VersionNumberAndFPSProperty;
             uniform float _EnableAutogain;
             uniform float _AutogainDerate;
+
+            // Set by Udon
+            uniform float4 _AdvancedTimeProps;
+            uniform float4 _VersionNumberAndFPSProperty;
+
+            // These may become uniforms set by the controller, keep them named like this for now
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
