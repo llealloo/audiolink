@@ -71,7 +71,6 @@ Shader "AudioLink/AudioLink"
             const static float _BaseAmplitude = 2.5;
             const static float _DecayCoefficient = 0.01;
             const static float _PhiDeltaCorrection = 4.0;
-            const static float _DFTMode = 0.0;
             const static float _DFTQ = 4.0;
 
             // AudioLink
@@ -123,114 +122,52 @@ Shader "AudioLink/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_DFT)
 
-                // Uncomment to enable debugging of where on the CRT this pass is.
-                // return float4(coordinateLocal, 0., 1.);
-
-                float4 last = GetSelfPixelData(coordinateGlobal);
-
                 int note = coordinateLocal.y * AUDIOLINK_WIDTH + coordinateLocal.x;
+                float4 last = GetSelfPixelData(coordinateGlobal);\
+                float2 amplitude = 0.;
+                float phase = 0;
+                float phaseDelta = pow(2, (note)/((float)AUDIOLINK_EXPBINS));
+                phaseDelta = ((phaseDelta * _BottomFrequency) / AUDIOLINK_SPS) * UNITY_TWO_PI * 2.; // 2 here because we're at 24kSPS                          
+                phase = -phaseDelta * AUDIOLINK_SAMPHIST/2;     // Align phase so 0 phase is center of window.
 
-                float2 ampl = 0.;
-                float pha = 0;
-                float phadelta = pow(2, (note)/((float)AUDIOLINK_EXPBINS));
-                phadelta *= _BottomFrequency;
-                phadelta /= AUDIOLINK_SPS;
-                phadelta *= UNITY_TWO_PI;
-                float integraldec = 0.;
-                float totalwindow = 0;
+                // DFT Window
+                float halfWindowSize = _DFTQ / (phaseDelta / UNITY_TWO_PI);
+                int windowRange = floor(halfWindowSize) + 1;
+                float totalWindow = 0;
 
-                // 2 here because we're at 24kSPS
-                phadelta *= 2.;
-
-                // Align phase so 0 phaseis center of window.
-                pha = -phadelta * AUDIOLINK_SAMPHIST/2;
-
-                // This determines the narrowness of our peaks.
-                float Q = _DFTQ;
-
-                if(_DFTMode < 1.0)
+                // For ??? reason, this is faster than doing a clever indexing which only searches the space that will be used.
+                uint idx;
+                for(idx = 0; idx < AUDIOLINK_SAMPHIST / 2; idx++)
                 {
-                    // Method 1: Convolve entire incoming waveform.
+                    // XXX TODO: Try better windows, this is just a triangle.
+                    float window = max(0, halfWindowSize - abs(idx - (AUDIOLINK_SAMPHIST / 2 - halfWindowSize)));
+                    float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
                     
-                    float HalfWindowSize;
-                    HalfWindowSize = (Q)/(phadelta/UNITY_TWO_PI);
+                    // Sin and cosine components to convolve.
+                    float2 sinCos; sincos(phase, sinCos.x, sinCos.y);
 
-                    int windowrange = floor(HalfWindowSize)+1;
-                    uint idx;
-
-                    // For ??? reason, this is faster than doing a clever
-                    // indexing which only searches the space that will be used.
-
-                    for( idx = 0; idx < AUDIOLINK_SAMPHIST / 2; idx++ )
-                    {
-                        // XXX TODO: Try better windows, this is just a triangle.
-                        float window = max(0, HalfWindowSize - abs(idx - (AUDIOLINK_SAMPHIST / 2 - HalfWindowSize)));
-                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
-                        
-                        // Sin and cosine components to convolve.
-                        float2 sc; sincos(pha, sc.x, sc.y);
-
-                        // Step through, one sample at a time, multiplying the sin
-                        // and cos values by the incoming signal.
-                        ampl += sc * af * window;
-
-                        totalwindow += window;
-                        pha += phadelta;
-                    }
+                    // Step through, one sample at a time, multiplying the sin and cos values by the incoming signal.
+                    amplitude += sinCos * af * window;
+                    totalWindow += window;
+                    phase += phaseDelta;
                 }
-                else
-                {
-                    // Method 2: Convolve only a set number of sampler per bin.
-                    // Note, while this takes ~40us instead of ~90us, it
-                    // doesn't look quite right.
-                    float fvpha;
-                    int place;
 
-                    #define WINDOWSIZE (UNITY_TWO_PI*_DFTQ)
-                    #define STEP 0.06
-                    #define EXTENT ((int)(WINDOWSIZE/STEP))
-                    float invphaadv = STEP / phadelta;
-
-                    float fra = AUDIOLINK_SAMPHIST / 4 - (invphaadv * EXTENT); //We want the center to line up.
-
-                    for( place = -EXTENT; place <= EXTENT; place++ )
-                    {
-                        float fvpha = place * STEP;
-                        // Sin and cosine components to convolve.
-                        float2 sc; sincos( fvpha, sc.x, sc.y );
-                        float window = WINDOWSIZE - abs(fvpha);
-
-                        uint idx = round(clamp(fra, 0, AUDIOLINK_SAMPLEDATA24));
-                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
-
-                        // Step through, one sample at a time, multiplying the sin
-                        // and cos values by the incoming signal.
-                        ampl += sc * af * window;
-
-                        fra += invphaadv;
-
-                        totalwindow += window;
-                    }
-                }
-                float mag = length(ampl);
-                mag /= totalwindow;
-                mag *= _BaseAmplitude * _Gain;
-
-                float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
+                float mag = (length(amplitude) / totalWindow) * _BaseAmplitude * _Gain;
 
                 // Treble compensation
                 mag *= (lut[min(note, 239)] * _TrebleCorrection + 1);
 
-                //Z component contains filtered output.
-                float magfilt = lerp(mag, last.z, lerp(0.3, 0.9, _FadeLength));
+                // Filtered output.
+                float magFilt = lerp(mag, last.z, lerp(0.3, 0.9, _FadeLength));
 
-                float magEQ = magfilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
+                // Filtered EQ'd output, used by AudioLink 4 Band
+                float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
+                float magEQ = magFilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 
-                return float4( 
-                    mag,            //Red:   Spectrum power
-                    magEQ,          //Green: Filtered power EQ'd, used by AudioLink
-                    magfilt,        //Blue:  Filtered spectrum (For CC)
-                    1 );
+                // Red:   Spectrum power, served straight up
+                // Green: Filtered power EQ'd, used by AudioLink 4 Band
+                // Blue:  Filtered spectrum
+                return float4(mag, magEQ, magFilt, 1);
             }
             ENDCG
         }

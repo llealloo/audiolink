@@ -75,14 +75,12 @@ bool AudioLinkIsAvailableNonSurface()
 // Decompress a RGBA FP16 into a really big number, this is used in some sections of the info block.
 #define DecodeLongFloat(vALValue)  (vALValue.r + vALValue.g*1024 + vALValue.b * 1048576 + vALValue.a * 1073741824)
 
-
 // Extra utility functions for time.
 uint ALDecodeDataAsUInt(uint2 indexloc)
 {
     half4 rpx = AudioLinkData(indexloc);
     return DecodeLongFloat(rpx);
 }
-
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
 // if your code will alias sooner, you will need to use a different function.
@@ -144,16 +142,8 @@ float3 CCtoRGB(float bin, float intensity, int RootNote)
 }
 
 
-
-
-
-
-
 ////////////////////////////////////////////////////////////////////
 // General debug functions below here
-
-
-
 
 // Shockingly, including the ability to render text doesn't
 // slow down number printing if text isn't used.
