@@ -268,17 +268,17 @@ Where the following mapping is used:
  * Lerp = `AudioLinkLerp( ... )`
  * LerpMultiline = `AudioLinkLerpMultiline( ... )`
 
-| | Data | DataMultiline | Lerp | LerpMultiline |
-| --- | --- | --- | --- | --- |
-| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ |
-| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ |
-| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  |
-| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  |
-| ALPASS_GENERALVU  | ✅ |  |  |  |
-| ALPASS_CCINTERNAL  | ✅ |  |  |  |
-| ALPASS_CCSTRIP  | ✅ |   | ✅ |   |
-| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   |
-| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   |
+| | Data | DataMultiline | Lerp | LerpMultiline | Start Coord | Size |
+| --- | --- | --- | --- | --- | --- | --- |
+| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ | 0,4 | 128, 2 |
+| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ | 0, 6 | 128, 16 |
+| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  | 0, 0 | 1, 4 |
+| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  | 1, 0 | 127, 4 |
+| ALPASS_GENERALVU  | ✅ |  |  |  |  0, 22 | 12, 2 |
+| ALPASS_CCINTERNAL  | ✅ |  |  |  | 12, 22 | 12, 2 |
+| ALPASS_CCSTRIP  | ✅ |   | ✅ |   | 0, 24 | 128, 1 | 
+| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   | 0, 25 | 128, 2 |
+| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   | 0, 27 | 128, 1 |
 
 
 ## Examples
@@ -297,7 +297,8 @@ fixed4 frag (v2f i) : SV_Target
 <img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif width=512 height=288>
 
 ### Basic Test with sample data.
-Audio waveform data is in the ALPASS_WAVEFORM section of the 
+Audio waveform data is in the ALPASS_WAVEFORM section of the AudioLink texture.  This red color of this group of 128x16 pixels represents the last 85ms of the incoming waveform data.  This
+can be used to draw the waveform onto a surface or use it in other ways.
 
 ```hlsl
 float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 0 ) ).r;
@@ -308,9 +309,11 @@ return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 
 ### Using the spectrogram
 
+The spectrogram portion of audiolink contains the frequency amplitude of every 1/24th of an octave, starting at A-1 (13.75Hz).  This can be used to display something with frequency respones to it.
+  
 This demo shows off a few things.
  * Reading the spectrogram from `ALPASS_DFT`
- * Doing something a little more interesting with the surface
+ * Doing something a little more interesting with the surface.  Faking alpha with `discard`.
 
 ```hlsl
 float noteno = i.uv.x*ETOTALBINS;
@@ -324,7 +327,7 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
     return 1.;
 return 0.1;
 ```
- 
+
 <img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif width=512 height=288>
 
 ### AutoCorrelator + ColorChord Linear + Geometry
@@ -506,7 +509,6 @@ TODO
 ### Using the VU data and info block
 
 TODO
-
 
 
 ## Pertinent Notes and Tradeoffs.
