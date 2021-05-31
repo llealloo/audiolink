@@ -33,7 +33,6 @@ Shader "AudioLink/AudioLink"
         Pass
         {
             CGINCLUDE
-
             #if UNITY_UV_STARTS_AT_TOP
             #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
@@ -98,13 +97,10 @@ Shader "AudioLink/AudioLink"
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
-
             ENDCG
 
             Name "Pass1AudioDFT"
-            
             CGPROGRAM
-
             const static float lut[240] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.008, 0.01,
@@ -151,7 +147,6 @@ Shader "AudioLink/AudioLink"
                     totalWindow += window;
                     phase += phaseDelta;
                 }
-
                 float mag = (length(amplitude) / totalWindow) * _BaseAmplitude * _Gain;
 
                 // Treble compensation
@@ -176,45 +171,31 @@ Shader "AudioLink/AudioLink"
         {
             Name "Pass2WaveformData"
             CGPROGRAM
-            // The structure of the output is:
-            // RED CHANNEL: Mono Audio
-            // GREEN/BLUE: Reserved (may be left/right)
-            // 8 Rows, each row contains 128 samples. Note: The last sample may be repeated.
-
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_WAVEFORM)
 
                 // XXX Hack: Force the compiler to keep Samples0 and Samples1.
-                if(guv.x < 0)
-                    return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0]; // slick, thanks @lox9973
+                if(guv.x < 0) return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0];   // slick, thanks @lox9973
 
                 uint frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
-                if(frame >= AUDIOLINK_SAMPHIST) frame = AUDIOLINK_SAMPHIST - 1; //Prevent overflow.
-
-                // Uncomment to enable debugging of where on the CRT this pass is.
-                // return float4( frame/1000., coordinateLocal/10., 1. );
-
-                float Blue = 0;
-                if(frame * 4 < AUDIOLINK_SAMPHIST)
-                    Blue = (_AudioFrames[frame*4+0] + _AudioFrames[frame*4+1] + _AudioFrames[frame*4+2] + _AudioFrames[frame*2+3])/4.;
+                if(frame >= AUDIOLINK_SAMPHIST) frame = AUDIOLINK_SAMPHIST - 1;         //Prevent overflow.
                 
+                // Autogain
                 float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
-                
-                // Enable/Disable autogain.
-                if( _EnableAutogain )
+                if(_EnableAutogain)
                 {
-                    float4 LastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
+                    float4 lastAutoGain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
-                    //Divide by the running volume.
-                    incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
+                    // Divide by the running volume.
+                    incomingGain *= 1. / (lastAutoGain.x + _AutogainDerate);
                 }
 
-                return float4( 
-                    (_AudioFrames[frame * 2 + 0] + _AudioFrames[frame * 2 + 1]) / 2.,   //RED: 24kSPS
-                    _AudioFrames[frame],                                                //Green: 48kSPS
-                    Blue,                                                               //Blue:  12kSPS 
-                    1) * incomingGain;
+                // Downsampled to 24k and 12k samples per second by averaging
+                float downSample24 = (_AudioFrames[frame * 2] + _AudioFrames[frame * 2 + 1]) / 2.;
+                float downSample12 = (_AudioFrames[frame * 4 + 0] + _AudioFrames[frame * 4 + 1] + _AudioFrames[frame * 4 + 2] + _AudioFrames[frame * 2 + 3]) / 4.;
+
+                return float4(downSample24, _AudioFrames[frame], downSample12, 1) * incomingGain;
             }
             ENDCG
         }
