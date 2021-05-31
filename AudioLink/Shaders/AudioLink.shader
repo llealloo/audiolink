@@ -269,30 +269,30 @@ Shader "AudioLink/AudioLink"
                 uint i;
                 for( i = 0; i < 768; i++ )
                 {
-                    float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    total += af*af;
-                    peak = max(peak, abs(af));
+                    float audioFrame = GetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    total += audioFrame * audioFrame;
+                    peak = max(peak, abs(audioFrame));
                 }
 
                 float peakRMS = sqrt(total / i);
                 float4 markerValue = GetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
                 float4 markerTimes = GetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
                 float4 lastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
-                float Time = _Time.y;
+                float time = _Time.y;
                 
-                if(Time - markerTimes.x > 1.0) markerValue.x = -1;
-                if(Time - markerTimes.y > 1.0) markerValue.y = -1;
+                if(time - markerTimes.x > 1.0) markerValue.x = -1;
+                if(time - markerTimes.y > 1.0) markerValue.y = -1;
                 
                 if(markerValue.x < peakRMS)
                 {
                     markerValue.x = peakRMS;
-                    markerTimes.x = Time;
+                    markerTimes.x = time;
                 }
 
                 if(markerValue.y < peak)
                 {
                     markerValue.y = peak;
-                    markerTimes.y = Time;
+                    markerTimes.y = time;
                 }
 
                 if(coordinateLocal.x >= 8)
@@ -309,7 +309,7 @@ Shader "AudioLink/AudioLink"
                     }
                     else if(coordinateLocal.x == 10)
                     {
-                        // Second pixel: Limit Time
+                        // Second pixel: Limit time
                         return markerTimes;
                     }
                     else if(coordinateLocal.x == 11)
@@ -344,7 +344,7 @@ Shader "AudioLink/AudioLink"
                         // Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
                         // Note: This is also used to measure FPS.
                         
-                        float4 lastVal = GetSelfPixelData(ALPASS_GENERALVU + int2(1, 0 ));
+                        float4 lastVal = GetSelfPixelData(ALPASS_GENERALVU + int2(1, 0));
                         float frameCount = lastVal.r;
                         float frameCountFPS = lastVal.g;
                         float frameCountLastFPS = lastVal.b;
