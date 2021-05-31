@@ -78,6 +78,7 @@ This is set up by default to export the AudioTexture grab pass (which enables av
 - Texelsaur for the AudioLinkMiniPlayer and support!
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
 - Orels1 for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
+- Xiexe for the help developing and testing
 - Thryrallo for the help setting up local AV3 testing functionality
 - CyanLaser for making CyanEmu
 - Lyuma for helping in many ways and being super nice!
