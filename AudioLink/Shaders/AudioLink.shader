@@ -66,11 +66,6 @@ Shader "AudioLink/AudioLink"
             #define GetSelfPixelData(xy) _SelfTexture2D[xy]
             
             // DFT
-            const static float _BottomFrequency = 13.75;
-            const static float _BaseAmplitude = 2.5;
-            const static float _DecayCoefficient = 0.01;
-            const static float _PhiDeltaCorrection = 4.0;
-            const static float _DFTQ = 4.0;
 
             // AudioLink 4 Band
             uniform float _FadeLength;
@@ -93,7 +88,6 @@ Shader "AudioLink/AudioLink"
             uniform float4 _VersionNumberAndFPSProperty;
             uniform float _EnableAutogain;
             uniform float _AutogainDerate;
-            const static float _TrebleCorrection = 5.0;
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
@@ -123,11 +117,11 @@ Shader "AudioLink/AudioLink"
                 float2 amplitude = 0.;
                 float phase = 0;
                 float phaseDelta = pow(2, (note)/((float)AUDIOLINK_EXPBINS));
-                phaseDelta = ((phaseDelta * _BottomFrequency) / AUDIOLINK_SPS) * UNITY_TWO_PI * 2.; // 2 here because we're at 24kSPS                          
+                phaseDelta = ((phaseDelta * AUDIOLINK_BOTTOM_FREQUENCY) / AUDIOLINK_SPS) * UNITY_TWO_PI * 2.; // 2 here because we're at 24kSPS                          
                 phase = -phaseDelta * AUDIOLINK_SAMPHIST/2;     // Align phase so 0 phase is center of window.
 
                 // DFT Window
-                float halfWindowSize = _DFTQ / (phaseDelta / UNITY_TWO_PI);
+                float halfWindowSize = AUDIOLINK_DFT_Q / (phaseDelta / UNITY_TWO_PI);
                 int windowRange = floor(halfWindowSize) + 1;
                 float totalWindow = 0;
 
@@ -147,13 +141,13 @@ Shader "AudioLink/AudioLink"
                     totalWindow += window;
                     phase += phaseDelta;
                 }
-                float mag = (length(amplitude) / totalWindow) * _BaseAmplitude * _Gain;
+                float mag = (length(amplitude) / totalWindow) * AUDIOLINK_BASE_AMPLITUDE * _Gain;
 
                 // Treble compensation
-                mag *= (lut[min(note, 239)] * _TrebleCorrection + 1);
+                mag *= (lut[min(note, 239)] * AUDIOLINK_TREBLE_CORRECTION + 1);
 
-                // Filtered output.
-                float magFilt = lerp(mag, last.z, lerp(0.3, 0.9, _FadeLength));
+                // Filtered output, also use FadeLength to lerp delay coefficient min/max for added smoothing effect
+                float magFilt = lerp(mag, last.z, lerp(AUDIOLINK_DELAY_COEFFICIENT_MIN, AUDIOLINK_DELAY_COEFFICIENT_MAX, _FadeLength));
 
                 // Filtered EQ'd output, used by AudioLink 4 Band
                 float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
@@ -698,7 +692,7 @@ Shader "AudioLink/AudioLink"
                 for(i = AUTOCORRELATOR_EBASEBIN; i < AUTOCORRELATOR_EMAXBIN; i++)
                 {
                     float bin = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    float frequency = pow(2, i / 24.) * _BottomFrequency / AUDIOLINK_SPS * UNITY_TWO_PI;
+                    float frequency = pow(2, i / 24.) * AUDIOLINK_BOTTOM_FREQUENCY / AUDIOLINK_SPS * UNITY_TWO_PI;
                     float2 csv = float2(cos(frequency * wavePosition * fvr),  cos(frequency * wavePosition * fvr + i * 0.32));
                     csv.g *= step(i % 4, 1) * 4.;
                     fvTotal += csv * (bin * bin);

@@ -1,42 +1,48 @@
 // Map of where features in AudioLink are.
-#define ALPASS_DFT                       int2(0,4)
-#define ALPASS_WAVEFORM                  int2(0,6)
-#define ALPASS_AUDIOLINK                 int2(0,0)
-#define ALPASS_AUDIOBASS                 int2(0,0)
-#define ALPASS_AUDIOLOWMIDS              int2(0,1)
-#define ALPASS_AUDIOHIGHMIDS             int2(0,2)
-#define ALPASS_AUDIOTREBLE               int2(0,3)
-#define ALPASS_AUDIOLINKHISTORY          int2(1,0)
-#define ALPASS_GENERALVU                 int2(0,22)
-#define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
-#define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
-#define ALPASS_CCINTERNAL                int2(12,22)
-#define ALPASS_CCSTRIP                   int2(0,24)
-#define ALPASS_CCLIGHTS                  int2(0,25)
-#define ALPASS_AUTOCORRELATOR            int2(0,27)
+#define ALPASS_DFT                      int2(0,4)
+#define ALPASS_WAVEFORM                 int2(0,6)
+#define ALPASS_AUDIOLINK                int2(0,0)
+#define ALPASS_AUDIOBASS                int2(0,0)
+#define ALPASS_AUDIOLOWMIDS             int2(0,1)
+#define ALPASS_AUDIOHIGHMIDS            int2(0,2)
+#define ALPASS_AUDIOTREBLE              int2(0,3)
+#define ALPASS_AUDIOLINKHISTORY         int2(1,0)
+#define ALPASS_GENERALVU                int2(0,22)
+#define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
+#define ALPASS_CCINTERNAL               int2(12,22)
+#define ALPASS_CCSTRIP                  int2(0,24)
+#define ALPASS_CCLIGHTS                 int2(0,25)
+#define ALPASS_AUTOCORRELATOR           int2(0,27)
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
-#define AUDIOLINK_SAMPHIST 3069 //Internal use for algos, do not change.
-#define AUDIOLINK_SAMPLEDATA24 2046
-#define AUDIOLINK_EXPBINS 24
-#define AUDIOLINK_EXPOCT 10
-#define AUDIOLINK_ETOTALBINS (AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT)
-#define AUDIOLINK_WIDTH  128
-#define AUDIOLINK_SPS 48000         // Samples per second
-#define AUDIOLINK_ROOTNOTE 0
-#define AUDIOLINK_4BAND_FREQFLOOR 0.123
-#define AUDIOLINK_4BAND_FREQCEILING 1
+#define AUDIOLINK_SAMPHIST              3069        // Internal use for algos, do not change.
+#define AUDIOLINK_SAMPLEDATA24          2046
+#define AUDIOLINK_EXPBINS               24
+#define AUDIOLINK_EXPOCT                10
+#define AUDIOLINK_ETOTALBINS            (AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT)
+#define AUDIOLINK_WIDTH                 128
+#define AUDIOLINK_SPS                   48000       // Samples per second
+#define AUDIOLINK_ROOTNOTE              0
+#define AUDIOLINK_4BAND_FREQFLOOR       0.123
+#define AUDIOLINK_4BAND_FREQCEILING     1
+#define AUDIOLINK_BOTTOM_FREQUENCY      13.75
+#define AUDIOLINK_BASE_AMPLITUDE        2.5
+#define AUDIOLINK_DELAY_COEFFICIENT_MIN 0.3
+#define AUDIOLINK_DELAY_COEFFICIENT_MAX 0.9
+#define AUDIOLINK_DFT_Q                 4.0
+#define AUDIOLINK_TREBLE_CORRECTION     5.0
 
 // ColorChord constants
-#define COLORCHORD_EMAXBIN          192
-#define COLORCHORD_IIR_DECAY_1      0.90
-#define COLORCHORD_IIR_DECAY_2      0.85
-#define COLORCHORD_CONSTANT_DECAY_1 0.01
-#define COLORCHORD_CONSTANT_DECAY_2 0.0
-#define COLORCHORD_NOTE_CLOSEST     3.0
-#define COLORCHORD_NEW_NOTE_GAIN    8.0
-#define COLORCHORD_MAX_NOTES        10
+#define COLORCHORD_EMAXBIN              192
+#define COLORCHORD_IIR_DECAY_1          0.90
+#define COLORCHORD_IIR_DECAY_2          0.85
+#define COLORCHORD_CONSTANT_DECAY_1     0.01
+#define COLORCHORD_CONSTANT_DECAY_2     0.0
+#define COLORCHORD_NOTE_CLOSEST         3.0
+#define COLORCHORD_NEW_NOTE_GAIN        8.0
+#define COLORCHORD_MAX_NOTES            10
 
 // We use glsl_mod for most calculations because it behaves better
 // on negative numbers, and in some situations actually outperforms
