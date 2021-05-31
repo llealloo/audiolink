@@ -191,9 +191,11 @@ Shader "AudioLink/AudioLink"
                     incomingGain *= 1. / (lastAutoGain.x + _AutogainDerate);
                 }
 
-                // Downsampled to 24k and 12k samples per second by averaging
+                // Downsampled to 24k and 12k samples per second by averaging, limiting frame to prevent overflow
+                frame = min(frame, 2047);
                 float downSample24 = (_AudioFrames[frame * 2] + _AudioFrames[frame * 2 + 1]) / 2.;
-                float downSample12 = (_AudioFrames[frame * 4 + 0] + _AudioFrames[frame * 4 + 1] + _AudioFrames[frame * 4 + 2] + _AudioFrames[frame * 2 + 3]) / 4.;
+                frame = min(frame, 1023);
+                float downSample12 = (_AudioFrames[frame * 4] + _AudioFrames[frame * 4 + 1] + _AudioFrames[frame * 4 + 2] + _AudioFrames[frame * 4 + 3]) / 4.;
 
                 return float4(downSample24, _AudioFrames[frame], downSample12, 1) * incomingGain;
             }
