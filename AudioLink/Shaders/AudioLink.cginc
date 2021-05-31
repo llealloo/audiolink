@@ -129,13 +129,13 @@ float3 CCHSVtoRGB(float3 HSV)
     return RGB + M;
 }
 
-float3 CCtoRGB(float bin, float intensity, int RootNote)
+float3 CCtoRGB(float bin, float intensity, int rootNote)
 {
     float note = bin / AUDIOLINK_EXPBINS;
 
     float hue = 0.0;
     note *= 12.0;
-    note = glsl_mod(4. - note + RootNote, 12.0);
+    note = glsl_mod(4. - note + rootNote, 12.0);
     {
         if(note < 4.0)
         {
@@ -168,9 +168,9 @@ float3 CCtoRGB(float bin, float intensity, int RootNote)
 // A basic versino of the debug screen without text was only 134
 // instructions.
 
-float PrintChar(uint selchar, float2 mxy, float2 softness)
+float PrintChar(uint selChar, float2 charUV, float2 softness)
 {
-    const static uint BitmapNumberFont[40] = {
+    const static uint bitmapNumberFont[40] = {
         15379168,  // '0' 1110 1010 1010 1010 1110 0000
         4473920,   // '1' 0100 0100 0100 0100 0100 0000
         14870752,  // '2' 1110 0010 1110 1000 1110 0000
@@ -212,7 +212,7 @@ float PrintChar(uint selchar, float2 mxy, float2 softness)
         14829792,  // 'Z' 1110 0010 0100 1000 1110 0000
         658144     // ':)'0000 1010 0000 1010 1110 0000
     };
-    const static uint BitmapNumberFontPartial[40] = {
+    const static uint bitmapNumberFontPartial[40] = {
         15379168,  // '0' 1110 1010 1010 1010 1110 0000
         4473920,   // '1' 0100 0100 0100 0100 0100 0000
         14870752,  // '2' 1110 0010 1110 1000 1110 0000
@@ -255,42 +255,32 @@ float PrintChar(uint selchar, float2 mxy, float2 softness)
         657984     // ':)'0000 1010 0000 1010 0100 0000
     };
 
-    uint bitmap = BitmapNumberFont[selchar];
-    uint bitmappartial = BitmapNumberFontPartial[selchar];
-    if(0)
-    {
-        // Ugly, line-drawing
-        int2 lumx = mxy;
-        return ((bitmap >> (lumx.x+lumx.y*4)) & 1)?1.0:0.0;
-    }
-    else
-    {
-        // Smooth style drawing.
-        int2 lumx = mxy;
-        int index = lumx.x + lumx.y * 4;
-        int4 tolerp = (int4(
-            ((bitmap >> (index + 0))),
-            ((bitmap >> (index + 1))),
-            ((bitmap >> (index + 4))),
-            ((bitmap >> (index + 5))) ) & 1)
-            +
-            (int4(
-            ((bitmappartial >> (index + 0))),
-            ((bitmappartial >> (index + 1))),
-            ((bitmappartial >> (index + 4))),
-            ((bitmappartial >> (index + 5))) ) & 1)
-            ;
-        float2 shift = smoothstep(0, 1, frac(mxy));
-        float ov = lerp(
-            lerp(tolerp.x, tolerp.y, shift.x),
-            lerp(tolerp.z, tolerp.w, shift.x), shift.y) / 2.;
-        return saturate(ov * softness - softness/2);
-    }
+    uint bitmap = bitmapNumberFont[selChar];
+    uint bitmapPartial = bitmapNumberFontPartial[selChar];
+    int2 charXY = charUV;
+    int index = charXY.x + charXY.y * 4;
+    int4 neighbors = 
+        (int4(
+        (bitmap >> (index + 0)),
+        (bitmap >> (index + 1)),
+        (bitmap >> (index + 4)),
+        (bitmap >> (index + 5))) & 1)
+        +
+        (int4(
+        (bitmapPartial >> (index + 0)),
+        (bitmapPartial >> (index + 1)),
+        (bitmapPartial >> (index + 4)),
+        (bitmapPartial >> (index + 5))) & 1);
+    float2 shift = smoothstep(0, 1, frac(charUV));
+    float o = lerp(
+        lerp(neighbors.x, neighbors.y, shift.x),
+        lerp(neighbors.z, neighbors.w, shift.x), shift.y) / 2.;
+    return saturate(o * softness - softness / 2);
 }
 
 
 // Used for debugging
-float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 mxy, int offset, bool leadzero, float2 softness)
+float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, int offset, bool leadzero, float2 softness)
 {
     uint selnum;
     if(number < 0 && digit == 0)
@@ -328,6 +318,6 @@ float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 mxy, int
         }
     }
 
-    return PrintChar(selnum, mxy, softness);
+    return PrintChar(selnum, charUV, softness);
 }
 
