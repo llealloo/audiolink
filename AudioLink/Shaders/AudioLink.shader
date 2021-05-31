@@ -142,14 +142,14 @@ Shader "AudioLink/AudioLink"
 
                 float4 last = GetSelfPixelData(coordinateGlobal);
 
-                int note = coordinateLocal.y * 128 + coordinateLocal.x;
+                int note = coordinateLocal.y * AUDIOLINK_WIDTH + coordinateLocal.x;
 
                 float2 ampl = 0.;
                 float pha = 0;
                 float phadelta = pow(2, (note)/((float)EXPBINS));
                 phadelta *= _BottomFrequency;
                 phadelta /= _SamplesPerSecond;
-                phadelta *= 3.1415926 * 2.0;
+                phadelta *= UNITY_TWO_PI;
                 float integraldec = 0.;
                 float totalwindow = 0;
 
@@ -167,7 +167,7 @@ Shader "AudioLink/AudioLink"
                     //Method 1: Convolve entire incoming waveform.
                     
                     float HalfWindowSize;
-                    HalfWindowSize = (Q)/(phadelta/(3.1415926*2.0));
+                    HalfWindowSize = (Q)/(phadelta/UNITY_TWO_PI);
 
                     int windowrange = floor(HalfWindowSize)+1;
                     uint idx;
@@ -179,7 +179,7 @@ Shader "AudioLink/AudioLink"
                     {
                         // XXX TODO: Try better windows, this is just a triangle.
                         float window = max(0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize)));
-                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx%128, idx/128)).r;
+                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
                         
                         //Sin and cosine components to convolve.
                         float2 sc; sincos(pha, sc.x, sc.y);
@@ -200,7 +200,7 @@ Shader "AudioLink/AudioLink"
                     float fvpha;
                     int place;
 
-                    #define WINDOWSIZE (6.28*_DFTQ)
+                    #define WINDOWSIZE (UNITY_TWO_PI*_DFTQ)
                     #define STEP 0.06
                     #define EXTENT ((int)(WINDOWSIZE/STEP))
                     float invphaadv = STEP / phadelta;
@@ -214,8 +214,8 @@ Shader "AudioLink/AudioLink"
                         float2 sc; sincos( fvpha, sc.x, sc.y );
                         float window = WINDOWSIZE - abs(fvpha);
 
-                        uint idx = round(clamp(fra, 0, 2046));
-                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx%128, idx/128)).r;
+                        uint idx = round(clamp(fra, 0, SAMPLEDATA24));
+                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
 
                         // Step through, one sample at a time, multiplying the sin
                         // and cos values by the incoming signal.
@@ -268,7 +268,7 @@ Shader "AudioLink/AudioLink"
                 if(guv.x < 0)
                     return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0]; // slick, thanks @lox9973
 
-                uint frame = coordinateLocal.x + coordinateLocal.y * 128;
+                uint frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
                 if(frame >= SAMPHIST) frame = SAMPHIST - 1; //Prevent overflow.
 
                 //Uncomment to enable debugging of where on the CRT this pass is.
@@ -323,7 +323,7 @@ Shader "AudioLink/AudioLink"
                     float threshold = audioThresholds[band];
                     for (uint i=binStart; i<binEnd; i++)
                     {
-                        int2 spectrumCoord = int2(i % 128, i / 128);
+                        int2 spectrumCoord = int2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH);
                         float rawMagnitude = GetSelfPixelData(ALPASS_DFT + spectrumCoord).g;
                         //rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / totalBins);
                         total += rawMagnitude;
@@ -374,12 +374,12 @@ Shader "AudioLink/AudioLink"
                 // Only VU over 768 12kSPS samples
                 for( i = 0; i < 768; i++ )
                 {
-                    float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(i%128, i/128)).b;
+                    float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
                     total += af*af;
                     Peak = max(Peak, abs(af));
                 }
 
-                float PeakRMS = sqrt( total / i );
+                float PeakRMS = sqrt(total / i);
                 float4 MarkerValue = GetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
                 float4 MarkerTimes = GetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
                 float4 LastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
@@ -534,7 +534,6 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START(ALPASS_CCINTERNAL)
                 uint i;
 
-                #define CCMAXNOTES 10
                 #define EMAXBIN 192
                 #define EBASEBIN 24
                 
@@ -584,7 +583,7 @@ Shader "AudioLink/AudioLink"
                 float This = GetSelfPixelData(ALPASS_DFT + uint2(1 + EBASEBIN, 0)).b;
                 for(i = EBASEBIN+2; i < EMAXBIN; i++)
                 {
-                    float Next = GetSelfPixelData(ALPASS_DFT + uint2(i % 128, i / 128)).b;
+                    float Next = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
                     if(This > Last && This > Next && This > NOTE_MINIMUM)
                     {
                         //Find actual peak by looking ahead and behind.
@@ -815,9 +814,9 @@ Shader "AudioLink/AudioLink"
                 // as well as a uncorrelated autocorrelator in the G channel
                 for(i = EBASEBIN; i < EMAXBIN; i++)
                 {
-                    float Bin = GetSelfPixelData(ALPASS_DFT + uint2( i%128, i/128)).b;
-                    float freq = pow(2, i/24.) * _BottomFrequency / _SamplesPerSecond * 3.14159 * 2.;
-                    float2 csv = float2(cos(freq * PlaceInWave * fvr ), cos(freq * PlaceInWave * fvr + i * .32));
+                    float Bin = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    float freq = pow(2, i/24.) * _BottomFrequency / _SamplesPerSecond * UNITY_TWO_PI;
+                    float2 csv = float2(cos(freq * PlaceInWave * fvr),  cos(freq * PlaceInWave * fvr + i * .32));
                     csv.g *= step(i % 4, 1) * 4.;
                     fvtot += csv * (Bin * Bin);
                 }
