@@ -7,7 +7,7 @@ Shader "AudioLink/AudioLink"
     Properties
     {
         // Phase 3 (AudioLink 4 Band)
-        _Gain("Gain", Range(0 , 2)) = 1.0
+        _Gain("Gain", Range(0, 2)) = 1.0
 
         _FadeLength("Fade Length", Range(0 , 1)) = 0.8
         _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3
@@ -44,16 +44,16 @@ Shader "AudioLink/AudioLink"
             CGINCLUDE
 
             #if UNITY_UV_STARTS_AT_TOP
-            #define AUDIO_LINK_ALPHA_START( BASECOORDY ) \
+            #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
-                uint2 coordinateGlobal = round( guv/_SelfTexture2D_TexelSize.xy - 0.5 ); \
-                uint2 coordinateLocal = uint2( coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y );
+                uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
+                uint2 coordinateLocal = uint2(coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y);
             #else
-            #define AUDIO_LINK_ALPHA_START( BASECOORDY ) \
+            #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
                 guv.y = 1.-guv.y; \
-                uint2 coordinateGlobal = round( guv/_SelfTexture2D_TexelSize.xy - 0.5 ); \
-                uint2 coordinateLocal = uint2( coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y );
+                uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
+                uint2 coordinateLocal = uint2(coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y);
             #endif
 
             #pragma target 4.0
@@ -113,8 +113,6 @@ Shader "AudioLink/AudioLink"
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
 
-            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
-
             ENDCG
 
             Name "Pass1AudioDFT"
@@ -137,18 +135,18 @@ Shader "AudioLink/AudioLink"
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_DFT )
+                AUDIO_LINK_ALPHA_START(ALPASS_DFT)
 
                 //Uncomment to enable debugging of where on the CRT this pass is.
-                //return float4( coordinateLocal, 0., 1. );
+                //return float4(coordinateLocal, 0., 1.);
 
-                float4 last = GetSelfPixelData( coordinateGlobal );
+                float4 last = GetSelfPixelData(coordinateGlobal);
 
                 int note = coordinateLocal.y * AUDIOLINK_WIDTH + coordinateLocal.x;
 
                 float2 ampl = 0.;
                 float pha = 0;
-                float phadelta = pow( 2, (note)/((float)EXPBINS) );
+                float phadelta = pow(2, (note)/((float)EXPBINS));
                 phadelta *= _BottomFrequency;
                 phadelta /= _SamplesPerSecond;
                 phadelta *= UNITY_TWO_PI;
@@ -164,7 +162,7 @@ Shader "AudioLink/AudioLink"
                 // This determines the narrowness of our peaks.
                 float Q = _DFTQ;
 
-                if( _DFTMode < 1.0 )
+                if(_DFTMode < 1.0)
                 {
                     //Method 1: Convolve entire incoming waveform.
                     
@@ -180,11 +178,11 @@ Shader "AudioLink/AudioLink"
                     for( idx = 0; idx < SAMPHIST / 2; idx++ )
                     {
                         // XXX TODO: Try better windows, this is just a triangle.
-                        float window = max( 0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize) ) );
-                        float af = GetSelfPixelData( ALPASS_WAVEFORM + uint2( idx%AUDIOLINK_WIDTH, idx/AUDIOLINK_WIDTH ) ).r;
+                        float window = max(0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize)));
+                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
                         
                         //Sin and cosine components to convolve.
-                        float2 sc; sincos( pha, sc.x, sc.y );
+                        float2 sc; sincos(pha, sc.x, sc.y);
 
                         // Step through, one sample at a time, multiplying the sin
                         // and cos values by the incoming signal.
@@ -216,8 +214,8 @@ Shader "AudioLink/AudioLink"
                         float2 sc; sincos( fvpha, sc.x, sc.y );
                         float window = WINDOWSIZE - abs(fvpha);
 
-                        uint idx = round( clamp( fra, 0, SAMPLEDATA24 ) );
-                        float af = GetSelfPixelData( ALPASS_WAVEFORM + uint2( idx%AUDIOLINK_WIDTH, idx/AUDIOLINK_WIDTH ) ).r;
+                        uint idx = round(clamp(fra, 0, SAMPLEDATA24));
+                        float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
 
                         // Step through, one sample at a time, multiplying the sin
                         // and cos values by the incoming signal.
@@ -228,7 +226,7 @@ Shader "AudioLink/AudioLink"
                         totalwindow += window;
                     }
                 }
-                float mag = length( ampl );
+                float mag = length(ampl);
                 mag /= totalwindow;
                 mag *= _BaseAmplitude * _Gain;
 
@@ -264,20 +262,20 @@ Shader "AudioLink/AudioLink"
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_WAVEFORM )
+                AUDIO_LINK_ALPHA_START(ALPASS_WAVEFORM)
 
                 //XXX Hack: Force the compiler to keep Samples0 and Samples1.
                 if(guv.x < 0)
                     return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0]; // slick, thanks @lox9973
 
                 uint frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
-                if( frame >= SAMPHIST ) frame = SAMPHIST-1; //Prevent overflow.
+                if(frame >= SAMPHIST) frame = SAMPHIST - 1; //Prevent overflow.
 
                 //Uncomment to enable debugging of where on the CRT this pass is.
                 //return float4( frame/1000., coordinateLocal/10., 1. );
 
                 float Blue = 0;
-                if( frame*4 < SAMPHIST )
+                if(frame*4 < SAMPHIST)
                     Blue = (_AudioFrames[frame*4+0] + _AudioFrames[frame*4+1] + _AudioFrames[frame*4+2] + _AudioFrames[frame*2+3])/4.;
                 
                 float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
@@ -285,7 +283,7 @@ Shader "AudioLink/AudioLink"
                 // Enable/Disable autogain.
                 if( _EnableAutogain )
                 {
-                    float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
+                    float4 LastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
                     //Divide by the running volume.
                     incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
@@ -293,10 +291,10 @@ Shader "AudioLink/AudioLink"
                 
 
                 return float4( 
-                    (_AudioFrames[frame*2+0] + _AudioFrames[frame*2+1])/2., //RED: 24kSPS
-                    _AudioFrames[frame],      //Green: 48kSPS
-                    Blue,      //Blue:  12kSPS 
-                    1 ) * incomingGain;
+                    (_AudioFrames[frame * 2 + 0] + _AudioFrames[frame * 2 + 1]) / 2.,   //RED: 24kSPS
+                    _AudioFrames[frame],                                                //Green: 48kSPS
+                    Blue,                                                               //Blue:  12kSPS 
+                    1) * incomingGain;
             }
             ENDCG
         }
@@ -306,10 +304,9 @@ Shader "AudioLink/AudioLink"
             Name "Pass3AudioLink4Band"
             CGPROGRAM
 
-
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_AUDIOLINK )
+                AUDIO_LINK_ALPHA_START(ALPASS_AUDIOLINK)
 
                 float audioBands[4] = {_X0, _X1, _X2, _X3};
                 float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
@@ -342,7 +339,7 @@ Shader "AudioLink/AudioLink"
                     // Fade
                     float lastMagnitude = GetSelfPixelData(ALPASS_AUDIOLINK + int2(0, band)).g;
                     lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);                                                                            // Inverse cubic remap
-                    lastMagnitude = saturate(lastMagnitude * (1.0 + ( pow(lastMagnitude - 1.0, 4.0) * _FadeExpFalloff) - _FadeExpFalloff));     // Exp falloff
+                    lastMagnitude = saturate(lastMagnitude * (1.0 + (pow(lastMagnitude - 1.0, 4.0) * _FadeExpFalloff) - _FadeExpFalloff));     // Exp falloff
 
                     magnitude = max(lastMagnitude, magnitude);
 
@@ -368,7 +365,7 @@ Shader "AudioLink/AudioLink"
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_GENERALVU )
+                AUDIO_LINK_ALPHA_START(ALPASS_GENERALVU)
                 uint i;
 
                 float total = 0;
@@ -377,108 +374,108 @@ Shader "AudioLink/AudioLink"
                 // Only VU over 768 12kSPS samples
                 for( i = 0; i < 768; i++ )
                 {
-                    float af = GetSelfPixelData( ALPASS_WAVEFORM + uint2( i%AUDIOLINK_WIDTH, i/AUDIOLINK_WIDTH ) ).b;
+                    float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
                     total += af*af;
-                    Peak = max( Peak, abs( af ) );
+                    Peak = max(Peak, abs(af));
                 }
 
-                float PeakRMS = sqrt( total / i );
-                float4 MarkerValue = GetSelfPixelData( ALPASS_GENERALVU + int2( 9, 0 ) );
-                float4 MarkerTimes = GetSelfPixelData( ALPASS_GENERALVU + int2( 10, 0 ) );
-                float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
+                float PeakRMS = sqrt(total / i);
+                float4 MarkerValue = GetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
+                float4 MarkerTimes = GetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
+                float4 LastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
                 float Time = _Time.y;
                 
-                if( Time - MarkerTimes.x > 1.0 ) MarkerValue.x = -1;
-                if( Time - MarkerTimes.y > 1.0 ) MarkerValue.y = -1;
+                if(Time - MarkerTimes.x > 1.0) MarkerValue.x = -1;
+                if(Time - MarkerTimes.y > 1.0) MarkerValue.y = -1;
                 
-                if( MarkerValue.x < PeakRMS )
+                if(MarkerValue.x < PeakRMS)
                 {
                     MarkerValue.x = PeakRMS;
                     MarkerTimes.x = Time;
                 }
 
-                if( MarkerValue.y < Peak )
+                if(MarkerValue.y < Peak)
                 {
                     MarkerValue.y = Peak;
                     MarkerTimes.y = Time;
                 }
 
-                if( coordinateLocal.x >= 8 )
+                if(coordinateLocal.x >= 8)
                 {
-                    if( coordinateLocal.x == 8 )
+                    if(coordinateLocal.x == 8)
                     {
                         //First pixel: Current value.
-                        return float4( PeakRMS, Peak, 0, 1. );
+                        return float4(PeakRMS, Peak, 0, 1.);
                     }
-                    else if( coordinateLocal.x == 9 )
+                    else if(coordinateLocal.x == 9)
                     {
                         //Second pixel: Limit Output
                         return MarkerValue;
                     }
-                    else if( coordinateLocal.x == 10 )
+                    else if(coordinateLocal.x == 10)
                     {
                         //Second pixel: Limit Time
                         return MarkerTimes;
                     }
-                    else if( coordinateLocal.x == 11 )
+                    else if(coordinateLocal.x == 11)
                     {
                         //Third pixel: Auto Gain / Volume Monitor for ColorChord
                         
                         //Compensate for the fact that we've already gain'd our samples.
-                        float deratePeak = Peak / ( LastAutogain.x + _AutogainDerate );
+                        float deratePeak = Peak / (LastAutogain.x + _AutogainDerate);
                         
-                        if( deratePeak > LastAutogain.x )
+                        if(deratePeak > LastAutogain.x)
                         {
-                            LastAutogain.x = lerp( deratePeak, LastAutogain.x, .5 ); //Make attack quick
+                            LastAutogain.x = lerp(deratePeak, LastAutogain.x, .5); //Make attack quick
                         }
                         else
                         {
-                            LastAutogain.x = lerp( deratePeak, LastAutogain.x, .995 ); //Make decay long.
+                            LastAutogain.x = lerp(deratePeak, LastAutogain.x, .995); //Make decay long.
                         }
                         
-                        LastAutogain.y = lerp( Peak, LastAutogain.y, 0.95 );
+                        LastAutogain.y = lerp(Peak, LastAutogain.y, 0.95);
                         return LastAutogain;
                     }
                 }
                 else
                 {
-                    if( coordinateLocal.x == 0 )
+                    if(coordinateLocal.x == 0)
                     {
                         //Pixel 0 = Version
                         return _VersionNumberAndFPSProperty;
                     }
-                    else if( coordinateLocal.x == 1 )
+                    else if(coordinateLocal.x == 1)
                     {
                         //Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
                         // Note: This is also used to measure FPS.
                         
-                        float4 lastval = GetSelfPixelData( ALPASS_GENERALVU + int2( 1, 0 ) );
+                        float4 lastval = GetSelfPixelData(ALPASS_GENERALVU + int2(1, 0 ));
                         float framecount = lastval.r;
                         float framecountfps = lastval.g;
                         float framecountlastfps = lastval.b;
                         float lasttimefps = lastval.a;
                         framecount++;
-                        if( framecount >= 7776000 ) //~24 hours.
+                        if(framecount >= 7776000) //~24 hours.
                             framecount = 0;
                             
                         framecountfps++;
 
                         // See if we've been reset.
-                        if( lasttimefps > _Time.y )
+                        if(lasttimefps > _Time.y)
                         {
                             lasttimefps = 0;
                         }
 
                         // After one second, take the running FPS and present it as the now FPS.
-                        if( _Time.y > lasttimefps + 1 )
+                        if(_Time.y > lasttimefps + 1)
                         {
                             framecountlastfps = framecountfps;
                             framecountfps = 0;
                             lasttimefps = _Time.y;
                         }
-                        return float4( framecount, framecountfps, framecountlastfps, lasttimefps );
+                        return float4(framecount, framecountfps, framecountlastfps, lasttimefps);
                     }
-                    else if( coordinateLocal.x == 2 )
+                    else if(coordinateLocal.x == 2)
                     {
                         // Output of this is daytime, in milliseconds
                         // as an int.  But, we only have half4's.
@@ -491,20 +488,20 @@ Shader "AudioLink/AudioLink"
                         uint dtms = _AdvancedTimeProps.x * 1000;
                         uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms>>10);
                         return float4(
-                            (float)( dtms & 0x3ff ),
-                            (float)( (dtms2) & 0x3ff ),
-                            (float)( (dtms2 >> 10 ) & 0x3ff ),
-                            (float)( (dtms2 >> 20 ) & 0x3ff )
+                            (float)(dtms & 0x3ff),
+                            (float)((dtms2) & 0x3ff),
+                            (float)((dtms2 >> 10) & 0x3ff),
+                            (float)((dtms2 >> 20) & 0x3ff)
                             );
                     }
-                    else if( coordinateLocal.x == 3 )
+                    else if(coordinateLocal.x == 3)
                     {
-                        int ftpa = _AdvancedTimeProps.z*1000.;
-                        return float4( ftpa & 0x3ff, (ftpa>>10)&0x3ff,(ftpa>>20),0);
+                        int ftpa = _AdvancedTimeProps.z * 1000.;
+                        return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20), 0);
                     }
-                    else if( coordinateLocal.x == 4 )
+                    else if(coordinateLocal.x == 4)
                     {
-                        return float4( 0, 0, 0, 0 );
+                        return float4(0, 0, 0, 0);
                     }
                 }
 
@@ -522,11 +519,11 @@ Shader "AudioLink/AudioLink"
             float _PeakCloseEnough;
             float _PeakMinium;
             
-            float NoteWrap( float Note1, float Note2 )
+            float NoteWrap(float Note1, float Note2)
             {
                 float diff = Note2 - Note1;
-                diff = glsl_mod( diff, EXPBINS );
-                if( diff > EXPBINS/2 )
+                diff = glsl_mod(diff, EXPBINS);
+                if(diff > EXPBINS/2)
                     return diff - EXPBINS;
                 else
                     return diff;
@@ -534,13 +531,13 @@ Shader "AudioLink/AudioLink"
             
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_CCINTERNAL )
+                AUDIO_LINK_ALPHA_START(ALPASS_CCINTERNAL)
                 uint i;
 
                 #define EMAXBIN 192
                 #define EBASEBIN 24
                 
-                float VUAmplitudeNow = GetSelfPixelData( ALPASS_GENERALVU + int2( 8, 0 ) ).y * _Gain;
+                float VUAmplitudeNow = GetSelfPixelData(ALPASS_GENERALVU + int2(8, 0)).y * _Gain;
                 float NOTE_MINIMUM = 0.00 + 0.1 * VUAmplitudeNow;
                 
                 static const float NOTECLOSEST = 3.0;
@@ -573,35 +570,35 @@ Shader "AudioLink/AudioLink"
                 float4 Notes[CCMAXNOTES];
                 float4 NotesB[CCMAXNOTES];
 
-                for( i = 0; i < CCMAXNOTES; i++ )
+                for(i = 0; i < CCMAXNOTES; i++)
                 {
-                    NotesB[i] = GetSelfPixelData( ALPASS_CCINTERNAL + uint2( i+1, 1 ) );
-                    Notes[i] =  GetSelfPixelData( ALPASS_CCINTERNAL + uint2( i+1, 0 ) ) * float4( 1, 0, 1, 1 );
+                    NotesB[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 1));
+                    Notes[i] =  GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 0)) * float4(1, 0, 1, 1);
                 }
 
-                float4 NoteSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
-                float4 NoteSummaryB = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 0, 1 ) );
+                float4 NoteSummary = GetSelfPixelData(ALPASS_CCINTERNAL);
+                float4 NoteSummaryB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(0, 1));
 
-                float Last = GetSelfPixelData( ALPASS_DFT + uint2( EBASEBIN, 0 ) ).b;
-                float This = GetSelfPixelData( ALPASS_DFT + uint2( 1+EBASEBIN, 0 ) ).b;
-                for( i = EBASEBIN+2; i < EMAXBIN; i++ )
+                float Last = GetSelfPixelData(ALPASS_DFT + uint2(EBASEBIN, 0)).b;
+                float This = GetSelfPixelData(ALPASS_DFT + uint2(1 + EBASEBIN, 0)).b;
+                for(i = EBASEBIN+2; i < EMAXBIN; i++)
                 {
-                    float Next = GetSelfPixelData( ALPASS_DFT + uint2( i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH ) ).b;
-                    if( This > Last && This > Next && This > NOTE_MINIMUM )
+                    float Next = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    if(This > Last && This > Next && This > NOTE_MINIMUM)
                     {
                         //Find actual peak by looking ahead and behind.
                         float DiffA = This - Next;
                         float DiffB = This - Last;
-                        float NoteFreq = glsl_mod( i - 1, EXPBINS );
-                        if( DiffA < DiffB )
+                        float NoteFreq = glsl_mod(i - 1, EXPBINS);
+                        if(DiffA < DiffB)
                         {
                             //Behind
-                            NoteFreq -= 1.-DiffA/DiffB; //Ratio must be between 0 .. 0.5
+                            NoteFreq -= 1. - DiffA / DiffB; //Ratio must be between 0 .. 0.5
                         }
                         else
                         {
                             //Ahead
-                            NoteFreq += 1.-DiffB/DiffA;
+                            NoteFreq += 1. - DiffB / DiffA;
                         }
                         
 
@@ -612,15 +609,15 @@ Shader "AudioLink/AudioLink"
                                                 
                         // Search notes to see what the closest note to this peak is.
                         // also look for any empty notes.
-                        for( j = 0; j < CCMAXNOTES; j++ )
+                        for(j = 0; j < CCMAXNOTES; j++)
                         {
-                            float dist = abs( NoteWrap( Notes[j].x, NoteFreq ) );
-                            if( Notes[j].z <= 0 )
+                            float dist = abs(NoteWrap(Notes[j].x, NoteFreq));
+                            if(Notes[j].z <= 0)
                             {
-                                if( free_note == -1 )
+                                if(free_note == -1)
                                     free_note = j;
                             }
-                            else if( dist < closest_note_distance )
+                            else if(dist < closest_note_distance)
                             {
                                 closest_note_distance = dist;
                                 closest_note = j;
@@ -629,16 +626,16 @@ Shader "AudioLink/AudioLink"
                         
                         float ThisIntensity = This*_NewNoteGain;
                         
-                        if( closest_note != -1 )
+                        if(closest_note != -1)
                         {
                             float4 n = Notes[closest_note];
                             // Note to combine peak to has been found, roll note in.
                             
-                            float drag = NoteWrap( n.x, NoteFreq ) * 0.05;
+                            float drag = NoteWrap(n.x, NoteFreq) * 0.05;
 
                             //float2 newn = max( n.yz, ThisIntensity.xx  );
                             
-                            float mn = max( n.y, This * _NewNoteGain )
+                            float mn = max(n.y, This * _NewNoteGain)
                                 // Technically the above is incorrect without the below, additional notes found should controbute.
                                 // But I'm finding it looks better w/o it.  Well, the 0.3 is arbitrary.  But, it isn't right to
                                 // only take max.
@@ -646,7 +643,7 @@ Shader "AudioLink/AudioLink"
                                 ;
                             Notes[closest_note] = float4( n.x + drag, mn, n.z, n.a );
                         }
-                        else if( free_note != -1 )
+                        else if(free_note != -1)
                         {
 
                             int jc = 0;
@@ -655,21 +652,21 @@ Shader "AudioLink/AudioLink"
                             // but I really wanted to make sure all note IDs are unique
                             // in case another tool would care about the uniqueness.
                             [loop]
-                            for( ji = 0; ji < CCMAXNOTES && jc != CCMAXNOTES; ji++ )
+                            for(ji = 0; ji < CCMAXNOTES && jc != CCMAXNOTES; ji++)
                             {
                                 NoteSummaryB.x = NoteSummaryB.x + 1;
-                                if( NoteSummaryB.x > 1023 ) NoteSummaryB.x = 0;
+                                if(NoteSummaryB.x > 1023) NoteSummaryB.x = 0;
                                 [loop]
-                                for( jc = 0; jc < CCMAXNOTES; jc++ )
+                                for(jc = 0; jc < CCMAXNOTES; jc++)
                                 {
-                                    if( NotesB[jc].x == NoteSummaryB.x )
+                                    if(NotesB[jc].x == NoteSummaryB.x)
                                         break;
                                 }
                             }
 
                             // Couldn't find note.  Create a new note.
-                            Notes[free_note]  = float4( NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity );
-                            NotesB[free_note] = float4( NoteSummaryB.x, unity_DeltaTime.x, 0, 0 );
+                            Notes[free_note]  = float4(NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity);
+                            NotesB[free_note] = float4(NoteSummaryB.x, unity_DeltaTime.x, 0, 0);
                         }
                         else
                         {
@@ -685,7 +682,7 @@ Shader "AudioLink/AudioLink"
                 NewNoteSummaryB.y = _RootNote;
 
                 [loop]
-                for( i = 0; i < CCMAXNOTES; i++ )
+                for(i = 0; i < CCMAXNOTES; i++)
                 {
                     uint j;
                     float4 n1 = Notes[i];
@@ -693,45 +690,45 @@ Shader "AudioLink/AudioLink"
 
                     
                     [loop]
-                    for( j = 0; j < CCMAXNOTES; j++ )
+                    for(j = 0; j < CCMAXNOTES; j++)
                     {
                         // 🤮 Shader compiler can't do triangular loops.
                         // We don't want to iterate over a cube just compare ith and jth note once.
 
                         float4 n2 = Notes[j];
 
-                        if( n2.z > 0 && j > i && n1.z > 0 )
+                        if(n2.z > 0 && j > i && n1.z > 0)
                         {
                             // Potentially combine notes
-                            float dist = abs( NoteWrap( n1.x, n2.x ) );
-                            if( dist < NOTECLOSEST )
+                            float dist = abs(NoteWrap(n1.x, n2.x));
+                            if(dist < NOTECLOSEST)
                             {
                                 //Found combination of notes.  Nil out second.
-                                float drag = NoteWrap( n1.x, n2.x ) * 0.5;//n1.z/(n2.z+n1.y);
-                                n1 = float4( n1.x + drag, n1.y + This, n1.z, n1.a );
+                                float drag = NoteWrap(n1.x, n2.x) * 0.5;//n1.z/(n2.z+n1.y);
+                                n1 = float4(n1.x + drag, n1.y + This, n1.z, n1.a);
 
                                 //n1B unchanged.
 
                                 Notes[j] = 0;
-                                NotesB[j] = float4( i, -1, 0, 0 );
+                                NotesB[j] = float4(i, -1, 0, 0);
                             }
                         }
                     }
                     
                     //Filter n1.z from n1.y.
-                    if( n1.z >= 0 )
+                    if(n1.z >= 0)
                     {
                         // Make sure we're wrapped correctly.
-                        n1.x = glsl_mod( n1.x, EXPBINS );
+                        n1.x = glsl_mod(n1.x, EXPBINS);
                         
                         // Apply filtering
-                        n1.z = lerp( n1.y, n1.z, IIR1_DECAY ) - CONSTANT1_DECAY; //Make decay slow.
-                        n1.w = lerp( n1.y, n1.w, IIR2_DECAY ) - CONSTANT2_DECAY; //Make decay slow.
+                        n1.z = lerp(n1.y, n1.z, IIR1_DECAY) - CONSTANT1_DECAY; //Make decay slow.
+                        n1.w = lerp(n1.y, n1.w, IIR2_DECAY) - CONSTANT2_DECAY; //Make decay slow.
 
                         n1B.y += unity_DeltaTime.x;
 
 
-                        if( n1.z < NOTE_MINIMUM )
+                        if(n1.z < NOTE_MINIMUM)
                         {
                             n1 = -1;
                             n1B = 0;
@@ -739,13 +736,13 @@ Shader "AudioLink/AudioLink"
                         //XXX TODO: Do uniformity calculation on n1 for n1.a.
                     }
 
-                    if( n1.z >= 0 )
+                    if(n1.z >= 0)
                     {
                         // Compute Y to create a "unified" value.  This is good for understanding
                         // the ratio of how "important" this note is.
-                        n1.y = pow( max( n1.z - NOTE_MINIMUM*10, 0 ), 1.5 );
+                        n1.y = pow(max(n1.z - NOTE_MINIMUM*10, 0), 1.5);
                     
-                        NewNoteSummary += float4( 1., n1.y, n1.z, n1.w );
+                        NewNoteSummary += float4(1., n1.y, n1.z, n1.w);
                     }
                     
                     Notes[i] = n1;
@@ -759,38 +756,38 @@ Shader "AudioLink/AudioLink"
                 int sortplace = 0;
                 NewNoteSummaryB.z = 0;
                 [loop]
-                for( i = 0; i < CCMAXNOTES; i++ )
+                for(i = 0; i < CCMAXNOTES; i++)
                 {
                     //Count notes
-                    NewNoteSummaryB.z += (Notes[i].z>0)?1:0;
+                    NewNoteSummaryB.z += (Notes[i].z > 0) ? 1 : 0;
 
                     float ClosestToSlotWithoutGoingOver = 100;
                     int sortid = -1;
                     int j;
-                    for( j = 0; j < CCMAXNOTES; j++ )
+                    for(j = 0; j < CCMAXNOTES; j++)
                     {
                         float4 n2 = Notes[j];
-                        float notefreq = glsl_mod( -Notes[0].x + 0.5 + n2.x , EXPBINS );
-                        if( n2.z > 0 && notefreq > SortedNoteSlotValue && notefreq < ClosestToSlotWithoutGoingOver )
+                        float notefreq = glsl_mod(-Notes[0].x + 0.5 + n2.x , EXPBINS);
+                        if(n2.z > 0 && notefreq > SortedNoteSlotValue && notefreq < ClosestToSlotWithoutGoingOver)
                         {
                             ClosestToSlotWithoutGoingOver = notefreq;
                             sortid = j;
                         }
                     }
                     SortedNoteSlotValue = ClosestToSlotWithoutGoingOver;
-                    NotesB[i] = NotesB[i] * float4( 1, 1, 0, 1 ) + float4( 0, 0, sortid, 0 );
+                    NotesB[i] = NotesB[i] * float4(1, 1, 0, 1) + float4(0, 0, sortid, 0);
                 }
 
                 // We now have a condensed list of all Notes that are playing.
                 if( coordinateLocal.x == 0 )
                 {
                     // Summary note.
-                    return (coordinateLocal.y)?NewNoteSummaryB:NewNoteSummary;
+                    return (coordinateLocal.y) ? NewNoteSummaryB : NewNoteSummary;
                 }
                 else
                 {
                     // Actual Note Data
-                    return (coordinateLocal.y)?NotesB[coordinateLocal.x-1]:Notes[coordinateLocal.x-1];
+                    return (coordinateLocal.y) ? NotesB[coordinateLocal.x - 1] : Notes[coordinateLocal.x - 1];
                 }
             }
             ENDCG
@@ -803,30 +800,28 @@ Shader "AudioLink/AudioLink"
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_AUTOCORRELATOR )
+                AUDIO_LINK_ALPHA_START(ALPASS_AUTOCORRELATOR)
                 uint i;
 
                 #define EMAXBIN 120
                 #define EBASEBIN 0
 
                 float PlaceInWave = (float)coordinateLocal.x;
-
                 float2 fvtot = 0;
-
                 float fvr = 15.;
 
                 // This computes both the regular autocorrelator in the R channel
                 // as well as a uncorrelated autocorrelator in the G channel
-                for( i = EBASEBIN; i < EMAXBIN; i++ )
+                for(i = EBASEBIN; i < EMAXBIN; i++)
                 {
-                    float Bin = GetSelfPixelData( ALPASS_DFT + uint2( i%AUDIOLINK_WIDTH, i/AUDIOLINK_WIDTH ) ).b;
-                    float freq = pow( 2, i/24. ) * _BottomFrequency / _SamplesPerSecond * UNITY_TWO_PI;
-                    float2 csv = float2( cos( freq * PlaceInWave * fvr ),  cos( freq * PlaceInWave * fvr + i * .32 ) );
+                    float Bin = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    float freq = pow(2, i/24.) * _BottomFrequency / _SamplesPerSecond * UNITY_TWO_PI;
+                    float2 csv = float2(cos(freq * PlaceInWave * fvr),  cos(freq * PlaceInWave * fvr + i * .32));
                     csv.g *= step(i % 4, 1) * 4.;
-                    fvtot += csv * (Bin*Bin);
+                    fvtot += csv * (Bin * Bin);
                 }
 
-                return float4( fvtot, 0, 1 );
+                return float4(fvtot, 0, 1);
             }
             ENDCG
         }
@@ -838,35 +833,35 @@ Shader "AudioLink/AudioLink"
             
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_CCSTRIP )
+                AUDIO_LINK_ALPHA_START(ALPASS_CCSTRIP)
 
                 int p;
                 
                 const float Brightness = .3;
                 const float RootNote = 0;
                 
-                float4 NotesSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
+                float4 NotesSummary = GetSelfPixelData(ALPASS_CCINTERNAL);
 
                 float TotalPower = 0.0;
                 TotalPower = NotesSummary.y;
                 
 
                 float PowerPlace = 0.0;
-                for( p = 0; p < CCMAXNOTES; p++ )
+                for(p = 0; p < CCMAXNOTES; p++)
                 {
-                    float4 NotesB = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 1+p, 1 ) );
-                    float4 Peak = GetSelfPixelData( ALPASS_CCINTERNAL + int2( 1+NotesB.z, 0 ) );
-                    if( Peak.y <= 0 ) continue;
+                    float4 NotesB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(1 + p, 1));
+                    float4 Peak = GetSelfPixelData(ALPASS_CCINTERNAL + int2(1 + NotesB.z, 0));
+                    if(Peak.y <= 0) continue;
 
                     float Power = Peak.y/TotalPower;
                     PowerPlace += Power;
-                    if( PowerPlace >= IN.globalTexcoord.x ) 
+                    if(PowerPlace >= IN.globalTexcoord.x) 
                     {
-                        return float4( CCtoRGB( Peak.x, Peak.a*Brightness, _RootNote ), 1.0 );
+                        return float4(CCtoRGB(Peak.x, Peak.a*Brightness, _RootNote), 1.0);
                     }
                 }
                 
-                return float4( 0., 0., 0., 1. );
+                return float4(0., 0., 0., 1.);
             }
             ENDCG
         }
@@ -886,65 +881,63 @@ Shader "AudioLink/AudioLink"
                 return frac(cos(dot(uvw, float3(137.945, 942.32, 593.46))) * 442.5662);
             }
 
-            float SetNewCellValue( float a )
+            float SetNewCellValue(float a)
             {
                 return a*.5;
             }
 
 
-            float4 frag (v2f_customrendertexture IN) : SV_Target
+            float4 frag(v2f_customrendertexture IN) : SV_Target
             {
-                AUDIO_LINK_ALPHA_START( ALPASS_CCLIGHTS )
+                AUDIO_LINK_ALPHA_START(ALPASS_CCLIGHTS)
                 
-                float4 NotesSummary = GetSelfPixelData( ALPASS_CCINTERNAL );
+                float4 NotesSummary = GetSelfPixelData(ALPASS_CCINTERNAL);
                 
-                #define NOTESUFFIX( n ) n.y
-                                //was pow(n.z, 1.5)
-
+                #define NOTESUFFIX(n) n.y       //was pow(n.z, 1.5)
                 
-                float4 ComputeCell = GetSelfPixelData( ALPASS_CCLIGHTS + int2( coordinateLocal.x, 1 ) );
+                float4 ComputeCell = GetSelfPixelData(ALPASS_CCLIGHTS + int2(coordinateLocal.x, 1));
                 //ComputeCell
                 //    .x = Mated Cell # (Or -1 for black)
                 //    .y = Minimum Brightness Before Jump
                 //    .z = ???
                 
-                float4 ThisNote = GetSelfPixelData( ALPASS_CCINTERNAL + int2( ComputeCell.x + 1, 0 ) );
+                float4 ThisNote = GetSelfPixelData(ALPASS_CCINTERNAL + int2(ComputeCell.x + 1, 0));
                 //  Each element:
                 //   R: Peak Location (Note #)
                 //   G: Peak Intensity
                 //   B: Calm Intensity
                 //   A: Other Intensity
                 
-                ComputeCell.y -= _PickNewSpeed*0.01;
+                ComputeCell.y -= _PickNewSpeed * 0.01;
 
 
-                if( NOTESUFFIX( ThisNote ) < ComputeCell.y || ComputeCell.y <= 0 || ThisNote.z < 0 )
+                if(NOTESUFFIX(ThisNote) < ComputeCell.y || ComputeCell.y <= 0 || ThisNote.z < 0)
                 {
                     //Need to select new cell.
-                    float min_to_acquire = tinyrand( float3( coordinateLocal.xy, _Time.x ) );
+                    float min_to_acquire = tinyrand(float3(coordinateLocal.xy, _Time.x));
                     
                     int n;
                     float4 SelectedNote = 0.;
                     int SelectedNoteNo = -1;
                     
                     float cumulative = 0.0;
-                    for( n = 0; n < CCMAXNOTES; n++ )
+                    for(n = 0; n < CCMAXNOTES; n++)
                     {
-                        float4 Note = GetSelfPixelData( ALPASS_CCINTERNAL + int2( n + 1, 0 ) );
-                        float unic = NOTESUFFIX( Note );
-                        if( unic > 0 )
+                        float4 Note = GetSelfPixelData(ALPASS_CCINTERNAL + int2(n + 1, 0));
+                        float unic = NOTESUFFIX(Note);
+                        if(unic > 0)
                             cumulative += unic;
                     }
 
                     float sofar = 0.0;
-                    for( n = 0; n < CCMAXNOTES; n++ )
+                    for(n = 0; n < CCMAXNOTES; n++)
                     {
-                        float4 Note = GetSelfPixelData( ALPASS_CCINTERNAL + int2( n + 1, 0 ) );
-                        float unic = NOTESUFFIX( Note );
+                        float4 Note = GetSelfPixelData(ALPASS_CCINTERNAL + int2(n + 1, 0));
+                        float unic = NOTESUFFIX(Note);
                         if( unic > 0 ) 
                         {
                             sofar += unic;
-                            if( sofar/cumulative > min_to_acquire )
+                            if(sofar/cumulative > min_to_acquire)
                             {
                                 SelectedNote = Note;
                                 SelectedNoteNo = n;
@@ -952,12 +945,11 @@ Shader "AudioLink/AudioLink"
                             }
                         }
                     }
-                    
                 
-                    if( SelectedNote.z > 0.0 )
+                    if(SelectedNote.z > 0.0)
                     {
                         ComputeCell.x = SelectedNoteNo;
-                        ComputeCell.y = SetNewCellValue( NOTESUFFIX(SelectedNote) );
+                        ComputeCell.y = SetNewCellValue(NOTESUFFIX(SelectedNote));
                     }
                     else
                     {
@@ -966,19 +958,19 @@ Shader "AudioLink/AudioLink"
                     }
                 }
                 
-                ThisNote = GetSelfPixelData( ALPASS_CCINTERNAL + int2( ComputeCell.x + 1, 0 ) );
+                ThisNote = GetSelfPixelData(ALPASS_CCINTERNAL + int2(ComputeCell.x + 1, 0));
 
-                if( coordinateLocal.y < 0.5 )
+                if(coordinateLocal.y < 0.5)
                 {
                     // the light color output
-                    if( ComputeCell.y <= 0 )
+                    if(ComputeCell.y <= 0)
                     {
                         return 0.;
                     }
                     
                     //XXX TODO: REVISIT THIS!! Ths is an arbitrary value!
                     float intensity = ThisNote.a/3;
-                    return float4( CCtoRGB( glsl_mod( ThisNote.x,48.0 ), intensity, _RootNote ), 1.0 );
+                    return float4(CCtoRGB(glsl_mod(ThisNote.x,48.0 ),intensity, _RootNote), 1.0);
                 }
                 else
                 {

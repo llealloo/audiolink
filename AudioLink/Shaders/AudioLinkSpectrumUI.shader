@@ -88,7 +88,7 @@ Shader "AudioLink/AudioLinkSpectrumUI"
             float _BandDelayPulse;
             float _BandDelayPulseOpacity;
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -97,23 +97,21 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 return o;
             }
             
-            float4 forcefilt( sampler2D sample, float4 texelsize, float2 uv )
+            float4 forcefilt(sampler2D sample, float4 texelsize, float2 uv)
             {
-                float4 A = tex2D( sample, uv );
-                float4 B = tex2D( sample, uv + float2(texelsize.x, 0 ) );
-                float4 C = tex2D( sample, uv + float2(0, texelsize.y ) );
-                float4 D = tex2D( sample, uv + float2(texelsize.x, texelsize.y ) );
+                float4 A = tex2D(sample, uv);
+                float4 B = tex2D(sample, uv + float2(texelsize.x, 0));
+                float4 C = tex2D(sample, uv + float2(0, texelsize.y));
+                float4 D = tex2D(sample, uv + float2(texelsize.x, texelsize.y));
                 float2 conv = frac(uv*texelsize.zw);
                 //return float4(uv, 0., 1.);
                 return lerp(
-                    lerp( A, B, conv.x ),
-                    lerp( C, D, conv.x ),
-                    conv.y );
+                    lerp(A, B, conv.x),
+                    lerp(C, D, conv.x),
+                    conv.y);
             }
             
-            float Remap(float t, float a, float b, float u, float v) {return ( (t-a) / (b-a) ) * (v-u) + u;}
-            
-            fixed4 frag (v2f IN) : SV_Target
+            fixed4 frag(v2f IN) : SV_Target
             {
                 float2 iuv = IN.uv;
                 float audioBands[4] = {_X0, _X1, _X2, _X3};
@@ -164,15 +162,15 @@ Shader "AudioLink/AudioLinkSpectrumUI"
                 float bandIntensity = AudioLinkData(float2(0., (float)band));
                 
                 // Under-spectrum first
-                float rval = clamp( _SpectrumThickness - iuv.y + intensity.g + _SpectrumVertOffset, 0., 1. );
+                float rval = clamp(_SpectrumThickness - iuv.y + intensity.g + _SpectrumVertOffset, 0., 1.);
                 rval = min( 1., 1000*rval );
-                c = lerp( c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a );
+                c = lerp(c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a);
                 
                 // Spectrum-Line second
-                rval = max( _SpectrumThickness - abs( intensity.g - iuv.y + _SpectrumVertOffset), 0. );
-                rval = min( 1., 1000*rval );
+                rval = max(_SpectrumThickness - abs(intensity.g - iuv.y + _SpectrumVertOffset), 0.);
+                rval = min(1., 1000*rval);
                 rval *= (iuv.x > _X0);
-                c = lerp( c, _SpectrumFixedColor, rval * bandIntensity );
+                c = lerp(c, _SpectrumFixedColor, rval * bandIntensity);
 
                 // Overlay blending mode
                 float4 a = c;
