@@ -266,38 +266,38 @@ Shader "AudioLink/AudioLink"
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_GENERALVU)
-                uint i;
 
                 float total = 0;
-                float Peak = 0;
+                float peak = 0;
                 
                 // Only VU over 768 12kSPS samples
+                uint i;
                 for( i = 0; i < 768; i++ )
                 {
                     float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
                     total += af*af;
-                    Peak = max(Peak, abs(af));
+                    peak = max(peak, abs(af));
                 }
 
-                float PeakRMS = sqrt(total / i);
-                float4 MarkerValue = GetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
-                float4 MarkerTimes = GetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
-                float4 LastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
+                float peakRMS = sqrt(total / i);
+                float4 markerValue = GetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
+                float4 markerTimes = GetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
+                float4 lastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
                 float Time = _Time.y;
                 
-                if(Time - MarkerTimes.x > 1.0) MarkerValue.x = -1;
-                if(Time - MarkerTimes.y > 1.0) MarkerValue.y = -1;
+                if(Time - markerTimes.x > 1.0) markerValue.x = -1;
+                if(Time - markerTimes.y > 1.0) markerValue.y = -1;
                 
-                if(MarkerValue.x < PeakRMS)
+                if(markerValue.x < peakRMS)
                 {
-                    MarkerValue.x = PeakRMS;
-                    MarkerTimes.x = Time;
+                    markerValue.x = peakRMS;
+                    markerTimes.x = Time;
                 }
 
-                if(MarkerValue.y < Peak)
+                if(markerValue.y < peak)
                 {
-                    MarkerValue.y = Peak;
-                    MarkerTimes.y = Time;
+                    markerValue.y = peak;
+                    markerTimes.y = Time;
                 }
 
                 if(coordinateLocal.x >= 8)
@@ -305,36 +305,36 @@ Shader "AudioLink/AudioLink"
                     if(coordinateLocal.x == 8)
                     {
                         // First pixel: Current value.
-                        return float4(PeakRMS, Peak, 0, 1.);
+                        return float4(peakRMS, peak, 0, 1.);
                     }
                     else if(coordinateLocal.x == 9)
                     {
                         // Second pixel: Limit Output
-                        return MarkerValue;
+                        return markerValue;
                     }
                     else if(coordinateLocal.x == 10)
                     {
                         // Second pixel: Limit Time
-                        return MarkerTimes;
+                        return markerTimes;
                     }
                     else if(coordinateLocal.x == 11)
                     {
                         // Third pixel: Auto Gain / Volume Monitor for ColorChord
                         
                         // Compensate for the fact that we've already gain'd our samples.
-                        float deratePeak = Peak / (LastAutogain.x + _AutogainDerate);
+                        float deratePeak = peak / (lastAutogain.x + _AutogainDerate);
                         
-                        if(deratePeak > LastAutogain.x)
+                        if(deratePeak > lastAutogain.x)
                         {
-                            LastAutogain.x = lerp(deratePeak, LastAutogain.x, .5); //Make attack quick
+                            lastAutogain.x = lerp(deratePeak, lastAutogain.x, .5); //Make attack quick
                         }
                         else
                         {
-                            LastAutogain.x = lerp(deratePeak, LastAutogain.x, .995); //Make decay long.
+                            lastAutogain.x = lerp(deratePeak, lastAutogain.x, .995); //Make decay long.
                         }
                         
-                        LastAutogain.y = lerp(Peak, LastAutogain.y, 0.95);
-                        return LastAutogain;
+                        lastAutogain.y = lerp(peak, lastAutogain.y, 0.95);
+                        return lastAutogain;
                     }
                 }
                 else
@@ -349,30 +349,30 @@ Shader "AudioLink/AudioLink"
                         // Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
                         // Note: This is also used to measure FPS.
                         
-                        float4 lastval = GetSelfPixelData(ALPASS_GENERALVU + int2(1, 0 ));
-                        float framecount = lastval.r;
-                        float framecountfps = lastval.g;
-                        float framecountlastfps = lastval.b;
-                        float lasttimefps = lastval.a;
-                        framecount++;
-                        if(framecount >= 7776000) //~24 hours.
-                            framecount = 0;
-                        framecountfps++;
+                        float4 lastVal = GetSelfPixelData(ALPASS_GENERALVU + int2(1, 0 ));
+                        float frameCount = lastVal.r;
+                        float frameCountFPS = lastVal.g;
+                        float frameCountLastFPS = lastVal.b;
+                        float lastTimeFPS = lastVal.a;
+                        frameCount++;
+                        if(frameCount >= 7776000) //~24 hours.
+                            frameCount = 0;
+                        frameCountFPS++;
 
                         // See if we've been reset.
-                        if(lasttimefps > _Time.y)
+                        if(lastTimeFPS > _Time.y)
                         {
-                            lasttimefps = 0;
+                            lastTimeFPS = 0;
                         }
 
                         // After one second, take the running FPS and present it as the now FPS.
-                        if(_Time.y > lasttimefps + 1)
+                        if(_Time.y > lastTimeFPS + 1)
                         {
-                            framecountlastfps = framecountfps;
-                            framecountfps = 0;
-                            lasttimefps = _Time.y;
+                            frameCountLastFPS = frameCountFPS;
+                            frameCountFPS = 0;
+                            lastTimeFPS = _Time.y;
                         }
-                        return float4(framecount, framecountfps, framecountlastfps, lasttimefps);
+                        return float4(frameCount, frameCountFPS, frameCountLastFPS, lastTimeFPS);
                     }
                     else if(coordinateLocal.x == 2)
                     {
@@ -385,7 +385,7 @@ Shader "AudioLink/AudioLink"
 
                         // This is done a little awkwardly as to prevent any overflows.
                         uint dtms = _AdvancedTimeProps.x * 1000;
-                        uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms>>10);
+                        uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
                         return float4(
                             (float)(dtms & 0x3ff),
                             (float)((dtms2) & 0x3ff),
