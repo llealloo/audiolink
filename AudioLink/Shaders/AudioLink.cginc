@@ -76,7 +76,7 @@ float4 AudioLinkLerp(float2 xy) { return lerp( AudioLinkData(xy), AudioLinkData(
 float4 AudioLinkLerpMultiline(float2 xy) { return lerp(AudioLinkDataMultiline(xy), AudioLinkDataMultiline(xy+float2(1,0)), frac(xy.x)); }
 
 //Tests to see if Audio Link texture is available
-bool AudioLinkIsAvailableNonSurface()
+bool AudioLinkIsAvailable()
 {
     #if !defined(AUDIOLINK_STANDARD_INDEXING)
         int width, height;
@@ -85,6 +85,24 @@ bool AudioLinkIsAvailableNonSurface()
     #else
         return _AudioTexture_TexelSize.z > 16;
     #endif
+}
+
+//Get version of audiolink present in the world, 0 if no audiolink is present
+float AudioLinkGetVersion()
+{
+    int2 dims;
+    #if !defined(AUDIOLINK_STANDARD_INDEXING)
+        _AudioTexture.GetDimensions(dims.x, dims.y);
+    #else
+        dims = _AudioTexture_TexelSize.zw;
+    #endif
+
+    if (dims.x >= 128)
+        return AudioLinkData(ALPASS_GENERALVU).x;
+    else if (dims.x > 16)
+        return 1;
+    else
+        return 0;
 }
 
 // Decompress a RGBA FP16 into a really big number, this is used in some sections of the info block.
