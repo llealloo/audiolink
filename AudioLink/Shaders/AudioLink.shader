@@ -452,84 +452,80 @@ Shader "AudioLink/AudioLink"
                 // .y = AUDIOLINK_ROOTNOTE
                 // .z = number of populated notes.
                 
-                float4 Notes[COLORCHORD_MAX_NOTES];
-                float4 NotesB[COLORCHORD_MAX_NOTES];
+                float4 notes[COLORCHORD_MAX_NOTES];
+                float4 notesB[COLORCHORD_MAX_NOTES];
 
                 uint i;
                 for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
-                    NotesB[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 1));
-                    Notes[i] =  GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 0)) * float4(1, 0, 1, 1);
+                    notes[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i + 1, 0)) * float4(1, 0, 1, 1);
+                    notesB[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i + 1, 1));
                 }
 
-                float4 NoteSummary = GetSelfPixelData(ALPASS_CCINTERNAL);
-                float4 NoteSummaryB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(0, 1));
+                float4 noteSummary = GetSelfPixelData(ALPASS_CCINTERNAL);
+                float4 noteSummaryB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(0, 1));
+                float lastAmplitude = GetSelfPixelData(ALPASS_DFT + uint2(AUDIOLINK_EXPBINS, 0)).b;
+                float thisAmplitude = GetSelfPixelData(ALPASS_DFT + uint2(1 + AUDIOLINK_EXPBINS, 0)).b;
 
-                float Last = GetSelfPixelData(ALPASS_DFT + uint2(AUDIOLINK_EXPBINS, 0)).b;
-                float This = GetSelfPixelData(ALPASS_DFT + uint2(1 + AUDIOLINK_EXPBINS, 0)).b;
                 for(i = AUDIOLINK_EXPBINS + 2; i < COLORCHORD_EMAXBIN; i++)
                 {
-                    float Next = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    if(This > Last && This > Next && This > noteMinimum)
+                    float nextAmplitude = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    if(thisAmplitude > lastAmplitude && thisAmplitude > nextAmplitude && thisAmplitude > noteMinimum)
                     {
                         // Find actual peak by looking ahead and behind.
-                        float DiffA = This - Next;
-                        float DiffB = This - Last;
-                        float NoteFreq = glsl_mod(i - 1, AUDIOLINK_EXPBINS);
-                        if(DiffA < DiffB)
+                        float diffA = thisAmplitude - nextAmplitude;
+                        float diffB = thisAmplitude - lastAmplitude;
+                        float noteFreq = glsl_mod(i - 1, AUDIOLINK_EXPBINS);
+                        if(diffA < diffB)
                         {
                             // Behind
-                            NoteFreq -= 1. - DiffA / DiffB; //Ratio must be between 0 .. 0.5
+                            noteFreq -= 1. - diffA / diffB; //Ratio must be between 0 .. 0.5
                         }
                         else
                         {
                             // Ahead
-                            NoteFreq += 1. - DiffB / DiffA;
+                            noteFreq += 1. - diffB / diffA;
                         }
-                        
 
                         uint j;
-                        int closest_note = -1;
-                        int free_note = -1;
-                        float closest_note_distance = COLORCHORD_NOTE_CLOSEST;
+                        int closestNote = -1;
+                        int freeNote = -1;
+                        float closestNoteDistance = COLORCHORD_NOTE_CLOSEST;
                                                 
                         // Search notes to see what the closest note to this peak is.
                         // also look for any empty notes.
                         for(j = 0; j < COLORCHORD_MAX_NOTES; j++)
                         {
-                            float dist = abs(NoteWrap(Notes[j].x, NoteFreq));
-                            if(Notes[j].z <= 0)
+                            float dist = abs(NoteWrap(notes[j].x, noteFreq));
+                            if(notes[j].z <= 0)
                             {
-                                if(free_note == -1)
-                                    free_note = j;
+                                if(freeNote == -1)
+                                    freeNote = j;
                             }
-                            else if(dist < closest_note_distance)
+                            else if(dist < closestNoteDistance)
                             {
-                                closest_note_distance = dist;
-                                closest_note = j;
+                                closestNoteDistance = dist;
+                                closestNote = j;
                             }
                         }
                         
-                        float ThisIntensity = This*COLORCHORD_NEW_NOTE_GAIN;
+                        float thisIntensity = thisAmplitude * COLORCHORD_NEW_NOTE_GAIN;
                         
-                        if(closest_note != -1)
+                        if(closestNote != -1)
                         {
-                            float4 n = Notes[closest_note];
                             // Note to combine peak to has been found, roll note in.
-                            
-                            float drag = NoteWrap(n.x, NoteFreq) * 0.05;
+                            float4 n = notes[closestNote];
+                            float drag = NoteWrap(n.x, noteFreq) * 0.05;
 
-                            //float2 newn = max( n.yz, ThisIntensity.xx  );
-                            
-                            float mn = max(n.y, This * COLORCHORD_NEW_NOTE_GAIN)
-                                // Technically the above is incorrect without the below, additional notes found should controbute.
+                            float mn = max(n.y, thisAmplitude * COLORCHORD_NEW_NOTE_GAIN)
+                                // Technically the above is incorrect without the below, additional notes found should contribute.
                                 // But I'm finding it looks better w/o it.  Well, the 0.3 is arbitrary.  But, it isn't right to
                                 // only take max.
-                                + This * COLORCHORD_NEW_NOTE_GAIN * 0.3
-                                ;
-                            Notes[closest_note] = float4(n.x + drag, mn, n.z, n.a);
+                                + thisAmplitude * COLORCHORD_NEW_NOTE_GAIN * 0.3;
+
+                            notes[closestNote] = float4(n.x + drag, mn, n.z, n.a);
                         }
-                        else if(free_note != -1)
+                        else if(freeNote != -1)
                         {
 
                             int jc = 0;
@@ -540,39 +536,39 @@ Shader "AudioLink/AudioLink"
                             [loop]
                             for(ji = 0; ji < COLORCHORD_MAX_NOTES && jc != COLORCHORD_MAX_NOTES; ji++)
                             {
-                                NoteSummaryB.x = NoteSummaryB.x + 1;
-                                if(NoteSummaryB.x > 1023) NoteSummaryB.x = 0;
+                                noteSummaryB.x = noteSummaryB.x + 1;
+                                if(noteSummaryB.x > 1023) noteSummaryB.x = 0;
                                 [loop]
                                 for(jc = 0; jc < COLORCHORD_MAX_NOTES; jc++)
                                 {
-                                    if(NotesB[jc].x == NoteSummaryB.x)
+                                    if(notesB[jc].x == noteSummaryB.x)
                                         break;
                                 }
                             }
 
                             // Couldn't find note.  Create a new note.
-                            Notes[free_note]  = float4(NoteFreq, ThisIntensity, ThisIntensity, ThisIntensity);
-                            NotesB[free_note] = float4(NoteSummaryB.x, unity_DeltaTime.x, 0, 0);
+                            notes[freeNote]  = float4(noteFreq, thisIntensity, thisIntensity, thisIntensity);
+                            notesB[freeNote] = float4(noteSummaryB.x, unity_DeltaTime.x, 0, 0);
                         }
                         else
                         {
                             // Whelp, the note fell off the wagon.  Oh well!
                         }
                     }
-                    Last = This;
-                    This = Next;
+                    lastAmplitude = thisAmplitude;
+                    thisAmplitude = nextAmplitude;
                 }
 
-                float4 NewNoteSummary = 0.;
-                float4 NewNoteSummaryB = NoteSummaryB;
-                NewNoteSummaryB.y = AUDIOLINK_ROOTNOTE;
+                float4 newNoteSummary = 0.;
+                float4 newNoteSummaryB = noteSummaryB;
+                newNoteSummaryB.y = AUDIOLINK_ROOTNOTE;
 
                 [loop]
                 for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
                     uint j;
-                    float4 n1 = Notes[i];
-                    float4 n1B = NotesB[i];
+                    float4 n1 = notes[i];
+                    float4 n1B = notesB[i];
                     
                     [loop]
                     for(j = 0; j < COLORCHORD_MAX_NOTES; j++)
@@ -580,7 +576,7 @@ Shader "AudioLink/AudioLink"
                         // 🤮 Shader compiler can't do triangular loops.
                         // We don't want to iterate over a cube just compare ith and jth note once.
 
-                        float4 n2 = Notes[j];
+                        float4 n2 = notes[j];
 
                         if(n2.z > 0 && j > i && n1.z > 0)
                         {
@@ -590,12 +586,12 @@ Shader "AudioLink/AudioLink"
                             {
                                 //Found combination of notes.  Nil out second.
                                 float drag = NoteWrap(n1.x, n2.x) * 0.5;//n1.z/(n2.z+n1.y);
-                                n1 = float4(n1.x + drag, n1.y + This, n1.z, n1.a);
+                                n1 = float4(n1.x + drag, n1.y + thisAmplitude, n1.z, n1.a);
 
                                 //n1B unchanged.
 
-                                Notes[j] = 0;
-                                NotesB[j] = float4(i, -1, 0, 0);
+                                notes[j] = 0;
+                                notesB[j] = float4(i, -1, 0, 0);
                             }
                         }
                     }
@@ -627,52 +623,52 @@ Shader "AudioLink/AudioLink"
                         // the ratio of how "important" this note is.
                         n1.y = pow(max(n1.z - noteMinimum*10, 0), 1.5);
                     
-                        NewNoteSummary += float4(1., n1.y, n1.z, n1.w);
+                        newNoteSummary += float4(1., n1.y, n1.z, n1.w);
                     }
                     
-                    Notes[i] = n1;
-                    NotesB[i] = n1B;
+                    notes[i] = n1;
+                    notesB[i] = n1B;
                 }
 
                 // Sort by frequency and count notes.
                 // These loops are phrased funny because the unity shader compiler gets really
                 // confused easily.
-                float SortedNoteSlotValue = -1000;
-                int sortplace = 0;
-                NewNoteSummaryB.z = 0;
+                float sortedNoteSlotValue = -1000;
+                newNoteSummaryB.z = 0;
+                
                 [loop]
                 for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
                     //Count notes
-                    NewNoteSummaryB.z += (Notes[i].z > 0) ? 1 : 0;
+                    newNoteSummaryB.z += (notes[i].z > 0) ? 1 : 0;
 
-                    float ClosestToSlotWithoutGoingOver = 100;
-                    int sortid = -1;
+                    float closestToSlotWithoutGoingOver = 100;
+                    int sortID = -1;
                     int j;
                     for(j = 0; j < COLORCHORD_MAX_NOTES; j++)
                     {
-                        float4 n2 = Notes[j];
-                        float notefreq = glsl_mod(-Notes[0].x + 0.5 + n2.x , AUDIOLINK_EXPBINS);
-                        if(n2.z > 0 && notefreq > SortedNoteSlotValue && notefreq < ClosestToSlotWithoutGoingOver)
+                        float4 n2 = notes[j];
+                        float noteFreqB = glsl_mod(-notes[0].x + 0.5 + n2.x , AUDIOLINK_EXPBINS);
+                        if(n2.z > 0 && noteFreqB > sortedNoteSlotValue && noteFreqB < closestToSlotWithoutGoingOver)
                         {
-                            ClosestToSlotWithoutGoingOver = notefreq;
-                            sortid = j;
+                            closestToSlotWithoutGoingOver = noteFreqB;
+                            sortID = j;
                         }
                     }
-                    SortedNoteSlotValue = ClosestToSlotWithoutGoingOver;
-                    NotesB[i] = NotesB[i] * float4(1, 1, 0, 1) + float4(0, 0, sortid, 0);
+                    sortedNoteSlotValue = closestToSlotWithoutGoingOver;
+                    notesB[i] = notesB[i] * float4(1, 1, 0, 1) + float4(0, 0, sortID, 0);
                 }
 
-                // We now have a condensed list of all Notes that are playing.
+                // We now have a condensed list of all notes that are playing.
                 if( coordinateLocal.x == 0 )
                 {
                     // Summary note.
-                    return (coordinateLocal.y) ? NewNoteSummaryB : NewNoteSummary;
+                    return (coordinateLocal.y) ? newNoteSummaryB : newNoteSummary;
                 }
                 else
                 {
                     // Actual Note Data
-                    return (coordinateLocal.y) ? NotesB[coordinateLocal.x - 1] : Notes[coordinateLocal.x - 1];
+                    return (coordinateLocal.y) ? notesB[coordinateLocal.x - 1] : notes[coordinateLocal.x - 1];
                 }
             }
             ENDCG
