@@ -1,34 +1,25 @@
 Shader "AudioLink/AudioLink"
 {
-    //Example CRT with multiple passed, used to read its own texture and write into another place.
-    //Example of usage is in colorchord scene.
-    //This shows how to read from other coordiantes within the CRT texture when using multiple passes.
-
     Properties
     {
-        // Phase 3 (AudioLink 4 Band)
         _Gain("Gain", Range(0, 2)) = 1.0
-
         _FadeLength("Fade Length", Range(0 , 1)) = 0.8
         _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3
         _Bass("Bass", Range(0 , 4)) = 1.0
         _Treble("Treble", Range(0 , 4)) = 1.0
-        
         _X0("X0", Range(0.0, 0.168)) = 0.25
         _X1("X1", Range(0.242, 0.387)) = 0.25
         _X2("X2", Range(0.461, 0.628)) = 0.5
         _X3("X3", Range(0.704, 0.953)) = 0.75
-
         _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
- 
         [ToggleUI] _AudioSource2D("Audio Source 2D", float) = 0
-        
         [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
         _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
     }
+
     SubShader
     {
         Tags { "RenderType"="Opaque" }
@@ -102,13 +93,9 @@ Shader "AudioLink/AudioLink"
             // Extra Properties
             uniform float4 _AdvancedTimeProps;
             uniform float4 _VersionNumberAndFPSProperty;
-
-
             uniform float _EnableAutogain;
             uniform float _AutogainDerate;
-            
             const static float _TrebleCorrection = 5.0;
-
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
@@ -132,13 +119,12 @@ Shader "AudioLink/AudioLink"
 0.919, 0.921, 0.922, 0.924, 0.925, 0.926, 0.927, 0.928, 0.928, 0.929, 0.929, 0.93, 0.93, 0.93, 0.931, 0.931, 0.93, 0.93, 0.93, 0.93,
 0.929, 0.929, 0.928, 0.927, 0.926, 0.925, 0.924, 0.923, 0.922, 0.92, 0.919, 0.917, 0.915, 0.913, 0.911, 0.909, 0.907, 0.905, 0.903, 0.9};
 
-
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_DFT)
 
-                //Uncomment to enable debugging of where on the CRT this pass is.
-                //return float4(coordinateLocal, 0., 1.);
+                // Uncomment to enable debugging of where on the CRT this pass is.
+                // return float4(coordinateLocal, 0., 1.);
 
                 float4 last = GetSelfPixelData(coordinateGlobal);
 
@@ -164,7 +150,7 @@ Shader "AudioLink/AudioLink"
 
                 if(_DFTMode < 1.0)
                 {
-                    //Method 1: Convolve entire incoming waveform.
+                    // Method 1: Convolve entire incoming waveform.
                     
                     float HalfWindowSize;
                     HalfWindowSize = (Q)/(phadelta/UNITY_TWO_PI);
@@ -181,7 +167,7 @@ Shader "AudioLink/AudioLink"
                         float window = max(0, HalfWindowSize - abs(idx - (SAMPHIST/2-HalfWindowSize)));
                         float af = GetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
                         
-                        //Sin and cosine components to convolve.
+                        // Sin and cosine components to convolve.
                         float2 sc; sincos(pha, sc.x, sc.y);
 
                         // Step through, one sample at a time, multiplying the sin
@@ -194,7 +180,7 @@ Shader "AudioLink/AudioLink"
                 }
                 else
                 {
-                    //Method 2: Convolve only a set number of sampler per bin.
+                    // Method 2: Convolve only a set number of sampler per bin.
                     // Note, while this takes ~40us instead of ~90us, it
                     // doesn't look quite right.
                     float fvpha;
@@ -210,7 +196,7 @@ Shader "AudioLink/AudioLink"
                     for( place = -EXTENT; place <= EXTENT; place++ )
                     {
                         float fvpha = place * STEP;
-                        //Sin and cosine components to convolve.
+                        // Sin and cosine components to convolve.
                         float2 sc; sincos( fvpha, sc.x, sc.y );
                         float window = WINDOWSIZE - abs(fvpha);
 
@@ -230,22 +216,20 @@ Shader "AudioLink/AudioLink"
                 mag /= totalwindow;
                 mag *= _BaseAmplitude * _Gain;
 
-                //float mag2 = mag;
                 float freqNormalized = note / float(EXPOCT*EXPBINS);
 
                 // Treble compensation
                 mag *= (lut[min(note, 239)] * _TrebleCorrection + 1);
 
                 //Z component contains filtered output.
-                //float magfilt = lerp(mag, last.z, _IIRCoefficient);
                 float magfilt = lerp(mag, last.z, lerp(0.3, 0.9, _FadeLength));
 
                 float magEQ = magfilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 
                 return float4( 
-                    mag,    //Red:   Spectrum power
-                    magEQ,   //Green: Filtered power EQ'd, used by AudioLink
-                    magfilt,      //Blue:  Filtered spectrum (For CC)
+                    mag,            //Red:   Spectrum power
+                    magEQ,          //Green: Filtered power EQ'd, used by AudioLink
+                    magfilt,        //Blue:  Filtered spectrum (For CC)
                     1 );
             }
             ENDCG
@@ -258,21 +242,21 @@ Shader "AudioLink/AudioLink"
             // The structure of the output is:
             // RED CHANNEL: Mono Audio
             // GREEN/BLUE: Reserved (may be left/right)
-            //   8 Rows, each row contains 128 samples. Note: The last sample may be repeated.
+            // 8 Rows, each row contains 128 samples. Note: The last sample may be repeated.
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_WAVEFORM)
 
-                //XXX Hack: Force the compiler to keep Samples0 and Samples1.
+                // XXX Hack: Force the compiler to keep Samples0 and Samples1.
                 if(guv.x < 0)
                     return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0]; // slick, thanks @lox9973
 
                 uint frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
                 if(frame >= SAMPHIST) frame = SAMPHIST - 1; //Prevent overflow.
 
-                //Uncomment to enable debugging of where on the CRT this pass is.
-                //return float4( frame/1000., coordinateLocal/10., 1. );
+                // Uncomment to enable debugging of where on the CRT this pass is.
+                // return float4( frame/1000., coordinateLocal/10., 1. );
 
                 float Blue = 0;
                 if(frame*4 < SAMPHIST)
@@ -288,7 +272,6 @@ Shader "AudioLink/AudioLink"
                     //Divide by the running volume.
                     incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
                 }
-                
 
                 return float4( 
                     (_AudioFrames[frame * 2 + 0] + _AudioFrames[frame * 2 + 1]) / 2.,   //RED: 24kSPS
@@ -325,7 +308,6 @@ Shader "AudioLink/AudioLink"
                     {
                         int2 spectrumCoord = int2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH);
                         float rawMagnitude = GetSelfPixelData(ALPASS_DFT + spectrumCoord).g;
-                        //rawMagnitude *= LinearEQ(_Gain, _Bass, _Treble, (float)i / totalBins);
                         total += rawMagnitude;
                     }
                     float magnitude = total / (binEnd - binStart);
@@ -404,24 +386,24 @@ Shader "AudioLink/AudioLink"
                 {
                     if(coordinateLocal.x == 8)
                     {
-                        //First pixel: Current value.
+                        // First pixel: Current value.
                         return float4(PeakRMS, Peak, 0, 1.);
                     }
                     else if(coordinateLocal.x == 9)
                     {
-                        //Second pixel: Limit Output
+                        // Second pixel: Limit Output
                         return MarkerValue;
                     }
                     else if(coordinateLocal.x == 10)
                     {
-                        //Second pixel: Limit Time
+                        // Second pixel: Limit Time
                         return MarkerTimes;
                     }
                     else if(coordinateLocal.x == 11)
                     {
-                        //Third pixel: Auto Gain / Volume Monitor for ColorChord
+                        // Third pixel: Auto Gain / Volume Monitor for ColorChord
                         
-                        //Compensate for the fact that we've already gain'd our samples.
+                        // Compensate for the fact that we've already gain'd our samples.
                         float deratePeak = Peak / (LastAutogain.x + _AutogainDerate);
                         
                         if(deratePeak > LastAutogain.x)
@@ -441,12 +423,12 @@ Shader "AudioLink/AudioLink"
                 {
                     if(coordinateLocal.x == 0)
                     {
-                        //Pixel 0 = Version
+                        // Pixel 0 = Version
                         return _VersionNumberAndFPSProperty;
                     }
                     else if(coordinateLocal.x == 1)
                     {
-                        //Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
+                        // Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
                         // Note: This is also used to measure FPS.
                         
                         float4 lastval = GetSelfPixelData(ALPASS_GENERALVU + int2(1, 0 ));
@@ -457,7 +439,6 @@ Shader "AudioLink/AudioLink"
                         framecount++;
                         if(framecount >= 7776000) //~24 hours.
                             framecount = 0;
-                            
                         framecountfps++;
 
                         // See if we've been reset.
@@ -505,7 +486,7 @@ Shader "AudioLink/AudioLink"
                     }
                 }
 
-                //Reserved
+                // Reserved
                 return 0;
             }
             ENDCG
@@ -586,18 +567,18 @@ Shader "AudioLink/AudioLink"
                     float Next = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
                     if(This > Last && This > Next && This > NOTE_MINIMUM)
                     {
-                        //Find actual peak by looking ahead and behind.
+                        // Find actual peak by looking ahead and behind.
                         float DiffA = This - Next;
                         float DiffB = This - Last;
                         float NoteFreq = glsl_mod(i - 1, EXPBINS);
                         if(DiffA < DiffB)
                         {
-                            //Behind
+                            // Behind
                             NoteFreq -= 1. - DiffA / DiffB; //Ratio must be between 0 .. 0.5
                         }
                         else
                         {
-                            //Ahead
+                            // Ahead
                             NoteFreq += 1. - DiffB / DiffA;
                         }
                         
@@ -641,7 +622,7 @@ Shader "AudioLink/AudioLink"
                                 // only take max.
                                 + This * _NewNoteGain * 0.3
                                 ;
-                            Notes[closest_note] = float4( n.x + drag, mn, n.z, n.a );
+                            Notes[closest_note] = float4(n.x + drag, mn, n.z, n.a);
                         }
                         else if(free_note != -1)
                         {
@@ -687,7 +668,6 @@ Shader "AudioLink/AudioLink"
                     uint j;
                     float4 n1 = Notes[i];
                     float4 n1B = NotesB[i];
-
                     
                     [loop]
                     for(j = 0; j < CCMAXNOTES; j++)
@@ -715,7 +695,7 @@ Shader "AudioLink/AudioLink"
                         }
                     }
                     
-                    //Filter n1.z from n1.y.
+                    // Filter n1.z from n1.y.
                     if(n1.z >= 0)
                     {
                         // Make sure we're wrapped correctly.
@@ -844,7 +824,6 @@ Shader "AudioLink/AudioLink"
 
                 float TotalPower = 0.0;
                 TotalPower = NotesSummary.y;
-                
 
                 float PowerPlace = 0.0;
                 for(p = 0; p < CCMAXNOTES; p++)
@@ -866,13 +845,10 @@ Shader "AudioLink/AudioLink"
             ENDCG
         }
         
-        
-        
         Pass
         {
             Name "Pass9-ColorChord-Lights"
             CGPROGRAM
-
 
             static const float _PickNewSpeed = 1.0;
             
@@ -885,7 +861,6 @@ Shader "AudioLink/AudioLink"
             {
                 return a*.5;
             }
-
 
             float4 frag(v2f_customrendertexture IN) : SV_Target
             {
@@ -909,7 +884,6 @@ Shader "AudioLink/AudioLink"
                 //   A: Other Intensity
                 
                 ComputeCell.y -= _PickNewSpeed * 0.01;
-
 
                 if(NOTESUFFIX(ThisNote) < ComputeCell.y || ComputeCell.y <= 0 || ThisNote.z < 0)
                 {
@@ -981,13 +955,11 @@ Shader "AudioLink/AudioLink"
             ENDCG
         }
 
-
         Pass 
         {
             Name "No-op"
             ColorMask 0
             ZWrite Off 
-            
         }
     }
 }
