@@ -72,7 +72,7 @@ Shader "AudioLink/AudioLink"
             const static float _PhiDeltaCorrection = 4.0;
             const static float _DFTQ = 4.0;
 
-            // AudioLink
+            // AudioLink 4 Band
             uniform float _FadeLength;
             uniform float _FadeExpFalloff;
             uniform float _Gain;
@@ -119,7 +119,7 @@ Shader "AudioLink/AudioLink"
                 AUDIO_LINK_ALPHA_START(ALPASS_DFT)
 
                 int note = coordinateLocal.y * AUDIOLINK_WIDTH + coordinateLocal.x;
-                float4 last = GetSelfPixelData(coordinateGlobal);\
+                float4 last = GetSelfPixelData(coordinateGlobal);
                 float2 amplitude = 0.;
                 float phase = 0;
                 float phaseDelta = pow(2, (note)/((float)AUDIOLINK_EXPBINS));
@@ -414,15 +414,20 @@ Shader "AudioLink/AudioLink"
         {
             Name "Pass6ColorChord-Notes"
             CGPROGRAM
-            float _PeakDecay;
-            float _PeakCloseEnough;
-            float _PeakMinium;
+
+            #define COLORCHORD_EMAXBIN          192
+            #define COLORCHORD_IIR_DECAY_1      0.90
+            #define COLORCHORD_IIR_DECAY_2      0.85
+            #define COLORCHORD_CONSTANT_DECAY_1 0.01
+            #define COLORCHORD_CONSTANT_DECAY_2 0.0
+            #define COLORCHORD_NOTE_CLOSEST     3.0
+            #define COLORCHORD_NEW_NOTE_GAIN    8.0
             
-            float NoteWrap(float Note1, float Note2)
+            float NoteWrap(float note1, float note2)
             {
-                float diff = Note2 - Note1;
+                float diff = note2 - note1;
                 diff = glsl_mod(diff, AUDIOLINK_EXPBINS);
-                if(diff > AUDIOLINK_EXPBINS/2)
+                if(diff > AUDIOLINK_EXPBINS / 2)
                     return diff - AUDIOLINK_EXPBINS;
                 else
                     return diff;
@@ -431,20 +436,9 @@ Shader "AudioLink/AudioLink"
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_CCINTERNAL)
-                uint i;
-
-                #define EMAXBIN 192
-                #define EBASEBIN 24
                 
-                float VUAmplitudeNow = GetSelfPixelData(ALPASS_GENERALVU + int2(8, 0)).y * _Gain;
-                float NOTE_MINIMUM = 0.00 + 0.1 * VUAmplitudeNow;
-                
-                static const float NOTECLOSEST = 3.0;
-                static const float IIR1_DECAY = 0.90;
-                static const float CONSTANT1_DECAY = 0.01;
-                static const float IIR2_DECAY = 0.85;
-                static const float CONSTANT2_DECAY = 0.00;
-                static const float _NewNoteGain = 8.;
+                float vuAmplitude = GetSelfPixelData(ALPASS_GENERALVU + int2(8, 0)).y * _Gain;
+                float noteMinimum = 0.00 + 0.1 * vuAmplitude;
 
                 //Note structure:
                 // .x = Note frequency (0...AUDIOLINK_ETOTALBINS, but floating point)
@@ -469,6 +463,7 @@ Shader "AudioLink/AudioLink"
                 float4 Notes[AUDIOLINK_CCMAXNOTES];
                 float4 NotesB[AUDIOLINK_CCMAXNOTES];
 
+                uint i;
                 for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
                 {
                     NotesB[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 1));
@@ -478,12 +473,12 @@ Shader "AudioLink/AudioLink"
                 float4 NoteSummary = GetSelfPixelData(ALPASS_CCINTERNAL);
                 float4 NoteSummaryB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(0, 1));
 
-                float Last = GetSelfPixelData(ALPASS_DFT + uint2(EBASEBIN, 0)).b;
-                float This = GetSelfPixelData(ALPASS_DFT + uint2(1 + EBASEBIN, 0)).b;
-                for(i = EBASEBIN+2; i < EMAXBIN; i++)
+                float Last = GetSelfPixelData(ALPASS_DFT + uint2(AUDIOLINK_EXPBINS, 0)).b;
+                float This = GetSelfPixelData(ALPASS_DFT + uint2(1 + AUDIOLINK_EXPBINS, 0)).b;
+                for(i = AUDIOLINK_EXPBINS + 2; i < COLORCHORD_EMAXBIN; i++)
                 {
                     float Next = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    if(This > Last && This > Next && This > NOTE_MINIMUM)
+                    if(This > Last && This > Next && This > noteMinimum)
                     {
                         // Find actual peak by looking ahead and behind.
                         float DiffA = This - Next;
@@ -504,7 +499,7 @@ Shader "AudioLink/AudioLink"
                         uint j;
                         int closest_note = -1;
                         int free_note = -1;
-                        float closest_note_distance = NOTECLOSEST;
+                        float closest_note_distance = COLORCHORD_NOTE_CLOSEST;
                                                 
                         // Search notes to see what the closest note to this peak is.
                         // also look for any empty notes.
@@ -523,7 +518,7 @@ Shader "AudioLink/AudioLink"
                             }
                         }
                         
-                        float ThisIntensity = This*_NewNoteGain;
+                        float ThisIntensity = This*COLORCHORD_NEW_NOTE_GAIN;
                         
                         if(closest_note != -1)
                         {
@@ -534,11 +529,11 @@ Shader "AudioLink/AudioLink"
 
                             //float2 newn = max( n.yz, ThisIntensity.xx  );
                             
-                            float mn = max(n.y, This * _NewNoteGain)
+                            float mn = max(n.y, This * COLORCHORD_NEW_NOTE_GAIN)
                                 // Technically the above is incorrect without the below, additional notes found should controbute.
                                 // But I'm finding it looks better w/o it.  Well, the 0.3 is arbitrary.  But, it isn't right to
                                 // only take max.
-                                + This * _NewNoteGain * 0.3
+                                + This * COLORCHORD_NEW_NOTE_GAIN * 0.3
                                 ;
                             Notes[closest_note] = float4(n.x + drag, mn, n.z, n.a);
                         }
@@ -599,7 +594,7 @@ Shader "AudioLink/AudioLink"
                         {
                             // Potentially combine notes
                             float dist = abs(NoteWrap(n1.x, n2.x));
-                            if(dist < NOTECLOSEST)
+                            if(dist < COLORCHORD_NOTE_CLOSEST)
                             {
                                 //Found combination of notes.  Nil out second.
                                 float drag = NoteWrap(n1.x, n2.x) * 0.5;//n1.z/(n2.z+n1.y);
@@ -620,13 +615,13 @@ Shader "AudioLink/AudioLink"
                         n1.x = glsl_mod(n1.x, AUDIOLINK_EXPBINS);
                         
                         // Apply filtering
-                        n1.z = lerp(n1.y, n1.z, IIR1_DECAY) - CONSTANT1_DECAY; //Make decay slow.
-                        n1.w = lerp(n1.y, n1.w, IIR2_DECAY) - CONSTANT2_DECAY; //Make decay slow.
+                        n1.z = lerp(n1.y, n1.z, COLORCHORD_IIR_DECAY_1) - COLORCHORD_CONSTANT_DECAY_1; //Make decay slow.
+                        n1.w = lerp(n1.y, n1.w, COLORCHORD_IIR_DECAY_2) - COLORCHORD_CONSTANT_DECAY_2; //Make decay slow.
 
                         n1B.y += unity_DeltaTime.x;
 
 
-                        if(n1.z < NOTE_MINIMUM)
+                        if(n1.z < noteMinimum)
                         {
                             n1 = -1;
                             n1B = 0;
@@ -638,7 +633,7 @@ Shader "AudioLink/AudioLink"
                     {
                         // Compute Y to create a "unified" value.  This is good for understanding
                         // the ratio of how "important" this note is.
-                        n1.y = pow(max(n1.z - NOTE_MINIMUM*10, 0), 1.5);
+                        n1.y = pow(max(n1.z - noteMinimum*10, 0), 1.5);
                     
                         NewNoteSummary += float4(1., n1.y, n1.z, n1.w);
                     }
