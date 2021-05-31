@@ -17,7 +17,6 @@
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
-#define AUDIOLINK_CCMAXNOTES 10
 #define AUDIOLINK_SAMPHIST 3069 //Internal use for algos, do not change.
 #define AUDIOLINK_SAMPLEDATA24 2046
 #define AUDIOLINK_EXPBINS 24
@@ -28,6 +27,16 @@
 #define AUDIOLINK_ROOTNOTE 0
 #define AUDIOLINK_4BAND_FREQFLOOR 0.123
 #define AUDIOLINK_4BAND_FREQCEILING 1
+
+// ColorChord constants
+#define COLORCHORD_EMAXBIN          192
+#define COLORCHORD_IIR_DECAY_1      0.90
+#define COLORCHORD_IIR_DECAY_2      0.85
+#define COLORCHORD_CONSTANT_DECAY_1 0.01
+#define COLORCHORD_CONSTANT_DECAY_2 0.0
+#define COLORCHORD_NOTE_CLOSEST     3.0
+#define COLORCHORD_NEW_NOTE_GAIN    8.0
+#define COLORCHORD_MAX_NOTES        10
 
 // We use glsl_mod for most calculations because it behaves better
 // on negative numbers, and in some situations actually outperforms

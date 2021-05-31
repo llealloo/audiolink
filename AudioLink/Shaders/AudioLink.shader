@@ -414,14 +414,6 @@ Shader "AudioLink/AudioLink"
         {
             Name "Pass6ColorChord-Notes"
             CGPROGRAM
-
-            #define COLORCHORD_EMAXBIN          192
-            #define COLORCHORD_IIR_DECAY_1      0.90
-            #define COLORCHORD_IIR_DECAY_2      0.85
-            #define COLORCHORD_CONSTANT_DECAY_1 0.01
-            #define COLORCHORD_CONSTANT_DECAY_2 0.0
-            #define COLORCHORD_NOTE_CLOSEST     3.0
-            #define COLORCHORD_NEW_NOTE_GAIN    8.0
             
             float NoteWrap(float note1, float note2)
             {
@@ -460,11 +452,11 @@ Shader "AudioLink/AudioLink"
                 // .y = AUDIOLINK_ROOTNOTE
                 // .z = number of populated notes.
                 
-                float4 Notes[AUDIOLINK_CCMAXNOTES];
-                float4 NotesB[AUDIOLINK_CCMAXNOTES];
+                float4 Notes[COLORCHORD_MAX_NOTES];
+                float4 NotesB[COLORCHORD_MAX_NOTES];
 
                 uint i;
-                for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
+                for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
                     NotesB[i] = GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 1));
                     Notes[i] =  GetSelfPixelData(ALPASS_CCINTERNAL + uint2(i+1, 0)) * float4(1, 0, 1, 1);
@@ -503,7 +495,7 @@ Shader "AudioLink/AudioLink"
                                                 
                         // Search notes to see what the closest note to this peak is.
                         // also look for any empty notes.
-                        for(j = 0; j < AUDIOLINK_CCMAXNOTES; j++)
+                        for(j = 0; j < COLORCHORD_MAX_NOTES; j++)
                         {
                             float dist = abs(NoteWrap(Notes[j].x, NoteFreq));
                             if(Notes[j].z <= 0)
@@ -546,12 +538,12 @@ Shader "AudioLink/AudioLink"
                             // but I really wanted to make sure all note IDs are unique
                             // in case another tool would care about the uniqueness.
                             [loop]
-                            for(ji = 0; ji < AUDIOLINK_CCMAXNOTES && jc != AUDIOLINK_CCMAXNOTES; ji++)
+                            for(ji = 0; ji < COLORCHORD_MAX_NOTES && jc != COLORCHORD_MAX_NOTES; ji++)
                             {
                                 NoteSummaryB.x = NoteSummaryB.x + 1;
                                 if(NoteSummaryB.x > 1023) NoteSummaryB.x = 0;
                                 [loop]
-                                for(jc = 0; jc < AUDIOLINK_CCMAXNOTES; jc++)
+                                for(jc = 0; jc < COLORCHORD_MAX_NOTES; jc++)
                                 {
                                     if(NotesB[jc].x == NoteSummaryB.x)
                                         break;
@@ -576,14 +568,14 @@ Shader "AudioLink/AudioLink"
                 NewNoteSummaryB.y = AUDIOLINK_ROOTNOTE;
 
                 [loop]
-                for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
+                for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
                     uint j;
                     float4 n1 = Notes[i];
                     float4 n1B = NotesB[i];
                     
                     [loop]
-                    for(j = 0; j < AUDIOLINK_CCMAXNOTES; j++)
+                    for(j = 0; j < COLORCHORD_MAX_NOTES; j++)
                     {
                         // 🤮 Shader compiler can't do triangular loops.
                         // We don't want to iterate over a cube just compare ith and jth note once.
@@ -649,7 +641,7 @@ Shader "AudioLink/AudioLink"
                 int sortplace = 0;
                 NewNoteSummaryB.z = 0;
                 [loop]
-                for(i = 0; i < AUDIOLINK_CCMAXNOTES; i++)
+                for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
                     //Count notes
                     NewNoteSummaryB.z += (Notes[i].z > 0) ? 1 : 0;
@@ -657,7 +649,7 @@ Shader "AudioLink/AudioLink"
                     float ClosestToSlotWithoutGoingOver = 100;
                     int sortid = -1;
                     int j;
-                    for(j = 0; j < AUDIOLINK_CCMAXNOTES; j++)
+                    for(j = 0; j < COLORCHORD_MAX_NOTES; j++)
                     {
                         float4 n2 = Notes[j];
                         float notefreq = glsl_mod(-Notes[0].x + 0.5 + n2.x , AUDIOLINK_EXPBINS);
@@ -739,7 +731,7 @@ Shader "AudioLink/AudioLink"
                 TotalPower = NotesSummary.y;
 
                 float PowerPlace = 0.0;
-                for(p = 0; p < AUDIOLINK_CCMAXNOTES; p++)
+                for(p = 0; p < COLORCHORD_MAX_NOTES; p++)
                 {
                     float4 NotesB = GetSelfPixelData(ALPASS_CCINTERNAL + int2(1 + p, 1));
                     float4 Peak = GetSelfPixelData(ALPASS_CCINTERNAL + int2(1 + NotesB.z, 0));
@@ -808,7 +800,7 @@ Shader "AudioLink/AudioLink"
                     int SelectedNoteNo = -1;
                     
                     float cumulative = 0.0;
-                    for(n = 0; n < AUDIOLINK_CCMAXNOTES; n++)
+                    for(n = 0; n < COLORCHORD_MAX_NOTES; n++)
                     {
                         float4 Note = GetSelfPixelData(ALPASS_CCINTERNAL + int2(n + 1, 0));
                         float unic = NOTESUFFIX(Note);
@@ -817,7 +809,7 @@ Shader "AudioLink/AudioLink"
                     }
 
                     float sofar = 0.0;
-                    for(n = 0; n < AUDIOLINK_CCMAXNOTES; n++)
+                    for(n = 0; n < COLORCHORD_MAX_NOTES; n++)
                     {
                         float4 Note = GetSelfPixelData(ALPASS_CCINTERNAL + int2(n + 1, 0));
                         float unic = NOTESUFFIX(Note);
