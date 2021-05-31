@@ -635,7 +635,7 @@ Shader "AudioLink/AudioLink"
                 // confused easily.
                 float sortedNoteSlotValue = -1000;
                 newNoteSummaryB.z = 0;
-                
+
                 [loop]
                 for(i = 0; i < COLORCHORD_MAX_NOTES; i++)
                 {
@@ -679,30 +679,33 @@ Shader "AudioLink/AudioLink"
             Name "Pass7-AutoCorrelator"
             CGPROGRAM
 
+            #define AUTOCORRELATOR_EMAXBIN 120
+            #define AUTOCORRELATOR_EBASEBIN 0
+
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_AUTOCORRELATOR)
-                uint i;
 
-                #define EMAXBIN 120
-                #define EBASEBIN 0
-
-                float PlaceInWave = (float)coordinateLocal.x;
-                float2 fvtot = 0;
+                float wavePosition = (float)coordinateLocal.x;
+                float2 fvTotal = 0;
                 float fvr = 15.;
 
                 // This computes both the regular autocorrelator in the R channel
                 // as well as a uncorrelated autocorrelator in the G channel
-                for(i = EBASEBIN; i < EMAXBIN; i++)
+                uint i;
+                for(i = AUTOCORRELATOR_EBASEBIN; i < AUTOCORRELATOR_EMAXBIN; i++)
                 {
-                    float Bin = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    float freq = pow(2, i/24.) * _BottomFrequency / AUDIOLINK_SPS * UNITY_TWO_PI;
-                    float2 csv = float2(cos(freq * PlaceInWave * fvr),  cos(freq * PlaceInWave * fvr + i * .32));
+                    float bin = GetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    float frequency = pow(2, i / 24.) * _BottomFrequency / AUDIOLINK_SPS * UNITY_TWO_PI;
+                    float2 csv = float2(cos(frequency * wavePosition * fvr),  cos(frequency * wavePosition * fvr + i * 0.32));
                     csv.g *= step(i % 4, 1) * 4.;
-                    fvtot += csv * (Bin * Bin);
+                    fvTotal += csv * (bin * bin);
                 }
 
-                return float4(fvtot, 0, 1);
+                // Red:   Regular autocorrelator
+                // Green: Uncorrelated autocorrelator
+                // Blue:  Reserved
+                return float4(fvTotal, 0, 1);
             }
             ENDCG
         }
