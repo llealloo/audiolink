@@ -2,7 +2,6 @@ Shader "AudioLink/AudioLinkDebug"
 {
     Properties
     {
-        _AudioLinkTexture ("Texture", 2D) = "white" {}
         _SpectrumGain ("Spectrum Gain", Float) = 1.
         _SampleGain ("Sample Gain", Float) = 1.
         _SeparatorColor ("Seperator Color", Color) = (.5,.5,0.,1.)
@@ -39,7 +38,6 @@ Shader "AudioLink/AudioLinkDebug"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
@@ -57,8 +55,6 @@ Shader "AudioLink/AudioLinkDebug"
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
-
-            float4 _AudioLinkTexture_ST;
             
             float _SpectrumGain;
             float _SampleGain;
@@ -86,7 +82,7 @@ Shader "AudioLink/AudioLinkDebug"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv * _AudioLinkTexture_ST;
+                o.uv = v.uv * float2(1.25, 1.15);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
@@ -97,12 +93,12 @@ Shader "AudioLink/AudioLinkDebug"
 
                 float4 spectrum_value = 0;
 
-                uint noteno = iuv.x * EXPBINS * EXPOCT;
-                float notenof = iuv.x * EXPBINS * EXPOCT;
-                uint readno = noteno % EXPBINS;
-                float readnof = fmod( notenof, EXPBINS );
-                int reado = (noteno/EXPBINS);
-                float readof = notenof/EXPBINS;
+                uint noteno = iuv.x * AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT;
+                float notenof = iuv.x * AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT;
+                uint readno = noteno % AUDIOLINK_EXPBINS;
+                float readnof = fmod(notenof, AUDIOLINK_EXPBINS);
+                int reado = (noteno / AUDIOLINK_EXPBINS);
+                float readof = notenof / AUDIOLINK_EXPBINS;
 
                 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( notenof, 0 ) ) * _SpectrumGain;
 
@@ -125,7 +121,7 @@ Shader "AudioLink/AudioLinkDebug"
                     float intensity = clamp( Note.z * .01, 0, 1 );
                     if( abs( iuv.y - intensity ) < 0.05 && intensity > 0 )
                     {
-                        return float4(CCtoRGB( Note.x, 1.0, _RootNote ), 1.);
+                        return float4(CCtoRGB( Note.x, 1.0, AUDIOLINK_ROOTNOTE ), 1.);
                     }
 
 					if( iuv.y > 1 )
@@ -144,7 +140,7 @@ Shader "AudioLink/AudioLinkDebug"
                     
                     //Waveform
                     // Get whole waveform would be / 1.
-                    float sinpull = (EXPBINS*EXPOCT - 1 - notenof )/ _WaveformZoom; //2. zooms into the first half.
+                    float sinpull = (AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT - 1 - notenof) / _WaveformZoom; //2. zooms into the first half.
                     float sinewaveval = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( sinpull, 0 ) ) * _SampleGain;
 
                     //If line has more significant slope, roll it extra wide.
@@ -159,12 +155,12 @@ Shader "AudioLink/AudioLinkDebug"
                     //Spectrum-Line second
                     rval = max( _SpectrumThickness - abs( spectrum_value.z - iuv.y + _SpectrumVertOffset), 0. );
                     rval = min( 1., 1000*rval );
-                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, _RootNote ), _SpectrumFixedColor, _SpectrumColorMix ), 1.0 ), rval );
+                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, AUDIOLINK_ROOTNOTE ), _SpectrumFixedColor, _SpectrumColorMix ), 1.0 ), rval );
 
                     //Other Spectrum-Line second
                     rval = max( _SpectrumThickness - abs( spectrum_value.x - iuv.y + _SpectrumVertOffset), 0. );
                     rval = min( 1., 1000*rval );
-                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, _RootNote ), _SpectrumFixedColorForSlow, _SpectrumColorMix ), 1.0 ), rval );
+                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, AUDIOLINK_ROOTNOTE ), _SpectrumFixedColorForSlow, _SpectrumColorMix ), 1.0 ), rval );
                 }
                 
                 //Potentially draw 
@@ -256,7 +252,9 @@ Shader "AudioLink/AudioLinkDebug"
                     coloro = lerp( VUColor, coloro, _VUOpacity );
                 }
 
-                
+                // apply fog
+                UNITY_APPLY_FOG(i.fogCoord, coloro);
+
                 return coloro;
 
                 //Graph-based spectrogram.

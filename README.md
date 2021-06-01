@@ -71,13 +71,18 @@ This is set up by default to export the AudioTexture grab pass (which enables av
 6. Adjust the Gain/Bass/Treble settings on AudioLinkAvatar if necessary
 7. Hit play!
 
+## Compatible tools / assets
+- [ExampleProject](https://www.someprojectlink.com/) by SomePerson
+
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
 - cnlohr for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
 - lox9973 for autocorrelator functionality and the inspirational & tangential math help with signal processing
 - Texelsaur for the AudioLinkMiniPlayer and support!
+- Pema for the help with strengthening the codebase and inspiration!
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
 - Orels1 for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
+- Xiexe for the help developing and testing
 - Thryrallo for the help setting up local AV3 testing functionality
 - CyanLaser for making CyanEmu
 - Lyuma for helping in many ways and being super nice!

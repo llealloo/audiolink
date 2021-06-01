@@ -18,7 +18,7 @@
 
             #include "UnityCG.cginc"
 
-            #include "../Shaders/AudioLink.cginc"
+            #include "AudioLink.cginc"
 
             struct appdata
             {
@@ -43,7 +43,7 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float noteno = i.uv.x*ETOTALBINS;
+                float noteno = i.uv.x * AUDIOLINK_ETOTALBINS;
 
                 float4 spectrum_value = -AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) ) * 0.5  + 0.55;
 
