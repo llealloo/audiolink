@@ -1,4 +1,4 @@
-﻿Shader "Unlit/NewTextTest"
+﻿Shader "AudioLinkSandbox/NewTextTest"
 {
     Properties
     {
