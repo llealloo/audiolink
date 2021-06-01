@@ -15,7 +15,7 @@
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
-			#pragma target 5.0
+            #pragma target 5.0
             #include "UnityCG.cginc"
 
             #define PIXELFONT_ROWS 20
@@ -138,18 +138,18 @@
 
             float PrintChar(uint selChar, float2 charUV, float2 softness)
             {
-            	//.x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
+                //.x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
 
-            	charUV += float2(0, 0.5);
+                charUV += float2(0, 0.5);
                 uint2 bitmap = bitmapNumberFont[selChar];
-            	uint4 bma = bitmap.xxxx;
-            	uint4 bmb = bitmap.yyyy;
+                uint4 bma = bitmap.xxxx;
+                uint4 bmb = bitmap.yyyy;
                 uint2 charXY = charUV;
                 uint index = charXY.x + charXY.y * 4 - 4;
                 uint4 shft = uint4(0, 1, 4, 5) + index;
-            	uint4 andone = uint4(1, 1, 1, 1);
-            	bma = (bma >> shft) & andone;
-            	bmb = (bmb >> shft) & andone;
+                uint4 andone = uint4(1, 1, 1, 1);
+                bma = (bma >> shft) & andone;
+                bmb = (bmb >> shft) & andone;
                 float4 neighbors = (bmb & 1) ? (bma ? 1 : 0.35) : (bma ? 0.15 : 0);
                 float2 shift = smoothstep(0, 1, frac(charUV));
                 float o = lerp(
@@ -180,7 +180,7 @@
                         if (dmfd > 0)
                         {
                             //fractional part.
-            				uint fpart = round(frac(number) * pow(10, numFractDigits));
+                            uint fpart = round(frac(number) * pow(10, numFractDigits));
                             uint l10 = pow(10.0, numFractDigits - dmfd);
                             selNum = ((uint)(fpart / l10)) % 10;
                         }
@@ -226,32 +226,32 @@
                 // Another option would be to set softness to 20 and YOLO it.
                 float2 fmxy = float2(4, 6) - glsl_mod(pos, 1.0) * float2(4.0, 6.0);
                 
-				if (dig.y < 2)
-				{
-					uint charLines[20] = { 
-						12, 13, 13, 13, 13, 13, 13, 13, 13, 13,
-						13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
-						};
+                if (dig.y < 2)
+                {
+                    uint charLines[20] = { 
+                        12, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+                        13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+                        };
                     return PrintChar(charLines[dig.x + dig.y * 10], fmxy, softness);
-				}
-				else if (dig.y == 2)
-				{
-					if (dig.x < 5)
-					{
-						float value = 1.0899;
-						return PrintNumberOnLine(value, 1, dig.x, fmxy, 3, false, softness);                
-					}
-					else
-					{
-						float value = -2.3;
-						return PrintNumberOnLine(value, 3, dig.x - 5, fmxy, 2, false, softness);                
-					}
-				}
-				else
-				{
-					uint sendChar = (dig.y - 3) * 10 + dig.x;
+                }
+                else if (dig.y == 2)
+                {
+                    if (dig.x < 5)
+                    {
+                        float value = 1.0899;
+                        return PrintNumberOnLine(value, 1, dig.x, fmxy, 3, false, softness);                
+                    }
+                    else
+                    {
+                        float value = -2.3;
+                        return PrintNumberOnLine(value, 3, dig.x - 5, fmxy, 2, false, softness);                
+                    }
+                }
+                else
+                {
+                    uint sendChar = (dig.y - 3) * 10 + dig.x;
                     return PrintChar(sendChar, fmxy, softness);
-				}
+                }
             }
             ENDCG
         }
