@@ -18,35 +18,14 @@
 			#pragma target 5.0
             #include "UnityCG.cginc"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+            #define PIXELFONT_ROWS 20
+            #define PIXELFONT_COLS 30
 
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
-            };
-			
             #ifndef glsl_mod
             #define glsl_mod(x, y) (x - y * floor(x / y))
             #endif
 
-            ////////////////////////////////////////////////////////////////////
-            // General debug functions below here
-
-            // Shockingly, including the ability to render text doesn't
-            // slow down number printing if text isn't used.
-            // A basic versino of the debug screen without text was only 134
-            // instructions.
-
-            float PrintChar(uint selChar, float2 charUV, float2 softness)
-            {
-            	//.x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
-                const static uint2 bitmapNumberFont[86] = {
+            const static uint2 bitmapNumberFont[86] = {
                     {  6990528,  15379168 }, //  0  '0' // 0110 1010 1010 1010 1100 0000      1110 1010 1010 1010 1110 0000
                     {  4998368,   4998368 }, //  1  '1' // 0100 1100 0100 0100 1110 0000      0100 1100 0100 0100 1110 0000
                     { 14870752,  14870752 }, //  2  '2' // 1110 0010 1110 1000 1110 0000      1110 0010 1110 1000 1110 0000
@@ -132,9 +111,34 @@
                     {   713312,    713440 }, // 82  'y' // 0000 1010 1110 0010 0110 0000      0000 1010 1110 0010 1110 0000
                     {   945376,    945376 }, // 83  'z' // 0000 1110 0110 1100 1110 0000      0000 1110 0110 1100 1110 0000
                     {      224,       224 }, // 84  '_' // 0000 0000 0000 0000 1110 0000      0000 0000 0000 0000 1110 0000
-            		{ 0,  0 }, // 85  '@' // Not written yet.
-            		//Maybe follow ascii?
-                };
+                    { 0,  0 }, // 85  '@' // Not written yet.
+                    //Maybe follow ascii?
+                    };
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct v2f
+            {
+                float2 uv : TEXCOORD0;
+                UNITY_FOG_COORDS(1)
+                float4 vertex : SV_POSITION;
+            };
+
+            ////////////////////////////////////////////////////////////////////
+            // General debug functions below here
+
+            // Shockingly, including the ability to render text doesn't
+            // slow down number printing if text isn't used.
+            // A basic versino of the debug screen without text was only 134
+            // instructions.
+
+            float PrintChar(uint selChar, float2 charUV, float2 softness)
+            {
+            	//.x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
 
             	charUV += float2(0, 0.5);
                 uint2 bitmap = bitmapNumberFont[selChar];
@@ -210,11 +214,8 @@
             {
                 float2 iuv = i.uv;
                 iuv.y = 1.0 - iuv.y;
-                const uint rows = 20;
-                const uint cols = 30;
-                const uint number_area_cols = 11;
                 
-                float2 pos = iuv * float2(cols, rows);
+                float2 pos = iuv * float2(PIXELFONT_COLS, PIXELFONT_ROWS);
                 uint2 dig = (uint2)pos;
 
                 // This line of code is tricky;  We determine how much we should soften the edge of the text
