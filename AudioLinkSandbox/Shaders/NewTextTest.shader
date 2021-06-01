@@ -15,6 +15,7 @@
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
+			#pragma target 5.0
 
             #include "UnityCG.cginc"
 
@@ -85,10 +86,15 @@ float PrintChar(uint selChar, float2 charUV, float2 softness)
 
 	charUV += float2( 0, 0.5);
     uint2 bitmap = bitmapNumberFont[selChar];
+	uint4 bma = bitmap.xxxx;
+	uint4 bmb = bitmap.yyyy;
     uint2 charXY = charUV;
     uint index = charXY.x + charXY.y * 4-4;
     uint4 shft = uint4( 0, 1, 4, 5 ) + index;
-    float4 neighbors = (( bitmap.y >> shft ) & 1 )?( ( ( bitmap.x >> shft ) & 1 ) ? 1 : .35 ) : ( ( ( bitmap.x >> shft ) & 1 ) ? .15 : 0 );
+	uint4 andone = uint4( 1, 1, 1, 1 );
+	bma = ( bma >> shft ) & andone;
+	bmb = ( bmb >> shft ) & andone;
+    float4 neighbors = (( bmb ) & 1 )?( ( bma ) ? 1 : .35 ) : ( ( bma ) ? .15 : 0 );
     float2 shift = smoothstep(0, 1, frac(charUV));
     float o = lerp(
         lerp(neighbors.x, neighbors.y, shift.x),
@@ -98,7 +104,7 @@ float PrintChar(uint selChar, float2 charUV, float2 softness)
 
 
 // Used for debugging
-float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, int offset, bool leadzero, float2 softness)
+float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, uint numfractdigits, bool leadzero, float2 softness)
 {
     uint selnum;
     if(number < 0 && digit == 0)
@@ -119,8 +125,9 @@ float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, 
             if(dmfd > 0)
             {
                 //fractional part.
-                float l10 = pow(10., dmfd);
-                selnum = ((uint)(number * l10)) % 10;
+				uint fpart = round(frac( number ) * pow( 10, numfractdigits));
+                uint l10 = pow(10., numfractdigits-dmfd);
+                selnum = ((uint)(fpart / l10)) % 10;
             }
             else
             {
@@ -184,9 +191,16 @@ float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, 
 				}
 				else if( dig.y == 2 )
 				{
-					int offset = 3;
-					float value = _Time.y;
-					return PrintNumberOnLine( value, number_area_cols-offset, dig.x, fmxy, offset, false, softness );                
+					if( dig.x < 5 )
+					{
+						float value = 1.0899;
+						return PrintNumberOnLine( value, 1, dig.x, fmxy, 3, false, softness );                
+					}
+					else
+					{
+						float value = -2.3;
+						return PrintNumberOnLine( value, 3, dig.x-5, fmxy, 2, false, softness );                
+					}
 				}
 				else
 				{
