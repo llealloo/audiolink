@@ -157,7 +157,7 @@ float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, 
 		
                 float2 iuv = i.uv;
                 iuv.y = 1.-iuv.y;
-                const uint rows = 8;
+                const uint rows = 10;
                 const uint cols = 10;
                 const uint number_area_cols = 11;
                 
@@ -174,14 +174,25 @@ float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, 
                 float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
 
                 
-				if( dig.y > 0 )
+				if( dig.y < 2 )
 				{
-					uint sendchar = (dig.y-1)*10 + dig.x;
+					uint charlines[20] = { 
+						13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+						13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+						};
+                    return PrintChar( charlines[dig.x+dig.y*10], fmxy, softness );
+				}
+				else if( dig.y == 2 )
+				{
+					int offset = 3;
+					float value = _Time.y;
+					return PrintNumberOnLine( value, number_area_cols-offset, dig.x, fmxy, offset, false, softness );                
+				}
+				else
+				{
+					uint sendchar = (dig.y-3)*10 + dig.x;
                     return PrintChar( sendchar, fmxy, softness );
 				}
-				int offset = 3;
-				float value = _Time.y;
-                return PrintNumberOnLine( value, number_area_cols-offset, dig.x, fmxy, offset, false, softness );                
             }
             ENDCG
         }
