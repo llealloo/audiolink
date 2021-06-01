@@ -71,6 +71,9 @@ This is set up by default to export the AudioTexture grab pass (which enables av
 6. Adjust the Gain/Bass/Treble settings on AudioLinkAvatar if necessary
 7. Hit play!
 
+## Compatible tools / assets
+- [ExampleProject](https://www.someprojectlink.com/) by SomePerson
+
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
 - cnlohr for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
