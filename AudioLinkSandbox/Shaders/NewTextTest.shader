@@ -155,46 +155,46 @@
             }
 
             // Used for debugging
-            float PrintNumberOnLine(float number, uint fixeddiv, uint digit, float2 charUV, uint numfractdigits, bool leadzero, float2 softness)
+            float PrintNumberOnLine(float number, uint fixedDiv, uint digit, float2 charUV, uint numFractDigits, bool leadZero, float2 softness)
             {
-                uint selnum;
+                uint selNum;
                 if (number < 0 && digit == 0)
                 {
-                    selnum = 22;  // - sign
+                    selNum = 22;  // - sign
                 }
                 else
                 {
                     number = abs(number);
 
-                    if (digit == fixeddiv)
+                    if (digit == fixedDiv)
                     {
-                        selnum = 23; 
+                        selNum = 23; 
                     }
                     else
                     {
-                        int dmfd = (int)digit - (int)fixeddiv;
+                        int dmfd = (int)digit - (int)fixedDiv;
                         if (dmfd > 0)
                         {
                             //fractional part.
-            				uint fpart = round(frac(number) * pow(10, numfractdigits));
-                            uint l10 = pow(10.0, numfractdigits - dmfd);
-                            selnum = ((uint)(fpart / l10)) % 10;
+            				uint fpart = round(frac(number) * pow(10, numFractDigits));
+                            uint l10 = pow(10.0, numFractDigits - dmfd);
+                            selNum = ((uint)(fpart / l10)) % 10;
                         }
                         else
                         {
                             float l10 = pow(10.0, (float)(dmfd + 1));
-                            selnum = (uint)(number * l10);
+                            selNum = (uint)(number * l10);
 
                             //Disable leading 0's?
-                            if (!leadzero && dmfd != -1 && selnum == 0 && dmfd < 0.5)
-                                selnum = 10; // space
+                            if (!leadZero && dmfd != -1 && selNum == 0 && dmfd < 0.5)
+                                selNum = 10; // space
                             else
-                                selnum %= (uint)10;
+                                selNum %= (uint)10;
                         }
                     }
                 }
 
-                return PrintChar(selnum, charUV, softness);
+                return PrintChar(selNum, charUV, softness);
             }
 
             v2f vert (appdata v)
@@ -227,11 +227,11 @@
                 
 				if (dig.y < 2)
 				{
-					uint charlines[20] = { 
+					uint charLines[20] = { 
 						12, 13, 13, 13, 13, 13, 13, 13, 13, 13,
 						13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
 						};
-                    return PrintChar(charlines[dig.x + dig.y * 10], fmxy, softness);
+                    return PrintChar(charLines[dig.x + dig.y * 10], fmxy, softness);
 				}
 				else if (dig.y == 2)
 				{
@@ -248,8 +248,8 @@
 				}
 				else
 				{
-					uint sendchar = (dig.y - 3) * 10 + dig.x;
-                    return PrintChar(sendchar, fmxy, softness);
+					uint sendChar = (dig.y - 3) * 10 + dig.x;
+                    return PrintChar(sendChar, fmxy, softness);
 				}
             }
             ENDCG
