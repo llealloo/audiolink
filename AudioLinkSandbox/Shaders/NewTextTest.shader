@@ -47,24 +47,24 @@
             // A basic versino of the debug screen without text was only 134
             // instructions.
 
-            float PrintChar(uint selChar, float2 charUV, float2 softness)
+            float PrintChar(uint charNum, float2 charUV, float2 softness)
             {
                 // .x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
                 charUV += float2(0, 0.5);
-                uint2 bitmap = bitmapFont[selChar];
-                uint4 bma = bitmap.xxxx;
-                uint4 bmb = bitmap.yyyy;
-                uint2 charXY = charUV;
-                uint index = charXY.x + charXY.y * 4 - 4;
-                uint4 shft = uint4(0, 1, 4, 5) + index;
-                uint4 andone = uint4(1, 1, 1, 1);
-                bma = (bma >> shft) & andone;
-                bmb = (bmb >> shft) & andone;
-                float4 neighbors = (bmb & 1) ? (bma ? 1 : 0.35) : (bma ? 0.15 : 0);
-                float2 shift = smoothstep(0, 1, frac(charUV));
+                uint2 bitmap = bitmapFont[charNum];
+                uint4 bitmapA = bitmap.xxxx;
+                uint4 bitmapB = bitmap.yyyy;
+                uint2 pixel = charUV;
+                uint index = pixel.x + pixel.y * 4 - 4;
+                uint4 shift = uint4(0, 1, 4, 5) + index;
+                uint4 bitSelect = uint4(1, 1, 1, 1);
+                bitmapA = (bitmapA >> shift) & bitSelect;
+                bitmapB = (bitmapB >> shift) & bitSelect;
+                float4 neighbors = (bitmapB & 1) ? (bitmapA ? 1 : 0.35) : (bitmapA ? 0.15 : 0);
+                float2 pixelUV = smoothstep(0, 1, frac(charUV));
                 float o = lerp(
-                          lerp(neighbors.x, neighbors.y, shift.x),
-                          lerp(neighbors.z, neighbors.w, shift.x), shift.y);
+                          lerp(neighbors.x, neighbors.y, pixelUV.x),
+                          lerp(neighbors.z, neighbors.w, pixelUV.x), pixelUV.y);
                 return saturate(o * softness - softness / 2);
             }
 
@@ -125,7 +125,10 @@
                 float2 iuv = i.uv;
                 iuv.y = 1.0 - iuv.y;
                 
+                // Pixel location on font pixel grid
                 float2 pos = iuv * float2(PIXELFONT_COLS, PIXELFONT_ROWS);
+
+                // Pixel location as uint (floor)
                 uint2 dig = (uint2)pos;
 
                 // This line of code is tricky;  We determine how much we should soften the edge of the text
@@ -138,7 +141,7 @@
                 
                 if (dig.y < 2)
                 {
-                    uint charLines[11] = {__H, __E, __L, __L, __O, __SPACE, __W, __O, __R, __L, __D};
+                    uint charLines[11] = {__H, __e, __l, __l, __o, __SPACE, __w, __o, __r, __l, __d};
                     return PrintChar(charLines[dig.x + dig.y * 30], fmxy, softness);
                 }
                 else if (dig.y == 2)
