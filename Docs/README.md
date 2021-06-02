@@ -274,7 +274,6 @@ The tools to read the data out of AudioLink.
  * `float4 AudioLinkDataMultiline( int2 coord )` - Same as `AudioLinkData` except that if you read off the end of one line, it continues reading onthe next.
  * `float4 AudioLinkLerp( float2 fcoord )` - Interpolate between two pixels, useful for making shaders not look jaggedy.
  * `float4 AudioLinkLerpMultiline( float2 fcoord )` - `AudioLinkLerp` but wraps lines correctly.
- * `float Remap(float t, float a, float b, float u, float v)` - Remaps value t from [a; b] to [u; v]
 
 A couple utility macros/functions
 
@@ -283,7 +282,7 @@ A couple utility macros/functions
  * `float4 CCtoRGB( float bin, float intensity, int RootNote )` - ColorChord's standard color generation function.
  * `bool AudioLinkIsAvailable()` - Checks is AudioLink data texture is present
  * `float AudioLinkGetVersion()` - Returns the running version of AudioLink as a float
-
+ * `float Remap(float t, float a, float b, float u, float v)` - Remaps value t from [a; b] to [u; v]
 
 ### Table for does it make sense to index with?
 
