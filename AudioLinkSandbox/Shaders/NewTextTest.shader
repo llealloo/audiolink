@@ -137,7 +137,7 @@
                 float2 pos = iuv * float2(PIXELFONT_COLS, PIXELFONT_ROWS);
 
                 // Pixel location as uint (floor)
-                uint2 dig = (uint2)pos;
+                uint2 pixel = (uint2)pos;
 
                 // This line of code is tricky;  We determine how much we should soften the edge of the text
                 // based on how quickly the text is moving across our field of view.  This gives us realy nice
@@ -145,30 +145,30 @@
                 float2 softness = 2.0 / pow(length(float2(ddx(pos.x), ddy(pos.y))), 0.5);
 
                 // Another option would be to set softness to 20 and YOLO it.
-                float2 fmxy = float2(4, 6) - glsl_mod(pos, 1.0) * float2(4.0, 6.0);
+                float2 charUV = float2(4, 6) - glsl_mod(pos, 1.0) * float2(4.0, 6.0);
                 
-                if (dig.y < 2)
+                if (pixel.y < 2)
                 {
                     uint charLines[11] = {__H, __e, __l, __l, __o, __SPACE, __w, __o, __r, __l, __d};
-                    return PrintChar(charLines[dig.x + dig.y * 30], fmxy, softness);
+                    return PrintChar(charLines[pixel.x + pixel.y * 30], charUV, softness);
                 }
-                else if (dig.y == 2)
+                else if (pixel.y == 2)
                 {
-                    if (dig.x < 5)
+                    if (pixel.x < 5)
                     {
                         float value = 1.0899;
-                        return PrintNumberOnLine(value, fmxy, softness, dig.x, 1, 3, false);                
+                        return PrintNumberOnLine(value, charUV, softness, pixel.x, 1, 3, false);                
                     }
                     else
                     {
                         float value = -2.3;
-                        return PrintNumberOnLine(value, fmxy, softness, dig.x - 5, 3, 2, false);                
+                        return PrintNumberOnLine(value, charUV, softness, pixel.x - 5, 3, 2, false);                
                     }
                 }
                 else
                 {
-                    uint sendChar = (dig.y - 3) * 30 + dig.x;
-                    return PrintChar(sendChar, fmxy, softness);
+                    uint charNum = (pixel.y - 3) * 30 + pixel.x;
+                    return PrintChar(charNum, charUV, softness);
                 }
             }
             ENDCG
