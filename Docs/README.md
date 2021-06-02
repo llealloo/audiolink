@@ -57,15 +57,21 @@ Shader "MyTestShader"
 
 ```hlsl
 // Map of where features in AudioLink are.
-#define ALPASS_DFT              int2(0,4)  
-#define ALPASS_WAVEFORM         int2(0,6)
-#define ALPASS_AUDIOLINK        int2(0,0)
-#define ALPASS_AUDIOLINKHISTORY int2(1,0) 
-#define ALPASS_GENERALVU        int2(0,22)  
-#define ALPASS_CCINTERNAL       int2(12,22)
-#define ALPASS_CCSTRIP          int2(0,24)
-#define ALPASS_CCLIGHTS         int2(0,25)
-#define ALPASS_AUTOCORRELATOR   int2(0,27)
+#define ALPASS_DFT                      int2(0,4)
+#define ALPASS_WAVEFORM                 int2(0,6)
+#define ALPASS_AUDIOLINK                int2(0,0)
+#define ALPASS_AUDIOBASS                int2(0,0)
+#define ALPASS_AUDIOLOWMIDS             int2(0,1)
+#define ALPASS_AUDIOHIGHMIDS            int2(0,2)
+#define ALPASS_AUDIOTREBLE              int2(0,3)
+#define ALPASS_AUDIOLINKHISTORY         int2(1,0)
+#define ALPASS_GENERALVU                int2(0,22)
+#define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
+#define ALPASS_CCINTERNAL               int2(12,22)
+#define ALPASS_CCSTRIP                  int2(0,24)
+#define ALPASS_CCLIGHTS                 int2(0,25)
+#define ALPASS_AUTOCORRELATOR           int2(0,27)
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -87,7 +93,7 @@ AudioLink reserves the right to change:
 
 A mechanism to use this field on a texture would be:
 ```hlsl
-	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * ETOTALBINS, 0 ) ).rrrr;
+	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * AUDIOLINK_ETOTALBINS, 0 ) ).rrrr;
 ```
 
 ### `ALPASS_WAVEFORM`
@@ -144,7 +150,7 @@ The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest
 
 A mechanism to use this field smoothly would be the following - note that we use the `ALPASS_AUDIOLINK` instead of `ALPASS_AUDIOLINKHISTORY`:
 ```hlsl
-	return AudioLinkLerp( ALPASS_AUDIOLINK + float2( i.uv.x * 128., i.uv.y * 4. ) ).rrrr;
+	return AudioLinkLerp( ALPASS_AUDIOLINK + float2( i.uv.x * AUDIOLINK_WIDTH, i.uv.y * 4. ) ).rrrr;
 ```
 
 
@@ -201,7 +207,7 @@ A single linear strip of ColorChord, think of it as a linear pie chart.  You can
 
 A mechanism to use this field smoothly would be:
 ```hlsl
-	return AudioLinkLerp( ALPASS_CCSTRIP + float2( i.uv.x * 128., 0 ) ).rgba;
+	return AudioLinkLerp( ALPASS_CCSTRIP + float2( i.uv.x * AUDIOLINK_WIDTH, 0 ) ).rgba;
 ```
 
 ### `ALPASS_CCLIGHTS`
@@ -226,7 +232,7 @@ The red channel of this row provides a fake autocorrelation of the waveform.  It
 Green, Blue, Alpha are reserved.
 
 ```hlsl
-	return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * 128., 0 ) ).rgba;
+	return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rgba;
 ```
 
 
@@ -235,15 +241,32 @@ Green, Blue, Alpha are reserved.
 ```hlsl
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
-#define CCMAXNOTES 10
-#define SAMPHIST 3069 //Internal use for algos, do not change.
-#define SAMPLEDATA24 2046
-#define EXPBINS 24
-#define EXPOCT 10
-#define ETOTALBINS ((EXPBINS)*(EXPOCT))
-#define AUDIOLINK_WIDTH  128
-#define _SamplesPerSecond 48000
-#define _RootNote 0
+#define AUDIOLINK_SAMPHIST              3069 // Internal use for algos, do not change.
+#define AUDIOLINK_SAMPLEDATA24          2046
+#define AUDIOLINK_EXPBINS               24
+#define AUDIOLINK_EXPOCT                10
+#define AUDIOLINK_ETOTALBINS            (AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT)
+#define AUDIOLINK_WIDTH                 128
+#define AUDIOLINK_SPS                   48000 // Samples per second
+#define AUDIOLINK_ROOTNOTE              0
+#define AUDIOLINK_4BAND_FREQFLOOR       0.123
+#define AUDIOLINK_4BAND_FREQCEILING     1
+#define AUDIOLINK_BOTTOM_FREQUENCY      13.75
+#define AUDIOLINK_BASE_AMPLITUDE        2.5
+#define AUDIOLINK_DELAY_COEFFICIENT_MIN 0.3
+#define AUDIOLINK_DELAY_COEFFICIENT_MAX 0.9
+#define AUDIOLINK_DFT_Q                 4.0
+#define AUDIOLINK_TREBLE_CORRECTION     5.0
+
+// ColorChord constants
+#define COLORCHORD_EMAXBIN              192
+#define COLORCHORD_IIR_DECAY_1          0.90
+#define COLORCHORD_IIR_DECAY_2          0.85
+#define COLORCHORD_CONSTANT_DECAY_1     0.01
+#define COLORCHORD_CONSTANT_DECAY_2     0.0
+#define COLORCHORD_NOTE_CLOSEST         3.0
+#define COLORCHORD_NEW_NOTE_GAIN        8.0
+#define COLORCHORD_MAX_NOTES            10
 ```
 
 The tools to read the data out of AudioLink.
@@ -251,12 +274,15 @@ The tools to read the data out of AudioLink.
  * `float4 AudioLinkDataMultiline( int2 coord )` - Same as `AudioLinkData` except that if you read off the end of one line, it continues reading onthe next.
  * `float4 AudioLinkLerp( float2 fcoord )` - Interpolate between two pixels, useful for making shaders not look jaggedy.
  * `float4 AudioLinkLerpMultiline( float2 fcoord )` - `AudioLinkLerp` but wraps lines correctly.
+ * `float Remap(float t, float a, float b, float u, float v)` - Remaps value t from [a; b] to [u; v]
 
 A couple utility macros/functions
 
  * `glsl_mod( x, y )` - returns a well behaved in negative version of `fmod()`
  * `float4 CCHSVtoRGB( float3 hsv )` - Standard HSV/L to RGB function.
  * `float4 CCtoRGB( float bin, float intensity, int RootNote )` - ColorChord's standard color generation function.
+ * `bool AudioLinkIsAvailable()` - Checks is AudioLink data texture is present
+ * `float AudioLinkGetVersion()` - Returns the running version of AudioLink as a float
 
 
 ### Table for does it make sense to index with?
@@ -316,7 +342,7 @@ This demo shows off a few things.
  * Doing something a little more interesting with the surface.  Faking alpha with `discard`.
 
 ```hlsl
-float noteno = i.uv.x*ETOTALBINS;
+float noteno = i.uv.x*AUDIOLINK_ETOTALBINS;
 
 float4 spectrum_value = AudioLinkLerpMultiline( ALPASS_DFT + float2( noteno, 0. ) )  + 0.5;
 
