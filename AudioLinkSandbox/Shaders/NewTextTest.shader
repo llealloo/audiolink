@@ -68,8 +68,16 @@
                 return saturate(o * softness - softness / 2);
             }
 
-            // Used for debugging
-            float PrintNumberOnLine(float value, uint digitOffset, uint digit, float2 charUV, uint numFractDigits, bool leadZero, float2 softness)
+            // Print a number on a line
+            //
+            // value            (float) Number value to display
+            // charUV           (float2) coordinates on the character to render
+            // softness
+            // digit            (uint) Digit in number to render
+            // digitOffset      (uint) Shift digits to the right
+            // numFractDigits   (uint) Number of digits to round to after the decimal
+            //
+            float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit, uint digitOffset, uint numFractDigits, bool leadZero)
             {
                 uint charNum;
                 if (value < 0 && digit == 0) 
@@ -149,12 +157,12 @@
                     if (dig.x < 5)
                     {
                         float value = 1.0899;
-                        return PrintNumberOnLine(value, 1, dig.x, fmxy, 3, false, softness);                
+                        return PrintNumberOnLine(value, fmxy, softness, dig.x, 1, 3, false);                
                     }
                     else
                     {
                         float value = -2.3;
-                        return PrintNumberOnLine(value, 3, dig.x - 5, fmxy, 2, false, softness);                
+                        return PrintNumberOnLine(value, fmxy, softness, dig.x - 5, 3, 2, false);                
                     }
                 }
                 else
