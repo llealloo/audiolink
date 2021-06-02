@@ -69,46 +69,46 @@
             }
 
             // Used for debugging
-            float PrintNumberOnLine(float number, uint fixedDiv, uint digit, float2 charUV, uint numFractDigits, bool leadZero, float2 softness)
+            float PrintNumberOnLine(float value, uint digitOffset, uint digit, float2 charUV, uint numFractDigits, bool leadZero, float2 softness)
             {
-                uint selNum;
-                if (number < 0 && digit == 0)
-                {
-                    selNum = 22;  // - sign
+                uint charNum;
+                if (value < 0 && digit == 0) 
+                { 
+                    charNum = __DASH;
                 }
                 else
                 {
-                    number = abs(number);
+                    value = abs(value);
 
-                    if (digit == fixedDiv)
+                    if (digit == digitOffset)
                     {
-                        selNum = 23; 
+                        charNum = __PERIOD;
                     }
                     else
                     {
-                        int dmfd = (int)digit - (int)fixedDiv;
+                        int dmfd = (int)digit - (int)digitOffset;
                         if (dmfd > 0)
                         {
                             //fractional part.
-                            uint fpart = round(frac(number) * pow(10, numFractDigits));
+                            uint fpart = round(frac(value) * pow(10, numFractDigits));
                             uint l10 = pow(10.0, numFractDigits - dmfd);
-                            selNum = ((uint)(fpart / l10)) % 10;
+                            charNum = ((uint)(fpart / l10)) % 10;
                         }
                         else
                         {
                             float l10 = pow(10.0, (float)(dmfd + 1));
-                            selNum = (uint)(number * l10);
+                            charNum = (uint)(value * l10);
 
                             //Disable leading 0's?
-                            if (!leadZero && dmfd != -1 && selNum == 0 && dmfd < 0.5)
-                                selNum = 10; // space
+                            if (!leadZero && dmfd != -1 && charNum == 0 && dmfd < 0.5)
+                                charNum = 10; // space
                             else
-                                selNum %= (uint)10;
+                                charNum %= (uint)10;
                         }
                     }
                 }
 
-                return PrintChar(selNum, charUV, softness);
+                return PrintChar(charNum, charUV, softness);
             }
 
             v2f vert (appdata v)
