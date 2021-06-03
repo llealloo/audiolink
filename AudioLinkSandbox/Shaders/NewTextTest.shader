@@ -39,86 +39,6 @@
                 float4 vertex : SV_POSITION;
             };
 
-            ////////////////////////////////////////////////////////////////////
-            // General debug functions below here
-
-            // Shockingly, including the ability to render text doesn't
-            // slow down number printing if text isn't used.
-            // A basic versino of the debug screen without text was only 134
-            // instructions.
-
-            float PrintChar(uint charNum, float2 charUV, float2 softness)
-            {
-                // .x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
-                charUV += float2(0, 0.5);
-                uint2 bitmap = bitmapFont[charNum];
-                uint4 bitmapA = bitmap.xxxx;
-                uint4 bitmapB = bitmap.yyyy;
-                uint2 pixel = charUV;
-                uint index = pixel.x + pixel.y * 4 - 4;
-                uint4 shift = uint4(0, 1, 4, 5) + index;
-                uint4 bitSelect = uint4(1, 1, 1, 1);
-                bitmapA = (bitmapA >> shift) & bitSelect;
-                bitmapB = (bitmapB >> shift) & bitSelect;
-                float4 neighbors = (bitmapB & 1) ? (bitmapA ? 1 : 0.35) : (bitmapA ? 0.15 : 0);
-                float2 pixelUV = smoothstep(0, 1, frac(charUV));
-                float o = lerp(
-                          lerp(neighbors.x, neighbors.y, pixelUV.x),
-                          lerp(neighbors.z, neighbors.w, pixelUV.x), pixelUV.y);
-                return saturate(o * softness - softness / 2);
-            }
-
-            // Print a number on a line
-            //
-            // value            (float) Number value to display
-            // charUV           (float2) coordinates on the character to render
-            // softness
-            // digit            (uint) Digit in number to render
-            // digitOffset      (uint) Shift digits to the right
-            // numFractDigits   (uint) Number of digits to round to after the decimal
-            //
-            float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit, uint digitOffset, uint numFractDigits, bool leadZero)
-            {
-                uint charNum;
-                if (value < 0 && digit == 0) 
-                { 
-                    charNum = __DASH;
-                }
-                else
-                {
-                    value = abs(value);
-
-                    if (digit == digitOffset)
-                    {
-                        charNum = __PERIOD;
-                    }
-                    else
-                    {
-                        int dmfd = (int)digit - (int)digitOffset;
-                        if (dmfd > 0)
-                        {
-                            //fractional part.
-                            uint fpart = round(frac(value) * pow(10, numFractDigits));
-                            uint l10 = pow(10.0, numFractDigits - dmfd);
-                            charNum = ((uint)(fpart / l10)) % 10;
-                        }
-                        else
-                        {
-                            float l10 = pow(10.0, (float)(dmfd + 1));
-                            charNum = (uint)(value * l10);
-
-                            //Disable leading 0's?
-                            if (!leadZero && dmfd != -1 && charNum == 0 && dmfd < 0.5)
-                                charNum = 10; // space
-                            else
-                                charNum %= (uint)10;
-                        }
-                    }
-                }
-
-                return PrintChar(charNum, charUV, softness);
-            }
-
             v2f vert (appdata v)
             {
                 v2f o;
@@ -142,9 +62,9 @@
                 // This line of code is tricky;  We determine how much we should soften the edge of the text
                 // based on how quickly the text is moving across our field of view.  This gives us realy nice
                 // anti-aliased edges.
-                float2 softness = 2.0 / pow(length(float2(ddx(pos.x), ddy(pos.y))), 0.5);
+                float2 softness_uv = pos * float2( 4, 6 );
+                float softness = 4./(pow( length( float2( ddx( softness_uv.x ), ddy( softness_uv.y ) ) ), 0.5 ))-1.;
 
-                // Another option would be to set softness to 20 and YOLO it.
                 float2 charUV = float2(4, 6) - glsl_mod(pos, 1.0) * float2(4.0, 6.0);
                 
                 if (pixel.y < 2)
