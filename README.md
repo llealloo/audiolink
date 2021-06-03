@@ -8,6 +8,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ##### [Public example world (V1)](https://vrchat.com/home/launch?worldId=wrld_7cfa5d1c-4177-43ec-ab05-26ec62bb5088)
 ##### [Public example world (V2)](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
+##### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
 ## Limitations
 - Currently, only 2D audio sources are supported when using Unity video player. For 3D audio sources, please use the AVPro video player and refer to the getting started section for setup with AudioLinkInput method.
