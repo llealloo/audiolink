@@ -70,25 +70,25 @@
                 if (pixel.y < 2)
                 {
                     uint charLines[11] = {__H, __e, __l, __l, __o, __SPACE, __w, __o, __r, __l, __d};
-                    return PrintChar(charLines[pixel.x + pixel.y * 30], charUV, softness);
+                    return PrintChar(charLines[pixel.x + pixel.y * 30], charUV, softness, 0);
                 }
                 else if (pixel.y == 2)
                 {
                     if (pixel.x < 5)
                     {
                         float value = 1.0899;
-                        return PrintNumberOnLine(value, charUV, softness, pixel.x, 1, 3, false);                
+                        return PrintNumberOnLine(value, charUV, softness, pixel.x, 1, 3, false, 0);                
                     }
                     else
                     {
                         float value = -2.3;
-                        return PrintNumberOnLine(value, charUV, softness, pixel.x - 5, 3, 2, false);                
+                        return PrintNumberOnLine(value, charUV, softness, pixel.x - 5, 3, 2, false, 0);                
                     }
                 }
                 else
                 {
                     uint charNum = (pixel.y - 3) * 30 + pixel.x;
-                    return PrintChar(charNum, charUV, softness);
+                    return PrintChar(charNum, charUV, softness, 0);
                 }
             }
             ENDCG
