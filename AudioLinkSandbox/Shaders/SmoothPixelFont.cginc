@@ -195,7 +195,7 @@ const static uint2 bitmapFont[96] = {
 // A basic versino of the debug screen without text was only 134
 // instructions.
 
-float PrintChar(uint charNum, float2 charUV, float2 softness)
+float PrintChar(uint charNum, float2 charUV, float2 softness, float offset)
 {
     // .x = 15% .y = 35% added, it's 1.0. ( 0 1 would be 35% )
     charUV += float2(0, 0.5);
@@ -213,6 +213,7 @@ float PrintChar(uint charNum, float2 charUV, float2 softness)
     float o = lerp(
               lerp(neighbors.x, neighbors.y, pixelUV.x),
               lerp(neighbors.z, neighbors.w, pixelUV.x), pixelUV.y);
+	o += offset;
     return saturate(o * softness - softness / 2);
 }
 
@@ -225,7 +226,7 @@ float PrintChar(uint charNum, float2 charUV, float2 softness)
 // digitOffset      (uint) Shift digits to the right
 // numFractDigits   (uint) Number of digits to round to after the decimal
 //
-float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit, uint digitOffset, uint numFractDigits, bool leadZero)
+float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit, uint digitOffset, uint numFractDigits, bool leadZero, float offset)
 {
     uint charNum;
     if (value < 0 && digit == 0) 
@@ -265,5 +266,5 @@ float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit,
         }
     }
 
-    return PrintChar(charNum, charUV, softness);
+    return PrintChar(charNum, charUV, softness, offset);
 }
