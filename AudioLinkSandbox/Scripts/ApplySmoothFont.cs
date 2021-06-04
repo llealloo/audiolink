@@ -6,44 +6,95 @@ using VRC.Udon;
 
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR // These using statements must be wrapped in this check to prevent issues on builds
+using VRC.SDKBase.Editor.BuildPipeline;
 using UnityEditor;
 using UdonSharpEditor;
 #endif
 
-namespace ApplySmoothFont
+namespace AudioLink
 {
-	public class ApplySmoothFont : UdonSharpBehaviour
+	//TODO: Implement this: 
+	
+		#if !COMPILER_UDONSHARP && UNITY_EDITOR 
+
+/*
+	//From: https://github.com/MerlinVR/UdonSharp/blob/master/Assets/UdonSharp/Editor/BuildUtilities/UdonSharpBuildCompile.cs
+	//TODO: Return false if there was an issue.
+    internal class UdonSharpBuildCompile : IVRCSDKBuildRequestedCallback
+    {
+        public int callbackOrder => 100;
+
+        public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+        {
+            if (requestedBuildType == VRCSDKRequestedBuildType.Avatar)
+                return true;
+
+            //if (UdonSharpSettings.GetSettings()?.disableUploadCompile ?? false)
+            //    return true;
+
+			Debug.Log( "Build Requested." );
+
+            return true;
+        }
+    }
+	*/
+
+	[ExecuteInEditMode]
+	public class ApplySmoothFont : MonoBehaviour
 	{
 		[TextArea]
 		public string TextSet;
 		public int Columns;
 		public int Rows;
 		public Material mat_ApplySmoothTex;
-		private Material UseMaterial;
+		public string uuidStr;
 
-		void Start()
+		private int lasthash;
+		private Material UseMaterial;
+		private Texture2D UseTexture;
+		private bool GenerateMaterial;
+
+		public void OnValidate()
 		{
-			if( Rows == 0 ) Rows = 10;
-			if( Columns == 0 ) Columns = 20;
 			UpdateProps();
 		}
-		
+
+	 
+		 public void Update()
+		 {
+			 if (GenerateMaterial)
+			 {
+				AssetDatabase.CreateAsset(UseMaterial, $"Assets/Compiled/cmat_{uuidStr}.mat");
+				GenerateMaterial = false;
+			 }
+		 }
 		public void UpdateProps()
 		{
+			if( uuidStr.Length == 0 )
+			{
+				uuidStr = System.Guid.NewGuid().ToString();
+			}
+			int thishash = (TextSet+Rows.ToString()+Columns.ToString()).GetHashCode();
+			if( thishash == lasthash )
+			{
+				return;
+			}
+			lasthash = thishash;
+
 			if( Rows == 0 ) Rows = 10;
 			if( Columns == 0 ) Columns = 20;
 
-#if !COMPILER_UDONSHARP && UNITY_EDITOR 
-			UseMaterial = new Material(mat_ApplySmoothTex);
-#else
-			GetComponent<MeshRenderer>().sharedMaterial = mat_ApplySmoothTex;
-			UseMaterial = GetComponent<MeshRenderer>().material;
-#endif
-			//gameObject. 
-			UseMaterial.SetInt( "Cols", Columns );
-			UseMaterial.SetInt( "Rows", Rows );
-			Color [] chardata = new Color[Columns*Rows];
-			
+			UseTexture = AssetDatabase.LoadAssetAtPath($"Assets/Compiled/ctex_{uuidStr}.asset", typeof( Texture2D ) ) as Texture2D;
+			if( UseTexture == null )
+			{
+				Texture2D UseTexture = new Texture2D( Columns, Rows, TextureFormat.RGBAHalf, false );
+				AssetDatabase.CreateAsset( UseTexture, $"Assets/Compiled/ctex_{uuidStr}.asset");
+			}
+			else
+			{
+				UseTexture.Resize( Columns, Rows );
+			}
+
 			int lx = 0, ly = 0;
 			int i = 0;
 			
@@ -56,12 +107,27 @@ namespace ApplySmoothFont
 			int mode = 0;
 			string thistag = "";
 			int weight = 0;
+			int submode = 0;
 			
 			for( i = 0; i < TextSet.Length && lx+ly*Columns < Rows*Columns; i++ )
 			{
-				byte cs = (byte)TextSet[i];
+				char tc = TextSet[i];
+				byte cs = (byte)tc;
+				char emit = (char)0;
+				
+				// This code parses through HTML, sort of.
+				// If it sees a < it start looking for RGB or font-weight.
+				// if it sees a & it looks for nbsp, gt or lt.
+
+				//Parsing based off of https://pinetools.com/syntax-highlighter
+				// for syntax highlighter
+
 				if( mode == 0 )
 				{
+					if( cs == 9 )
+					{
+						lx += 4;
+					}
 					if( cs == 10 )
 					{
 						// Handle newlines
@@ -73,24 +139,30 @@ namespace ApplySmoothFont
 						thistag = "";
 						mode = 1;
 					}
+					else if( cs == '&' )
+					{
+						thistag = "";
+						mode = 2;
+						submode = 0;
+					}
 					else
 					{
-						// Actually emit a character.
-						chardata[lx+ly*Columns] = currentColor;
-						chardata[lx+ly*Columns].a = (cs/256.0f) + weight*100+100;
-						Debug.Log( chardata[lx+ly*Columns].a );
-						lx++;
-						if(lx == Columns)
-						{
-							lx = 0;
-							ly++;
-						}
+						emit = tc;
 					}
 				}
-				else if( mode == 1 )
+				else if( mode == 2 )
 				{
-					//Parsing based off of https://pinetools.com/syntax-highlighter
-					
+					if( submode == 0 && tc == 'g' )
+						emit = '>';
+					if( submode == 0 && tc == 'l' )
+						emit = '<';
+					if( submode == 0 && tc == 'n' )
+						emit = ' ';
+					if( cs == ';' ) mode = 0;
+					submode++;
+				}
+				else if( mode == 1 )
+				{					
 					if( cs == '>' )
 					{
 						int weightindex = thistag.IndexOf( "font-weight" );
@@ -125,40 +197,60 @@ namespace ApplySmoothFont
 						thistag += TextSet[i];
 					}
 				}
+				if( emit != (char)0 )
+				{
+					// Actually emit a character.
+					Color c = currentColor;
+					c.a = (emit/256.0f) + weight*2+2;
+					
+					UseTexture.SetPixel( lx, ly, c );
+					
+					lx++;
+				}
+				if(lx >= Columns)
+				{
+					lx = 0;
+					ly++;
+				}
 			}
-			UseMaterial.SetColorArray( "FontData", chardata );
+			UseTexture.Apply();
+
+			UseMaterial = AssetDatabase.LoadAssetAtPath($"Assets/Compiled/cmat_{uuidStr}.asset", typeof( Material ) ) as Material;
+			if( UseMaterial == null )
+			{
+				UseMaterial = 
+					new Material(Shader.Find("AudioLinkSandbox/ApplySmoothText"));
+				UseMaterial.name = "cmat_"+uuidStr;
+				UseMaterial.SetTexture( "_TextData", UseTexture );
+				GenerateMaterial = true;
+			}
+			GetComponent<MeshRenderer>().sharedMaterial = UseMaterial;		
+
+		//	AssetDatabase.CreateAsset(mat_this, $"Assets/Compiled/cmat_{uuidStr}.mat");
+		//	AssetDatabase.CreateAsset(GetComponent<MeshRenderer>().sharedMaterial, $"Assets/Compiled/cmat_{uuidStr}.mat");
+
+	/*		Debug.Log("START" );
+			Debug.Log( UseMaterial );
 			
-			GetComponent<MeshRenderer>().sharedMaterial = UseMaterial;
+			bool hasMaterial = false;
+			string [] foundassets = AssetDatabase.FindAssets( gid );
+			foreach (string guid2 in foundassets)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid2);
+				if( path.Contains("cmat") ) hasMaterial = true;
+			}
+			Debug.Log( hasMaterial );
+			if( !hasMaterial )
+			{
+				Debug.Log( $"Can't Find: Assets/Compiled/cmat_{gid}.asset" );
+				//AssetDatabase.CreateAsset(UseMaterial, $"Assets/Compiled/cmat_{gid}.asset");
+				//AssetDatabase.ImportAsset($"Assets/Compiled/cmat_{gid}.mat", ImportAssetOptions.ImportRecursive);
+				//Debug.Log( AssetDatabase.LoadAssetAtPath($"Assets/Compiled/ctex_{gid}.asset", typeof( Texture2D ) ) );
+				//Debug.Log(  );
+			}
+//			AssetDatabase.StopAssetEditing();
+*/
 		}
 	}
-	
-#if !COMPILER_UDONSHARP && UNITY_EDITOR 
-    [CustomEditor(typeof(ApplySmoothFont))]
-    public class ApplySmoothFontEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            // Draws the default convert to UdonBehaviour button, program asset field, sync settings, etc.
-            if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
-
-            ApplySmoothFont inspectorBehaviour = (ApplySmoothFont)target;
-
-            EditorGUI.BeginChangeCheck();
-
-            // A simple string field modification with Undo handling
-            string newStrVal = EditorGUILayout.TextArea( inspectorBehaviour.TextSet );
-            int Columns = EditorGUILayout.IntField( "Columns", inspectorBehaviour.Columns );
-            int Rows    = EditorGUILayout.IntField( "Rows", inspectorBehaviour.Rows );
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(inspectorBehaviour, "Modify string val");
-                inspectorBehaviour.TextSet = newStrVal;
-                inspectorBehaviour.Columns = Columns;
-                inspectorBehaviour.Rows = Rows;
-				inspectorBehaviour.UpdateProps();
-            }
-        }
-    }
 #endif
 }
