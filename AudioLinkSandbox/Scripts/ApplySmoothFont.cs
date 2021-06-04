@@ -54,20 +54,27 @@ namespace AudioLink
 		private Texture2D UseTexture;
 		private bool GenerateMaterial;
 
+		public void Start()
+		{
+			lasthash = 0;
+			UpdateProps();
+		}
+		
 		public void OnValidate()
 		{
 			UpdateProps();
 		}
-
-	 
-		 public void Update()
-		 {
-			 if (GenerateMaterial)
-			 {
+		
+		public void Update()
+		{
+			if (GenerateMaterial)
+			{
+				UseMaterial.SetTexture( "_TextData", UseTexture );
 				AssetDatabase.CreateAsset(UseMaterial, $"Assets/Compiled/cmat_{uuidStr}.mat");
 				GenerateMaterial = false;
-			 }
-		 }
+			}
+		}
+
 		public void UpdateProps()
 		{
 			if( uuidStr.Length == 0 )
@@ -221,9 +228,9 @@ namespace AudioLink
 				UseMaterial = 
 					new Material(Shader.Find("AudioLinkSandbox/ApplySmoothText"));
 				UseMaterial.name = "cmat_"+uuidStr;
-				UseMaterial.SetTexture( "_TextData", UseTexture );
 				GenerateMaterial = true;
 			}
+			UseMaterial.SetTexture( "_TextData", UseTexture );
 			GetComponent<MeshRenderer>().sharedMaterial = UseMaterial;		
 
 		//	AssetDatabase.CreateAsset(mat_this, $"Assets/Compiled/cmat_{uuidStr}.mat");
