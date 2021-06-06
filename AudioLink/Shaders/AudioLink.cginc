@@ -11,6 +11,7 @@
 #define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
 #define ALPASS_GENERALVU_NETWORK_TIME   int2(4,22)
+#define ALPASS_GENERALVU_PLAYERINFO     int2(6,22)
 #define ALPASS_CCINTERNAL               int2(12,22)
 #define ALPASS_CCSTRIP                  int2(0,24)
 #define ALPASS_CCLIGHTS                 int2(0,25)

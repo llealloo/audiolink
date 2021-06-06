@@ -29,7 +29,8 @@
                 float3 vpOrig : TEXCOORD0;
                 float3 vpXform : TEXCOORD1;
                 float4 vertex : SV_POSITION;
-            };
+                float  corrmax : TEXCOORD2;
+           };
 
             v2f vert (appdata v)
             {
@@ -57,6 +58,10 @@
                 // the surface.
                 autocorrvalue = autocorrvalue * (.5-abs(vp.y)) * 0.4 + .6;
 
+                // Perform same operation to find max.  The 0th bin on the 
+                // autocorrelator will almost always be the max
+                o.corrmax = AudioLinkLerp( ALPASS_AUTOCORRELATOR ) * 0.2 + .6; 
+
                 // Modify the original vertices by this amount.
                 vp *= autocorrvalue;
 
@@ -68,10 +73,11 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 // Decide how we want to color from colorchord.
-                float ccplace = length( i.vpXform.xz ) * 2.;
-                
+                float ccplace = length( i.vpXform.xz )*2. / i.corrmax;
+
                 // Get a color from ColorChord
-                float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP + float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
+                float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP +
+                    float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
 
                 // Shade the color a little.
                 colorchordcolor *= length( i.vpXform.xyz ) * 15. - 2.0;
