@@ -1,4 +1,4 @@
-Shader "AudioLink/AudioLink"
+Shader "AudioLinkInternal/AudioLink"
 {
     Properties
     {
@@ -54,14 +54,6 @@ Shader "AudioLink/AudioLink"
             #include "AudioLink.cginc"
             uniform half4 _SelfTexture2D_TexelSize; 
 
-            cbuffer SampleBuffer {
-                float _AudioFrames[1023*4] : packoffset(c0);  
-                float _Samples0[1023] : packoffset(c0);
-                float _Samples1[1023] : packoffset(c1023);
-                float _Samples2[1023] : packoffset(c2046);
-                float _Samples3[1023] : packoffset(c3069);
-            };
-
             // AudioLink 4 Band
             uniform float _FadeLength;
             uniform float _FadeExpFalloff;
@@ -83,8 +75,23 @@ Shader "AudioLink/AudioLink"
             uniform float _AutogainDerate;
 
             // Set by Udon
-            uniform float4 _AdvancedTimeProps;
+            uniform float4 _AdvancedTimeProps, _AdvancedTimeProps2;
             uniform float4 _VersionNumberAndFPSProperty;
+            uniform float4 _PlayerCountAndData;
+            
+            //Raw audio data.
+            cbuffer LeftSampleBuffer {
+                float _Samples0L[1023];
+                float _Samples1L[1023];
+                float _Samples2L[1023];
+                float _Samples3L[1023];
+            };
+            cbuffer RightSampleBuffer {
+                float _Samples0R[1023];
+                float _Samples1R[1023];
+                float _Samples2R[1023];
+                float _Samples3R[1023];
+            };
 
             // These may become uniforms set by the controller, keep them named like this for now
             const static float _LogAttenuation = 0.68;
@@ -164,17 +171,39 @@ Shader "AudioLink/AudioLink"
         {
             Name "Pass2WaveformData"
             CGPROGRAM
+            
+            float ReadLeft( int sample )
+            {
+                if( sample < 1023 )
+                    return _Samples0L[sample];
+                else if( sample < 2046 )
+                    return _Samples1L[sample-1023];
+                else if( sample < 3069 )
+                    return _Samples2L[sample-2046];
+                else if( sample < 4092 )
+                    return _Samples3L[sample-3069];
+                else
+                    return 0.;
+            }
+            float ReadRight( int sample )
+            {
+                if( sample < 1023 )
+                    return _Samples0R[sample];
+                else if( sample < 2046 )
+                    return _Samples1R[sample-1023];
+                else if( sample < 3069 )
+                    return _Samples2R[sample-2046];
+                else if( sample < 4092 )
+                    return _Samples3R[sample-3069];
+                else
+                    return 0.;
+            }
+
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_WAVEFORM)
+                int frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
 
-                // XXX Hack: Force the compiler to keep Samples0 and Samples1.
-                if(guv.x < 0) return _Samples0[0] + _Samples1[0] + _Samples2[0] + _Samples3[0];   // slick, thanks @lox9973
-
-                uint frame = coordinateLocal.x + coordinateLocal.y * AUDIOLINK_WIDTH;
-                if(frame >= AUDIOLINK_SAMPHIST) frame = AUDIOLINK_SAMPHIST - 1;         //Prevent overflow.
-                
-                // Autogain
                 float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
                 if(_EnableAutogain)
                 {
@@ -185,12 +214,33 @@ Shader "AudioLink/AudioLink"
                 }
 
                 // Downsampled to 24k and 12k samples per second by averaging, limiting frame to prevent overflow
-                frame = min(frame, 2047);
-                float downSample24 = (_AudioFrames[frame * 2] + _AudioFrames[frame * 2 + 1]) / 2.;
-                frame = min(frame, 1023);
-                float downSample12 = (_AudioFrames[frame * 4] + _AudioFrames[frame * 4 + 1] + _AudioFrames[frame * 4 + 2] + _AudioFrames[frame * 4 + 3]) / 4.;
+                float4 ret = 0; // [ downsampled 24k mono, native 48k mono, down sampled to 12k mono, difference between left and right at 24k]
+                if( frame < 2046 )
+                {
+                    ret.x = (
+                        ReadLeft(frame * 2 + 0) + ReadRight(frame * 2 + 0) +
+                        ReadLeft(frame * 2 + 1) + ReadRight(frame * 2 + 1) ) / 4.;
+                }
+                if( frame < 4092 )
+                {
+                    ret.y = ( ReadLeft(frame) + ReadRight(frame) ) / 2.;
+                }
+                if( frame < 1023 )
+                {
+                    ret.z = (
+                        ReadLeft(frame * 4 + 0) + ReadRight(frame * 4 + 0) +
+                        ReadLeft(frame * 4 + 1) + ReadRight(frame * 4 + 1) +
+                        ReadLeft(frame * 4 + 2) + ReadRight(frame * 4 + 2) +
+                        ReadLeft(frame * 4 + 3) + ReadRight(frame * 4 + 3) ) / 8.;
+                }
+                if( frame < 2046 )
+                {
+                    ret.w = (
+                        ReadLeft(frame * 2 + 0) - ReadRight(frame * 2 + 0) +
+                        ReadLeft(frame * 2 + 1) - ReadRight(frame * 2 + 1) ) / 4.;
+                }
 
-                return float4(downSample24, _AudioFrames[frame], downSample12, 1) * incomingGain;
+                return ret;
             }
             ENDCG
         }
@@ -278,21 +328,21 @@ Shader "AudioLink/AudioLink"
                 float4 markerValue = GetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
                 float4 markerTimes = GetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
                 float4 lastAutogain = GetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
-                float time = _Time.y;
-                
-                if(time - markerTimes.x > 1.0) markerValue.x = -1;
-                if(time - markerTimes.y > 1.0) markerValue.y = -1;
+
+                markerTimes.xy += unity_DeltaTime.yy;
+                if( markerTimes.x > 1.0) markerValue.x = -1;
+                if( markerTimes.y > 1.0) markerValue.y = -1;
                 
                 if(markerValue.x < peakRMS)
                 {
                     markerValue.x = peakRMS;
-                    markerTimes.x = time;
+                    markerTimes.x = 0;
                 }
 
                 if(markerValue.y < peak)
                 {
                     markerValue.y = peak;
-                    markerTimes.y = time;
+                    markerTimes.y = 0;
                 }
 
                 if(coordinateLocal.x >= 8)
@@ -372,12 +422,6 @@ Shader "AudioLink/AudioLink"
                     else if(coordinateLocal.x == 2)
                     {
                         // Output of this is daytime, in milliseconds
-                        // as an int.  But, we only have half4's.
-                        // so we have to get creative.
-
-                        //_AdvancedTimeProps.x = seconds % 1024
-                        //_AdvancedTimeProps.y = seconds / 1024
-
                         // This is done a little awkwardly as to prevent any overflows.
                         uint dtms = _AdvancedTimeProps.x * 1000;
                         uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
@@ -390,12 +434,27 @@ Shader "AudioLink/AudioLink"
                     }
                     else if(coordinateLocal.x == 3)
                     {
+                        // Current time of day, in local time.
+                        // Generally this will not exceed 90 million milliseconds. (25 hours)
                         int ftpa = _AdvancedTimeProps.z * 1000.;
-                        return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20), 0);
+                        return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
                     }
                     else if(coordinateLocal.x == 4)
                     {
-                        return float4(0, 0, 0, 0);
+                        // Time sync'd off of Networking.GetServerTimeInMilliseconds()
+                        float fractional = _AdvancedTimeProps2.x;
+                        float major = _AdvancedTimeProps2.y;
+                        if( major < 0 )
+                            major = 65536 + major;
+                        int currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
+                        return float4((currentNetworkTimeMS & 0x3ff), (currentNetworkTimeMS >> 10) & 0x3ff, (currentNetworkTimeMS >> 20) & 0x3ff, (currentNetworkTimeMS >> 30) & 0x3ff );
+                    }
+                    else if(coordinateLocal.x == 6)
+                    {
+                        //.x = Player Count
+                        //.y = IsMaster
+                        //.z = IsInstanceOwner
+                        return float4( _PlayerCountAndData );
                     }
                 }
 
@@ -853,6 +912,22 @@ Shader "AudioLink/AudioLink"
             }
             ENDCG
         }
+        
+        Pass
+        {
+            Name "Filtered-AudioLinkOutput"
+            CGPROGRAM
+
+            float4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDAUDIOLINK)
+                float4 AudioLinkBase = GetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                float4 Previous = GetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
+                return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
+            }
+            ENDCG
+        }
+
 
         Pass 
         {

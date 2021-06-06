@@ -16,6 +16,8 @@ namespace VRCAudioLink
   public class AudioLinkAutoConfigurator : MonoBehaviour
   {
     public Material audioMaterial;
+    public Material audioMaterialInLeft;
+    public Material audioMaterialInRight;
     public GameObject audioTextureExport;
     public Texture2D audioData2d;
     public AudioSource audioSource;
@@ -72,12 +74,16 @@ namespace VRCAudioLink
       // we look up all the properties that have to be set
       // this uses unity's SerializedProperty syntax
       var audioMaterial = sO.FindProperty("audioMaterial");
+      var audioMaterialInLeft = sO.FindProperty("audioMaterialInLeft");
+      var audioMaterialInRight = sO.FindProperty("audioMaterialInRight");
       var audioTextureExport = sO.FindProperty("audioTextureExport");
       var audioData2D = sO.FindProperty("audioData2D");
       var audioSource = sO.FindProperty("audioSource");
       var audioDataToggle = sO.FindProperty("audioDataToggle");
       // once we get the properties, we can set them to saved values same way as we do for WORLD code
       audioMaterial.objectReferenceValue = t.audioMaterial;
+      audioMaterialInLeft.objectReferenceValue = t.audioMaterialInLeft;
+      audioMaterialInRight.objectReferenceValue = t.audioMaterialInRight;
       audioTextureExport.objectReferenceValue = t.audioTextureExport;
       audioData2D.objectReferenceValue = t.audioData2d;
       audioSource.objectReferenceValue = t.audioSource;
