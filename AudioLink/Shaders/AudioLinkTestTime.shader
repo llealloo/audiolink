@@ -168,8 +168,22 @@
                     break;
 
                 case 7:
-                    value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 4, 0 ) ) ).a; //100,000 sentinal test
-                    break;
+                    if( dig.x < 3 )
+                    {
+                        value = AudioLinkData( int2( ALPASS_GENERALVU_PLAYERINFO ) ).r;
+                        xoffset = 8;
+                    }
+                    else if( dig.x < 9 )
+                    {
+                        value = AudioLinkData( int2( ALPASS_GENERALVU_PLAYERINFO ) ).g;
+                        xoffset = 2;
+                    }
+                    else
+                    {
+                        value = AudioLinkData( int2( ALPASS_GENERALVU_PLAYERINFO ) ).b;
+                        xoffset = 0;
+                    }
+					break;
                 case 8:
                     value = ALDecodeDataAsSeconds( AudioLinkData( int2( ALPASS_GENERALVU + int2(2, 0 ) ) ) );
                     xoffset=4;
