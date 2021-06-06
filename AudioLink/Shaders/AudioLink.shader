@@ -97,6 +97,8 @@ Shader "AudioLinkInternal/AudioLink"
             const static float _LogAttenuation = 0.68;
             const static float _ContrastSlope = 0.63;
             const static float _ContrastOffset = 0.62;
+
+            const static float _WaveInClampValue = 2.0;
             ENDCG
 
             Name "Pass1AudioDFT"
@@ -240,7 +242,7 @@ Shader "AudioLinkInternal/AudioLink"
                         ReadLeft(frame * 2 + 1) - ReadRight(frame * 2 + 1) ) / 4.;
                 }
 
-                return ret;
+                return clamp( ret * incomingGain, -_WaveInClampValue, _WaveInClampValue );
             }
             ENDCG
         }
