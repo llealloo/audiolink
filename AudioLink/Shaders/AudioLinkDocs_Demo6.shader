@@ -60,7 +60,8 @@
             }
             
             
-            float2 hash12(float2 n){ return frac( sin(dot(n, 4.1414)) * float2( 43758.5453, 38442.558 ) ); }
+            float2 hash12(float2 n){ return frac( sin(dot(n, 4.1414)) *
+				float2( 43758.5453, 38442.558 ) ); }
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -76,7 +77,7 @@
                 float2 remainder = 1. - logoSize;
 
                 // Retrieve the instance time.
-                float instanceTime = ALDecodeDataAsFloat( ALPASS_GENERALVU_INSTANCE_TIME );
+                float instanceTime = ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
 
                 // Calculate the total progress made along X and Y irrespective of
                 // the total number of bounces made.  But then compute where the

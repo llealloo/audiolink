@@ -72,6 +72,7 @@ Shader "MyTestShader"
 #define ALPASS_CCSTRIP                  int2(0,24)
 #define ALPASS_CCLIGHTS                 int2(0,25)
 #define ALPASS_AUTOCORRELATOR           int2(0,27)
+#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -93,7 +94,7 @@ AudioLink reserves the right to change:
 
 A mechanism to use this field on a texture would be:
 ```hlsl
-	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * AUDIOLINK_ETOTALBINS, 0 ) ).rrrr;
+    return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * AUDIOLINK_ETOTALBINS, 0 ) ).rrrr;
 ```
 
 ### `ALPASS_WAVEFORM`
@@ -114,17 +115,17 @@ float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
 // Enable/Disable autogain.
 if( _EnableAutogain )
 {
-	float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
+    float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
 
-	//Divide by the running volume.
-	incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
+    //Divide by the running volume.
+    incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
 }
 ```
 
 
 A mechanism to use this field on a texture would be:
 ```hlsl
-	return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * 1024, 0 ) ).rrrr;
+    return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * 1024, 0 ) ).rrrr;
 ```
 
 
@@ -141,7 +142,7 @@ AudioLink v1 note: The 32x4 section of the AudioLink texture is still compatible
 
 A mechanism to use this field on a texture would be:
 ```hlsl
-	return AudioLinkData( ALPASS_AUDIOLINK + uint2( 0, i.uv.y * 4. ) ).rrrr;
+    return AudioLinkData( ALPASS_AUDIOLINK + uint2( 0, i.uv.y * 4. ) ).rrrr;
 ```
 
 ### `ALPASS_AUDIOLINKHISTORY`
@@ -150,7 +151,7 @@ The history of ALPASS_AUDIOLINK, cascading right in the texture, with the oldest
 
 A mechanism to use this field smoothly would be the following - note that we use the `ALPASS_AUDIOLINK` instead of `ALPASS_AUDIOLINKHISTORY`:
 ```hlsl
-	return AudioLinkLerp( ALPASS_AUDIOLINK + float2( i.uv.x * AUDIOLINK_WIDTH, i.uv.y * 4. ) ).rrrr;
+    return AudioLinkLerp( ALPASS_AUDIOLINK + float2( i.uv.x * AUDIOLINK_WIDTH, i.uv.y * 4. ) ).rrrr;
 ```
 
 
@@ -163,37 +164,40 @@ Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is u
 It contains the following dedicated pixels:
 
 <table>
-<tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr	>
+<tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr    >
 <tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/float]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
 <tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
 </table>
 
-Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsFloat(...)`
+Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsSeconds(...)`
 
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
+#define ALPASS_GENERALVU_NETWORK_TIME    int2(4,22)
+#define ALPASS_GENERALVU_PLAYERINFO      int2(6,22)
 ```
-
 
 Various Usages of this field would be:
 ```hlsl
-	AudioLinkData( ALPASS_GENERALVU + uint2( 0, 0 )).x;  //2.04 for AudioLink 2.4.
-	AudioLinkData( ALPASS_GENERALVU + uint2( 1, 0 )).x;  //System FPS
-	ALDecodeDataAsfloat( ALPASS_GENERALVU_INSTANCE_TIME ); //Time that matches for all players
-	ALDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
-	AudioLinkData( ALPASS_GENERALVU + uint2( 8, 0 )).x;  // Current intensity of sound.
-	AudioLinkData( ALPASS_GENERALVU + uint2( 11, 0 )).y;  // slow responce of volume of incoming sound.
+    AudioLinkData( ALPASS_GENERALVU + uint2( 0, 0 )).x;  //2.04 for AudioLink 2.4.
+    AudioLinkData( ALPASS_GENERALVU + uint2( 1, 0 )).x;  //System FPS
+    ALDecodeDataAsSeconds( ALPASS_GENERALVU_INSTANCE_TIME ); //Time since start of instance, but wraps every 1.5 days.
+    ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME ); //Time that matches for all players for animations, but wraps every 1.5 days.
+    ALDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
+    AudioLinkData( ALPASS_GENERALVU + uint2( 8, 0 )).x;  // Current intensity of sound.
+    AudioLinkData( ALPASS_GENERALVU + uint2( 11, 0 )).y;  // slow responce of volume of incoming sound.
 ```
 
-
-
+NOTE: There are potentially issues with `ALPASS_GENERALVU_INSTANCE_TIME` if a map is updated mid-instance and the instance owner leaves mid-instance, so it is preferred that for effects that don't care when the instance started, use `ALPASS_GENERALVU_NETWORK_TIME` as this will allow you to animate things so that all players see your animation the same as you.
 
 ### `ALPASS_CCINTERNAL`
 
@@ -207,7 +211,7 @@ A single linear strip of ColorChord, think of it as a linear pie chart.  You can
 
 A mechanism to use this field smoothly would be:
 ```hlsl
-	return AudioLinkLerp( ALPASS_CCSTRIP + float2( i.uv.x * AUDIOLINK_WIDTH, 0 ) ).rgba;
+    return AudioLinkLerp( ALPASS_CCSTRIP + float2( i.uv.x * AUDIOLINK_WIDTH, 0 ) ).rgba;
 ```
 
 ### `ALPASS_CCLIGHTS`
@@ -220,7 +224,7 @@ The top (0,1) row is used to track internal aspects of ColorChord state.  Subjec
 
 A mechanism to use this field smoothly would be:
 ```hlsl
-	return AudioLinkData( ALPASS_CCLIGHTS + uint2( uint( i.uv.x * 8 ) + uint(i.uv.y * 16) * 8, 0 ) ).rgba;
+    return AudioLinkData( ALPASS_CCLIGHTS + uint2( uint( i.uv.x * 8 ) + uint(i.uv.y * 16) * 8, 0 ) ).rgba;
 ```
 
 ### `ALPASS_AUTOCORRELATOR`
@@ -229,12 +233,15 @@ The red channel of this row provides a fake autocorrelation of the waveform.  It
 
 <img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png width=512 height=20>
 
-Green, Blue, Alpha are reserved.
+The red value is the acutal autocorrelator value, centered around the 0th bin. The green value is where all the phases of the frequency bins are scrambled to prevent any obvious "up."
 
 ```hlsl
-	return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rgba;
+    return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rrrr;
 ```
 
+### `ALPASS_FILTEREDAUDIOLINK`
+
+This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.
 
 ### Other defines
 
@@ -304,6 +311,7 @@ Where the following mapping is used:
 | ALPASS_CCSTRIP  | ✅ |   | ✅ |   | 0, 24 | 128, 1 | 
 | ALPASS_CCLIGHTS  | ✅ | ✅ |   |   | 0, 25 | 128, 2 |
 | ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   | 0, 27 | 128, 1 |
+| ALPASS_FILTEREDAUDIOLINK  | ✅ |   | ✅ |   | 0, 28 | 16, 4 |
 
 
 ## Examples
@@ -389,6 +397,10 @@ v2f vert (appdata v)
     // the surface.
     autocorrvalue = autocorrvalue * (.5-abs(vp.y)) * 0.4 + .6;
 
+    // Perform same operation to find max.  The 0th bin on the 
+    // autocorrelator will almost always be the max
+    o.corrmax = AudioLinkLerp( ALPASS_AUTOCORRELATOR ) * 0.2 + .6; 
+
     // Modify the original vertices by this amount.
     vp *= autocorrvalue;
 
@@ -400,10 +412,11 @@ v2f vert (appdata v)
 fixed4 frag (v2f i) : SV_Target
 {
     // Decide how we want to color from colorchord.
-    float ccplace = length( i.vpXform.xz ) * 2.;
-    
+    float ccplace = length( i.vpXform.xz )*2. / i.corrmax;
+
     // Get a color from ColorChord
-    float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP + float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
+    float4 colorchordcolor = AudioLinkData( ALPASS_CCSTRIP +
+        float2( AUDIOLINK_WIDTH * ccplace, 0. ) ) + 0.01;
 
     // Shade the color a little.
     colorchordcolor *= length( i.vpXform.xyz ) * 15. - 2.0;
@@ -422,47 +435,47 @@ UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anythin
 ```hlsl
 v2f vert (appdata v)
 {
-	v2f o;
-	float3 vp = v.vertex;
+    v2f o;
+    float3 vp = v.vertex;
 
-	// Pull out the ordinal value
-	int whichzone = floor(v.uv.x-1);
-	
-	//Only affect it if the v.uv.x was greater than or equal to 1.0
-	if( whichzone >= 0 )
-	{
-		float alpressure = AudioLinkData( ALPASS_AUDIOLINK + int2( 0, whichzone ) ).x;
-		vp.x -= alpressure * .5;
-	}
+    // Pull out the ordinal value
+    int whichzone = floor(v.uv.x-1);
+    
+    //Only affect it if the v.uv.x was greater than or equal to 1.0
+    if( whichzone >= 0 )
+    {
+        float alpressure = AudioLinkData( ALPASS_AUDIOLINK + int2( 0, whichzone ) ).x;
+        vp.x -= alpressure * .5;
+    }
 
-	o.opos = vp;
-	o.uvw = float3( frac( v.uv ), whichzone + 0.5 );                
-	o.vertex = UnityObjectToClipPos(vp);
-	o.normal = UnityObjectToWorldNormal( v.normal );
-	return o;
+    o.opos = vp;
+    o.uvw = float3( frac( v.uv ), whichzone + 0.5 );                
+    o.vertex = UnityObjectToClipPos(vp);
+    o.normal = UnityObjectToWorldNormal( v.normal );
+    return o;
 }
 
 fixed4 frag (v2f i) : SV_Target
 {
-	float radius = length( i.uvw.xy - 0.5 ) * 30;
-	float3 color = 0;
-	if( i.uvw.z >= 0 )
-	{
-		// If a speaker, color it with a random ColorChord light.
-		color = AudioLinkLerp( ALPASS_AUDIOLINK + float2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
-		
-		//Adjust the coloring on the speaker by the normal
-		color *= (dot(i.normal.xyz,float3(1,1,-1)))*.2;
-		
-		color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
-	}
-	else
-	{
-		// If the box, use the normal to color it.
-		color = abs(i.normal.xyz)*.01+.02;
-	}
-	
-	return float4( color ,1. );
+    float radius = length( i.uvw.xy - 0.5 ) * 30;
+    float3 color = 0;
+    if( i.uvw.z >= 0 )
+    {
+        // If a speaker, color it with a random ColorChord light.
+        color = AudioLinkLerp( ALPASS_AUDIOLINK + float2( radius, i.uvw.z ) ).rgb * 10. + 0.5;
+        
+        //Adjust the coloring on the speaker by the normal
+        color *= (dot(i.normal.xyz,float3(1,1,-1)))*.2;
+        
+        color *= AudioLinkData( ALPASS_CCLIGHTS + int2( i.uvw.z, 0) ).rgb;
+    }
+    else
+    {
+        // If the box, use the normal to color it.
+        color = abs(i.normal.xyz)*.01+.02;
+    }
+    
+    return float4( color ,1. );
 }
 ```
 
@@ -470,7 +483,7 @@ fixed4 frag (v2f i) : SV_Target
 
 You can virtually sync objects, which means they will be synced across the instance for all users, however they use no networking, syncing or Udon to do so.  Application would be effects that you want to have be in motion and appear the same on all player's screens.
 
-If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsFloat(ALPASS_GENERALVU_INSTANCE_TIME)` then all players will see your effect exactly the same.
+If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsSeconds(ALPASS_GENERALVU_NETWORK_TIME)` then all players will see your effect exactly the same.
 
 ![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif =512x288)
 
@@ -482,47 +495,47 @@ float2 hash12(float2 n){ return frac( sin(dot(n, 4.1414)) * float2( 43758.5453, 
 
 fixed4 frag (v2f i) : SV_Target
 {
-	// 23 and 31 LCM of 713 cycles for same corner bounce.
-	const float2 collisiondiv = float2( 23, 31 );
+    // 23 and 31 LCM of 713 cycles for same corner bounce.
+    const float2 collisiondiv = float2( 23, 31 );
 
-	// Make the default size of the logo take up .2 of the overall object,
-	// but let the user scale the size of their logo using the texture
-	// repeat sliders.
-	float2 logoSize = .2*_Logo_ST.xy;
-	
-	// Calculate the remaining area that the logo can bounce around.
-	float2 remainder = 1. - logoSize;
+    // Make the default size of the logo take up .2 of the overall object,
+    // but let the user scale the size of their logo using the texture
+    // repeat sliders.
+    float2 logoSize = .2*_Logo_ST.xy;
+    
+    // Calculate the remaining area that the logo can bounce around.
+    float2 remainder = 1. - logoSize;
 
-	// Retrieve the instance time.
-	float instanceTime = ALDecodeDataAsFloat( ALPASS_GENERALVU_INSTANCE_TIME );
+    // Retrieve the instance time.
+    float instanceTime = ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
 
-	// Calculate the total progress made along X and Y irrespective of
-	// the total number of bounces made.  But then compute where the
-	// logo would have ended up after that long period of time.
-	float2 logoUV = i.uv.xy / logoSize;
-	float2 xyprogress = instanceTime * 1/collisiondiv;
-	int totalbounces = floor( xyprogress * 2. ).x + floor( xyprogress * 2. ).y;
-	float2 xyoffset = abs( frac( xyprogress ) * 2. - 1. );
+    // Calculate the total progress made along X and Y irrespective of
+    // the total number of bounces made.  But then compute where the
+    // logo would have ended up after that long period of time.
+    float2 logoUV = i.uv.xy / logoSize;
+    float2 xyprogress = instanceTime * 1/collisiondiv;
+    int totalbounces = floor( xyprogress * 2. ).x + floor( xyprogress * 2. ).y;
+    float2 xyoffset = abs( frac( xyprogress ) * 2. - 1. );
 
-	// Update the logo position with that location.
-	logoUV -= (remainder*xyoffset)/logoSize;
+    // Update the logo position with that location.
+    logoUV -= (remainder*xyoffset)/logoSize;
 
-	// Read that pixel.
-	float4 logoTexel =  tex2D( _Logo, logoUV );
-	
-	// Change the color any time it would have hit a corner.
-	float2 hash = hash12( totalbounces );
-	
-	// Abuse the colorchord hue function here to randomly color the logo.
-	logoTexel.rgb *= CCHSVtoRGB( float3( hash.x, hash.y*0.5 + 0.5, 1. ) );
+    // Read that pixel.
+    float4 logoTexel =  tex2D( _Logo, logoUV );
+    
+    // Change the color any time it would have hit a corner.
+    float2 hash = hash12( totalbounces );
+    
+    // Abuse the colorchord hue function here to randomly color the logo.
+    logoTexel.rgb *= CCHSVtoRGB( float3( hash.x, hash.y*0.5 + 0.5, 1. ) );
 
-	// If we are looking for the logo where the logo is not
-	// zero it out.
-	logoTexel *= inUnit( logoUV );
+    // If we are looking for the logo where the logo is not
+    // zero it out.
+    logoTexel *= inUnit( logoUV );
 
-	// Alpha blend the logo onto the background.
-	float3 color = lerp( _Background.rgb, logoTexel.rgb, logoTexel.a ); 
-	return clamp( float4( color, _Background.a + logoTexel.a ), 0, 1 );
+    // Alpha blend the logo onto the background.
+    float3 color = lerp( _Background.rgb, logoTexel.rgb, logoTexel.a ); 
+    return clamp( float4( color, _Background.a + logoTexel.a ), 0, 1 );
 }
 ```
 
@@ -587,7 +600,7 @@ Filtered Value = New Value * ( 1 - Filter Constant ) + Last Frame's Filtered Val
 Or, in GPU Land, it turns into:
 
 ```hlsl
-	filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
+    filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
 ```
 
 Where filter constant is between 0 and 1, where 0 is bypass, as though the filter doesn't exist, and 1 completely blocks any new values.  A value of 0.9 weights the incoming value smally, but after a few frames, the output will track it.
