@@ -10,10 +10,12 @@
 #define ALPASS_GENERALVU                int2(0,22)
 #define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
+#define ALPASS_GENERALVU_NETWORK_TIME   int2(4,22)
 #define ALPASS_CCINTERNAL               int2(12,22)
 #define ALPASS_CCSTRIP                  int2(0,24)
 #define ALPASS_CCLIGHTS                 int2(0,25)
 #define ALPASS_AUTOCORRELATOR           int2(0,27)
+#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -105,9 +107,6 @@ float AudioLinkGetVersion()
         return 0;
 }
 
-// Decompress a RGBA FP16 into a really big number, this is used in some sections of the info block.
-#define DecodeLongFloat(vALValue)  (vALValue.r + vALValue.g*1024 + vALValue.b * 1048576 + vALValue.a * 1073741824)
-
 // This pulls data from this texture.
 #define GetSelfPixelData(xy) _SelfTexture2D[xy]
 
@@ -115,14 +114,16 @@ float AudioLinkGetVersion()
 uint ALDecodeDataAsUInt(uint2 indexloc)
 {
     half4 rpx = AudioLinkData(indexloc);
-    return DecodeLongFloat(rpx);
+    return ((uint)rpx.r + ((uint)rpx.g)*1024 + ((uint)rpx.b) * 1048576 + ((uint)rpx.a) * 1073741824);
 }
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
-// if your code will alias sooner, you will need to use a different function.
-float ALDecodeDataAsFloat(uint2 indexloc)
+// if your code will alias sooner, you will need to use a different function.  It should be safe to use this on all times.
+float ALDecodeDataAsSeconds(uint2 indexloc)
 {
-    return (ALDecodeDataAsUInt(indexloc) & 0x7ffffff) / 1000.;
+    uint time = ALDecodeDataAsUInt(indexloc) & 0x7ffffff;
+    //Can't just divide by float.  Bug in Unity's HLSL compiler.
+    return float(time / 1000) + float( time % 1000 ) / 1000.; 
 }
 
 float Remap(float t, float a, float b, float u, float v) { return ((t-a) / (b-a)) * (v-u) + u; }

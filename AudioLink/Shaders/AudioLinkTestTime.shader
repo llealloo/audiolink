@@ -73,9 +73,10 @@
                         else
                         {
                             #define L(x) ((uint)(x-'A'+13))
-                            const uint sendarr[70] = { 
+                            const uint sendarr[80] = { 
                                 L('I'), L('N'), L('S'), L('T'), L('A'), L('N'), L('C'), L('E'), 12, 12,
                                 L('W'), L('A'), L('L'), L('L'), L('C'), L('L'), L('O'), L('C'), L('K'), 12,
+                                L('N'), L('E'), L('T'), L('W'), L('O'), L('R'), L('K'), 12, 12, 12,
                                 L('A'), L('U'), L('T'), L('O'), 12, L('G'), L('A'), L('I'), L('N'), 12,
                                 L('P'), L('E'), L('A'), L('K'), 12, L('V'), L('A'), L('L'), L('U'), L('E'),
                                 L('R'), L('M'), L('S'), 12, L('V'), L('A'), L('L'), L('U'), L('E'), 12,
@@ -103,8 +104,8 @@
                 case 1:
                     // 2: Time since level start in milliseconds.
                     // 3: Time of day.
-                    value = DecodeLongFloat( AudioLinkData( int2( ALPASS_GENERALVU + int2( dig.y+2, 0 ) ) ) ) / 1000;
-                    float seconds = glsl_mod( value, 60 );
+                    value = ALDecodeDataAsSeconds( dig.y?ALPASS_GENERALVU_LOCAL_TIME:ALPASS_GENERALVU_INSTANCE_TIME );
+					float seconds = glsl_mod(value, 60);
                     int minutes = (value/60) % 60;
                     int hours = (value/3600);
                     value = hours * 10000 + minutes * 100 + seconds;
@@ -128,22 +129,33 @@
                         leadingzero = 1;
                     }
                     break;
-                    
                 case 2:
+					if( dig.x < 8 )
+					{
+						value = ALDecodeDataAsUInt( ALPASS_GENERALVU_NETWORK_TIME )/1000;
+						offset = 3;
+					}
+					else
+					{
+						value = ALDecodeDataAsUInt( ALPASS_GENERALVU_NETWORK_TIME )%1000;
+                        leadingzero = 1;
+					}
+					break;
+                case 3:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 11, 0 ) ) ); //Autogain Debug
                     offset = 6;
                     break;
 
-                case 3:
+                case 4:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 8, 0 ) ) ).y; //Peak
                     offset = 6;
                     break;
-                case 4:
+                case 5:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 8, 0 ) ) ).x; //RMS
                     offset = 6;
                     break;
 
-                case 5:
+                case 6:
                     if( dig.x < 7 )
                     {
                         value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 0, 0 ) ) ).b; //True FPS
@@ -155,43 +167,43 @@
                     }
                     break;
 
-                case 6:
+                case 7:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 4, 0 ) ) ).a; //100,000 sentinal test
                     break;
-                case 7:
-                    value = DecodeLongFloat( AudioLinkData( int2( ALPASS_GENERALVU + int2(2, 0 ) ) ) ) / 1000;
+                case 8:
+                    value = ALDecodeDataAsSeconds( AudioLinkData( int2( ALPASS_GENERALVU + int2(2, 0 ) ) ) );
                     xoffset=4;
                     break;
-                case 8:
+                case 9:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2(0, 0 ) ) ).x;
                     xoffset=3;
                     break;
-                case 9:
+                case 10:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2(11, 0 ) ) ).x;
                     xoffset=3;
                     break;
                 default:
                     if( dig.x < 5 )
                     {
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 0 ) ).x;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 0 ) ).x;
                         xoffset = 8;
                     }
                     else if( dig.x < 10 )
                     {
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 1 ) ).x;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 1 ) ).x;
                         xoffset = 3;
                     }
                     else if( dig.x < 15 )
                     {
                         dig.x -= 5;
                         xoffset = 3;
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 1 ) ).y;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 1 ) ).y;
                     }
                     else if( dig.x < 20 )
                     {
                         dig.x -= 10;
                         xoffset = 3;
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 10, 0 ) ).a;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 0 ) ).a;
                     }
                     break;
                 }
