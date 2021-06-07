@@ -13,7 +13,7 @@ using UnityEditorInternal;
 using UdonSharpEditor;
 #endif
 
-namespace AudioLinkPrefab
+namespace VRCAudioLink
 {
     [AddComponentMenu("AudioLink/UI/AudioLink Mini Player Controller")]
     public class AudioLinkMiniPlayerController : UdonSharpBehaviour
