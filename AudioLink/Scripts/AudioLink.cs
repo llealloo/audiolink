@@ -67,8 +67,6 @@ public class AudioLink : UdonSharpBehaviour
         public float fadeExpFalloff = 0.3f;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
-        [Header("Internal (Do not modify)")] public Material audioMaterialInLeft;
-        [Header("Internal (Do not modify)")] public Material audioMaterialInRight;
         public GameObject audioTextureExport;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
@@ -80,15 +78,8 @@ public class AudioLink : UdonSharpBehaviour
         private float[] _spectrumValues = new float[1024];
         private float[] _spectrumValuesTrim = new float[1023];
         private float[] _audioFramesL = new float[1023 * 4];
-        private float[] _samples0L = new float[1023];
-        private float[] _samples1L = new float[1023];
-        private float[] _samples2L = new float[1023];
-        private float[] _samples3L = new float[1023];
         private float[] _audioFramesR = new float[1023 * 4];
-        private float[] _samples0R = new float[1023];
-        private float[] _samples1R = new float[1023];
-        private float[] _samples2R = new float[1023];
-        private float[] _samples3R = new float[1023];
+        private float[] _samples = new float[1023];
         private float _audioLinkInputVolume = 0.01f; // smallify input source volume level
 
         // Mechanism to provide sync'd instance time to all avatars.
@@ -98,8 +89,8 @@ public class AudioLink : UdonSharpBehaviour
         private double _masterInstanceJoinTime;
         private double _elapsedTime = 0;
         private double _elapsedTimeMSW = 0;
-		private int    _networkTimeMS;
-		private double _networkTimeMSAccumulatedError;
+        private int    _networkTimeMS;
+        private double _networkTimeMSAccumulatedError;
         private bool   _hasInitializedTime = false;
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
@@ -123,16 +114,16 @@ public class AudioLink : UdonSharpBehaviour
                 //We now just compute delta times per frame.
 
                 double startTime = GetElapsedSecondsSince2019();
-				_networkTimeMS = Networking.GetServerTimeInMilliseconds();
+                _networkTimeMS = Networking.GetServerTimeInMilliseconds();
                 if (Networking.IsMaster)
                 {
                     _masterInstanceJoinTime = startTime;
                     RequestSerialization();
                 }
 
-				//_networkTimeOfDayUTC = GetElapsedSecondsSinceMidnightUTC();
-				//Debug.Log($"AudioLink _networkTimeOfDayUTC = {_networkTimeOfDayUTC}" );
-				Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}" );
+                //_networkTimeOfDayUTC = GetElapsedSecondsSinceMidnightUTC();
+                //Debug.Log($"AudioLink _networkTimeOfDayUTC = {_networkTimeOfDayUTC}" );
+                Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}" );
                 Debug.Log($"AudioLink Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
             }
             #endif
@@ -140,7 +131,7 @@ public class AudioLink : UdonSharpBehaviour
             UpdateSettings();
             if (audioSource.name.Equals("AudioLinkInput"))
             {
-	            audioSource.volume = _audioLinkInputVolume;
+                audioSource.volume = _audioLinkInputVolume;
             }
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
@@ -148,115 +139,115 @@ public class AudioLink : UdonSharpBehaviour
         }
 
         // Only happens once per second.
-		private void FPSUpdate()
-		{
-			#if UDON
-			if( !_hasInitializedTime )
-			{
-				if( _masterInstanceJoinTime > 0.00001 )
-				{
-					//We can now do our time setup.
-					double Now = GetElapsedSecondsSince2019();
-					_elapsedTime = Now - _masterInstanceJoinTime;
-					Debug.Log( $"AudioLink Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}" );
-					_hasInitializedTime = true;
-					_FPSTime = _elapsedTime;
-				}
-				else if( _elapsedTime > 10 && Networking.IsMaster )
-				{
-					//Have we gone more than 10 seconds and we're master?
-					Debug.Log( "AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time." );
-					_masterInstanceJoinTime = GetElapsedSecondsSince2019();
-					RequestSerialization();
-					_hasInitializedTime = true;
-					_elapsedTime = 0;
-					_FPSTime = _elapsedTime;
-				}
-			}
-			#endif
+        private void FPSUpdate()
+        {
+            #if UDON
+            if( !_hasInitializedTime )
+            {
+                if( _masterInstanceJoinTime > 0.00001 )
+                {
+                    //We can now do our time setup.
+                    double Now = GetElapsedSecondsSince2019();
+                    _elapsedTime = Now - _masterInstanceJoinTime;
+                    Debug.Log( $"AudioLink Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}" );
+                    _hasInitializedTime = true;
+                    _FPSTime = _elapsedTime;
+                }
+                else if( _elapsedTime > 10 && Networking.IsMaster )
+                {
+                    //Have we gone more than 10 seconds and we're master?
+                    Debug.Log( "AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time." );
+                    _masterInstanceJoinTime = GetElapsedSecondsSince2019();
+                    RequestSerialization();
+                    _hasInitializedTime = true;
+                    _elapsedTime = 0;
+                    _FPSTime = _elapsedTime;
+                }
+            }
+            #endif
 
-			audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
-			audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
-				VRCPlayerApi.GetPlayerCount(),
-				Networking.IsMaster?1.0f:0.0f,
-				Networking.IsInstanceOwner?1.0f:0.0f,
-				0 ) );
+            audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
+            audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
+                VRCPlayerApi.GetPlayerCount(),
+                Networking.IsMaster?1.0f:0.0f,
+                Networking.IsInstanceOwner?1.0f:0.0f,
+                0 ) );
 
-			_FPSCount = 0;
-			_FPSTime++;
+            _FPSCount = 0;
+            _FPSTime++;
 
-			// Other things to handle every second.
+            // Other things to handle every second.
 
-			// This handles wrapping of the ElapsedTime so we don't lose precision
-			// onthe floating point.
-			const double ElapsedTimeMSWBoundary = 1024;
-			if( _elapsedTime >= ElapsedTimeMSWBoundary )
-			{
-				//For particularly long running instances, i.e. several days, the first
-				//few frames will be spent federating _elapsedTime into _elapsedTimeMSW.
-				//This is fine.  It just means over time, the
-				_FPSTime = 0;
-				_elapsedTime -= ElapsedTimeMSWBoundary;
-				_elapsedTimeMSW++;
-			}
+            // This handles wrapping of the ElapsedTime so we don't lose precision
+            // onthe floating point.
+            const double ElapsedTimeMSWBoundary = 1024;
+            if( _elapsedTime >= ElapsedTimeMSWBoundary )
+            {
+                //For particularly long running instances, i.e. several days, the first
+                //few frames will be spent federating _elapsedTime into _elapsedTimeMSW.
+                //This is fine.  It just means over time, the
+                _FPSTime = 0;
+                _elapsedTime -= ElapsedTimeMSWBoundary;
+                _elapsedTimeMSW++;
+            }
 
-			// Finely adjust our network time estimate if needed.
-			int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
-			int networkTimeDelta = networkTimeMSNow - _networkTimeMS;
-			if( networkTimeDelta > 3000 )
-			{
-				//Major upset, reset.
-				_networkTimeMS = networkTimeMSNow;
-			}
-			else if( networkTimeDelta < -3000 )
-			{
-				//Major upset, reset.
-				_networkTimeMS = networkTimeMSNow;
-			}
-			else
-			{
-				//Slowly correct the timebase.
-				_networkTimeMS += networkTimeDelta/20;
-			}
-			//Debug.Log( $"Refinement: ${networkTimeDelta}" );
-		}
+            // Finely adjust our network time estimate if needed.
+            int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
+            int networkTimeDelta = networkTimeMSNow - _networkTimeMS;
+            if( networkTimeDelta > 3000 )
+            {
+                //Major upset, reset.
+                _networkTimeMS = networkTimeMSNow;
+            }
+            else if( networkTimeDelta < -3000 )
+            {
+                //Major upset, reset.
+                _networkTimeMS = networkTimeMSNow;
+            }
+            else
+            {
+                //Slowly correct the timebase.
+                _networkTimeMS += networkTimeDelta/20;
+            }
+            //Debug.Log( $"Refinement: ${networkTimeDelta}" );
+        }
 
         private void Update()
         {
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
 
-			// Advance the current network time by a little.
-			// this algorithm also takes into account sub-millisecond jitter.
-			{
-				double deltaTimeMS = Time.deltaTime*1000.0;
-				int advanceTimeMS = (int)(deltaTimeMS);
-				_networkTimeMSAccumulatedError += deltaTimeMS - advanceTimeMS;
-				if( _networkTimeMSAccumulatedError > 1 )
-				{
-					_networkTimeMSAccumulatedError--;
-					advanceTimeMS++;
-				}
-				_networkTimeMS += advanceTimeMS;
-			}
+            // Advance the current network time by a little.
+            // this algorithm also takes into account sub-millisecond jitter.
+            {
+                double deltaTimeMS = Time.deltaTime*1000.0;
+                int advanceTimeMS = (int)(deltaTimeMS);
+                _networkTimeMSAccumulatedError += deltaTimeMS - advanceTimeMS;
+                if( _networkTimeMSAccumulatedError > 1 )
+                {
+                    _networkTimeMSAccumulatedError--;
+                    advanceTimeMS++;
+                }
+                _networkTimeMS += advanceTimeMS;
+            }
 
             _FPSCount++;
 
             if (_elapsedTime >= _FPSTime)
             {
-				FPSUpdate();
-			}
+                FPSUpdate();
+            }
 
             audioMaterial.SetVector("_AdvancedTimeProps", new Vector4(
-				(float)_elapsedTime,
-				(float)_elapsedTimeMSW,
-				(float)DateTime.Now.TimeOfDay.TotalSeconds,
-				0 ) );
+                (float)_elapsedTime,
+                (float)_elapsedTimeMSW,
+                (float)DateTime.Now.TimeOfDay.TotalSeconds,
+                0 ) );
 
-			audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
-				(float)((_networkTimeMS)&65535),
-				(float)((_networkTimeMS)>>16),
-				0, 0 ) );
+            audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
+                (float)((_networkTimeMS)&65535),
+                (float)((_networkTimeMS)>>16),
+                0, 0 ) );
 
             // General Profiling Notes:
             //    Profiling done on 2021-05-26 on an Intel Intel Core i7-8750H CPU @ 2.20GHz
@@ -272,36 +263,42 @@ public class AudioLink : UdonSharpBehaviour
             //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, twice: 5.1ms / 255
             //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, once: 3.2ms / 255
 
-            if (audioSource == null) return;
-            audioSource.GetOutputData(_audioFramesL, 0);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 4, _samples0L, 0, 1023);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 3, _samples1L, 0, 1023);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 2, _samples2L, 0, 1023);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 1, _samples3L, 0, 1023);
-            audioMaterial.SetFloatArray("_Samples0L", _samples0L);
-            audioMaterial.SetFloatArray("_Samples1L", _samples1L);
-            audioMaterial.SetFloatArray("_Samples2L", _samples2L);
-            audioMaterial.SetFloatArray("_Samples3L", _samples3L);
+            if (audioSource != null)
+            {
+                audioSource.GetOutputData(_audioFramesL, 0); // left channel
+                audioSource.GetOutputData(_audioFramesR, 1); // right channel
 
-            audioSource.GetOutputData(_audioFramesR, 1);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 4, _samples0R, 0, 1023);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 3, _samples1R, 0, 1023);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 2, _samples2R, 0, 1023);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 1, _samples3R, 0, 1023);
-            audioMaterial.SetFloatArray("_Samples0R", _samples0R);
-            audioMaterial.SetFloatArray("_Samples1R", _samples1R);
-            audioMaterial.SetFloatArray("_Samples2R", _samples2R);
-            audioMaterial.SetFloatArray("_Samples3R", _samples3R);
+                System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+                audioMaterial.SetFloatArray("_Samples0L", _samples);
+                System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+                audioMaterial.SetFloatArray("_Samples1L", _samples);
+                System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+                audioMaterial.SetFloatArray("_Samples2L", _samples);
+                System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+                audioMaterial.SetFloatArray("_Samples3L", _samples);
 
-            // Used to correct for the volume of the audio source component
-            audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
-            audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+                System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+                audioMaterial.SetFloatArray("_Samples0R", _samples);
+                System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+                audioMaterial.SetFloatArray("_Samples1R", _samples);
+                System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+                audioMaterial.SetFloatArray("_Samples2R", _samples);
+                System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+                audioMaterial.SetFloatArray("_Samples3R", _samples);
 
-            if (Networking.LocalPlayer == null) return;
-            float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-            audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+                // Used to correct for the volume of the audio source component
+                audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
+                audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+            }
 
-#if UNITY_EDITOR
+            if (Networking.LocalPlayer != null)
+            {
+                float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+            }
+            
+
+        #if UNITY_EDITOR
             UpdateSettings();
         #endif
         }
