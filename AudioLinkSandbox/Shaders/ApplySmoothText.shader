@@ -18,7 +18,7 @@
             #pragma multi_compile_fog
             #pragma target 5.0
             #include "UnityCG.cginc"
-            #include "SmoothPixelFont.cginc"
+            #include "../../AudioLink/Shaders/SmoothPixelFont.cginc"
 
 
             #ifndef glsl_mod

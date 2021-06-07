@@ -17,6 +17,7 @@
 
             #include "UnityCG.cginc"
             #include "AudioLink.cginc"
+            #include "SmoothPixelFont.cginc"
 
             struct appdata
             {
@@ -85,7 +86,7 @@
                                 };
                             sendchar = sendarr[dig.x+dig.y*10];
                         }
-                        return PrintChar( sendchar, fmxy, softness );
+                        return PrintChar( sendchar, fmxy, softness, 0.0 );
                     }
                     
                     dig.x -= cols - number_area_cols;
@@ -222,7 +223,7 @@
                     break;
                 }
 
-                return PrintNumberOnLine( value, number_area_cols-offset, dig.x + xoffset, fmxy, offset, leadingzero, softness );                
+                return PrintNumberOnLine( value, fmxy, softness, number_area_cols-offset, dig.x + xoffset, 10, leadingzero, offset );                
             }
             ENDCG
         }
