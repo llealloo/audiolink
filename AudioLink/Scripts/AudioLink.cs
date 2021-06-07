@@ -90,7 +90,6 @@ public class AudioLink : UdonSharpBehaviour
         private float[] _samples2R = new float[1023];
         private float[] _samples3R = new float[1023];
         private float _audioLinkInputVolume = 0.01f; // smallify input source volume level
-        private bool _audioSource2D = false;
 
         // Mechanism to provide sync'd instance time to all avatars.
 #if UDON
@@ -141,18 +140,14 @@ public class AudioLink : UdonSharpBehaviour
             UpdateSettings();
             if (audioSource.name.Equals("AudioLinkInput"))
             {
-                audioSource.volume = _audioLinkInputVolume;
-            }
-            else
-            {
-                _audioSource2D = true;
+	            audioSource.volume = _audioLinkInputVolume;
             }
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
         }
-		
-		// Only happens once per second.
+
+        // Only happens once per second.
 		private void FPSUpdate()
 		{
 			#if UDON
@@ -169,7 +164,7 @@ public class AudioLink : UdonSharpBehaviour
 				}
 				else if( _elapsedTime > 10 && Networking.IsMaster )
 				{
-					//Have we gone more than 10 seconds and we're master? 
+					//Have we gone more than 10 seconds and we're master?
 					Debug.Log( "AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time." );
 					_masterInstanceJoinTime = GetElapsedSecondsSince2019();
 					RequestSerialization();
@@ -189,8 +184,8 @@ public class AudioLink : UdonSharpBehaviour
 
 			_FPSCount = 0;
 			_FPSTime++;
-			
-			// Other things to handle every second.  
+
+			// Other things to handle every second.
 
 			// This handles wrapping of the ElapsedTime so we don't lose precision
 			// onthe floating point.
@@ -199,7 +194,7 @@ public class AudioLink : UdonSharpBehaviour
 			{
 				//For particularly long running instances, i.e. several days, the first
 				//few frames will be spent federating _elapsedTime into _elapsedTimeMSW.
-				//This is fine.  It just means over time, the 
+				//This is fine.  It just means over time, the
 				_FPSTime = 0;
 				_elapsedTime -= ElapsedTimeMSWBoundary;
 				_elapsedTimeMSW++;
@@ -230,7 +225,7 @@ public class AudioLink : UdonSharpBehaviour
         {
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
-			
+
 			// Advance the current network time by a little.
 			// this algorithm also takes into account sub-millisecond jitter.
 			{
@@ -244,9 +239,9 @@ public class AudioLink : UdonSharpBehaviour
 				}
 				_networkTimeMS += advanceTimeMS;
 			}
-			
+
             _FPSCount++;
-			
+
             if (_elapsedTime >= _FPSTime)
             {
 				FPSUpdate();
@@ -287,7 +282,7 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloatArray("_Samples1L", _samples1L);
             audioMaterial.SetFloatArray("_Samples2L", _samples2L);
             audioMaterial.SetFloatArray("_Samples3L", _samples3L);
-            
+
             audioSource.GetOutputData(_audioFramesR, 1);
             System.Array.Copy(_audioFramesR, 4092 - 1023 * 4, _samples0R, 0, 1023);
             System.Array.Copy(_audioFramesR, 4092 - 1023 * 3, _samples1R, 0, 1023);
@@ -297,9 +292,16 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloatArray("_Samples1R", _samples1R);
             audioMaterial.SetFloatArray("_Samples2R", _samples2R);
             audioMaterial.SetFloatArray("_Samples3R", _samples3R);
-			
 
-        #if UNITY_EDITOR
+            // Used to correct for the volume of the audio source component
+            audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
+            audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+
+            if (Networking.LocalPlayer == null) return;
+            float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+            audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+
+#if UNITY_EDITOR
             UpdateSettings();
         #endif
         }
@@ -328,7 +330,6 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
             audioMaterial.SetFloat("_Bass", bass);
             audioMaterial.SetFloat("_Treble", treble);
-            audioMaterial.SetFloat("_AudioSource2D", _audioSource2D ? 1f : 0f);
         }
 
         private float Remap(float t, float a, float b, float u, float v)
