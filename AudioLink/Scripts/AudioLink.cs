@@ -263,37 +263,42 @@ public class AudioLink : UdonSharpBehaviour
             //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, twice: 5.1ms / 255
             //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, once: 3.2ms / 255
 
-            if (audioSource == null) return;
-            audioSource.GetOutputData(_audioFramesL, 0); // left channel
-            audioSource.GetOutputData(_audioFramesR, 1); // right channel
+            if (audioSource != null)
+            {
+                audioSource.GetOutputData(_audioFramesL, 0); // left channel
+                audioSource.GetOutputData(_audioFramesR, 1); // right channel
 
-            System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
-            audioMaterial.SetFloatArray("_Samples0L", _samples);
-            System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
-            audioMaterial.SetFloatArray("_Samples1L", _samples);
-            System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
-            audioMaterial.SetFloatArray("_Samples2L", _samples);
-            System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
-            audioMaterial.SetFloatArray("_Samples3L", _samples);
+                System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+                audioMaterial.SetFloatArray("_Samples0L", _samples);
+                System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+                audioMaterial.SetFloatArray("_Samples1L", _samples);
+                System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+                audioMaterial.SetFloatArray("_Samples2L", _samples);
+                System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+                audioMaterial.SetFloatArray("_Samples3L", _samples);
 
-            System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
-            audioMaterial.SetFloatArray("_Samples0R", _samples);
-            System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
-            audioMaterial.SetFloatArray("_Samples1R", _samples);
-            System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
-            audioMaterial.SetFloatArray("_Samples2R", _samples);
-            System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
-            audioMaterial.SetFloatArray("_Samples3R", _samples);
+                System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+                audioMaterial.SetFloatArray("_Samples0R", _samples);
+                System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+                audioMaterial.SetFloatArray("_Samples1R", _samples);
+                System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+                audioMaterial.SetFloatArray("_Samples2R", _samples);
+                System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+                audioMaterial.SetFloatArray("_Samples3R", _samples);
 
-            // Used to correct for the volume of the audio source component
-            audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
-            audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+                // Used to correct for the volume of the audio source component
+                audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
+                audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+            }
 
-            if (Networking.LocalPlayer == null) return;
-            float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-            audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+            if (Networking.LocalPlayer != null)
+            {
+                float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+            }
+            
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
             UpdateSettings();
         #endif
         }
