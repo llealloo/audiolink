@@ -67,8 +67,6 @@ public class AudioLink : UdonSharpBehaviour
         public float fadeExpFalloff = 0.3f;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
-        [Header("Internal (Do not modify)")] public Material audioMaterialInLeft;
-        [Header("Internal (Do not modify)")] public Material audioMaterialInRight;
         public GameObject audioTextureExport;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
@@ -80,15 +78,8 @@ public class AudioLink : UdonSharpBehaviour
         private float[] _spectrumValues = new float[1024];
         private float[] _spectrumValuesTrim = new float[1023];
         private float[] _audioFramesL = new float[1023 * 4];
-        private float[] _samples0L = new float[1023];
-        private float[] _samples1L = new float[1023];
-        private float[] _samples2L = new float[1023];
-        private float[] _samples3L = new float[1023];
         private float[] _audioFramesR = new float[1023 * 4];
-        private float[] _samples0R = new float[1023];
-        private float[] _samples1R = new float[1023];
-        private float[] _samples2R = new float[1023];
-        private float[] _samples3R = new float[1023];
+        private float[] _samples = new float[1023];
         private float _audioLinkInputVolume = 0.01f; // smallify input source volume level
 
         // Mechanism to provide sync'd instance time to all avatars.
@@ -273,25 +264,26 @@ public class AudioLink : UdonSharpBehaviour
             //    Casting and encoding as UInt32 as 2 floats, to prevent aliasing, once: 3.2ms / 255
 
             if (audioSource == null) return;
-            audioSource.GetOutputData(_audioFramesL, 0);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 4, _samples0L, 0, 1023);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 3, _samples1L, 0, 1023);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 2, _samples2L, 0, 1023);
-            System.Array.Copy(_audioFramesL, 4092 - 1023 * 1, _samples3L, 0, 1023);
-            audioMaterial.SetFloatArray("_Samples0L", _samples0L);
-            audioMaterial.SetFloatArray("_Samples1L", _samples1L);
-            audioMaterial.SetFloatArray("_Samples2L", _samples2L);
-            audioMaterial.SetFloatArray("_Samples3L", _samples3L);
+            audioSource.GetOutputData(_audioFramesL, 0); // left channel
+            audioSource.GetOutputData(_audioFramesR, 1); // right channel
 
-            audioSource.GetOutputData(_audioFramesR, 1);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 4, _samples0R, 0, 1023);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 3, _samples1R, 0, 1023);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 2, _samples2R, 0, 1023);
-            System.Array.Copy(_audioFramesR, 4092 - 1023 * 1, _samples3R, 0, 1023);
-            audioMaterial.SetFloatArray("_Samples0R", _samples0R);
-            audioMaterial.SetFloatArray("_Samples1R", _samples1R);
-            audioMaterial.SetFloatArray("_Samples2R", _samples2R);
-            audioMaterial.SetFloatArray("_Samples3R", _samples3R);
+            System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+            audioMaterial.SetFloatArray("_Samples0L", _samples);
+            System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+            audioMaterial.SetFloatArray("_Samples1L", _samples);
+            System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+            audioMaterial.SetFloatArray("_Samples2L", _samples);
+            System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+            audioMaterial.SetFloatArray("_Samples3L", _samples);
+
+            System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+            audioMaterial.SetFloatArray("_Samples0R", _samples);
+            System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+            audioMaterial.SetFloatArray("_Samples1R", _samples);
+            System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+            audioMaterial.SetFloatArray("_Samples2R", _samples);
+            System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+            audioMaterial.SetFloatArray("_Samples3R", _samples);
 
             // Used to correct for the volume of the audio source component
             audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
