@@ -1,7 +1,8 @@
-﻿Shader "AudioLinkSandbox/NewTextTest"
+﻿Shader "AudioLinkSandbox/ApplySmoothText"
 {
     Properties
     {
+		_TextData ("TextData", 2D) = "white" {}
     }
     SubShader
     {
@@ -19,12 +20,13 @@
             #include "UnityCG.cginc"
             #include "../../AudioLink/Shaders/SmoothPixelFont.cginc"
 
-            #define PIXELFONT_ROWS 20
-            #define PIXELFONT_COLS 30
 
             #ifndef glsl_mod
             #define glsl_mod(x, y) (x - y * floor(x / y))
             #endif
+
+			Texture2D<float4> _TextData;
+			float4 _TextData_TexelSize;
 
             struct appdata
             {
@@ -52,13 +54,15 @@
             {
                 float2 iuv = i.uv;
                 iuv.y = 1.0 - iuv.y;
-                
+
                 // Pixel location on font pixel grid
-                float2 pos = iuv * float2(PIXELFONT_COLS, PIXELFONT_ROWS);
+                float2 pos = iuv * float2(_TextData_TexelSize.zw);
 
-                // Pixel location as uint (floor)
-                uint2 pixel = (uint2)pos;
+                // Character location as uint (floor)
+                uint2 character = (uint2)pos;
 
+				float4 dataatchar = _TextData[character];
+				
                 // This line of code is tricky;  We determine how much we should soften the edge of the text
                 // based on how quickly the text is moving across our field of view.  This gives us realy nice
                 // anti-aliased edges.
@@ -67,29 +71,9 @@
 
                 float2 charUV = float2(4, 6) - glsl_mod(pos, 1.0) * float2(4.0, 6.0);
                 
-                if (pixel.y < 2)
-                {
-                    uint charLines[11] = {__H, __e, __l, __l, __o, __SPACE, __w, __o, __r, __l, __d};
-                    return PrintChar(charLines[pixel.x + pixel.y * 30], charUV, softness, 0);
-                }
-                else if (pixel.y == 2)
-                {
-                    if (pixel.x < 5)
-                    {
-                        float value = 1.0899;
-                        return PrintNumberOnLine(value, charUV, softness, pixel.x, 1, 3, false, 0);                
-                    }
-                    else
-                    {
-                        float value = -2.3;
-                        return PrintNumberOnLine(value, charUV, softness, pixel.x - 5, 3, 2, false, 0);                
-                    }
-                }
-                else
-                {
-                    uint charNum = (pixel.y - 3) * 30 + pixel.x;
-                    return PrintChar(charNum, charUV, softness, 0);
-                }
+				float weight = (floor(dataatchar.w)/2.-1.)*.3;
+				int charVal = frac(dataatchar.w)*256;
+				return PrintChar( charVal, charUV, softness, weight )*float4(dataatchar.rgb,1.);
             }
             ENDCG
         }

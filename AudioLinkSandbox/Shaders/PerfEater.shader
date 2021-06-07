@@ -1,10 +1,9 @@
-﻿//
-// Smooth font from image shader.
-//
-// This is for prototyping new fonts and effects using the 
-// smoothfont system.
-//
-Shader "Unlit/SmoothFontTest"
+﻿// WARNING ONLY USE THIS IF YOU ARE ATTEMPTING TO PERFORM A RENDERDOC PERF TEST INSIDE UNITY.
+// Put your editor into play mode while watchnig this, filling you screen.  It will force
+// the GPU into high power mode and your perf tests will be much more accurate.
+
+
+Shader "Unlit/PerfEater"
 {
     Properties
     {
@@ -40,8 +39,6 @@ Shader "Unlit/SmoothFontTest"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            uniform float4               _MainTex_TexelSize;
-
 
             v2f vert (appdata v)
             {
@@ -55,24 +52,14 @@ Shader "Unlit/SmoothFontTest"
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                float2 iuvt = i.uv * _MainTex_TexelSize.zw;
-                float2 ipt = ( floor( iuvt ) ) * _MainTex_TexelSize.xy;
-                
-                float4 colUL = tex2D(_MainTex, ipt+float2(0,0)*_MainTex_TexelSize.xy);
-                float4 colUR = tex2D(_MainTex, ipt+float2(1,0)*_MainTex_TexelSize.xy);
-                float4 colLL = tex2D(_MainTex, ipt+float2(0,1)*_MainTex_TexelSize.xy);
-                float4 colLR = tex2D(_MainTex, ipt+float2(1,1)*_MainTex_TexelSize.xy);
-
-                float2 shift = smoothstep( 0, 1, iuvt - floor( iuvt ) );
-                float4 ov = lerp(
-                    lerp( colUL, colUR, shift.x ),
-                    lerp( colLL, colLR, shift.x ), shift.y );
-
-                float softness = 2*length( 2./pow( length( float2( ddx( iuvt.x ), ddy( iuvt.y ) ) ), 0.5 ))-1.;
-
-                float4 col = saturate( ov * softness - softness/2 );
-
-
+				int t;
+				float2 c = i.uv * 2. - 1.;
+				float2 z = 0;
+				for( t = 0; t < 10000; t++ )
+				{
+				  z = float2( z.x * z.x - z.y * z.y + c.x, z.x*z.y*2.+c.y );
+				}
+                float4 col = float4( z, 0 , 1);
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

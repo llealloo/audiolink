@@ -19,6 +19,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AudioTextureLeft:
+        m_Texture: {fileID: 8600000, guid: 9ad58ccbefb4a1d41b64b9df6b594434, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AudioTextureRight:
+        m_Texture: {fileID: 8600000, guid: 7e66906301df464448fbbef7da6df24c, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -64,7 +72,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AudioSource2D: 0
+    - _AudioSource2D: 1
     - _AutogainDerate: 0.1
     - _Bands: 4
     - _BaseAmplitude: 250
@@ -101,6 +109,9 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
+    - _SourceDistance: 1
+    - _SourceSpatialBlend: 0
+    - _SourceVolume: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold0: 0.45
@@ -127,4 +138,4 @@ Material:
     - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.05, g: 0, b: 104, a: 1}
+    - _VersionNumberAndFPSProperty: {r: 2.05, g: 0, b: 55, a: 1}
