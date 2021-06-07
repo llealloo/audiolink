@@ -17,6 +17,7 @@ using VRC.Udon.Common.Interfaces;
 using System.Collections.Immutable;
 #endif
 
+[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class AudioLink : UdonSharpBehaviour
 #else
     public class AudioLink : MonoBehaviour
