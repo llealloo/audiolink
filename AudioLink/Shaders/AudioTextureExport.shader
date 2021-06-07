@@ -1,4 +1,4 @@
-﻿Shader "AudioLink/AudioTextureExport"
+﻿Shader "AudioLink/Internal/AudioTextureExport"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-Shader "AudioLink/AudioLinkDebug"
+Shader "AudioLink/Debug/AudioLinkDebug"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-﻿Shader "AudioLinkDocs/Demo2"
+﻿Shader "AudioLink/Examples/Demo2"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-Shader "AudioLink/AudioLinkSpectrumUI"
+Shader "AudioLink/Internal/AudioLinkSpectrumUI"
 {
     Properties
     {

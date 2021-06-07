@@ -1,4 +1,4 @@
-﻿Shader "Unlit/AudioLinkTestTime"
+﻿Shader "AudioLink/Debug/AudioLinkTestTime"
 {
     Properties
     {
