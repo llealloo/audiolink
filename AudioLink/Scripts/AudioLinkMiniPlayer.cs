@@ -11,6 +11,7 @@ using VRC.Udon.Common;
 namespace VRCAudioLink
 {
     [AddComponentMenu("AudioLink/AudioLink Mini Player")]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLinkMiniPlayer : UdonSharpBehaviour
     {
         [Tooltip("AVPro video player component")]
