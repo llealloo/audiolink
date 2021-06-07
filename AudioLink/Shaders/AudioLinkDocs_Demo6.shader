@@ -77,7 +77,7 @@
                 float2 remainder = 1. - logoSize;
 
                 // Retrieve the instance time.
-                float instanceTime = ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
+                float instanceTime = AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
 
                 // Calculate the total progress made along X and Y irrespective of
                 // the total number of bounces made.  But then compute where the
@@ -97,7 +97,7 @@
                 float2 hash = hash12( totalbounces );
                 
                 // Abuse the colorchord hue function here to randomly color the logo.
-                logoTexel.rgb *= CCHSVtoRGB( float3( hash.x, hash.y*0.5 + 0.5, 1. ) );
+                logoTexel.rgb *= AudioLinkHSVtoRGB( float3( hash.x, hash.y*0.5 + 0.5, 1. ) );
 
                 // If we are looking for the logo where the logo is not
                 // zero it out.

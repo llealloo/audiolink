@@ -109,10 +109,10 @@ float AudioLinkGetVersion()
 }
 
 // This pulls data from this texture.
-#define GetSelfPixelData(xy) _SelfTexture2D[xy]
+#define AudioLinkGetSelfPixelData(xy) _SelfTexture2D[xy]
 
 // Extra utility functions for time.
-uint ALDecodeDataAsUInt(uint2 indexloc)
+uint AudioLinkDecodeDataAsUInt(uint2 indexloc)
 {
     half4 rpx = AudioLinkData(indexloc);
     return ((uint)rpx.r + ((uint)rpx.g)*1024 + ((uint)rpx.b) * 1048576 + ((uint)rpx.a) * 1073741824);
@@ -120,16 +120,16 @@ uint ALDecodeDataAsUInt(uint2 indexloc)
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
 // if your code will alias sooner, you will need to use a different function.  It should be safe to use this on all times.
-float ALDecodeDataAsSeconds(uint2 indexloc)
+float AudioLinkDecodeDataAsSeconds(uint2 indexloc)
 {
-    uint time = ALDecodeDataAsUInt(indexloc) & 0x7ffffff;
+    uint time = AudioLinkDecodeDataAsUInt(indexloc) & 0x7ffffff;
     //Can't just divide by float.  Bug in Unity's HLSL compiler.
     return float(time / 1000) + float( time % 1000 ) / 1000.; 
 }
 
-float Remap(float t, float a, float b, float u, float v) { return ((t-a) / (b-a)) * (v-u) + u; }
+float AudioLinkRemap(float t, float a, float b, float u, float v) { return ((t-a) / (b-a)) * (v-u) + u; }
 
-float3 CCHSVtoRGB(float3 HSV)
+float3 AudioLinkHSVtoRGB(float3 HSV)
 {
     float3 RGB = 0;
     float C = HSV.z * HSV.y;
@@ -149,7 +149,7 @@ float3 CCHSVtoRGB(float3 HSV)
     return RGB + M;
 }
 
-float3 CCtoRGB(float bin, float intensity, int rootNote)
+float3 AudioLinkCCtoRGB(float bin, float intensity, int rootNote)
 {
     float note = bin / AUDIOLINK_EXPBINS;
 
@@ -176,7 +176,7 @@ float3 CCtoRGB(float bin, float intensity, int rootNote)
         }
     }
     float val = intensity - 0.1;
-    return CCHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
+    return AudioLinkHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
 }
 
 

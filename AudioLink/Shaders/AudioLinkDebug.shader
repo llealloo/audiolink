@@ -121,7 +121,7 @@ Shader "AudioLink/AudioLinkDebug"
                     float intensity = clamp( Note.z * .01, 0, 1 );
                     if( abs( iuv.y - intensity ) < 0.05 && intensity > 0 )
                     {
-                        return float4(CCtoRGB( Note.x, 1.0, AUDIOLINK_ROOTNOTE ), 1.);
+                        return float4(AudioLinkCCtoRGB( Note.x, 1.0, AUDIOLINK_ROOTNOTE ), 1.);
                     }
 
 					if( iuv.y > 1 )
@@ -155,12 +155,12 @@ Shader "AudioLink/AudioLinkDebug"
                     //Spectrum-Line second
                     rval = max( _SpectrumThickness - abs( spectrum_value.z - iuv.y + _SpectrumVertOffset), 0. );
                     rval = min( 1., 1000*rval );
-                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, AUDIOLINK_ROOTNOTE ), _SpectrumFixedColor, _SpectrumColorMix ), 1.0 ), rval );
+                    coloro = lerp( coloro, fixed4( lerp( AudioLinkCCtoRGB(noteno, 1.0, AUDIOLINK_ROOTNOTE ), _SpectrumFixedColor, _SpectrumColorMix ), 1.0 ), rval );
 
                     //Other Spectrum-Line second
                     rval = max( _SpectrumThickness - abs( spectrum_value.x - iuv.y + _SpectrumVertOffset), 0. );
                     rval = min( 1., 1000*rval );
-                    coloro = lerp( coloro, fixed4( lerp( CCtoRGB(noteno, 1.0, AUDIOLINK_ROOTNOTE ), _SpectrumFixedColorForSlow, _SpectrumColorMix ), 1.0 ), rval );
+                    coloro = lerp( coloro, fixed4( lerp( AudioLinkCCtoRGB(noteno, 1.0, AUDIOLINK_ROOTNOTE ), _SpectrumFixedColorForSlow, _SpectrumColorMix ), 1.0 ), rval );
                 }
                 
                 //Potentially draw 
