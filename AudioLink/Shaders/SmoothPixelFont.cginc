@@ -258,7 +258,7 @@ float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit,
 
                 //Disable leading 0's?
                 if (!leadZero && dmfd != -1 && charNum == 0 && dmfd < 0.5)
-                    charNum = 10; // space
+                    charNum = ' '-'0'; // space
                 else
                     charNum %= (uint)10;
             }
