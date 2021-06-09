@@ -322,45 +322,60 @@ Shader "AudioLink/Internal/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_GENERALVU)
 
-                float total = 0;
-                float peak = 0;
+                float2 total = 0;
+                float2 peak = 0;
 
-                // Only VU over 768 12kSPS samples
+                // Only VU over 1024 24kSPS samples
                 uint i;
-                for( i = 0; i < 768; i++ )
+                for( i = 0; i < 1024; i++ )
                 {
-                    float audioFrame = AudioLinkGetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
-                    total += audioFrame * audioFrame;
-                    peak = max(peak, abs(audioFrame));
+                    float4 audioFrame = AudioLinkGetSelfPixelData(ALPASS_WAVEFORM + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH));
+                    float2 leftright = audioFrame.x + float2( audioFrame.a, -audioFrame.a );
+                    total += leftright * leftright;
+                    peak = max(peak, abs(leftright));
                 }
 
-                float peakRMS = sqrt(total / i);
+                float2 RMS = sqrt(total / i);
+                
                 float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
                 float4 markerTimes = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
                 float4 lastAutogain = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
-                markerTimes.xy += unity_DeltaTime.yy;
-                if( markerTimes.x > 1.0) markerValue.x = -1;
-                if( markerTimes.y > 1.0) markerValue.y = -1;
-
-                if(markerValue.x < peakRMS)
+                markerTimes.xyzw += unity_DeltaTime.xxxx;
+                //markerTimes = (markerTimes>1.) ? float4(-1, -1, -1, -1) : markerTimes;
+                float4 RMSPeak = float4( RMS.x, peak.x, RMS.y, peak.y );
+#if 0
+                if(markerValue.x < RMSPeak.x || markerTimes.x > 1. )
                 {
-                    markerValue.x = peakRMS;
+                    markerValue.x = RMSPeak.x;
                     markerTimes.x = 0;
                 }
-
-                if(markerValue.y < peak)
+                if(markerValue.y < RMSPeak.y || markerTimes.y > 1. )
                 {
-                    markerValue.y = peak;
+                    markerValue.y = RMSPeak.y;
                     markerTimes.y = 0;
                 }
+                if(markerValue.z < RMSPeak.z || markerTimes.z > 1. )
+                {
+                    markerValue.z = RMSPeak.z;
+                    markerTimes.z = 0;
+                }
+                if(markerValue.w < RMSPeak.w || markerTimes.w > 1.)
+                {
+                    markerValue.w = RMSPeak.a;
+                    markerTimes.w = 0;
+                }
+#endif
+                bool4 peakout = (markerValue < RMSPeak || markerTimes > float4(1.,1.,1.,1.) );
+                markerTimes = peakout?0:markerTimes;
+                markerValue = peakout?RMSPeak:markerValue;
 
                 if(coordinateLocal.x >= 8)
                 {
                     if(coordinateLocal.x == 8)
                     {
                         // First pixel: Current value.
-                        return float4(peakRMS, peak, 0, 1.);
+                        return RMSPeak;
                     }
                     else if(coordinateLocal.x == 9)
                     {
@@ -465,6 +480,12 @@ Shader "AudioLink/Internal/AudioLink"
                         //.y = IsMaster
                         //.z = IsInstanceOwner
                         return float4( _PlayerCountAndData );
+                    }
+                    else if(coordinateLocal.x == 7)
+                    {
+                        //General Debug Register
+                        //Use this for whatever.
+                        return float4( _AdvancedTimeProps.a, unity_DeltaTime.x, markerTimes.y, 1 );
                     }
                 }
 

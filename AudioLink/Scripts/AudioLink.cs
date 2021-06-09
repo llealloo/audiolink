@@ -95,7 +95,8 @@ public class AudioLink : UdonSharpBehaviour
         private bool   _hasInitializedTime = false;
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
-
+        private float  _ReadbackTime = 0;
+        private System.Diagnostics.Stopwatch stopwatch;
 
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
@@ -129,6 +130,8 @@ public class AudioLink : UdonSharpBehaviour
             }
             #endif
 
+            stopwatch = new System.Diagnostics.Stopwatch();
+            
             UpdateSettings();
             if (audioSource.name.Equals("AudioLinkInput"))
             {
@@ -243,7 +246,7 @@ public class AudioLink : UdonSharpBehaviour
                 (float)_elapsedTime,
                 (float)_elapsedTimeMSW,
                 (float)DateTime.Now.TimeOfDay.TotalSeconds,
-                0 ) );
+                _ReadbackTime ) );
 
             audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
                 (float)((_networkTimeMS)&65535),
@@ -308,8 +311,12 @@ public class AudioLink : UdonSharpBehaviour
         {
             if (audioDataToggle)
             {
+                // This profiling should be removed in a few weeks. (If it's still here on 2021-07-30, please remove refrences to stopwatch and _ReadbackTime)
+                stopwatch.Restart();
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
+                stopwatch.Stop();
+                _ReadbackTime = ((float)(stopwatch.Elapsed.TotalMilliseconds));
             }
         }
 

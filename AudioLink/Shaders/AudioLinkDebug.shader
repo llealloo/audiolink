@@ -8,9 +8,11 @@ Shader "AudioLink/Debug/AudioLinkDebug"
 
         _SpectrumColorMix ("Spectrum Color Mix", Range(0, 1)) = 0
 
-		
+        
 
-        _SampleColor ("Sample Color", Color) = (.9, .9, .9,1.)
+        _SampleColorL ("Left Waveform", Color) = (.5, .5, .9, 1.)
+        _SampleColorR ("Right Waveform", Color) = (.9, .5, .5, 1.)
+        _SampleColorC ("Center Waveform", Color) = (.0, .0, .0, .0)
         _SpectrumFixedColor ("Spectrum Fixed color", Color) = (.9, .9, .9,1.)
         _SpectrumFixedColorForSlow ("Spectrum Fixed color for slow", Color) = (.9, .9, .9,1.)
         _BaseColor ("Base Color", Color) = (0, 0, 0, 0)
@@ -41,7 +43,7 @@ Shader "AudioLink/Debug/AudioLinkDebug"
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-			#include "AudioLink.cginc"
+            #include "AudioLink.cginc"
 
             struct appdata
             {
@@ -64,7 +66,9 @@ Shader "AudioLink/Debug/AudioLinkDebug"
             float _SpectrumThickness;
         
             float _SampleVertOffset;
-            float4 _SampleColor;
+            float4 _SampleColorL;
+            float4 _SampleColorR;
+            float4 _SampleColorC;
             float4 _SpectrumFixedColor;
             float4 _SpectrumFixedColorForSlow;
             float4 _BaseColor;
@@ -75,8 +79,8 @@ Shader "AudioLink/Debug/AudioLinkDebug"
             float _VUOpacity;
             float _ShowVUInMain;
             float _WaveformZoom;
-			
-			float _EnableColorChord;
+            
+            float _EnableColorChord;
             
             v2f vert (appdata v)
             {
@@ -109,7 +113,7 @@ Shader "AudioLink/Debug/AudioLinkDebug"
 
 
                 //Output any debug notes
-				if( _EnableColorChord > 0.5 )
+                if( _EnableColorChord > 0.5 )
                 {
                     #define MAXNOTES 10
                     #define PASS_SIX_OFFSET    int2(12,22) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
@@ -124,13 +128,13 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                         return float4(AudioLinkCCtoRGB( Note.x, 1.0, AUDIOLINK_ROOTNOTE ), 1.);
                     }
 
-					if( iuv.y > 1 )
-					{
-						#define PASS_EIGHT_OFFSET    int2(0,24)
-						//Output Linear
-						return AudioLinkData( PASS_EIGHT_OFFSET + uint2( iuv.x * 128, 0 ) );
-					}
-				}
+                    if( iuv.y > 1 )
+                    {
+                        #define PASS_EIGHT_OFFSET    int2(0,24)
+                        //Output Linear
+                        return AudioLinkData( PASS_EIGHT_OFFSET + uint2( iuv.x * 128, 0 ) );
+                    }
+                }
 
                 if( iuv.x < 1. )
                 {
@@ -141,11 +145,17 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                     //Waveform
                     // Get whole waveform would be / 1.
                     float sinpull = (AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT - 1 - notenof) / _WaveformZoom; //2. zooms into the first half.
-                    float sinewaveval = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( sinpull, 0 ) ) * _SampleGain;
+                    sinpull = clamp( sinpull, 0.5, 2045.5 ); //Prevent overflows.
+                    float4 sinewaveval = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( sinpull, 0 ) ) * _SampleGain;
 
                     //If line has more significant slope, roll it extra wide.
-                    float ddd = 1.+length(float2(ddx( sinewaveval ),ddy(sinewaveval)))*20;
-                    coloro += _SampleColor * max( 100.*((_SampleThickness*ddd)-abs( sinewaveval - iuv.y*2.+1. + _SampleVertOffset )), 0. );
+                    float ddd = 1.+length(float2(ddx( sinewaveval.x ),ddy(sinewaveval.y)))*20;
+                    float sinewavevalC = sinewaveval.x;
+                    float sinewavevalL = sinewaveval.x + sinewaveval.a;
+                    float sinewavevalR = sinewaveval.x - sinewaveval.a;
+                    coloro += _SampleColorR * max( 100.*((_SampleThickness*ddd)-abs( sinewavevalR - iuv.y*2.+1. + _SampleVertOffset )), 0. );
+                    coloro += _SampleColorL * max( 100.*((_SampleThickness*ddd)-abs( sinewavevalL - iuv.y*2.+1. + _SampleVertOffset )), 0. );
+                    coloro += _SampleColorC * max( 100.*((_SampleThickness*ddd)-abs( sinewavevalC - iuv.y*2.+1. + _SampleVertOffset )), 0. );
                     
                     //Under-spectrum first
                     float rval = clamp( _SpectrumThickness - iuv.y + spectrum_value.z + _SpectrumVertOffset, 0., 1. );
@@ -180,18 +190,36 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                     float Value = 0.;
                     float4 Marker4 = AudioLinkData( ALPASS_GENERALVU + int2( 9, 0 ) );
                     float4 Value4 = AudioLinkData( ALPASS_GENERALVU + int2( 8, 0 ) );
-                    if( UVx < 0.125 )
+                    float whichVUMeter = UVx * 16;
+                    if( whichVUMeter <= 2 )
                     {
                         //P-P
-                        Marker = Marker4.x;
-                        Value = Value4.x;
+                        if( whichVUMeter <= 1 )
+                        {
+                            Marker = Marker4.x;
+                            Value = Value4.x;
+                        }
+                        else
+                        {
+                            Marker = Marker4.z;
+                            Value = Value4.z;
+                        }
                     }
                     else
                     {
                         //RMS
-                        Marker = Marker4.y;
-                        Value = Value4.y;
+                        if( whichVUMeter <= 3 )
+                        {
+                            Marker = Marker4.y;
+                            Value = Value4.y;
+                        }
+                        else
+                        {
+                            Marker = Marker4.w;
+                            Value = Value4.w;
+                        }
                     }
+                    if( glsl_mod( whichVUMeter, 1.0 ) < 0.1 ) { Marker = 0; Value = 0; }
 
                     Marker = log( Marker ) * 10.;
                     Value  = log( Value  ) * 10.;
