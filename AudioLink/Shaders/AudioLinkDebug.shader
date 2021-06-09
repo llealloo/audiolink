@@ -201,8 +201,8 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                         }
                         else
                         {
-                            Marker = Marker4.z;
-                            Value = Value4.z;
+                            Marker = Marker4.y;
+                            Value = Value4.y;
                         }
                     }
                     else
@@ -210,8 +210,8 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                         //RMS
                         if( whichVUMeter <= 3 )
                         {
-                            Marker = Marker4.y;
-                            Value = Value4.y;
+                            Marker = Marker4.z;
+                            Value = Value4.z;
                         }
                         else
                         {
