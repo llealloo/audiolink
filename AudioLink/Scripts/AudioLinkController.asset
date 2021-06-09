@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioLinkController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 00a04a1a7e413f9489553921670c9bd6,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b6a66f00c32dd444a9aca97d7823b06b,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -1969,7 +1969,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: _initThreshold0SliderPosition
+      Data: _threshold0Rect
     - Name: $v
       Entry: 7
       Data: 107|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1981,7 +1981,7 @@ MonoBehaviour:
       Data: 109|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+      Data: UnityEngine.RectTransform, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -1993,13 +1993,13 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector3
+      Data: UnityEngineRectTransform
     - Name: symbolOriginalName
       Entry: 1
-      Data: _initThreshold0SliderPosition
+      Data: _threshold0Rect
     - Name: symbolUniqueName
       Entry: 1
-      Data: _initThreshold0SliderPosition
+      Data: _threshold0Rect
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -2032,7 +2032,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: _initThreshold1SliderPosition
+      Data: _threshold1Rect
     - Name: $v
       Entry: 7
       Data: 111|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -2050,13 +2050,13 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector3
+      Data: UnityEngineRectTransform
     - Name: symbolOriginalName
       Entry: 1
-      Data: _initThreshold1SliderPosition
+      Data: _threshold1Rect
     - Name: symbolUniqueName
       Entry: 1
-      Data: _initThreshold1SliderPosition
+      Data: _threshold1Rect
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -2089,7 +2089,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: _initThreshold2SliderPosition
+      Data: _threshold2Rect
     - Name: $v
       Entry: 7
       Data: 114|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -2107,13 +2107,13 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector3
+      Data: UnityEngineRectTransform
     - Name: symbolOriginalName
       Entry: 1
-      Data: _initThreshold2SliderPosition
+      Data: _threshold2Rect
     - Name: symbolUniqueName
       Entry: 1
-      Data: _initThreshold2SliderPosition
+      Data: _threshold2Rect
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -2146,7 +2146,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: _initThreshold3SliderPosition
+      Data: _threshold3Rect
     - Name: $v
       Entry: 7
       Data: 117|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -2164,13 +2164,13 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector3
+      Data: UnityEngineRectTransform
     - Name: symbolOriginalName
       Entry: 1
-      Data: _initThreshold3SliderPosition
+      Data: _threshold3Rect
     - Name: symbolUniqueName
       Entry: 1
-      Data: _initThreshold3SliderPosition
+      Data: _threshold3Rect
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
