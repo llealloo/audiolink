@@ -8,9 +8,10 @@ using VRC.SDK3.Video.Components.Base;
 using VRC.SDKBase;
 using VRC.Udon.Common;
 
-namespace AudioLinkPrefab
+namespace VRCAudioLink
 {
     [AddComponentMenu("AudioLink/AudioLink Mini Player")]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLinkMiniPlayer : UdonSharpBehaviour
     {
         [Tooltip("AVPro video player component")]
@@ -349,7 +350,7 @@ namespace AudioLinkPrefab
                 _syncVideoStartNetworkTime = (float)Networking.GetServerTimeInSeconds() - _videoTargetTime;
                 _syncOwnerPlaying = true;
                 RequestSerialization();
-                
+
                 _currentPlayer.SetTime(_videoTargetTime);
             }
             else

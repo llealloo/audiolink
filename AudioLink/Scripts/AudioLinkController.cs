@@ -48,10 +48,10 @@ namespace VRCAudioLink
             private float _initThreshold2;
             private float _initThreshold3;
 
-            private Vector3 _initThreshold0SliderPosition;
-            private Vector3 _initThreshold1SliderPosition;
-            private Vector3 _initThreshold2SliderPosition;
-            private Vector3 _initThreshold3SliderPosition;
+            private RectTransform _threshold0Rect;
+            private RectTransform _threshold1Rect;
+            private RectTransform _threshold2Rect;
+            private RectTransform _threshold3Rect;
 
             #if UNITY_EDITOR
             void Update()
@@ -76,10 +76,10 @@ namespace VRCAudioLink
                 _initThreshold1 = threshold1Slider.value;
                 _initThreshold2 = threshold2Slider.value;
                 _initThreshold3 = threshold3Slider.value;
-                _initThreshold0SliderPosition = threshold0Slider.transform.localPosition;
-                _initThreshold1SliderPosition = threshold1Slider.transform.localPosition;
-                _initThreshold2SliderPosition = threshold2Slider.transform.localPosition;
-                _initThreshold3SliderPosition = threshold3Slider.transform.localPosition;
+                _threshold0Rect = threshold0Slider.GetComponent<RectTransform>();
+                _threshold1Rect = threshold1Slider.GetComponent<RectTransform>();
+                _threshold2Rect = threshold2Slider.GetComponent<RectTransform>();
+                _threshold3Rect = threshold3Slider.GetComponent<RectTransform>();
 
                 UpdateSettings();
             }
@@ -91,11 +91,19 @@ namespace VRCAudioLink
                 trebleLabel.text = "Treble: " + ((int)Remap( trebleSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
                 bassLabel.text = "Bass: " + ((int)Remap( bassSlider.value, 0f, 2f, 0f, 200f )).ToString() + "%";
 
-                // Update
-                threshold0Slider.transform.localPosition = new Vector3(Remap((x0Slider.value + x1Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold0SliderPosition.y, 0f);
-                threshold1Slider.transform.localPosition = new Vector3(Remap((x1Slider.value + x2Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold1SliderPosition.y, 0f);
-                threshold2Slider.transform.localPosition = new Vector3(Remap((x2Slider.value + x3Slider.value) / 2f, 0f, 1f, -349f, 349f), _initThreshold2SliderPosition.y, 0f);
-                threshold3Slider.transform.localPosition = new Vector3(Remap((x3Slider.value + 1f) / 2f, 0f, 1f, -349f, 349f), _initThreshold3SliderPosition.y, 0f);
+                // Update Sliders
+                var anchor0 = new Vector2(x0Slider.value, 1f);
+                var anchor1 = new Vector2(x1Slider.value, 1f);
+                var anchor2 = new Vector2(x2Slider.value, 1f);
+                var anchor3 = new Vector2(x3Slider.value, 1f);
+                _threshold0Rect.anchorMin = anchor0;
+                _threshold0Rect.anchorMax = anchor1;
+                _threshold1Rect.anchorMin = anchor1;
+                _threshold1Rect.anchorMax = anchor2;
+                _threshold2Rect.anchorMin = anchor2;
+                _threshold2Rect.anchorMax = anchor3;
+                _threshold3Rect.anchorMin = anchor3;
+                // threshold3Rect.anchorMax is a constant value. Skip
 
                 // General settings
                 audioLink.SetProgramVariable("gain", gainSlider.value);

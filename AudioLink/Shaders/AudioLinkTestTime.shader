@@ -1,4 +1,4 @@
-﻿Shader "Unlit/AudioLinkTestTime"
+﻿Shader "AudioLink/Debug/AudioLinkTestTime"
 {
     Properties
     {
@@ -17,6 +17,7 @@
 
             #include "UnityCG.cginc"
             #include "AudioLink.cginc"
+            #include "SmoothPixelFont.cginc"
 
             struct appdata
             {
@@ -85,7 +86,7 @@
                                 };
                             sendchar = sendarr[dig.x+dig.y*10];
                         }
-                        return PrintChar( sendchar, fmxy, softness );
+                        return PrintChar( sendchar, fmxy, softness, 0.0 );
                     }
                     
                     dig.x -= cols - number_area_cols;
@@ -104,7 +105,7 @@
                 case 1:
                     // 2: Time since level start in milliseconds.
                     // 3: Time of day.
-                    value = ALDecodeDataAsSeconds( dig.y?ALPASS_GENERALVU_LOCAL_TIME:ALPASS_GENERALVU_INSTANCE_TIME );
+                    value = AudioLinkDecodeDataAsSeconds( dig.y?ALPASS_GENERALVU_LOCAL_TIME:ALPASS_GENERALVU_INSTANCE_TIME );
 					float seconds = glsl_mod(value, 60);
                     int minutes = (value/60) % 60;
                     int hours = (value/3600);
@@ -132,12 +133,12 @@
                 case 2:
 					if( dig.x < 8 )
 					{
-						value = ALDecodeDataAsUInt( ALPASS_GENERALVU_NETWORK_TIME )/1000;
+						value = AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_NETWORK_TIME )/1000;
 						offset = 3;
 					}
 					else
 					{
-						value = ALDecodeDataAsUInt( ALPASS_GENERALVU_NETWORK_TIME )%1000;
+						value = AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_NETWORK_TIME )%1000;
                         leadingzero = 1;
 					}
 					break;
@@ -185,7 +186,7 @@
                     }
 					break;
                 case 8:
-                    value = ALDecodeDataAsSeconds( AudioLinkData( int2( ALPASS_GENERALVU + int2(2, 0 ) ) ) );
+                    value = AudioLinkDecodeDataAsSeconds( AudioLinkData( int2( ALPASS_GENERALVU + int2(2, 0 ) ) ) );
                     xoffset=4;
                     break;
                 case 9:
@@ -222,7 +223,7 @@
                     break;
                 }
 
-                return PrintNumberOnLine( value, number_area_cols-offset, dig.x + xoffset, fmxy, offset, leadingzero, softness );                
+                return PrintNumberOnLine( value, fmxy, softness, number_area_cols-offset, dig.x + xoffset, 10, leadingzero, offset );                
             }
             ENDCG
         }

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_AudioLinkInternalCRT
+  m_Name: mat_AudioLink
   m_Shader: {fileID: 4800000, guid: 0071b93d4d4494246a2f39b211ba016f, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -109,6 +109,9 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
+    - _SourceDistance: 1.603122
+    - _SourceSpatialBlend: 0
+    - _SourceVolume: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold0: 0.45
@@ -135,4 +138,4 @@ Material:
     - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.05, g: 0, b: 55, a: 1}
+    - _VersionNumberAndFPSProperty: {r: 2.05, g: 0, b: 95, a: 1}
