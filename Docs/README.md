@@ -57,22 +57,20 @@ Shader "MyTestShader"
 
 ```hlsl
 // Map of where features in AudioLink are.
-#define ALPASS_DFT                      int2(0,4)
-#define ALPASS_WAVEFORM                 int2(0,6)
-#define ALPASS_AUDIOLINK                int2(0,0)
-#define ALPASS_AUDIOBASS                int2(0,0)
-#define ALPASS_AUDIOLOWMIDS             int2(0,1)
-#define ALPASS_AUDIOHIGHMIDS            int2(0,2)
-#define ALPASS_AUDIOTREBLE              int2(0,3)
-#define ALPASS_AUDIOLINKHISTORY         int2(1,0)
-#define ALPASS_GENERALVU                int2(0,22)
-#define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
-#define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
-#define ALPASS_CCINTERNAL               int2(12,22)
-#define ALPASS_CCSTRIP                  int2(0,24)
-#define ALPASS_CCLIGHTS                 int2(0,25)
-#define ALPASS_AUTOCORRELATOR           int2(0,27)
-#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)
+#define ALPASS_DFT                      int2(0,4)   //Size: 128, 2
+#define ALPASS_WAVEFORM                 int2(0,6)   //Size: 128, 16
+#define ALPASS_AUDIOLINK                int2(0,0)   //Size: 128, 4
+#define ALPASS_AUDIOBASS                int2(0,0)   //Size: 128, 1
+#define ALPASS_AUDIOLOWMIDS             int2(0,1)   //Size: 128, 1
+#define ALPASS_AUDIOHIGHMIDS            int2(0,2)   //Size: 128, 1
+#define ALPASS_AUDIOTREBLE              int2(0,3)   //Size: 128, 1
+#define ALPASS_AUDIOLINKHISTORY         int2(1,0)   //Size: 127, 4
+#define ALPASS_GENERALVU                int2(0,22)  //Size: 12, 1
+#define ALPASS_CCINTERNAL               int2(12,22) //Size: 12, 2
+#define ALPASS_CCSTRIP                  int2(0,24)  //Size: 128, 1
+#define ALPASS_CCLIGHTS                 int2(0,25)  //Size: 128, 2
+#define ALPASS_AUTOCORRELATOR           int2(0,27)  //Size: 128, 1
+#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)  //Size: 16, 4
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -103,7 +101,7 @@ Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sam
  * RED: 24,000 SPS audio, amplitude. Contains 2046 samples.
  * GRN: 48,000 SPS audio, amplitude. Contains 2048 samples.
  * BLU: 12,000 SPS audio, amplitude. Contains 1023 samples.
- * ALP: RESERVED.
+ * ALP: 24,000 SPS audio, differential. For left channel take .r + .a, for right take .r - .a. (Contains 2046 Samples)
 
 The reason for the numbers are off by one is because shader parameters can only store 1023 values, not 1024 and AudioLink uses 4 blocks.
 
