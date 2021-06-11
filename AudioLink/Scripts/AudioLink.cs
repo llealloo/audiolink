@@ -101,6 +101,11 @@ public class AudioLink : UdonSharpBehaviour
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
 
+        // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
+        private int _rightChannelTestDelay = 300;
+        private int _rightChannelTestCounter;
+        private bool _ignoreRightChannel = false;
+
         void Start()
         {
             #if UDON
@@ -127,6 +132,8 @@ public class AudioLink : UdonSharpBehaviour
                 //Debug.Log($"AudioLink _networkTimeOfDayUTC = {_networkTimeOfDayUTC}" );
                 Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}" );
                 Debug.Log($"AudioLink Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
+
+                _rightChannelTestCounter = _rightChannelTestDelay;
             }
             #endif
 
@@ -269,26 +276,7 @@ public class AudioLink : UdonSharpBehaviour
 
             if (audioSource != null)
             {
-                audioSource.GetOutputData(_audioFramesL, 0); // left channel
-                audioSource.GetOutputData(_audioFramesR, 1); // right channel
-
-                System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
-                audioMaterial.SetFloatArray("_Samples0L", _samples);
-                System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
-                audioMaterial.SetFloatArray("_Samples1L", _samples);
-                System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
-                audioMaterial.SetFloatArray("_Samples2L", _samples);
-                System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
-                audioMaterial.SetFloatArray("_Samples3L", _samples);
-
-                System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
-                audioMaterial.SetFloatArray("_Samples0R", _samples);
-                System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
-                audioMaterial.SetFloatArray("_Samples1R", _samples);
-                System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
-                audioMaterial.SetFloatArray("_Samples2R", _samples);
-                System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
-                audioMaterial.SetFloatArray("_Samples3R", _samples);
+                SendAudioOutputData();
 
                 // Used to correct for the volume of the audio source component
                 audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
@@ -335,6 +323,44 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
             audioMaterial.SetFloat("_Bass", bass);
             audioMaterial.SetFloat("_Treble", treble);
+        }
+
+        public void SendAudioOutputData()
+        {
+            audioSource.GetOutputData(_audioFramesL, 0);                // left channel
+
+            if (_rightChannelTestCounter > 0)
+            {
+                if (_ignoreRightChannel) {
+                    System.Array.Copy(_audioFramesL, 0, _audioFramesR, 0, 4092);
+                } else {
+                    audioSource.GetOutputData(_audioFramesR, 1);
+                }
+                _rightChannelTestCounter--;
+            } else {
+                _rightChannelTestCounter = _rightChannelTestDelay;      // reset test countdown
+                _audioFramesR[0] = 0f;                                  // reset tested array element to zero just in case
+                audioSource.GetOutputData(_audioFramesR, 1);            // right channel test
+                _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
+            }
+
+            System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+            audioMaterial.SetFloatArray("_Samples0L", _samples);
+            System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+            audioMaterial.SetFloatArray("_Samples1L", _samples);
+            System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+            audioMaterial.SetFloatArray("_Samples2L", _samples);
+            System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+            audioMaterial.SetFloatArray("_Samples3L", _samples);
+
+            System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
+            audioMaterial.SetFloatArray("_Samples0R", _samples);
+            System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
+            audioMaterial.SetFloatArray("_Samples1R", _samples);
+            System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
+            audioMaterial.SetFloatArray("_Samples2R", _samples);
+            System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
+            audioMaterial.SetFloatArray("_Samples3R", _samples);
         }
 
         private float Remap(float t, float a, float b, float u, float v)
