@@ -21,7 +21,7 @@
             #include "../../AudioLink/Shaders/SmoothPixelFont.cginc"
 
             #define PIXELFONT_ROWS 35
-            #define PIXELFONT_COLS 80
+            #define PIXELFONT_COLS 60
 
             #ifndef glsl_mod
             #define glsl_mod(x, y) (x - y * floor(x / y))
