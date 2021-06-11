@@ -111,7 +111,7 @@ Material:
     - _SortNotes: 0
     - _SourceDistance: 1.603122
     - _SourceSpatialBlend: 0
-    - _SourceVolume: 1
+    - _SourceVolume: 0.01
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Threshold0: 0.45
