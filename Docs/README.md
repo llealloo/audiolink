@@ -227,14 +227,15 @@ A mechanism to use this field smoothly would be:
 
 ### `ALPASS_AUTOCORRELATOR`
 
-The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
+The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric,so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
+The green channel of this row provides an uncorrelated autocorrelator. It's like the red channel but doesn't have a beginning or an end.
 
 <img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png width=512 height=20>
 
 The red value is the acutal autocorrelator value, centered around the 0th bin. The green value is where all the phases of the frequency bins are scrambled to prevent any obvious "up."
 
 ```hlsl
-    return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rrrr;
+    return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( abs( 1. - i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rrrr;
 ```
 
 ### `ALPASS_FILTEREDAUDIOLINK`
