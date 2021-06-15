@@ -70,6 +70,7 @@ Shader "MyTestShader"
 #define ALPASS_CCSTRIP                  int2(0,24)  //Size: 128, 1
 #define ALPASS_CCLIGHTS                 int2(0,25)  //Size: 128, 2
 #define ALPASS_AUTOCORRELATOR           int2(0,27)  //Size: 128, 1
+// Added in version 2.5
 #define ALPASS_FILTEREDAUDIOLINK        int2(0,28)  //Size: 16, 4
 ```
 
@@ -101,7 +102,7 @@ Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sam
  * RED: 24,000 SPS audio, amplitude. Contains 2046 samples.
  * GRN: 48,000 SPS audio, amplitude. Contains 2048 samples.
  * BLU: 12,000 SPS audio, amplitude. Contains 1023 samples.
- * ALP: 24,000 SPS audio, differential. For left channel take .r + .a, for right take .r - .a. (Contains 2046 Samples)
+ * ALP: 24,000 SPS audio, differential. For left channel take .r + .a, for right take .r - .a. (Contains 2046 Samples) **Added in version 2.5**
 
 The reason for the numbers are off by one is because shader parameters can only store 1023 values, not 1024 and AudioLink uses 4 blocks.
 
@@ -180,6 +181,7 @@ Note that for milliseconds since instance start, and milliseconds since 12:00 AM
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
+// Added/updated in version 2.5
 #define ALPASS_GENERALVU_NETWORK_TIME    int2(4,22)
 #define ALPASS_GENERALVU_PLAYERINFO      int2(6,22)
 ```
@@ -240,7 +242,7 @@ The red value is the acutal autocorrelator value, centered around the 0th bin. T
 
 ### `ALPASS_FILTEREDAUDIOLINK`
 
-This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.
+This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.  This feature was added in version 2.5.
 
 ### Other defines
 
@@ -299,18 +301,18 @@ Where the following mapping is used:
  * Lerp = `AudioLinkLerp( ... )`
  * LerpMultiline = `AudioLinkLerpMultiline( ... )`
 
-| | Data | DataMultiline | Lerp | LerpMultiline | Start Coord | Size |
-| --- | --- | --- | --- | --- | --- | --- |
-| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ | 0,4 | 128, 2 |
-| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ | 0, 6 | 128, 16 |
-| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  | 0, 0 | 1, 4 |
-| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  | 1, 0 | 127, 4 |
-| ALPASS_GENERALVU  | ✅ |  |  |  |  0, 22 | 12, 2 |
-| ALPASS_CCINTERNAL  | ✅ |  |  |  | 12, 22 | 12, 2 |
-| ALPASS_CCSTRIP  | ✅ |   | ✅ |   | 0, 24 | 128, 1 | 
-| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   | 0, 25 | 128, 2 |
-| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   | 0, 27 | 128, 1 |
-| ALPASS_FILTEREDAUDIOLINK  | ✅ |   | ✅ |   | 0, 28 | 16, 4 |
+| | Data | DataMultiline | Lerp | LerpMultiline | Start Coord | Size | Available Since |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ | 0,4 | 128, 2 | v2.2 |
+| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ | 0, 6 | 128, 16 | v2.2 |
+| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  | 0, 0 | 1, 4 | v1.0 |
+| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  | 1, 0 | 127, 4 | v1.0 |
+| ALPASS_GENERALVU  | ✅ |  |  |  |  0, 22 | 12, 2 | v2.2 |
+| ALPASS_CCINTERNAL  | ✅ |  |  |  | 12, 22 | 12, 2 | v2.2 |
+| ALPASS_CCSTRIP  | ✅ |   | ✅ |   | 0, 24 | 128, 1 | v2.2 |
+| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   | 0, 25 | 128, 2 | v2.3 |
+| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   | 0, 27 | 128, 1 | v2.3 |
+| ALPASS_FILTEREDAUDIOLINK  | ✅ |   | ✅ |   | 0, 28 | 16, 4 | v2.5 |
 
 
 ## Examples
@@ -611,3 +613,7 @@ This is particularly useful as this sort of tracks the way we perceive informati
 ### What is ColorChord?
 
 ColorChord is another project for doing sound reactive lighting IRL.  More info can be found on it here: https://github.com/cnlohr/colorchord
+
+### Another reference
+
+Shadowriver maintains this protocol reference, in spreadsheet format  https://docs.google.com/spreadsheets/d/1PkA98uI_zslpTr6ARBVGOBSq5Yna0rKPe_RWbdtbERM/edit?usp=sharing
