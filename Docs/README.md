@@ -613,3 +613,7 @@ This is particularly useful as this sort of tracks the way we perceive informati
 ### What is ColorChord?
 
 ColorChord is another project for doing sound reactive lighting IRL.  More info can be found on it here: https://github.com/cnlohr/colorchord
+
+### Another reference
+
+Shadowriver maintains this protocol reference, in spreadsheet format  https://docs.google.com/spreadsheets/d/1PkA98uI_zslpTr6ARBVGOBSq5Yna0rKPe_RWbdtbERM/edit?usp=sharing
