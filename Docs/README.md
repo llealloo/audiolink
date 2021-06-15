@@ -12,7 +12,24 @@ AudioLink can be used in 2 ways.
 
 The AudioLink Texture is a 128 x 64 px RGBA texture which contains several features which allow for the linking of audio and other data to avatars of a world.  It contains space for many more features than are currently implemented and may periodically add functionality. 
 
-The basic map is sort of a hodgepodge of various features avatars may want.
+The basic map is sort of a hodgepodge of various features avatars may want, and many features have been added over time.
+
+|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 |
+|-------------------------|-------|-------|-------|-------|-------|-------|-------|
+| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band Filtered         |       |       |       |       |       |       |   X   |
+| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |
+| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |
+| VU Meter Left           |       |       |       |       |       |   X   |   X   |
+| VU Meter Left+Right     |       |       |       |       |       |       |   X   |
+| AudioLink FPS           |       |       |       |       |       |       |   X   |
+| AudioLink Version Read  |       |       |       |       |       |       |   X   |
+| Synced Instance Time    |       |       |       |       |       |       |   X   |
+|                         |       |       |       |       |       |       |       |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
