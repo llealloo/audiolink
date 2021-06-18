@@ -20,7 +20,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Increased performance across the board
 
 ### Big changes for shader developers from 2.4 to 2.5
-- Massive refactory and restyling of codebase
+- Massive refactoring and restyling of codebase
 - Lots of changes to the AudioLink.gcinc, please see the changelog
 - Amplify shader templates and functions added w/ examples
 - Left + right VU meter data
