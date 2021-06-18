@@ -6,8 +6,7 @@ AudioLink is a system that analyzes and processes in-world audio into many diffe
 
 The per-frequency audio amplitude data is first read briefly into Udon using Unity's GetOutputData. It is then sent to the GPU for signal processing and buffered into a CustomRenderTexture. Then, the CustomRenderTexture is broadcast globally (called `_AudioTexture`) which can be picked up by shaders both in-world and across all avatars. 
 
-##### [Public example world (V1)](https://vrchat.com/home/launch?worldId=wrld_7cfa5d1c-4177-43ec-ab05-26ec62bb5088)
-##### [Public example world (V2)](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
+##### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ##### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
 
