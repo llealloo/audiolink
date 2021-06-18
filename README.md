@@ -26,7 +26,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Left + right waveform data
 - Version read
 - FPS read
-- Synced instance time! Thanks @cnlohr!
+- Synced instance time & synced network time! Thanks @cnlohr!
 
 ### Bugfixes in 2.5
 - AVPro + mono audio output (like a gaming headset) caused audio reactivity to break & log spam
@@ -52,9 +52,9 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ## First time setup
 
 ### Requirements
-- VRChat SDK3 for worlds (Udon)
-- UdonSharp
-- CyanEmu (optional but highly recommended)
+- [VRChat SDK3](https://vrchat.com/home/download) for worlds (Udon)
+- [UdonSharp](https://github.com/MerlinVR/UdonSharp/releases/latest)
+- [CyanEmu](https://github.com/CyanLaser/CyanEmu/releases/latest) (optional but highly recommended)
 - The latest release: https://github.com/llealloo/vrc-udon-audio-link/releases/latest
 
 ### Installation
