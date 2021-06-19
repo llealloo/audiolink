@@ -79,7 +79,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ## Compatible tools / assets
 - [Silent Cel Shading Shader](https://gitlab.com/s-ilent/SCSS) by Silent
 - [Mochies Unity Shaders](https://github.com/MochiesCode/Mochies-Unity-Shaders/releases) by Mochie
-- [Fire Lite](discord.gg/24W435s) by Rollthered
+- [Fire Lite](https://discord.gg/24W435s) by Rollthered
 - [VR Stage Lighting](https://github.com/AcChosen/VR-Stage-Lighting) by AcChosen
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
