@@ -264,11 +264,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 			#endif
 			uniform sampler2D _MainTex;
 			uniform float4 _Color;
-			uniform float _AudioHueShift;
 			uniform sampler2D _BumpMap;
 			uniform float _BumpScale;
 			uniform sampler2D _EmissionMap;
-			uniform float4 _EmissionColor;
 			uniform float _Metallic;
 			uniform float _Smoothness;
 			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
@@ -276,6 +274,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 #define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
 #define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
 #define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
@@ -305,7 +307,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g5( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -508,9 +510,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
 				float2 texCoord6 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
 				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
-				float hueShift33 = _AudioHueShift;
+				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
+				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g5 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
 				float2 break6_g4 = texCoord50;
 				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
@@ -523,9 +526,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g5 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g5 = AudioLinkLerp3_g5( Band3_g5 , Delay3_g5 );
-				float temp_output_96_0 = localAudioLinkLerp3_g5;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 				
@@ -534,7 +537,8 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord9.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
-				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor * temp_output_96_0 ).rgb );
+				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
+				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 				
@@ -789,11 +793,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 			#endif
 			uniform sampler2D _MainTex;
 			uniform float4 _Color;
-			uniform float _AudioHueShift;
 			uniform sampler2D _BumpMap;
 			uniform float _BumpScale;
 			uniform sampler2D _EmissionMap;
-			uniform float4 _EmissionColor;
 			uniform float _Metallic;
 			uniform float _Smoothness;
 			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
@@ -801,6 +803,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 #define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
 #define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
 #define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
@@ -830,7 +836,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g5( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -1014,9 +1020,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
 				float2 texCoord6 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
 				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
-				float hueShift33 = _AudioHueShift;
+				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
+				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g5 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
 				float2 break6_g4 = texCoord50;
 				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
@@ -1029,9 +1036,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g5 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g5 = AudioLinkLerp3_g5( Band3_g5 , Delay3_g5 );
-				float temp_output_96_0 = localAudioLinkLerp3_g5;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 				
@@ -1040,7 +1047,8 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord9.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
-				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor * temp_output_96_0 ).rgb );
+				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
+				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 				
@@ -1237,11 +1245,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 			#endif
 			uniform sampler2D _MainTex;
 			uniform float4 _Color;
-			uniform float _AudioHueShift;
 			uniform sampler2D _BumpMap;
 			uniform float _BumpScale;
 			uniform sampler2D _EmissionMap;
-			uniform float4 _EmissionColor;
 			uniform float _Metallic;
 			uniform float _Smoothness;
 			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
@@ -1249,6 +1255,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 #define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
 #define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
 #define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
@@ -1278,7 +1288,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g5( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -1463,9 +1473,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
 				float2 texCoord6 = IN.ase_texcoord8.xy * float2( 1,1 ) + float2( 0,0 );
 				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
-				float hueShift33 = _AudioHueShift;
+				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
+				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g5 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord8.xy * float2( 1,1 ) + float2( 0,0 );
 				float2 break6_g4 = texCoord50;
 				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
@@ -1478,9 +1489,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g5 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g5 = AudioLinkLerp3_g5( Band3_g5 , Delay3_g5 );
-				float temp_output_96_0 = localAudioLinkLerp3_g5;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 				
@@ -1489,7 +1500,8 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord8.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
-				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor * temp_output_96_0 ).rgb );
+				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
+				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 				
@@ -1669,12 +1681,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 			#endif
 			uniform sampler2D _MainTex;
 			uniform float4 _Color;
-			uniform float _AudioHueShift;
 			uniform sampler2D _EmissionMap;
-			uniform float4 _EmissionColor;
 			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
 #define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
+				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
 #define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
@@ -1704,7 +1718,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g5( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -1862,9 +1876,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				
 				float2 texCoord6 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
 				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
-				float hueShift33 = _AudioHueShift;
+				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
+				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g5 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
 				float2 break6_g4 = texCoord50;
 				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
@@ -1877,15 +1892,16 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g5 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g5 = AudioLinkLerp3_g5( Band3_g5 , Delay3_g5 );
-				float temp_output_96_0 = localAudioLinkLerp3_g5;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 				
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord3.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
-				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor * temp_output_96_0 ).rgb );
+				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
+				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 				
@@ -2174,63 +2190,58 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 }
 /*ASEBEGIN
 Version=18908
-3072;0.8;2439;976;3186.424;-199.3789;1.215001;True;False
-Node;AmplifyShaderEditor.RangedFloatNode;31;-1390.638,-584.899;Inherit;False;Property;_AudioHueShift;Audio Hue Shift;12;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;49;-2381.913,871.5845;Inherit;False;InstancedProperty;_PulseRotation;Pulse Rotation;13;0;Create;True;0;0;0;False;0;False;0;0;0;360;0;1;FLOAT;0
+3114.4;81.6;2712;1462;2899.47;881.0705;1.515001;True;False
+Node;AmplifyShaderEditor.RangedFloatNode;31;-1390.638,-584.899;Inherit;False;InstancedProperty;_AudioHueShift;Audio Hue Shift;12;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.ColorNode;2;-955,-202.5;Inherit;False;Property;_Color;Color;1;0;Create;True;0;0;0;False;0;False;0.4980392,0.4980392,0.4980392,1;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.RGBToHSVNode;32;-372.2949,-372.8591;Inherit;False;1;0;FLOAT3;0,0,0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
-Node;AmplifyShaderEditor.RangedFloatNode;17;-1434.696,642.8046;Inherit;False;InstancedProperty;_Band;Band;9;2;[Header];[IntRange];Create;True;1;Audio Section;0;0;False;0;False;0;0;0;3;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RegisterLocalVarNode;33;-1046.295,-583.8591;Inherit;False;hueShift;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TextureCoordinatesNode;6;-1357,-367;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.GetLocalVarNode;34;-366.2949,-141.8591;Inherit;False;33;hueShift;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;9;-936,-2;Inherit;True;Property;_BumpMap;Normal Map;4;0;Create;False;0;0;0;False;0;False;-1;None;None;True;0;False;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;5;-597,-280;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.RangedFloatNode;12;261.2,1021.201;Inherit;False;Property;_Smoothness;Smoothness;3;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.TextureCoordinatesNode;50;-2385.262,732.5444;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.FunctionNode;69;-1917.486,737.521;Inherit;False;RotateUVFill;-1;;4;459952d587cbfe742a7e7f4a8a0a4169;0;2;1;FLOAT2;0,0;False;2;FLOAT;0;False;1;FLOAT2;0
-Node;AmplifyShaderEditor.FunctionNode;93;-1410.24,873.1649;Inherit;False;BandPulse;-1;;3;c478702160369ce4480fa2fb6d734ffa;0;3;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RadiansOpNode;51;-2083.566,860.3765;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;33;-1046.295,-583.8591;Inherit;False;hueShift;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;10;-812,202;Inherit;False;Property;_BumpScale;Normal Scale;5;0;Create;False;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.BreakToComponentsNode;78;-1616.565,796.2052;Inherit;False;FLOAT2;1;0;FLOAT2;0,0;False;16;FLOAT;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT;5;FLOAT;6;FLOAT;7;FLOAT;8;FLOAT;9;FLOAT;10;FLOAT;11;FLOAT;12;FLOAT;13;FLOAT;14;FLOAT;15
-Node;AmplifyShaderEditor.RangedFloatNode;57;-1752.023,925.6572;Inherit;False;InstancedProperty;_Pulse;Pulse;11;1;[Header];Create;True;1;Pulse Across UVs;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;18;-1751.102,1027.495;Inherit;False;InstancedProperty;_Delay;Delay;10;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;96;-961.7287,821.9091;Inherit;False;4BandAmplitudeLerp;-1;;5;3cf4b6e83381a9a4f84f8cf857bc3af5;0;2;2;INT;0;False;4;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;96;-961.7287,821.9091;Inherit;False;4BandAmplitudeLerp;-1;;6;3cf4b6e83381a9a4f84f8cf857bc3af5;0;2;2;INT;0;False;4;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;44;70.29944,482.272;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.ColorNode;3;-935.8119,580.942;Inherit;False;Property;_EmissionColor;Emission Color;7;1;[HDR];Create;True;0;0;0;False;0;False;0,0,0,1;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.GetLocalVarNode;37;-372.7727,-36.59692;Inherit;False;36;amplitude;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;38;-152.7727,-73.59692;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;46;255.5175,800.3702;Inherit;False;InstancedProperty;_Emission;Emission Scale;8;0;Create;False;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;47;534.9175,735.4701;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;1;FLOAT3;0
-Node;AmplifyShaderEditor.HSVToRGBNode;45;252.8217,636.5342;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
-Node;AmplifyShaderEditor.RangedFloatNode;12;261.2,1021.201;Inherit;False;Property;_Smoothness;Smoothness;3;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.GetLocalVarNode;41;-311.1783,767.5342;Inherit;False;36;amplitude;1;0;OBJECT;;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;13;258.2,923.202;Inherit;False;Property;_Metallic;Metallic;2;0;Create;True;0;0;0;False;0;False;0;0.5;0;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.GetLocalVarNode;42;-304.7005,662.272;Inherit;False;33;hueShift;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.FunctionNode;93;-1410.24,873.1649;Inherit;False;BandPulse;-1;;7;c478702160369ce4480fa2fb6d734ffa;0;3;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RadiansOpNode;51;-2083.566,860.3765;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RGBToHSVNode;32;-372.2949,-372.8591;Inherit;False;1;0;FLOAT3;0,0,0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.TextureCoordinatesNode;6;-1357,-367;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;43;-91.17834,730.5342;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;98;-1137.932,882.2094;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;128;False;1;FLOAT;0
 Node;AmplifyShaderEditor.RegisterLocalVarNode;36;-599.8431,921.3793;Inherit;False;amplitude;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.HSVToRGBNode;39;191.2273,-167.5969;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.SimpleAddOpNode;35;8.705078,-321.8591;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
-Node;AmplifyShaderEditor.RangedFloatNode;10;-812,202;Inherit;False;Property;_BumpScale;Normal Scale;5;0;Create;False;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;14;-989.8879,298.6613;Inherit;True;Property;_EmissionMap;Emission Map;6;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;gray;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.SimpleMultiplyOpNode;15;-528.8879,636.6613;Inherit;False;3;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.HSVToRGBNode;45;252.8217,636.5342;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.GetLocalVarNode;42;-304.7005,662.272;Inherit;False;33;hueShift;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;11;-502,92;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;15;-528.8879,636.6613;Inherit;False;3;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.RangedFloatNode;49;-2381.913,871.5845;Inherit;False;InstancedProperty;_PulseRotation;Pulse Rotation;13;0;Create;True;0;0;0;False;0;False;0;0;0;360;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;57;-1752.023,925.6572;Inherit;False;InstancedProperty;_Pulse;Pulse;11;1;[Header];Create;True;1;Pulse Across UVs;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;18;-1751.102,1027.495;Inherit;False;InstancedProperty;_Delay;Delay;10;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;17;-1434.696,642.8046;Inherit;False;InstancedProperty;_Band;Band;9;2;[Header];[IntRange];Create;True;1;Audio Section;0;0;False;0;False;0;0;0;3;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;46;255.5175,800.3702;Inherit;False;InstancedProperty;_Emission;Emission Scale;8;0;Create;False;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;13;258.2,923.202;Inherit;False;Property;_Metallic;Metallic;2;0;Create;True;0;0;0;False;0;False;0;0.5;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RGBToHSVNode;40;-310.7005,431.272;Inherit;False;1;0;FLOAT3;0,0,0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.GetLocalVarNode;41;-311.1783,767.5342;Inherit;False;36;amplitude;1;0;OBJECT;;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SamplerNode;4;-1039,-416;Inherit;True;Property;_MainTex;Albedo;0;0;Create;False;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;83;824,664;Float;False;True;-1;2;ASEMaterialInspector;0;10;AudioLink/Surface/AudioReactiveSurface;f0be08cf82190c945883605df227bec5;True;ForwardBase;0;1;ForwardBase;18;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;40;Workflow,InvertActionOnDeselection;1;Surface;0;  Blend;0;  Refraction Model;0;  Dither Shadows;1;Two Sided;1;Deferred Pass;1;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;Ambient Light;1;Meta Pass;1;Add Pass;1;Override Baked GI;0;Extra Pre Pass;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Fwd Specular Highlights Toggle;0;Fwd Reflections Toggle;0;Disable Batching;0;Vertex Position,InvertActionOnDeselection;1;0;6;False;True;True;True;True;True;False;;False;0
+Node;AmplifyShaderEditor.ColorNode;3;-935.8119,580.942;Inherit;False;InstancedProperty;_EmissionColor;Emission Color;7;1;[HDR];Create;True;0;0;0;False;0;False;0,0,0,1;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;85;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;Deferred;0;3;Deferred;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Deferred;True;2;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;86;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;Meta;0;4;Meta;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;82;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;ExtraPrePass;0;0;ExtraPrePass;6;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;87;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;ShadowCaster;0;5;ShadowCaster;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;0;;0;0;Standard;0;False;0
 Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;84;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;ForwardAdd;0;2;ForwardAdd;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;4;1;False;-1;1;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;True;1;LightMode=ForwardAdd;False;0;;0;0;Standard;0;False;0
-WireConnection;32;0;5;0
-WireConnection;33;0;31;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;83;824,664;Float;False;True;-1;2;ASEMaterialInspector;0;10;AudioLink/Surface/AudioReactiveSurface;f0be08cf82190c945883605df227bec5;True;ForwardBase;0;1;ForwardBase;18;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;40;Workflow,InvertActionOnDeselection;1;Surface;0;  Blend;0;  Refraction Model;0;  Dither Shadows;1;Two Sided;1;Deferred Pass;1;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;Ambient Light;1;Meta Pass;1;Add Pass;1;Override Baked GI;0;Extra Pre Pass;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Fwd Specular Highlights Toggle;0;Fwd Reflections Toggle;0;Disable Batching;0;Vertex Position,InvertActionOnDeselection;1;0;6;False;True;True;True;True;True;False;;False;0
 WireConnection;5;0;4;0
 WireConnection;5;1;2;0
 WireConnection;69;1;50;0
 WireConnection;69;2;51;0
-WireConnection;93;1;78;0
-WireConnection;93;2;57;0
-WireConnection;93;3;18;0
-WireConnection;51;0;49;0
+WireConnection;33;0;31;0
 WireConnection;78;0;69;0
 WireConnection;96;2;17;0
 WireConnection;96;4;98;0
@@ -2240,9 +2251,11 @@ WireConnection;38;0;34;0
 WireConnection;38;1;37;0
 WireConnection;47;0;45;0
 WireConnection;47;1;46;0
-WireConnection;45;0;44;0
-WireConnection;45;1;40;2
-WireConnection;45;2;40;3
+WireConnection;93;1;78;0
+WireConnection;93;2;57;0
+WireConnection;93;3;18;0
+WireConnection;51;0;49;0
+WireConnection;32;0;5;0
 WireConnection;43;0;42;0
 WireConnection;43;1;41;0
 WireConnection;98;0;93;0
@@ -2252,11 +2265,14 @@ WireConnection;39;1;32;2
 WireConnection;39;2;32;3
 WireConnection;35;0;32;1
 WireConnection;35;1;38;0
+WireConnection;45;0;44;0
+WireConnection;45;1;40;2
+WireConnection;45;2;40;3
+WireConnection;11;0;9;0
+WireConnection;11;1;10;0
 WireConnection;15;0;14;0
 WireConnection;15;1;3;0
 WireConnection;15;2;96;0
-WireConnection;11;0;9;0
-WireConnection;11;1;10;0
 WireConnection;40;0;15;0
 WireConnection;4;1;6;0
 WireConnection;83;0;39;0
@@ -2265,4 +2281,4 @@ WireConnection;83;2;47;0
 WireConnection;83;4;13;0
 WireConnection;83;5;12;0
 ASEEND*/
-//CHKSM=DBEDE78AB1A76E312D06F2C8DFCA80052ADC8604
+//CHKSM=EC822472A6313A32E5127FEC5369A7CEABC7478D
