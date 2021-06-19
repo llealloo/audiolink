@@ -15,12 +15,18 @@
 - Handling of 3D audio sources by Xiexe
 - Amplify templates for Lit & Unlit
 - Amplify functions for use in the above templates
+- Left/right VU meter data (instead of just left)
+- Left/right Waveform data (instead of just left)
+- 
 ### Changes
 - Refactoring, restyling, and renaming across entire codebase
 - AudioReactiveSurface (Amplify shader) converted to built-in AudioLink.cginc functions
 - AudioLink shader menu reorganized
+- Removed an extern call from AudioLink.cs update loop
+- Reuse of internal sample arrays
 ### Bugfixes
 - Audio values clamped to prevent overflow
+- AVPro log spamming & mono output bugfix (mainly a problem if using VRChat w/ a headset)
 
 ##  Might want to add older versions here
 It can be the same as release notes. Update on each packaged release.

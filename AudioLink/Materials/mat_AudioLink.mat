@@ -109,7 +109,7 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 1
+    - _SourceDistance: 1.603122
     - _SourceSpatialBlend: 0
     - _SourceVolume: 1
     - _SpecularHighlights: 1
@@ -138,4 +138,3 @@ Material:
     - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}
-    - _VersionNumberAndFPSProperty: {r: 2.05, g: 0, b: 55, a: 1}

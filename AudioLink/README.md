@@ -2,66 +2,70 @@
 
 ## A repository of audio reactive prefabs for VRChat, written in UdonSharp
 
-AudioLink is a system that analyzes the frequencies of in-world audio and exposes the amplitude data to VRChat Udon, world shaders, and avatar shaders. 
+AudioLink is a system that analyzes and processes in-world audio into many different highly reactive data streams and exposes the data to VRChat Udon, world shaders, and avatar shaders. 
 
-The per-frequency audio amplitude data is first read briefly into Udon using Unity's GetOutputData. It is then sent to the GPU for signal processing, filtering, and buffered into a CustomRenderTexture which is quickly accessible to other shaders in-world. The CustomRenderTexture is then read back into Udon as a Color[] array of pixels (via ReadPixels) called "audioData" that is easy to access from other UdonBehaviours. As a final step, the CustomRenderTexture is captured as a named grab pass called AudioTexture which can be picked up by shaders globally- including avatars. Both the audioData (ReadPixels) and AudioTexture (grab pass) can be toggled off if performance is an issue, but several of the bundled prefabs rely upon audioData for proper functioning.
+The per-frequency audio amplitude data is first read briefly into Udon using Unity's GetOutputData. It is then sent to the GPU for signal processing and buffered into a CustomRenderTexture. Then, the CustomRenderTexture is broadcast globally (called `_AudioTexture`) which can be picked up by shaders both in-world and across all avatars. 
 
-##### [Public example world (V1)](https://vrchat.com/home/launch?worldId=wrld_7cfa5d1c-4177-43ec-ab05-26ec62bb5088)
-##### [Public example world (V2)](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
+##### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ##### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## Limitations
-- Currently, only 2D audio sources are supported when using Unity video player. For 3D audio sources, please use the AVPro video player and refer to the getting started section for setup with AudioLinkInput method.
 
-## What's new in v2
+## 2.5 Update is out!
+### Big changes/additions in 2.5
+- **Many many new capabilities that avatar shader creators have been incorporating, so if you want to see the latest & greatest AudioLink avatar shader effects, 2.5 will be a requirement**
+- No more limitation on which video player to use!
+- AudioLink audio source input is now way smarter! You can use any audio source whether it is 3D or 2D
+- All shaders used in the repo are now equally compatible in-world and on avatars
+- Increased performance across the board
 
-### New features
-- ColorChord support
-- Autocorrelator waveform visualizer functionality
-- Full raw waveform, VU meter, and 240 point spectrogram (all data is also accessible to avatars)
-- New _AudioTexture (avatar texture) size: now 128x64 instead of 32x4. Make sure your avatar and world shaders are updated to the latest & compatible.
-- Compatibility in Avatar SDK3 projects for easy local testing with avatars
-- New controller with greatly enhanced crossover system & live spectral analysis
-- AudioReactiveSurfaceArray prefab: for controlling tens or hundreds of objects using AudioReactiveSurface shader at once w/ GPU instancing
-- AudioReactiveSurface pulse: adds a pulse across the UV of the mesh w/ customizable rotation and pulse scale
+### Big changes for shader developers from 2.4 to 2.5
+- Massive refactoring and restyling of codebase
+- Lots of changes to the AudioLink.gcinc, please see the changelog
+- Amplify shader templates and functions added w/ examples
+- Left + right VU meter data
+- Left + right waveform data
+- Version read
+- FPS read
+- Synced instance time & synced network time! Thanks @cnlohr!
 
-### Bug fixes
-- AudioReactiveObject scale now works
+### Bugfixes in 2.5
+- AVPro + mono audio output (like a gaming headset) caused audio reactivity to break & log spam
+- Various issues with video players, input methods, and audio sources resolved
 
-### Migrating from v1 to v2
-1. Make sure you have the latest VRChat SDK3 and UdonSharp installed.
-2. In your scene, remove AudioLink4 + AudioLink4Controller
-3. Close Unity. Using Explorer, delete the AudioLink directory in your Project/Assets folder as well as the associated AudioLink.meta file
-4. Open your project in unity again, and install the latest AudioLink v2 package
-5. Re-add AudioLink and AudioLinkController to the scene
-6. Follow "Getting Started" section to relink audio source and existing sound reactive objects.
+## Updating to 2.5 (...first time setup? please see next section)
+1. Install the latest VRChat SDK3 and UdonSharp (following their directions)
+2. Close unity
+3. With Windows explorer (NOT within Unity), remove the following files & folders:
+   - AudioLink (folder)
+   - AudioLink.meta
+4. Reopen unity
+5. Download and install the [latest AudioLink release](https://github.com/llealloo/vrc-udon-audio-link/releases/latest)
+6. In scene(s) containing old versions of AudioLink:
+   1. Take note of the AudioSource you are using to feed AudioLink
+   2. Delete both AudioLink and AudioLinkController prefabs from the scene
+   3. Re-add AudioLink and AudioLinkController to the scene by dragging the prefabs from the AudioLink folder in projects *(world creators only)*
+   4. Click the "Link all audio reactive objects\..." button on AudioLink inspector panel *(world creators only)*
+   5. Drag the AudioSource you were using  previously into the AudioLink audio source parameter
+      - NOTE: If you previously used AudioLinkInput, you are welcome to continue doing so, however now in 2.5 AudioLink is much smarter about inputs. Try dragging it straight into the AudioLink / audio source parameter!
+7. If using AudioReactiveObject or AudioReactiveLight components, you will need to manually re-enable the "Audio Data" under AudioLink "experimental" settings. This feature is now considered experimental until VRChat *maybe* gives us native asynchronous readback.
 
-## Setup
+## First time setup
 
 ### Requirements
-- VRChat SDK3 for worlds (Udon)
-- UdonSharp
-- CyanEmu (optional but highly recommended)
+- [VRChat SDK3](https://vrchat.com/home/download) for worlds (Udon)
+- [UdonSharp](https://github.com/MerlinVR/UdonSharp/releases/latest)
+- [CyanEmu](https://github.com/CyanLaser/CyanEmu/releases/latest) (optional but highly recommended)
 - The latest release: https://github.com/llealloo/vrc-udon-audio-link/releases/latest
 
 ### Installation
 1. Install VRChat SDK3, UdonSharp, CyanEmu, and the latest release of AudioLInk
-1. Have a look at the example scene, "AudioLink4_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
+1. Have a look at the example scene, "AudioLink_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
 
 ### Getting started
 1. Drag AudioLink into scene
-2. Link audio source.
-   * for 3D audio with AVPro Video Player, drag the AVPro video player from your scene (the object with the "VRCAV Pro Video Player" component) into **AudioLink/AudioLinkInput/VRCAV Pro Video Speaker** "Video Player" field and make sure that AudioLink is using AudioLinkInput as its audio source.
-   * for 2D audio sources, drag the audio source into AudioLink's audio source field.
+2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter
 3. Drag AudioLinkController into scene and drag AudioLink into the controller's "Audio Link" parameter.
-4. Add some audio reactive objects
-   * **AudioReactiveLight** is a Unity light with an UdonBehaviour attached. It will pulse intensity and/or hue shift to the audio.
-   * **AudioReactiveObject** is an empty GameObject with an UdonBehaviour attached. Add your own objects underneath these to make audio reactive motion.
-   * **AudioReactiveSurface** is a Cube with a special shader and an UdonBehaviour attached. This is a highly optimized audio emissive object.
-5. Click the "Link all sound reactive objects..." button to link everything up.
-
-### Note about default settings
-This is set up by default to export the AudioTexture grab pass (which enables avatar shader link). To disable this feature, uncheck "Audio Texture Toggle" on the AudioLink object.
+4. Click the "Link all sound reactive objects..." button to link everything up.
 
 ### Installing to test Avatar projects
 1. Import AudioLink into your avatar project
@@ -73,7 +77,11 @@ This is set up by default to export the AudioTexture grab pass (which enables av
 7. Hit play!
 
 ## Compatible tools / assets
-- [ExampleProject](https://www.someprojectlink.com/) by SomePerson
+- [Silent Cel Shading Shader](https://gitlab.com/s-ilent/SCSS) by Silent
+- [Mochies Unity Shaders](https://github.com/MochiesCode/Mochies-Unity-Shaders/releases) by Mochie
+- [Fire Lite](discord.gg/24W435s) by Rollthered
+- [VR Stage Lighting](https://github.com/AcChosen/VR-Stage-Lighting) by AcChosen
+- [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!

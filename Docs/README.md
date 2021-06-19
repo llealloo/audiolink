@@ -12,7 +12,24 @@ AudioLink can be used in 2 ways.
 
 The AudioLink Texture is a 128 x 64 px RGBA texture which contains several features which allow for the linking of audio and other data to avatars of a world.  It contains space for many more features than are currently implemented and may periodically add functionality. 
 
-The basic map is sort of a hodgepodge of various features avatars may want.
+The basic map is sort of a hodgepodge of various features avatars may want, and many features have been added over time.
+
+|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 |
+|-------------------------|-------|-------|-------|-------|-------|-------|-------|
+| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band Filtered         |       |       |       |       |       |       |   X   |
+| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |
+| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |
+| VU Meter Left           |       |       |       |       |       |   X   |   X   |
+| VU Meter Left+Right     |       |       |       |       |       |       |   X   |
+| AudioLink FPS           |       |       |       |       |       |       |   X   |
+| AudioLink Version Read  |       |       |       |       |       |       |   X   |
+| Synced Instance Time    |       |       |       |       |       |       |   X   |
+|                         |       |       |       |       |       |       |       |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
@@ -57,22 +74,21 @@ Shader "MyTestShader"
 
 ```hlsl
 // Map of where features in AudioLink are.
-#define ALPASS_DFT                      int2(0,4)
-#define ALPASS_WAVEFORM                 int2(0,6)
-#define ALPASS_AUDIOLINK                int2(0,0)
-#define ALPASS_AUDIOBASS                int2(0,0)
-#define ALPASS_AUDIOLOWMIDS             int2(0,1)
-#define ALPASS_AUDIOHIGHMIDS            int2(0,2)
-#define ALPASS_AUDIOTREBLE              int2(0,3)
-#define ALPASS_AUDIOLINKHISTORY         int2(1,0)
-#define ALPASS_GENERALVU                int2(0,22)
-#define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
-#define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
-#define ALPASS_CCINTERNAL               int2(12,22)
-#define ALPASS_CCSTRIP                  int2(0,24)
-#define ALPASS_CCLIGHTS                 int2(0,25)
-#define ALPASS_AUTOCORRELATOR           int2(0,27)
-#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)
+#define ALPASS_DFT                      int2(0,4)   //Size: 128, 2
+#define ALPASS_WAVEFORM                 int2(0,6)   //Size: 128, 16
+#define ALPASS_AUDIOLINK                int2(0,0)   //Size: 128, 4
+#define ALPASS_AUDIOBASS                int2(0,0)   //Size: 128, 1
+#define ALPASS_AUDIOLOWMIDS             int2(0,1)   //Size: 128, 1
+#define ALPASS_AUDIOHIGHMIDS            int2(0,2)   //Size: 128, 1
+#define ALPASS_AUDIOTREBLE              int2(0,3)   //Size: 128, 1
+#define ALPASS_AUDIOLINKHISTORY         int2(1,0)   //Size: 127, 4
+#define ALPASS_GENERALVU                int2(0,22)  //Size: 12, 1
+#define ALPASS_CCINTERNAL               int2(12,22) //Size: 12, 2
+#define ALPASS_CCSTRIP                  int2(0,24)  //Size: 128, 1
+#define ALPASS_CCLIGHTS                 int2(0,25)  //Size: 128, 2
+#define ALPASS_AUTOCORRELATOR           int2(0,27)  //Size: 128, 1
+// Added in version 2.5
+#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)  //Size: 16, 4
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -103,7 +119,7 @@ Waveform data is stored in 16 rows, for a total of 2048 (2046 usable) points sam
  * RED: 24,000 SPS audio, amplitude. Contains 2046 samples.
  * GRN: 48,000 SPS audio, amplitude. Contains 2048 samples.
  * BLU: 12,000 SPS audio, amplitude. Contains 1023 samples.
- * ALP: RESERVED.
+ * ALP: 24,000 SPS audio, differential. For left channel take .r + .a, for right take .r - .a. (Contains 2046 Samples) **Added in version 2.5**
 
 The reason for the numbers are off by one is because shader parameters can only store 1023 values, not 1024 and AudioLink uses 4 blocks.
 
@@ -164,16 +180,16 @@ Note: LF's are decoded by passing the RGBA value into DecodeLongFloat which is u
 It contains the following dedicated pixels:
 
 <table>
-<tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr    >
+<tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr>
 <tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
 <tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
 <tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
 <tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
 <tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
-<tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
-<tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS</td><td>Peak</td><td></td><td></td></tr>
+<tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
+<tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
+<tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
 </table>
 
@@ -182,6 +198,7 @@ Note that for milliseconds since instance start, and milliseconds since 12:00 AM
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
 #define ALPASS_GENERALVU_LOCAL_TIME      int2(3,22)
+// Added/updated in version 2.5
 #define ALPASS_GENERALVU_NETWORK_TIME    int2(4,22)
 #define ALPASS_GENERALVU_PLAYERINFO      int2(6,22)
 ```
@@ -229,19 +246,20 @@ A mechanism to use this field smoothly would be:
 
 ### `ALPASS_AUTOCORRELATOR`
 
-The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric, so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
+The red channel of this row provides a fake autocorrelation of the waveform.  It resynthesizes the waveform from the DFT.  It is symmetric,so only the right half is presented via AudioLink.  To use it, we recommend mirroring it around the left axis.
+The green channel of this row provides an uncorrelated autocorrelator. It's like the red channel but doesn't have a beginning or an end.
 
 <img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Autocor.png width=512 height=20>
 
 The red value is the acutal autocorrelator value, centered around the 0th bin. The green value is where all the phases of the frequency bins are scrambled to prevent any obvious "up."
 
 ```hlsl
-    return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( 1. - abs( i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rrrr;
+    return AudioLinkLerp( ALPASS_AUTOCORRELATOR + float2( ( abs( 1. - i.uv.x * 2. ) ) * AUDIOLINK_WIDTH, 0 ) ).rrrr;
 ```
 
 ### `ALPASS_FILTEREDAUDIOLINK`
 
-This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.
+This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.  This feature was added in version 2.5.
 
 ### Other defines
 
@@ -300,18 +318,18 @@ Where the following mapping is used:
  * Lerp = `AudioLinkLerp( ... )`
  * LerpMultiline = `AudioLinkLerpMultiline( ... )`
 
-| | Data | DataMultiline | Lerp | LerpMultiline | Start Coord | Size |
-| --- | --- | --- | --- | --- | --- | --- |
-| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ | 0,4 | 128, 2 |
-| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ | 0, 6 | 128, 16 |
-| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  | 0, 0 | 1, 4 |
-| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  | 1, 0 | 127, 4 |
-| ALPASS_GENERALVU  | ✅ |  |  |  |  0, 22 | 12, 2 |
-| ALPASS_CCINTERNAL  | ✅ |  |  |  | 12, 22 | 12, 2 |
-| ALPASS_CCSTRIP  | ✅ |   | ✅ |   | 0, 24 | 128, 1 | 
-| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   | 0, 25 | 128, 2 |
-| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   | 0, 27 | 128, 1 |
-| ALPASS_FILTEREDAUDIOLINK  | ✅ |   | ✅ |   | 0, 28 | 16, 4 |
+| | Data | DataMultiline | Lerp | LerpMultiline | Start Coord | Size | Available Since |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ALPASS_DFT  | ✅ | ✅ | ✅ | ✅ | 0,4 | 128, 2 | v2.2 |
+| ALPASS_WAVEFORM  | ✅ | ✅ | ✅ | ✅ | 0, 6 | 128, 16 | v2.2 |
+| ALPASS_AUDIOLINK  | ✅ |  | ✅ |  | 0, 0 | 1, 4 | v1.0 |
+| ALPASS_AUDIOLINKHISTORY  | ✅ |  | ✅ |  | 1, 0 | 127, 4 | v1.0 |
+| ALPASS_GENERALVU  | ✅ |  |  |  |  0, 22 | 12, 2 | v2.2 |
+| ALPASS_CCINTERNAL  | ✅ |  |  |  | 12, 22 | 12, 2 | v2.2 |
+| ALPASS_CCSTRIP  | ✅ |   | ✅ |   | 0, 24 | 128, 1 | v2.2 |
+| ALPASS_CCLIGHTS  | ✅ | ✅ |   |   | 0, 25 | 128, 2 | v2.3 |
+| ALPASS_AUTOCORRELATOR  | ✅ |   | ✅ |   | 0, 27 | 128, 1 | v2.3 |
+| ALPASS_FILTEREDAUDIOLINK  | ✅ |   | ✅ |   | 0, 28 | 16, 4 | v2.5 |
 
 
 ## Examples
@@ -612,3 +630,7 @@ This is particularly useful as this sort of tracks the way we perceive informati
 ### What is ColorChord?
 
 ColorChord is another project for doing sound reactive lighting IRL.  More info can be found on it here: https://github.com/cnlohr/colorchord
+
+### Another reference
+
+Shadowriver maintains this protocol reference, in spreadsheet format  https://docs.google.com/spreadsheets/d/1PkA98uI_zslpTr6ARBVGOBSq5Yna0rKPe_RWbdtbERM/edit?usp=sharing
