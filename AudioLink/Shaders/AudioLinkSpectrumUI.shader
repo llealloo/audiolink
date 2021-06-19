@@ -184,7 +184,7 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
                 }
                 
                 float4 finalColor = (segment + threshold) * _SeparatorColor + c;
-                UNITY_APPLY_FOG(i.fogCoord, finalColor);
+                UNITY_APPLY_FOG(IN.fogCoord, finalColor);
                 return finalColor;
             }
             ENDCG
