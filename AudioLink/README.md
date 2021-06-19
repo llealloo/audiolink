@@ -79,7 +79,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ## Compatible tools / assets
 - [Silent Cel Shading Shader](https://gitlab.com/s-ilent/SCSS) by Silent
 - [Mochies Unity Shaders](https://github.com/MochiesCode/Mochies-Unity-Shaders/releases) by Mochie
-- [Fire Lite](discord.gg/24W435s) by Rollthered
+- [Fire Lite](https://discord.gg/24W435s) by Rollthered
 - [VR Stage Lighting](https://github.com/AcChosen/VR-Stage-Lighting) by AcChosen
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
@@ -96,6 +96,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Thryrallo for the help setting up local AV3 testing functionality
 - CyanLaser for making CyanEmu
 - Lyuma for helping in many ways and being super nice!
+- ACIIL for the named texture check in AudioLink.cginc
 - fuopy for being awesome and reflecting great vibes back into this project
 - Colonel Cthulu for incepting the idea to make the audio data visible to avatars
 - jackiepi for math wizardry, emotional support and inspiration
