@@ -45,19 +45,21 @@ namespace VRCAudioLink
 		    public void UpdateChildren()
 		    {
     			int i = 0;
+
+				var block = new MaterialPropertyBlock();
+				block.SetFloat("_Delay", (delayStep/128f) * (float)i);
+				block.SetFloat("_Band", (float)band);
+				block.SetFloat("_HueShift", hueShift);
+				block.SetColor("_EmissionColor", HueShift(color, hueStep * (float)i));
+				block.SetFloat("_Emission", intensity);
+				block.SetFloat("_Pulse", pulse);
+				block.SetFloat("_PulseRotation", pulseRotation + (pulseRotationStep * (float)i));
+
 				foreach (Transform child in transform)
 				{
 					var mesh = child.GetComponent<MeshRenderer>();
 					if (mesh != null)
 					{
-				        var block = new MaterialPropertyBlock();
-				        block.SetFloat("_Delay", (delayStep/128f) * (float)i);
-				        block.SetFloat("_Band", (float)band);
-				        block.SetFloat("_HueShift", hueShift);
-				        block.SetColor("_EmissionColor", HueShift(color, hueStep * (float)i));
-				        block.SetFloat("_Emission", intensity);
-				        block.SetFloat("_Pulse", pulse);
-				        block.SetFloat("_PulseRotation", pulseRotation + (pulseRotationStep * (float)i));
 				        mesh.SetPropertyBlock(block);
 					}
 					i++;
