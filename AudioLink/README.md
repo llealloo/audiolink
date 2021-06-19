@@ -96,6 +96,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Thryrallo for the help setting up local AV3 testing functionality
 - CyanLaser for making CyanEmu
 - Lyuma for helping in many ways and being super nice!
+- ACIIL for the named texture check in AudioLink.cginc
 - fuopy for being awesome and reflecting great vibes back into this project
 - Colonel Cthulu for incepting the idea to make the audio data visible to avatars
 - jackiepi for math wizardry, emotional support and inspiration
