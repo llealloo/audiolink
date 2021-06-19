@@ -82,6 +82,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - [Fire Lite](discord.gg/24W435s) by Rollthered
 - [VR Stage Lighting](https://github.com/AcChosen/VR-Stage-Lighting) by AcChosen
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
+- [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
