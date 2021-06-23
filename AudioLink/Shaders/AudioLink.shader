@@ -952,9 +952,69 @@ Shader "AudioLink/Internal/AudioLink"
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDAUDIOLINK)
-                float4 AudioLinkBase = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
-                float4 Previous = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
-                return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
+                float4 AudioLinkBase = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2(0, coordinateLocal.y));
+                if( coordinateLocal.x < 16 )
+                {
+                    // For pixels 0..15, filtered output.
+                    float4 Previous = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
+                    return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
+                }
+                else if( coordinateLocal.x >= 16 &&  coordinateLocal.x <= 22 )
+                {
+                    // For pixel 16, we are actually making something that accelerates forward.
+                    // This is called ALPASS_CHRONOTENSITY
+                    uint Value = AudioLinkDecodeDataAsUInt( coordinateGlobal.xy );
+                    
+                    float ComparingValue = (coordinateLocal.x & 1) ? 
+                        AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2(4, coordinateLocal.y)) :
+                        AudioLinkBase;
+
+                    //Get a heavily filtered value to compare against.
+                    float FilteredAudioLinkValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2( 0, coordinateLocal.y ) );
+                    
+                    float DifferentialValue = AudioLinkBase - FilteredAudioLinkValue;
+
+                    float ValueDiff;
+
+                    int mode = ( coordinateLocal.x - 16 ) / 2;
+
+                    if( mode == 0 )
+                    {
+                        ValueDiff = max( DifferentialValue, 0 );
+                    }
+                    else if( mode == 1 )
+                    {
+                        ValueDiff = DifferentialValue;
+                    }
+                    else if( mode == 2 )
+                    {
+                        if( DifferentialValue < 0 )
+                            ValueDiff = .1;
+                        else
+                            ValueDiff = 0;
+                    }
+                    else
+                    {
+                        if( DifferentialValue < 0 )
+                            ValueDiff = .1;
+                        else
+                            ValueDiff = -.1;
+                    }
+                    
+                    Value += ValueDiff * 32768;
+
+                    return float4(
+                        (float)(Value & 0x3ff),
+                        (float)((Value >> 10) & 0x3ff),
+                        (float)((Value >> 20) & 0x3ff),
+                        (float)((Value >> 30) & 0x3ff)
+                        );
+                }
+                else
+                {
+                    // Other features.
+                    return 0;
+                }
             }
             ENDCG
         }

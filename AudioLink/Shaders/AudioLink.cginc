@@ -1,22 +1,23 @@
 // Map of where features in AudioLink are.
-#define ALPASS_DFT                      int2(0,4)
-#define ALPASS_WAVEFORM                 int2(0,6)
-#define ALPASS_AUDIOLINK                int2(0,0)
-#define ALPASS_AUDIOBASS                int2(0,0)
-#define ALPASS_AUDIOLOWMIDS             int2(0,1)
-#define ALPASS_AUDIOHIGHMIDS            int2(0,2)
-#define ALPASS_AUDIOTREBLE              int2(0,3)
-#define ALPASS_AUDIOLINKHISTORY         int2(1,0)
-#define ALPASS_GENERALVU                int2(0,22)
-#define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
-#define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
-#define ALPASS_GENERALVU_NETWORK_TIME   int2(4,22)
-#define ALPASS_GENERALVU_PLAYERINFO     int2(6,22)
-#define ALPASS_CCINTERNAL               int2(12,22)
-#define ALPASS_CCSTRIP                  int2(0,24)
-#define ALPASS_CCLIGHTS                 int2(0,25)
-#define ALPASS_AUTOCORRELATOR           int2(0,27)
-#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)
+#define ALPASS_DFT                      uint2(0,4)  //Size: 128, 2
+#define ALPASS_WAVEFORM                 uint2(0,6)  //Size: 128, 16
+#define ALPASS_AUDIOLINK                uint2(0,0)  //Size: 128, 4
+#define ALPASS_AUDIOBASS                uint2(0,0)  //Size: 128, 1
+#define ALPASS_AUDIOLOWMIDS             uint2(0,1)  //Size: 128, 1
+#define ALPASS_AUDIOHIGHMIDS            uint2(0,2)  //Size: 128, 1
+#define ALPASS_AUDIOTREBLE              uint2(0,3)  //Size: 128, 1
+#define ALPASS_AUDIOLINKHISTORY         uint2(1,0)  //Size: 127, 4
+#define ALPASS_GENERALVU                uint2(0,22) //Size: 12, 1
+#define ALPASS_GENERALVU_INSTANCE_TIME  uint2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME     uint2(3,22)
+#define ALPASS_GENERALVU_NETWORK_TIME   uint2(4,22)
+#define ALPASS_GENERALVU_PLAYERINFO     uint2(6,22)
+#define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
+#define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
+#define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
+#define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
+#define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
+#define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -114,8 +115,8 @@ float AudioLinkGetVersion()
 // Extra utility functions for time.
 uint AudioLinkDecodeDataAsUInt(uint2 indexloc)
 {
-    half4 rpx = AudioLinkData(indexloc);
-    return ((uint)rpx.r + ((uint)rpx.g)*1024 + ((uint)rpx.b) * 1048576 + ((uint)rpx.a) * 1073741824);
+    uint4 rpx = AudioLinkData(indexloc);
+    return rpx.r + rpx.g*1024 + rpx.b * 1048576 + rpx.a * 1073741824;
 }
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.

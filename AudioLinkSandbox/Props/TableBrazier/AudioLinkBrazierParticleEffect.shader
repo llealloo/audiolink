@@ -56,12 +56,12 @@
                 
                 float height = glsl_mod( lightid * 423 + SyncTime*_FlameSpeed, 16. )/16.;
                 float3 FlyMux = .05;
-                float noisex = lightid*100.;
-                float3 positional_offset = (tanoise2_hq( float2( noisex, SyncTime*_FlySpeed ) )-0.5)*FlyMux;
+                float noisex = lightid*100. + floor( v.vertex.x + 0.5 ) + unity_ObjectToWorld[0][3]*2;
+                float3 positional_offset = (tanoise2_hq( float2( noisex, SyncTime*_FlySpeed + floor( v.vertex.y + 0.5 ) + unity_ObjectToWorld[2][3]*2 ) )-0.5)*FlyMux;
                 float3 positional_offset_future = (tanoise2_hq( float2( noisex, SyncTime*_FlySpeed+0.2 ) )-0.5)*FlyMux;
                 float3 direction = positional_offset_future - positional_offset;
                 
-                localOffset = positional_offset * (height*2.+1);
+                localOffset = positional_offset * (height*3.+.5);
                 localOffset.z += height*.2;
     
                 vp.z -= lightid * .025;
