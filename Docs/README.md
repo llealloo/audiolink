@@ -14,22 +14,22 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want, and many features have been added over time.
 
-|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 |
-|-------------------------|-------|-------|-------|-------|-------|-------|-------|
-| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |
-| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band Filtered         |       |       |       |       |       |       |   X   |
-| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |
-| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |
-| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |
-| VU Meter Left           |       |       |       |       |       |   X   |   X   |
-| VU Meter Left+Right     |       |       |       |       |       |       |   X   |
-| AudioLink FPS           |       |       |       |       |       |       |   X   |
-| AudioLink Version Read  |       |       |       |       |       |       |   X   |
-| Synced Instance Time    |       |       |       |       |       |       |   X   |
-|                         |       |       |       |       |       |       |       |
+|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 |
+|-------------------------|-------|-------|-------|-------|-------|-------|-------|-------|
+| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band Filtered         |       |       |       |       |       |       |   X   |   X   |
+| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |   X   |
+| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |
+| VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |
+| VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |
+| AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |
+| AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |
+| Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |
+| Chronotensity           |       |       |       |       |       |       |       |   X   |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
@@ -89,6 +89,8 @@ Shader "MyTestShader"
 #define ALPASS_AUTOCORRELATOR           int2(0,27)  //Size: 128, 1
 // Added in version 2.5
 #define ALPASS_FILTEREDAUDIOLINK        int2(0,28)  //Size: 16, 4
+// Added in version 2.6
+#define ALPASS_CHRONOTENSITY            int2(16,28) //Size: 8, 4
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -260,6 +262,21 @@ The red value is the acutal autocorrelator value, centered around the 0th bin. T
 ### `ALPASS_FILTEREDAUDIOLINK`
 
 This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.  This feature was added in version 2.5.
+
+### `ALPASS_CHRONOTENSITY`
+
+This is a section of data which can be used to allow things to move smoothly in time, where the speed of motion is controlled by intensity.  Each X value has a different effect.
+
+You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `628319.0`.
+
+| X Offset | Description |
+| -------- | ----------- |
+| 0, 1     | Motion increases as intensity of band increases. It does not go backwards. |
+| 2, 3     | Motion moves back and forth as a function of intenity. |
+| 4, 5     | Motion only when the band is dark. |
+| 6, 7     | Fixed speed motion positive when dark, negative when light. |
+
+Even X offsets are based on quickly responding values. Odd X offsets are based on a filtered band and are less jerky.
 
 ### Other defines
 
