@@ -142,8 +142,7 @@ namespace VRCAudioLink
 
         public void _Resync()
         {
-            _StopVideo();
-            _PlayVideo(_syncUrl);
+            _ForceResync();
         }
 
         public void _ChangeUrl(VRCUrl url)
