@@ -56,7 +56,9 @@ namespace VRCAudioLink
         private void Start()
         {
 #if !UNITY_EDITOR
-            instanceMaster = Networking.GetOwner(gameObject).displayName;
+            VRCPlayerApi owner = Networking.GetOwner(gameObject);
+            if (Utilities.IsValid(owner) && owner.IsValid())
+                instanceMaster = owner.displayName;
 #endif
 
             stopIcon.color = normalColor;
@@ -338,7 +340,7 @@ namespace VRCAudioLink
 
             foreach (VRCPlayerApi player in playerList)
             {
-                if (!Utilities.IsValid(player))
+                if (!Utilities.IsValid(player) || !player.IsValid())
                     continue;
                 if (player.isInstanceOwner)
                     instanceOwner = player.displayName;
@@ -357,7 +359,9 @@ namespace VRCAudioLink
 
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
-            instanceMaster = Networking.GetOwner(gameObject).displayName;
+            VRCPlayerApi owner = Networking.GetOwner(gameObject);
+            if (Utilities.IsValid(owner) && owner.IsValid())
+                instanceMaster = owner.displayName;
         }
     }
 
