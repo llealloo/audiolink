@@ -28,6 +28,7 @@ namespace VRCAudioLink
         public Image lockedIcon;
         public Image unlockedIcon;
         public Image loadIcon;
+        public Image syncIcon;
 
         public Slider progressSlider;
         public Text statusText;
@@ -55,13 +56,16 @@ namespace VRCAudioLink
         private void Start()
         {
 #if !UNITY_EDITOR
-            instanceMaster = Networking.GetOwner(gameObject).displayName;
+            VRCPlayerApi owner = Networking.GetOwner(gameObject);
+            if (Utilities.IsValid(owner) && owner.IsValid())
+                instanceMaster = owner.displayName;
 #endif
 
             stopIcon.color = normalColor;
             lockedIcon.color = normalColor;
             unlockedIcon.color = normalColor;
             loadIcon.color = normalColor;
+            syncIcon.color = normalColor;
         }
 
         public void _HandleUrlInput()
@@ -104,6 +108,14 @@ namespace VRCAudioLink
             VRCUrl url = urlInput.GetUrl();
             if (url.Get().Length > 0)
                 videoPlayer._UpdateQueuedUrl(urlInput.GetUrl());
+        }
+
+        public void _HandleSync()
+        {
+            if (!Utilities.IsValid(videoPlayer))
+                return;
+
+            videoPlayer._Resync();
         }
 
         public void _HandleStop()
@@ -195,6 +207,7 @@ namespace VRCAudioLink
 
                 stopIcon.color = enableControl ? normalColor : disabledColor;
                 loadIcon.color = enableControl ? normalColor : disabledColor;
+                syncIcon.color = normalColor;
 
                 if (!videoPlayer.seekableSource)
                 {
@@ -231,6 +244,7 @@ namespace VRCAudioLink
                 {
                     stopIcon.color = enableControl ? normalColor : disabledColor;
                     loadIcon.color = enableControl ? normalColor : disabledColor;
+                    syncIcon.color = normalColor;
 
                     SetPlaceholderText("Loading...");
                     urlInput.readOnly = true;
@@ -240,6 +254,7 @@ namespace VRCAudioLink
                 {
                     stopIcon.color = disabledColor;
                     loadIcon.color = normalColor;
+                    syncIcon.color = normalColor;
                     loadActive = false;
 
                     switch (videoPlayer.localLastErrorCode)
@@ -273,10 +288,12 @@ namespace VRCAudioLink
                         pendingFromLoadOverride = false;
                         stopIcon.color = disabledColor;
                         loadIcon.color = disabledColor;
+                        syncIcon.color = disabledColor;
                     } else
                     {
                         stopIcon.color = normalColor;
                         loadIcon.color = activeColor;
+                        syncIcon.color = normalColor;
                     }
 
                     urlInput.readOnly = !canControl;
@@ -323,7 +340,7 @@ namespace VRCAudioLink
 
             foreach (VRCPlayerApi player in playerList)
             {
-                if (!Utilities.IsValid(player))
+                if (!Utilities.IsValid(player) || !player.IsValid())
                     continue;
                 if (player.isInstanceOwner)
                     instanceOwner = player.displayName;
@@ -342,7 +359,9 @@ namespace VRCAudioLink
 
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
-            instanceMaster = Networking.GetOwner(gameObject).displayName;
+            VRCPlayerApi owner = Networking.GetOwner(gameObject);
+            if (Utilities.IsValid(owner) && owner.IsValid())
+                instanceMaster = owner.displayName;
         }
     }
 
@@ -362,6 +381,7 @@ namespace VRCAudioLink
         SerializedProperty lockedIconProperty;
         SerializedProperty unlockedIconProperty;
         SerializedProperty loadIconProperty;
+        SerializedProperty syncIconProperty;
 
         SerializedProperty progressSliderProperty;
         SerializedProperty statusTextProperty;
@@ -380,6 +400,7 @@ namespace VRCAudioLink
             lockedIconProperty = serializedObject.FindProperty(nameof(AudioLinkMiniPlayerController.lockedIcon));
             unlockedIconProperty = serializedObject.FindProperty(nameof(AudioLinkMiniPlayerController.unlockedIcon));
             loadIconProperty = serializedObject.FindProperty(nameof(AudioLinkMiniPlayerController.loadIcon));
+            syncIconProperty = serializedObject.FindProperty(nameof(AudioLinkMiniPlayerController.syncIcon));
 
             statusTextProperty = serializedObject.FindProperty(nameof(AudioLinkMiniPlayerController.statusText));
             placeholderTextProperty = serializedObject.FindProperty(nameof(AudioLinkMiniPlayerController.placeholderText));
@@ -406,6 +427,7 @@ namespace VRCAudioLink
                 EditorGUILayout.PropertyField(lockedIconProperty);
                 EditorGUILayout.PropertyField(unlockedIconProperty);
                 EditorGUILayout.PropertyField(loadIconProperty);
+                EditorGUILayout.PropertyField(syncIconProperty);
                 EditorGUILayout.PropertyField(progressSliderProperty);
                 EditorGUILayout.PropertyField(statusTextProperty);
                 EditorGUILayout.PropertyField(urlTextProperty);

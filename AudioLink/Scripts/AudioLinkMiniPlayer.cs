@@ -142,8 +142,7 @@ namespace VRCAudioLink
 
         public void _Resync()
         {
-            _StopVideo();
-            _PlayVideo(_syncUrl);
+            _ForceResync();
         }
 
         public void _ChangeUrl(VRCUrl url)
@@ -181,12 +180,12 @@ namespace VRCAudioLink
         void _PlayVideo(VRCUrl url)
         {
             _pendingPlayTime = 0;
+            if (!_IsUrlValid(url))
+                return;
+
             DebugLog("Play video " + url);
             bool isOwner = Networking.IsOwner(gameObject);
             if (!isOwner && !_CanTakeControl())
-                return;
-
-            if (!_IsUrlValid(url))
                 return;
 
             if (!isOwner)
