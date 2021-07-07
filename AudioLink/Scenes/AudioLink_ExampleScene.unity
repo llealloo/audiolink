@@ -13926,6 +13926,11 @@ PrefabInstance:
       propertyPath: m_MotionVectors
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8800328339112006310, guid: 8c1f201f848804f42aa401d0647f8902,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8800328339112006311, guid: 8c1f201f848804f42aa401d0647f8902,
         type: 3}
       propertyPath: m_Layer
@@ -13949,7 +13954,12 @@ PrefabInstance:
     - target: {fileID: 8800328339556915022, guid: 8c1f201f848804f42aa401d0647f8902,
         type: 3}
       propertyPath: m_HDR
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8800328339556915022, guid: 8c1f201f848804f42aa401d0647f8902,
+        type: 3}
+      propertyPath: m_Depth
+      value: -99
       objectReference: {fileID: 0}
     - target: {fileID: 8800328339556915023, guid: 8c1f201f848804f42aa401d0647f8902,
         type: 3}
