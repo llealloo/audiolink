@@ -743,18 +743,30 @@ Shader "AudioLink/Internal/AudioLink"
                     sortedNoteSlotValue = closestToSlotWithoutGoingOver;
                     notesB[i] = notesB[i] * float4(1, 1, 0, 1) + float4(0, 0, sortID, 0);
                 }
-
+                // PIXEL LAYOUT:
+                //  Summary / Data[COLORCHORD_MAX_NOTES] / 0 / 0 / Colors[COLORCHORD_MAX_NOTES] / 0
                 // We now have a condensed list of all notes that are playing.
-                if( coordinateLocal.x == 0 )
+                if( coordinateLocal.x < COLORCHORD_MAX_NOTES+1 )
                 {
-                    // Summary note.
-                    return (coordinateLocal.y) ? newNoteSummaryB : newNoteSummary;
+                    if( coordinateLocal.x == 0 )
+                    {
+                        // Summary note.
+                        return (coordinateLocal.y) ? newNoteSummaryB : newNoteSummary;
+                    }
+                    else
+                    {
+                        // Actual Note Data
+                        return (coordinateLocal.y) ? notesB[coordinateLocal.x - 1] : notes[coordinateLocal.x - 1];
+                    }
                 }
-                else
+                else if( coordinateLocal.x >= COLORCHORD_MAX_NOTES+3 && coordinateLocal.x < COLORCHORD_MAX_NOTES*2+4 && coordinateLocal.y == 0 )
                 {
-                    // Actual Note Data
-                    return (coordinateLocal.y) ? notesB[coordinateLocal.x - 1] : notes[coordinateLocal.x - 1];
+                    uint id = coordinateLocal.x - (COLORCHORD_MAX_NOTES+2);
+                    float4 ThisNote = notes[id];
+                    static const float AudioLinkColorOutputIntensity = 0.4;
+                    return float4( AudioLinkCCtoRGB( glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS), ThisNote.b * AudioLinkColorOutputIntensity, AUDIOLINK_ROOTNOTE), 1.0 );
                 }
+                return 0;
             }
             ENDCG
         }
@@ -933,7 +945,7 @@ Shader "AudioLink/Internal/AudioLink"
 
                     //XXX TODO: REVISIT THIS!! Ths is an arbitrary value!
                     float intensity = ThisNote.a/3;
-                    return float4(AudioLinkCCtoRGB(glsl_mod(ThisNote.x,48.0 ),intensity, AUDIOLINK_ROOTNOTE), 1.0);
+                    return float4(AudioLinkCCtoRGB(glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS),intensity, AUDIOLINK_ROOTNOTE), 1.0);
                 }
                 else
                 {
@@ -948,7 +960,6 @@ Shader "AudioLink/Internal/AudioLink"
         {
             Name "Filtered-AudioLinkOutput"
             CGPROGRAM
-
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDAUDIOLINK)

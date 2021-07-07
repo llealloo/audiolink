@@ -30,6 +30,8 @@ The basic map is sort of a hodgepodge of various features avatars may want, and 
 | AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |
 | Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |
 | Chronotensity           |       |       |       |       |       |       |       |   X   |
+| ColorChord Index Colors |       |       |       |       |       |       |       |   X   |
+
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
@@ -74,23 +76,24 @@ Shader "MyTestShader"
 
 ```hlsl
 // Map of where features in AudioLink are.
-#define ALPASS_DFT                      int2(0,4)   //Size: 128, 2
-#define ALPASS_WAVEFORM                 int2(0,6)   //Size: 128, 16
-#define ALPASS_AUDIOLINK                int2(0,0)   //Size: 128, 4
-#define ALPASS_AUDIOBASS                int2(0,0)   //Size: 128, 1
-#define ALPASS_AUDIOLOWMIDS             int2(0,1)   //Size: 128, 1
-#define ALPASS_AUDIOHIGHMIDS            int2(0,2)   //Size: 128, 1
-#define ALPASS_AUDIOTREBLE              int2(0,3)   //Size: 128, 1
-#define ALPASS_AUDIOLINKHISTORY         int2(1,0)   //Size: 127, 4
-#define ALPASS_GENERALVU                int2(0,22)  //Size: 12, 1
-#define ALPASS_CCINTERNAL               int2(12,22) //Size: 12, 2
-#define ALPASS_CCSTRIP                  int2(0,24)  //Size: 128, 1
-#define ALPASS_CCLIGHTS                 int2(0,25)  //Size: 128, 2
-#define ALPASS_AUTOCORRELATOR           int2(0,27)  //Size: 128, 1
+#define ALPASS_DFT                      uint2(0,4)   //Size: 128, 2
+#define ALPASS_WAVEFORM                 uint2(0,6)   //Size: 128, 16
+#define ALPASS_AUDIOLINK                uint2(0,0)   //Size: 128, 4
+#define ALPASS_AUDIOBASS                uint2(0,0)   //Size: 128, 1
+#define ALPASS_AUDIOLOWMIDS             uint2(0,1)   //Size: 128, 1
+#define ALPASS_AUDIOHIGHMIDS            uint2(0,2)   //Size: 128, 1
+#define ALPASS_AUDIOTREBLE              uint2(0,3)   //Size: 128, 1
+#define ALPASS_AUDIOLINKHISTORY         uint2(1,0)   //Size: 127, 4
+#define ALPASS_GENERALVU                uint2(0,22)  //Size: 12, 1
+#define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
+#define ALPASS_CCCOLORS                 uint2(13,22) //Size: 12, 1
+#define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
+#define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
+#define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
 // Added in version 2.5
-#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)  //Size: 16, 4
+#define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
 // Added in version 2.6
-#define ALPASS_CHRONOTENSITY            int2(16,28) //Size: 8, 4
+#define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -221,6 +224,20 @@ NOTE: There are potentially issues with `ALPASS_GENERALVU_INSTANCE_TIME` if a ma
 ### `ALPASS_CCINTERNAL`
 
 Internal ColorChord note representation.  Subject to change.
+
+### `ALPASS_CCCOLORS`
+
+Raw color outputs from notes.  Just a color, you can UV map into, for the base ColorChord colors.
+
+It is recommended you index into no more than the first 4 or 5, after that the colors are much less interesting.
+
+It's just a color, with an intensity, so you can just use it as a color.
+
+Example:
+
+```hlsl
+	AudioLinkData( ALPASS_CCCOLORS + uint( colornumber + 1, 0 ) );
+```
 
 ### `ALPASS_CCSTRIP`
 
