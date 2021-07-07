@@ -3,7 +3,13 @@ guid: aa856f4528fc71343ae13d211071a669
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - audioSource: {instanceID: 0}
+  - audioMaterial: {instanceID: 0}
+  - audioTextureExport: {instanceID: 0}
+  - audioData2D: {instanceID: 0}
+  - _shaderAudioLinkExport: {fileID: 4800000, guid: 0846078b20d9d014abbb3344a9e5749b,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
