@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 4BandAmplitudeLerp
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity Asset
-    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18908\n3448.8;23.2;2658;1156;1329;577;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;2;-324.5,-77.5;Inherit;False;Band;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput;4;-320.5,43.5;Inherit;False;Delay;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;3;-106.5,-21.5;Inherit;False;AudioLinkLerp(
-    ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;1;Create;2;True;Band;INT;0;In;;Inherit;False;True;Delay;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;2;0;INT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;127,-46;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;0;2;0\nWireConnection;3;1;4;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=5092666A7045D70C6B8648F24DC8AC8136C48814"
+    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18900\n1986.4;-420;2460;1451;1293;732.5;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;4;-320.5,43.5;Inherit;False;Delay;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;2;-324.5,-77.5;Inherit;False;Band;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;3;-105.5,-19.5;Inherit;False;AudioLinkLerp(
+    ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;1;False;2;True;Band;INT;0;In;;Inherit;False;True;Delay;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;2;0;INT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;127,-46;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;0;2;0\nWireConnection;3;1;4;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=C88BE5C54F13BE5B3BEA9D276F2C2C842FC407DB"
   m_functionName: 
   m_description: Samples from (integer) AudioLink band 0, 1, 2, or 3 and a (float)
     delay 0-127.999
