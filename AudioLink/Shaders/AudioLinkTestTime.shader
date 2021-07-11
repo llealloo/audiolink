@@ -220,7 +220,7 @@
                     break;
                 }
 
-                return PrintNumberOnLine( value, fmxy, softness, points_after_decimal, xoffset - dig.x, max_decimals, leadingzero, 0 );         
+                return PrintNumberOnLine( value, fmxy, softness, dig.x - xoffset, points_after_decimal, max_decimals, leadingzero, 0 );         
             }
             ENDCG
         }
