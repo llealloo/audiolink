@@ -182,7 +182,7 @@ const static uint2 bitmapFont[96] = {
     {        0,         0 }, // 92 124 '|' // NOT WRITTEN
     {        0,         0 }, // 93 125 '}' // NOT WRITTEN
     {        0,         0 }, // 94 126 '~' // NOT WRITTEN
-    {        0,         0 }, // 95 127 FREEBIE!!! // NOT WRITTEN
+    {        0,         0 } // 95 127 FREEBIE!!! // NOT WRITTEN
     };
 
 
@@ -213,7 +213,7 @@ float PrintChar(uint charNum, float2 charUV, float2 softness, float offset)
     float o = lerp(
               lerp(neighbors.x, neighbors.y, pixelUV.x),
               lerp(neighbors.z, neighbors.w, pixelUV.x), pixelUV.y);
-	o += offset;
+    o += offset;
     return saturate(o * softness - softness / 2);
 }
 
@@ -229,41 +229,45 @@ float PrintChar(uint charNum, float2 charUV, float2 softness, float offset)
 float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit, uint digitOffset, uint numFractDigits, bool leadZero, float offset)
 {
     uint charNum;
-    if (value < 0 && digit == 0) 
-    { 
-        charNum = __DASH;
+    uint leadingdash = (value<0)?('-'-'0'):(' '-'0');
+    value = abs(value);
+
+    if (digit == digitOffset)
+    {
+        charNum = __PERIOD;
     }
     else
     {
-        value = abs(value);
-
-        if (digit == digitOffset)
+        int dmfd = (int)digit - (int)digitOffset;
+        if (dmfd > 0)
         {
-            charNum = __PERIOD;
+            //fractional part.
+            uint fpart = round(frac(value) * pow(10, numFractDigits));
+            uint l10 = pow(10.0, numFractDigits - dmfd);
+            charNum = ((uint)(fpart / l10)) % 10;
         }
         else
         {
-            int dmfd = (int)digit - (int)digitOffset;
-            if (dmfd > 0)
+            float l10 = pow(10.0, (float)(dmfd + 1));
+            float vnum = value * l10;
+            charNum = (uint)(vnum);
+
+            //Disable leading 0's?
+            //if (!leadZero && dmfd != -1 && charNum == 0 && dmfd < 0.5)
+            //    charNum = ' '-'0'; // space
+
+            if( dmfd < -1 && charNum == 0 )
             {
-                //fractional part.
-                uint fpart = round(frac(value) * pow(10, numFractDigits));
-                uint l10 = pow(10.0, numFractDigits - dmfd);
-                charNum = ((uint)(fpart / l10)) % 10;
+                
+                if( leadZero )
+                    charNum %= (uint)10;
+                else
+                    charNum = leadingdash;
             }
             else
-            {
-                float l10 = pow(10.0, (float)(dmfd + 1));
-                charNum = (uint)(value * l10);
-
-                //Disable leading 0's?
-                if (!leadZero && dmfd != -1 && charNum == 0 && dmfd < 0.5)
-                    charNum = ' '-'0'; // space
-                else
-                    charNum %= (uint)10;
-            }
-            charNum += '0';
+                charNum %= (uint)10;
         }
+        charNum += '0';
     }
 
     return PrintChar(charNum, charUV, softness, offset);
