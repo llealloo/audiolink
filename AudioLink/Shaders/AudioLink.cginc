@@ -129,6 +129,9 @@ float AudioLinkDecodeDataAsSeconds(uint2 indexloc)
     return float(time / 1000) + float( time % 1000 ) / 1000.; 
 }
 
+#define ALDecodeDataAsSeconds( x ) AudioLinkDecodeDataAsSeconds( x )
+#define ALDecodeDataAsUInt( x ) AudioLinkDecodeDataAsUInt( x )
+
 float AudioLinkRemap(float t, float a, float b, float u, float v) { return ((t-a) / (b-a)) * (v-u) + u; }
 
 float3 AudioLinkHSVtoRGB(float3 HSV)
