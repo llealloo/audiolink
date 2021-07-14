@@ -190,7 +190,7 @@ It contains the following dedicated pixels:
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
 <tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
 <tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time (You probably want this one for syncing effects!)</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
 <tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
@@ -286,12 +286,14 @@ This is a section of data which can be used to allow things to move smoothly in 
 
 You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `628319.0`.
 
-| X Offset | Description |
-| -------- | ----------- |
-| 0, 1     | Motion increases as intensity of band increases. It does not go backwards. |
-| 2, 3     | Motion moves back and forth as a function of intenity. |
-| 4, 5     | Motion only when the band is dark. |
-| 6, 7     | Fixed speed motion positive when dark, negative when light. |
+Y offset is which one of the 4 AudioLink bands the effect is based off of.
+
+| X Offset (fast) | X Offset (slow) | Description |
+| ---- | ---- | ----------- |
+| 0    | 1    | Motion increases as intensity of band increases. It does not go backwards. |
+| 2    | 3    | Motion moves back and forth as a function of intenity. |
+| 4    | 5    | Motion only when the band is dark. |
+| 6    | 7    | Fixed speed motion positive when dark, negative when light. |
 
 Even X offsets are based on quickly responding values. Odd X offsets are based on a filtered band and are less jerky.
 
