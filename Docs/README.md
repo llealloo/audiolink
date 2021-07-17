@@ -115,7 +115,7 @@ AudioLink reserves the right to change:
 
 A mechanism to use this field on a texture would be:
 ```hlsl
-    return AudioLinkLerpMultiline( ALPASS_WAVEFORM + uint2( i.uv.x * AUDIOLINK_ETOTALBINS, 0 ) ).rrrr;
+    return AudioLinkLerpMultiline( ALPASS_DFT + uint2( i.uv.x * AUDIOLINK_ETOTALBINS, 0 ) ).rrrr;
 ```
 
 ### `ALPASS_WAVEFORM`
