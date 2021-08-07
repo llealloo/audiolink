@@ -73,6 +73,13 @@ public class AudioLink : UdonSharpBehaviour
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
+		
+		[Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
+		public bool enableThemeColors;
+		public Color setThemeColor0 = new Vector4(1.0f,1.0f,0.0f,1.0f);
+		public Color setThemeColor1 = new Vector4(0.0f,0.0f,1.0f,1.0f);
+		public Color setThemeColor2 = new Vector4(1.0f,0.0f,0.0f,1.0f);
+		public Color setThemeColor3 = new Vector4(0.0f,1.0f,0.0f,1.0f);
 
         public Color[] audioData;
         public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
@@ -151,6 +158,15 @@ public class AudioLink : UdonSharpBehaviour
             _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
             GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" );
         }
+
+		public void UpdateThemeColors()
+		{
+			audioMaterial.SetFloat( "_ThemeColorsEnable", enableThemeColors?1:0 );
+			audioMaterial.SetColor( "_ThemeColor0", setThemeColor0 );
+			audioMaterial.SetColor( "_ThemeColor1", setThemeColor1 );
+			audioMaterial.SetColor( "_ThemeColor2", setThemeColor2 );
+			audioMaterial.SetColor( "_ThemeColor3", setThemeColor3 );
+		}
 
         // Only happens once per second.
         private void FPSUpdate()
