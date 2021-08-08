@@ -31,7 +31,7 @@ The basic map is sort of a hodgepodge of various features avatars may want, and 
 | Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |
 | Chronotensity           |       |       |       |       |       |       |       |   X   |
 | ColorChord Index Colors |       |       |       |       |       |       |       |   X   |
-
+| Theme Colors            |       |       |       |       |       |       |       |   X   |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
@@ -90,10 +90,18 @@ Shader "MyTestShader"
 #define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
 #define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
 #define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
+#define ALPASS_GENERALVU_INSTANCE_TIME  uint2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME     uint2(3,22)
+#define ALPASS_GENERALVU_NETWORK_TIME   uint2(4,22)
+#define ALPASS_GENERALVU_PLAYERINFO     uint2(6,22)
 // Added in version 2.5
 #define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
 // Added in version 2.6
 #define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
+#define ALPASS_THEME_COLOR0             uint2(0,23)
+#define ALPASS_THEME_COLOR1             uint2(1,23)
+#define ALPASS_THEME_COLOR2             uint2(2,23)
+#define ALPASS_THEME_COLOR3             uint2(3,23)
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -220,6 +228,21 @@ Various Usages of this field would be:
 ```
 
 NOTE: There are potentially issues with `ALPASS_GENERALVU_INSTANCE_TIME` if a map is updated mid-instance and the instance owner leaves mid-instance, so it is preferred that for effects that don't care when the instance started, use `ALPASS_GENERALVU_NETWORK_TIME` as this will allow you to animate things so that all players see your animation the same as you.
+
+### `ALPASS_THEME_COLORx`
+
+AudioLink provides 4 "Theme" colors users can apply to their avatars **though it is recommended you only use colors 0 and 1 for the time being**.  By default this uses ColorChord colors, but, world creators can select theme colors for their map and change them dynamically by setting the following: 
+
+```cs
+	bool enableThemeColors;
+	Color setThemeColor0;
+	Color setThemeColor1;
+	Color setThemeColor2;
+	Color setThemeColor3;
+```
+Then calling `UpdateThemeColors()`.
+
+You can access this with the following command: `AudioLinkData(ALPASS_THEME_COLOR0)` and can read `ALPASS_THEME_COLOR0`, `ALPASS_THEME_COLOR1`, `ALPASS_THEME_COLOR2`, or `ALPASS_THEME_COLOR3`. 
 
 ### `ALPASS_CCINTERNAL`
 

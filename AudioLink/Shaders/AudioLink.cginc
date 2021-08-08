@@ -12,6 +12,10 @@
 #define ALPASS_GENERALVU_LOCAL_TIME     uint2(3,22)
 #define ALPASS_GENERALVU_NETWORK_TIME   uint2(4,22)
 #define ALPASS_GENERALVU_PLAYERINFO     uint2(6,22)
+#define ALPASS_THEME_COLOR0             uint2(0,23)
+#define ALPASS_THEME_COLOR1             uint2(1,23)
+#define ALPASS_THEME_COLOR2             uint2(2,23)
+#define ALPASS_THEME_COLOR3             uint2(3,23)
 #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
 #define ALPASS_CCCOLORS                 uint2(24,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
 #define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
