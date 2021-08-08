@@ -231,7 +231,7 @@ NOTE: There are potentially issues with `ALPASS_GENERALVU_INSTANCE_TIME` if a ma
 
 ### `ALPASS_THEME_COLORx`
 
-AudioLink provides 4 "Theme" colors users can apply to their avatars.  By default this uses ColorChord colors, but, world creators can select theme colors for their map and change them dynamically by setting the following 
+AudioLink provides 4 "Theme" colors users can apply to their avatars **though it is recommended you only use colors 0 and 1 for the time being**.  By default this uses ColorChord colors, but, world creators can select theme colors for their map and change them dynamically by setting the following: 
 
 ```cs
 	bool enableThemeColors;
@@ -243,11 +243,6 @@ AudioLink provides 4 "Theme" colors users can apply to their avatars.  By defaul
 Then calling `UpdateThemeColors()`.
 
 You can access this with the following command: `AudioLinkData(ALPASS_THEME_COLOR0)` and can read `ALPASS_THEME_COLOR0`, `ALPASS_THEME_COLOR1`, `ALPASS_THEME_COLOR2`, or `ALPASS_THEME_COLOR3`. 
-
-#define ALPASS_THEME_COLOR0             uint2(0,23)
-#define ALPASS_THEME_COLOR1             uint2(1,23)
-#define ALPASS_THEME_COLOR2             uint2(2,23)
-#define ALPASS_THEME_COLOR3             uint2(3,23)
 
 ### `ALPASS_CCINTERNAL`
 
