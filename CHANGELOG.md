@@ -1,4 +1,14 @@
 # Changelog
+
+## 0.2.6 - August 10th, 2021
+### New features added by @cnlohr
+- Chronotensity
+- ColorChord index colors
+- Theme colors!
+### Changes
+- UnU sliders (thanks Texelsaur)
+- Recursive / nesting support for AudioReactiveSurfaceArray prefab
+
 ## 0.2.5 - June 7th, 2021
 ### Breaking changes
 #### AudioLink.cginc
