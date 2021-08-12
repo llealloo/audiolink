@@ -1329,7 +1329,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: setThemeColor0
+      Data: themeColor0
     - Name: $v
       Entry: 7
       Data: 87|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1356,10 +1356,10 @@ MonoBehaviour:
       Data: UnityEngineColor
     - Name: symbolOriginalName
       Entry: 1
-      Data: setThemeColor0
+      Data: themeColor0
     - Name: symbolUniqueName
       Entry: 1
-      Data: setThemeColor0
+      Data: themeColor0
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -1392,7 +1392,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: setThemeColor1
+      Data: themeColor1
     - Name: $v
       Entry: 7
       Data: 91|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1413,10 +1413,10 @@ MonoBehaviour:
       Data: UnityEngineColor
     - Name: symbolOriginalName
       Entry: 1
-      Data: setThemeColor1
+      Data: themeColor1
     - Name: symbolUniqueName
       Entry: 1
-      Data: setThemeColor1
+      Data: themeColor1
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -1449,7 +1449,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: setThemeColor2
+      Data: themeColor2
     - Name: $v
       Entry: 7
       Data: 94|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1470,10 +1470,10 @@ MonoBehaviour:
       Data: UnityEngineColor
     - Name: symbolOriginalName
       Entry: 1
-      Data: setThemeColor2
+      Data: themeColor2
     - Name: symbolUniqueName
       Entry: 1
-      Data: setThemeColor2
+      Data: themeColor2
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -1506,7 +1506,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: setThemeColor3
+      Data: themeColor3
     - Name: $v
       Entry: 7
       Data: 97|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1527,10 +1527,10 @@ MonoBehaviour:
       Data: UnityEngineColor
     - Name: symbolOriginalName
       Entry: 1
-      Data: setThemeColor3
+      Data: themeColor3
     - Name: symbolUniqueName
       Entry: 1
-      Data: setThemeColor3
+      Data: themeColor3
     - Name: symbolDefaultValue
       Entry: 6
       Data: 

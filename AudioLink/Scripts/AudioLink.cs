@@ -69,10 +69,10 @@ public class AudioLink : UdonSharpBehaviour
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
         public bool enableThemeColors;
-        public Color setThemeColor0 = new Vector4(1.0f,1.0f,0.0f,1.0f);
-        public Color setThemeColor1 = new Vector4(0.0f,0.0f,1.0f,1.0f);
-        public Color setThemeColor2 = new Vector4(1.0f,0.0f,0.0f,1.0f);
-        public Color setThemeColor3 = new Vector4(0.0f,1.0f,0.0f,1.0f);
+        public Color themeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+        public Color themeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+        public Color themeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+        public Color themeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public GameObject audioTextureExport;
@@ -161,11 +161,11 @@ public class AudioLink : UdonSharpBehaviour
 
         public void UpdateThemeColors()
         {
-            audioMaterial.SetFloat( "_ThemeColorsEnable", enableThemeColors?1:0 );
-            audioMaterial.SetColor( "_ThemeColor0", setThemeColor0 );
-            audioMaterial.SetColor( "_ThemeColor1", setThemeColor1 );
-            audioMaterial.SetColor( "_ThemeColor2", setThemeColor2 );
-            audioMaterial.SetColor( "_ThemeColor3", setThemeColor3 );
+            audioMaterial.SetFloat("_ThemeColorsEnable", enableThemeColors ? 1 : 0);
+            audioMaterial.SetColor("_ThemeColor0", themeColor0);
+            audioMaterial.SetColor("_ThemeColor1", themeColor1);
+            audioMaterial.SetColor("_ThemeColor2", themeColor2);
+            audioMaterial.SetColor("_ThemeColor3", themeColor3);
         }
 
         // Only happens once per second.
