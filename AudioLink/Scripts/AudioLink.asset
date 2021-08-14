@@ -1248,7 +1248,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: enableThemeColors
+      Data: themeColorsEnable
     - Name: $v
       Entry: 7
       Data: 81|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -1275,10 +1275,10 @@ MonoBehaviour:
       Data: SystemBoolean
     - Name: symbolOriginalName
       Entry: 1
-      Data: enableThemeColors
+      Data: themeColorsEnable
     - Name: symbolUniqueName
       Entry: 1
-      Data: enableThemeColors
+      Data: themeColorsEnable
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
