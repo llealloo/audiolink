@@ -103,9 +103,9 @@ Shader "MyTestShader"
 #define ALPASS_THEME_COLOR1             uint2(1,23)
 #define ALPASS_THEME_COLOR2             uint2(2,23)
 #define ALPASS_THEME_COLOR3             uint2(3,23)
-#define ALPASS_FILTEREDVU               uint2(4,23)  //Size: 8, 1
-#define ALPASS_FILTEREDVU_INTENSITY     uint2(4,23)  //Size: 4, 1
-#define ALPASS_FILTEREDVU_MARKER        uint2(8,23)  //Size: 4, 1
+#define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
+#define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
+#define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -241,7 +241,7 @@ This section of the data texture contains filtered versions of the "Current Inte
 float4 vu = AudioLinkData(ALPASS_FILTEREDVU_INTENSITY + uint2(i.uv.x*4, 0));
 ```
 
-`ALPASS_FILTEREDVU_MARKER` refers to filtered, fading marker values. Whenever a new 'peak volume' is reached, these values rapidly increase, and slowly fade until another peak is reached. They can sampled like so:
+`ALPASS_FILTEREDVU_MARKER` refers to filtered marker values. Whenever a new 'peak volume' is reached, these values rapidly increase. If no peaks occur for a brief moment, they rapidly fade to the current intensity. They can sampled like so:
 ```hlsl
 float4 marker = AudioLinkData(ALPASS_FILTEREDVU_MARKER + uint2(i.uv.x*4, 0));
 ```

@@ -510,22 +510,6 @@ Shader "AudioLink/Internal/AudioLink"
 				}
 				else
 				{
-                    // Filtered VU intensity
-                    if(coordinateLocal.x >= 4 && coordinateLocal.x < 8)
-                    {
-                        float4 prev = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + coordinateLocal.xy);
-                        return lerp(RMSPeak, prev, pow(.95, coordinateLocal.x-3)).r;
-                    }
-                    // Filtered VU marker
-                    else if (coordinateLocal.x >= 8 && coordinateLocal.x < 12)
-                    {
-                        float4 prev = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + coordinateLocal.xy);
-
-                        // if we have rising edge, move rapidly towards marker,
-                        // otherwise fade current value
-                        float4 res = max(prev - 0.004, 0);
-                        return max(res, AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU_INTENSITY + uint2(coordinateLocal.x-8, 0)));
-                    }
 					//Second Row
 					if( coordinateLocal.x < 4 )
 					{
@@ -1085,6 +1069,57 @@ Shader "AudioLink/Internal/AudioLink"
             ENDCG
         }
 
+        Pass
+        {
+            Name "Pass11-Filtered-VU"
+            CGPROGRAM
+            float4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDVU)
+                
+                float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
+                float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
+                float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
+                float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(.95, coordinateLocal.x+1)).r;
+
+                float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
+                float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
+                bool4 peak = filteredRMSPeak > markerValue || timerValue > 0.5;
+
+                // Filtered VU intensity
+                if(coordinateLocal.y == 0)
+                {
+                    return filteredRMSPeak;
+                }
+                // Filtered VU marker
+                else if (coordinateLocal.y == 1)
+                {
+                    // For linear fallof (we use exp now)
+                    /*float4 res =
+                        abs(prev - markerValue) <= 0.01
+                            ? markerValue
+                            : prev < markerValue
+                                ? prev + 0.01 
+                                : prev - 0.01;*/
+
+                    float speed = lerp(0.1, 0.05, abs(prev - markerValue));
+                    float res = lerp(prev, markerValue, speed);
+                    return max(filteredRMSPeak, res);
+                }
+                // VU markers values
+                else if (coordinateLocal.y == 2)
+                {
+                    return peak ? filteredRMSPeak : markerValue;
+                }
+                // VU marker timers
+                else if (coordinateLocal.y == 3)
+                {
+                    return peak ? 0 : prev + unity_DeltaTime.xxxx;
+                }
+                return 1;
+            }
+            ENDCG
+        }
 
         Pass
         {
