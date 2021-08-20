@@ -1102,8 +1102,8 @@ Shader "AudioLink/Internal/AudioLink"
                                 ? prev + 0.01 
                                 : prev - 0.01;*/
 
-                    float speed = lerp(0.1, 0.05, abs(prev - markerValue));
-                    float res = lerp(prev, markerValue, speed);
+                    float4 speed = lerp(0.1, 0.05, abs(prev - markerValue));
+                    float4 res = lerp(prev, markerValue, speed);
                     return max(filteredRMSPeak, res);
                 }
                 // VU markers values
