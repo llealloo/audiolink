@@ -187,3 +187,17 @@ float3 AudioLinkCCtoRGB(float bin, float intensity, int rootNote)
     float val = intensity - 0.1;
     return AudioLinkHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
 }
+
+// Sample the amplitude of a given frequency in the DFT, supports frequencies in [13.75; 14080].
+float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
+{
+    float note = AUDIOLINK_EXPBINS * log2(hertz / AUDIOLINK_BOTTOM_FREQUENCY);
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(note, 0));
+}
+
+// Sample the amplitude of a given semitone in an octave. Octave is in [0; 9] while note is [0; 11].
+float AudioLinkGetAmplitudeAtNote(float octave, float note)
+{
+    float quarter = note * 2.0;
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
+}
