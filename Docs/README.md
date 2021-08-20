@@ -26,6 +26,7 @@ The basic map is sort of a hodgepodge of various features avatars may want, and 
 | Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |
 | VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |
 | VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |
+| Filtered VU meter       |       |       |       |       |       |       |       |   X   |
 | AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |
 | AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |
 | Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |
@@ -102,6 +103,9 @@ Shader "MyTestShader"
 #define ALPASS_THEME_COLOR1             uint2(1,23)
 #define ALPASS_THEME_COLOR2             uint2(2,23)
 #define ALPASS_THEME_COLOR3             uint2(3,23)
+#define ALPASS_FILTEREDVU               uint2(4,23)  //Size: 8, 1
+#define ALPASS_FILTEREDVU_INTENSITY     uint2(4,23)  //Size: 4, 1
+#define ALPASS_FILTEREDVU_MARKER        uint2(8,23)  //Size: 4, 1
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -228,6 +232,23 @@ Various Usages of this field would be:
 ```
 
 NOTE: There are potentially issues with `ALPASS_GENERALVU_INSTANCE_TIME` if a map is updated mid-instance and the instance owner leaves mid-instance, so it is preferred that for effects that don't care when the instance started, use `ALPASS_GENERALVU_NETWORK_TIME` as this will allow you to animate things so that all players see your animation the same as you.
+
+### `ALPASS_FILTEREDVU`
+This section of the data texture contains filtered versions of the "Current Intensity" (both RMS and Peak), "Marker Values" from the `ALPASS_GENERALVU` section. These values move in slower, much more natural fashion. 
+
+`ALPASS_FILTEREDVU` and `ALPASS_FILTEREDVU_INTENSITY` refer to the filtered intensity. It is a strip of 4x1 pixels, each with varying levels of filtering, from slowest to fastest moving. You can sample them like so:
+```hlsl
+float4 vu = AudioLinkData(ALPASS_FILTEREDVU_INTENSITY + uint2(i.uv.x*4, 0));
+```
+
+`ALPASS_FILTEREDVU_MARKER` refers to filtered, fading marker values. Whenever a new 'peak volume' is reached, these values rapidly increase, and slowly fade until another peak is reached. They can sampled like so:
+```hlsl
+float4 marker = AudioLinkData(ALPASS_FILTEREDVU_MARKER + uint2(i.uv.x*4, 0));
+```
+
+Just as with `ALPASS_GENERALVU`, each color channel for both of these sections stores left RMS, left peak, right RMS, right peak respectively.
+
+For an example of how to use this feature, check the "FilteredVUDebug" shader in the Shaders folder.
 
 ### `ALPASS_THEME_COLORx`
 
