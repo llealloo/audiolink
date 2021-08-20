@@ -354,7 +354,8 @@ Shader "AudioLink/Internal/AudioLink"
 
                 float2 RMS = sqrt(total / i);
                 
-                float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
+                float4 lastMarkerValue = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(9, 0));
+                float4 markerValue = lastMarkerValue;
                 float4 markerTimes = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(10, 0));
                 float4 lastAutogain = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
@@ -510,6 +511,26 @@ Shader "AudioLink/Internal/AudioLink"
 				}
 				else
 				{
+                    // Filtered VU intensity
+                    if(coordinateLocal.x >= 4 && coordinateLocal.x < 8)
+                    {
+                        float4 prev = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + coordinateLocal.xy);
+                        return lerp(RMSPeak, prev, pow(.95, coordinateLocal.x-3)).r;
+                    }
+                    // Filtered VU marker
+                    else if (coordinateLocal.x >= 8 && coordinateLocal.x < 12)
+                    {
+                        float4 prev = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + coordinateLocal.xy);
+
+                        // ensure we catch rising edge even on extremely low framerate
+                        bool4 rising = markerTimes < 0.05 || markerValue > lastMarkerValue;
+
+                        // if we have rising edge, move rapidly towards marker,
+                        // otherwise fade current value
+                        return rising
+                            ? lerp(max(markerValue, prev), prev, 0.85).r
+                            : max(prev - lerp(0.001, 0.004, (coordinateLocal.x-7) / 4.0), 0);
+                    }
 					//Second Row
 					if( coordinateLocal.x < 4 )
 					{
