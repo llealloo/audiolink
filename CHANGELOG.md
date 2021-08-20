@@ -1,10 +1,12 @@
 # Changelog
 
 ## 0.2.6 - August 10th, 2021
-### New features added by @cnlohr
+### New features (big thanks to @cnlohr and @pema99)
 - Chronotensity
 - ColorChord index colors
 - Theme colors!
+- Filtered VU
+- Amplify nodes & example shaders for the above features
 ### Changes
 - UnU sliders (thanks Texelsaur)
 - Recursive / nesting support for AudioReactiveSurfaceArray prefab
