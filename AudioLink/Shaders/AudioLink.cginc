@@ -23,9 +23,9 @@
 #define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
 #define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
 #define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
-#define ALPASS_FILTEREDVU               uint2(4,23)  //Size: 8, 1
-#define ALPASS_FILTEREDVU_INTENSITY     uint2(4,23)  //Size: 4, 1
-#define ALPASS_FILTEREDVU_MARKER        uint2(8,23)  //Size: 4, 1
+#define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
+#define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
+#define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
