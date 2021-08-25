@@ -183,9 +183,9 @@ It contains the following dedicated pixels:
 <tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr>
 <tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`AudioLlinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
 <tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
@@ -193,7 +193,7 @@ It contains the following dedicated pixels:
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
 </table>
 
-Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsSeconds(...)`
+Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`
 
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
@@ -207,9 +207,9 @@ Various Usages of this field would be:
 ```hlsl
     AudioLinkData( ALPASS_GENERALVU + uint2( 0, 0 )).x;  //2.04 for AudioLink 2.4.
     AudioLinkData( ALPASS_GENERALVU + uint2( 1, 0 )).x;  //System FPS
-    ALDecodeDataAsSeconds( ALPASS_GENERALVU_INSTANCE_TIME ); //Time since start of instance, but wraps every 1.5 days.
-    ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME ); //Time that matches for all players for animations, but wraps every 1.5 days.
-    ALDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
+    AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_INSTANCE_TIME ); //Time since start of instance, but wraps every 1.5 days.
+    AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME ); //Time that matches for all players for animations, but wraps every 1.5 days.
+    AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
     AudioLinkData( ALPASS_GENERALVU + uint2( 8, 0 )).x;  // Current intensity of sound.
     AudioLinkData( ALPASS_GENERALVU + uint2( 11, 0 )).y;  // slow responce of volume of incoming sound.
 ```
@@ -501,7 +501,7 @@ fixed4 frag (v2f i) : SV_Target
 
 You can virtually sync objects, which means they will be synced across the instance for all users, however they use no networking, syncing or Udon to do so.  Application would be effects that you want to have be in motion and appear the same on all player's screens.
 
-If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsSeconds(ALPASS_GENERALVU_NETWORK_TIME)` then all players will see your effect exactly the same.
+If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `AudioLinkDecodeDataAsSeconds(ALPASS_GENERALVU_NETWORK_TIME)` then all players will see your effect exactly the same.
 
 ![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif =512x288)
 
@@ -525,7 +525,7 @@ fixed4 frag (v2f i) : SV_Target
     float2 remainder = 1. - logoSize;
 
     // Retrieve the instance time.
-    float instanceTime = ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
+    float instanceTime = AudioLlinkDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
 
     // Calculate the total progress made along X and Y irrespective of
     // the total number of bounces made.  But then compute where the
