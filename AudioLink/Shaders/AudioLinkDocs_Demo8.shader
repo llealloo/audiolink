@@ -21,7 +21,7 @@
 
             #include "UnityCG.cginc"
 
-            #include "AudioLink.cginc"
+            #include "Assets/AudioLink/Shaders/AudioLink.cginc"
 
 
             uniform uint _AudioLinkBand;
