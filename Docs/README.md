@@ -326,20 +326,26 @@ This is just the initial audiolink values, but very heavily filtered, so they mo
 
 ### `ALPASS_CHRONOTENSITY`
 
-This is a section of data which can be used to allow things to move smoothly in time, where the speed of motion is controlled by intensity.  Each X value has a different effect.
+This is a section of values which increase and decrease cumulatively based on 4-band data.
+This allows things to move smoothly in time, where the speed of motion is controlled by intensity.  Each X offset has a different effect.
 
-You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `628319.0`.
+You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `100000.0`. As a reference, with this scaling, you can expect a full rotation every 2.8 seconds if you're using `offset.x = 4` and the band is dark during that time.
 
-Y offset is which one of the 4 AudioLink bands the effect is based off of.
+`offset.y` offset is which one of the 4 AudioLink bands the effect is based off of.
 
-| X Offset (fast) | X Offset (slow) | Description |
-| ---- | ---- | ----------- |
-| 0    | 1    | Motion increases as intensity of band increases. It does not go backwards. |
-| 2    | 3    | Motion moves back and forth as a function of intenity. |
-| 4    | 5    | Motion only when the band is dark. |
-| 6    | 7    | Fixed speed motion positive when dark, negative when light. |
+| `offset.x` | Description |
+| - | ----------- |
+| 0 | Motion increases as intensity of band increases. It does not go backwards. |
+| 1 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
+| 2 | Motion moves back and forth as a function of intensity. |
+| 3 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
+| 4 | Fixed speed increase when the band is dark. Stationary when light. |
+| 5 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
+| 6 | Fixed speed increase when the band is dark. Fixed speed decrease when light. |
+| 7 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK`. Potential bug: Currently always zero. |
 
-Even X offsets are based on quickly responding values. Odd X offsets are based on a filtered band and are less jerky.
+You can combine these to create new motion.
+For example, to get "Fixed increase when the band is light" you could subtract a uint sample with `offset.x = 6` from a uint sample with `offset.x = 4`.
 
 ### Other defines
 
