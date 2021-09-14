@@ -342,7 +342,7 @@ You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offs
 | 4 | Fixed speed increase when the band is dark. Stationary when light. |
 | 5 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
 | 6 | Fixed speed increase when the band is dark. Fixed speed decrease when light. |
-| 7 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK`. Potential bug: Currently always zero. |
+| 7 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK`. |
 
 You can combine these to create new motion.
 For example, to get "Fixed increase when the band is light" you could subtract a uint sample with `offset.x = 6` from a uint sample with `offset.x = 4`.
