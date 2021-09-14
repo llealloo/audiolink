@@ -1010,10 +1010,8 @@ Shader "AudioLink/Internal/AudioLink"
                 }
                 else if( coordinateLocal.x >= 16 &&  coordinateLocal.x <= 22 )
                 {
-                    // For pixel 16, we are actually making something that accelerates forward.
-                    // This is called ALPASS_CHRONOTENSITY
+                    // This section is for ALPASS_CHRONOTENSITY
                     uint4 rpx = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
-                    uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
                     
                     float ComparingValue = (coordinateLocal.x & 1) ? 
                         AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2(4, coordinateLocal.y)) :
@@ -1038,19 +1036,14 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else if( mode == 2 )
                     {
-                        if( DifferentialValue < 0 )
-                            ValueDiff = .1;
-                        else
-                            ValueDiff = 0;
+                        ValueDiff = DifferentialValue < 0? .1 : -.1;
                     }
                     else
                     {
-                        if( DifferentialValue < 0 )
-                            ValueDiff = .1;
-                        else
-                            ValueDiff = -.1;
+                        ValueDiff = DifferentialValue < 0? .1 : -.1;
                     }
                     
+                    uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
                     Value += ValueDiff * 32768;
 
                     return float4(
