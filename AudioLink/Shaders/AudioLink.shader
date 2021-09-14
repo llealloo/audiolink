@@ -1008,7 +1008,7 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 Previous = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
                     return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
                 }
-                else if( coordinateLocal.x >= 16 &&  coordinateLocal.x <= 22 )
+                else if( coordinateLocal.x >= 16 &&  coordinateLocal.x < 24 )
                 {
                     // This section is for ALPASS_CHRONOTENSITY
                     uint4 rpx = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
