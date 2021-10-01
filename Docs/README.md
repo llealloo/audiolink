@@ -6,7 +6,7 @@ AudioLink can be used in 2 ways.
 
 ## Using AudioLink in Udon
 
-{ Llealloo, should this link to main page? See main readme and examples }
+AudioLink can be used in Udon via the included UdonBehaviours prefixed by `AudioReactive`, such as `AudioReactiveLight` and `AudioReactiveSurface`. However, this use case is not recommended as it requires a fairly expensive GPU readback. Performing all of the work directly in a shader yields much better performance.
 
 ## The AudioLink Texture
 
@@ -35,8 +35,6 @@ The basic map is sort of a hodgepodge of various features avatars may want, and 
 | Theme Colors            |       |       |       |       |       |       |       |   X   |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
-
-{ Llealloo, Insert Avatar map }
 
 ## Using the AudioLink Texture
 

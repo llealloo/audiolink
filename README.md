@@ -6,18 +6,23 @@ AudioLink is a system that analyzes and processes in-world audio into many diffe
 
 The per-frequency audio amplitude data is first read briefly into Udon using Unity's GetOutputData. It is then sent to the GPU for signal processing and buffered into a CustomRenderTexture. Then, the CustomRenderTexture is broadcast globally (called `_AudioTexture`) which can be picked up by shaders both in-world and across all avatars. 
 
-##### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
-##### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
+### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
+### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-
-## 2.6 Update is out!
-### New features added by @cnlohr
-- Chronotensity
-- ColorChord index colors
-- Theme colors!
+## 0.2.6 - August 10th, 2021
+### New features (big thanks to @cnlohr and @pema99)
+- Chronotensity feature provides timing information to shaders which changes in reaction to audio
+- ColorChord index colors, a new way to get audio reactive colors from ColorChord
+- Globally configurable theme colors
+- Filtered VU, smoothly filtered versions of VU data
+- Amplify nodes and example shaders for above features
+- Added `AudioLinkGetAmplitudeAtFrequency` and `AudioLinkGetAmplitudeAtNote` functions for easily sampling specific parts of the audio spectrum corresponding to certain frequencies or semitones
 ### Changes
 - UnU sliders (thanks Texelsaur)
+- Various improvements to included video player, now with a resync button (thanks again, Texelsaur)
 - Recursive / nesting support for AudioReactiveSurfaceArray prefab
+### Bugfixes
+- Fixed certain parts of filtered 4band data always being zero (thanks DomNomNom)
 
 ## Updating from version 2.4 or lower? (...first time setup? please see next section)
 1. Install the latest VRChat SDK3 and UdonSharp (following their directions)
