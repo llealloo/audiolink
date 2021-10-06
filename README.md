@@ -24,21 +24,21 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### Bugfixes
 - Fixed certain parts of filtered 4band data always being zero (thanks DomNomNom)
 
-## Updating from version 2.4 or lower? (...first time setup? please see next section)
-1. Install the latest VRChat SDK3 and UdonSharp (following their directions)
-2. Close unity
-3. With Windows explorer (NOT within Unity), remove the following files & folders:
+## Updating from version 2.5 or lower? (...first time setup? please see next section)
+1. Take note of which AudioSource you are using to feed AudioLink, this reference may be lost during upgrade.
+2. Install the latest VRChat SDK3 and UdonSharp (following their directions)
+3. Close unity
+4. With Windows explorer (NOT within Unity), remove the following files & folders:
    - AudioLink (folder)
    - AudioLink.meta
-4. Reopen unity
-5. Download and install the [latest AudioLink release](https://github.com/llealloo/vrc-udon-audio-link/releases/latest)
-6. In scene(s) containing old versions of AudioLink:
-   1. Take note of the AudioSource you are using to feed AudioLink
-   2. Delete both AudioLink and AudioLinkController prefabs from the scene
-   3. Re-add AudioLink and AudioLinkController to the scene by dragging the prefabs from the AudioLink folder in projects *(world creators only)*
-   4. Click the "Link all audio reactive objects\..." button on AudioLink inspector panel *(world creators only)*
-   5. Drag the AudioSource you were using  previously into the AudioLink audio source parameter
-      - NOTE: If you previously used AudioLinkInput, you are welcome to continue doing so, however now in 2.5 AudioLink is much smarter about inputs. Try dragging it straight into the AudioLink / audio source parameter!
+5. Reopen unity
+6. Download and install the [latest AudioLink release](https://github.com/llealloo/vrc-udon-audio-link/releases/latest)
+7. In scene(s) containing old versions of AudioLink:
+   1. Delete both AudioLink and AudioLinkController prefabs from the scene
+   2. Re-add AudioLink and AudioLinkController to the scene by dragging the prefabs from the AudioLink folder in projects *(world creators only)*
+   3. Click the "Link all sound reactive objects to this AudioLink" button on AudioLink inspector panel *(world creators only)*
+   4. Drag the AudioSource you were using previously into the AudioLink audio source parameter
+      - NOTE: If you previously used AudioLinkInput, you are welcome to continue doing so, however now in 2.5+ AudioLink is much smarter about inputs. Try dragging it straight into the AudioLink / audio source parameter!
 7. If using AudioReactiveObject or AudioReactiveLight components, you will need to manually re-enable the "Audio Data" under AudioLink "experimental" settings. This feature is now considered experimental until VRChat *maybe* gives us native asynchronous readback.
 
 ## First time setup
