@@ -9,7 +9,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 0.2.6 - August 10th, 2021
+## 0.2.6 - October 6th, 2021
 ### New features (big thanks to @cnlohr and @pema99)
 - Chronotensity feature provides timing information to shaders which changes in reaction to audio
 - ColorChord index colors, a new way to get audio reactive colors from ColorChord
