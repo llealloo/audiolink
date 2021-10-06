@@ -12,16 +12,19 @@ CustomRenderTexture:
     Hash: 00000000000000000000000000000000
   m_ForcedFallbackFormat: 4
   m_DownscaleFallback: 0
+  serializedVersion: 3
   m_Width: 128
   m_Height: 64
   m_AntiAliasing: 1
+  m_MipCount: -1
   m_DepthFormat: 0
-  m_ColorFormat: 11
+  m_ColorFormat: 52
   m_MipMap: 0
   m_GenerateMips: 1
   m_SRGB: 0
   m_UseDynamicScale: 0
   m_BindMS: 0
+  m_EnableCompatibleFormat: 1
   m_TextureSettings:
     serializedVersion: 2
     m_FilterMode: 0
@@ -58,12 +61,12 @@ CustomRenderTexture:
     passIndex: 2
     needSwap: 0
   - updateZoneCenter: {x: 6, y: 41, z: 0.5}
-    updateZoneSize: {x: 12, y: 1, z: 1}
+    updateZoneSize: {x: 12, y: 2, z: 1}
     rotation: 0
     passIndex: 3
     needSwap: 0
-  - updateZoneCenter: {x: 18, y: 41, z: 0.5}
-    updateZoneSize: {x: 11, y: 2, z: 1}
+  - updateZoneCenter: {x: 24, y: 41, z: 0.5}
+    updateZoneSize: {x: 24, y: 2, z: 1}
     rotation: 0
     passIndex: 4
     needSwap: 1
@@ -82,10 +85,15 @@ CustomRenderTexture:
     rotation: 0
     passIndex: 7
     needSwap: 0
-  - updateZoneCenter: {x: 8, y: 34, z: 0.5}
-    updateZoneSize: {x: 16, y: 4, z: 1}
+  - updateZoneCenter: {x: 12, y: 34, z: 0.5}
+    updateZoneSize: {x: 24, y: 4, z: 1}
     rotation: 0
     passIndex: 8
+    needSwap: 0
+  - updateZoneCenter: {x: 26, y: 34, z: 0.5}
+    updateZoneSize: {x: 4, y: 4, z: 1}
+    rotation: 0
+    passIndex: 9
     needSwap: 0
   m_UpdatePeriod: 0.011111111
   m_ShaderPass: 0

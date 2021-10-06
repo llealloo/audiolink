@@ -1,22 +1,31 @@
 // Map of where features in AudioLink are.
-#define ALPASS_DFT                      int2(0,4)
-#define ALPASS_WAVEFORM                 int2(0,6)
-#define ALPASS_AUDIOLINK                int2(0,0)
-#define ALPASS_AUDIOBASS                int2(0,0)
-#define ALPASS_AUDIOLOWMIDS             int2(0,1)
-#define ALPASS_AUDIOHIGHMIDS            int2(0,2)
-#define ALPASS_AUDIOTREBLE              int2(0,3)
-#define ALPASS_AUDIOLINKHISTORY         int2(1,0)
-#define ALPASS_GENERALVU                int2(0,22)
-#define ALPASS_GENERALVU_INSTANCE_TIME  int2(2,22)
-#define ALPASS_GENERALVU_LOCAL_TIME     int2(3,22)
-#define ALPASS_GENERALVU_NETWORK_TIME   int2(4,22)
-#define ALPASS_GENERALVU_PLAYERINFO     int2(6,22)
-#define ALPASS_CCINTERNAL               int2(12,22)
-#define ALPASS_CCSTRIP                  int2(0,24)
-#define ALPASS_CCLIGHTS                 int2(0,25)
-#define ALPASS_AUTOCORRELATOR           int2(0,27)
-#define ALPASS_FILTEREDAUDIOLINK        int2(0,28)
+#define ALPASS_DFT                      uint2(0,4)  //Size: 128, 2
+#define ALPASS_WAVEFORM                 uint2(0,6)  //Size: 128, 16
+#define ALPASS_AUDIOLINK                uint2(0,0)  //Size: 128, 4
+#define ALPASS_AUDIOBASS                uint2(0,0)  //Size: 128, 1
+#define ALPASS_AUDIOLOWMIDS             uint2(0,1)  //Size: 128, 1
+#define ALPASS_AUDIOHIGHMIDS            uint2(0,2)  //Size: 128, 1
+#define ALPASS_AUDIOTREBLE              uint2(0,3)  //Size: 128, 1
+#define ALPASS_AUDIOLINKHISTORY         uint2(1,0)  //Size: 127, 4
+#define ALPASS_GENERALVU                uint2(0,22) //Size: 12, 1
+#define ALPASS_GENERALVU_INSTANCE_TIME  uint2(2,22)
+#define ALPASS_GENERALVU_LOCAL_TIME     uint2(3,22)
+#define ALPASS_GENERALVU_NETWORK_TIME   uint2(4,22)
+#define ALPASS_GENERALVU_PLAYERINFO     uint2(6,22)
+#define ALPASS_THEME_COLOR0             uint2(0,23)
+#define ALPASS_THEME_COLOR1             uint2(1,23)
+#define ALPASS_THEME_COLOR2             uint2(2,23)
+#define ALPASS_THEME_COLOR3             uint2(3,23)
+#define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
+#define ALPASS_CCCOLORS                 uint2(24,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
+#define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
+#define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
+#define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
+#define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
+#define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
+#define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
+#define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
+#define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -114,8 +123,8 @@ float AudioLinkGetVersion()
 // Extra utility functions for time.
 uint AudioLinkDecodeDataAsUInt(uint2 indexloc)
 {
-    half4 rpx = AudioLinkData(indexloc);
-    return ((uint)rpx.r + ((uint)rpx.g)*1024 + ((uint)rpx.b) * 1048576 + ((uint)rpx.a) * 1073741824);
+    uint4 rpx = AudioLinkData(indexloc);
+    return rpx.r + rpx.g*1024 + rpx.b * 1048576 + rpx.a * 1073741824;
 }
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
@@ -126,6 +135,9 @@ float AudioLinkDecodeDataAsSeconds(uint2 indexloc)
     //Can't just divide by float.  Bug in Unity's HLSL compiler.
     return float(time / 1000) + float( time % 1000 ) / 1000.; 
 }
+
+#define ALDecodeDataAsSeconds( x ) AudioLinkDecodeDataAsSeconds( x )
+#define ALDecodeDataAsUInt( x ) AudioLinkDecodeDataAsUInt( x )
 
 float AudioLinkRemap(float t, float a, float b, float u, float v) { return ((t-a) / (b-a)) * (v-u) + u; }
 
@@ -177,4 +189,18 @@ float3 AudioLinkCCtoRGB(float bin, float intensity, int rootNote)
     }
     float val = intensity - 0.1;
     return AudioLinkHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
+}
+
+// Sample the amplitude of a given frequency in the DFT, supports frequencies in [13.75; 14080].
+float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
+{
+    float note = AUDIOLINK_EXPBINS * log2(hertz / AUDIOLINK_BOTTOM_FREQUENCY);
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(note, 0));
+}
+
+// Sample the amplitude of a given semitone in an octave. Octave is in [0; 9] while note is [0; 11].
+float AudioLinkGetAmplitudeAtNote(float octave, float note)
+{
+    float quarter = note * 2.0;
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
 }

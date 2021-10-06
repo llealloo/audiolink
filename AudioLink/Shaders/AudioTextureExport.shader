@@ -6,7 +6,7 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Opaque" "AudioLinkExport"="AudioLinkExport"}
         LOD 100
         GrabPass {"_AudioTexture"}
         Pass {

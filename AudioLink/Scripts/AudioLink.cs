@@ -67,8 +67,16 @@ public class AudioLink : UdonSharpBehaviour
         [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
         public float fadeExpFalloff = 0.3f;
 
+        [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
+        public bool themeColorsEnable;
+        public Color themeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+        public Color themeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+        public Color themeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+        public Color themeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public GameObject audioTextureExport;
+        private Shader _shaderAudioLinkExport;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
@@ -147,6 +155,17 @@ public class AudioLink : UdonSharpBehaviour
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
+            _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
+            GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" );
+        }
+
+        public void UpdateThemeColors()
+        {
+            audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
+            audioMaterial.SetColor("_ThemeColor0", themeColor0);
+            audioMaterial.SetColor("_ThemeColor1", themeColor1);
+            audioMaterial.SetColor("_ThemeColor2", themeColor2);
+            audioMaterial.SetColor("_ThemeColor3", themeColor3);
         }
 
         // Only happens once per second.

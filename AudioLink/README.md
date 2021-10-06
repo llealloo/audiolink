@@ -6,33 +6,25 @@ AudioLink is a system that analyzes and processes in-world audio into many diffe
 
 The per-frequency audio amplitude data is first read briefly into Udon using Unity's GetOutputData. It is then sent to the GPU for signal processing and buffered into a CustomRenderTexture. Then, the CustomRenderTexture is broadcast globally (called `_AudioTexture`) which can be picked up by shaders both in-world and across all avatars. 
 
-##### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
-##### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
+### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
+### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
+## 0.2.6 - August 10th, 2021
+### New features (big thanks to @cnlohr and @pema99)
+- Chronotensity feature provides timing information to shaders which changes in reaction to audio
+- ColorChord index colors, a new way to get audio reactive colors from ColorChord
+- Globally configurable theme colors
+- Filtered VU, smoothly filtered versions of VU data
+- Amplify nodes and example shaders for above features
+- Added `AudioLinkGetAmplitudeAtFrequency` and `AudioLinkGetAmplitudeAtNote` functions for easily sampling specific parts of the audio spectrum corresponding to certain frequencies or semitones
+### Changes
+- UnU sliders (thanks Texelsaur)
+- Various improvements to included video player, now with a resync button (thanks again, Texelsaur)
+- Recursive / nesting support for AudioReactiveSurfaceArray prefab
+### Bugfixes
+- Fixed certain parts of filtered 4band data always being zero (thanks DomNomNom)
 
-## 2.5 Update is out!
-### Big changes/additions in 2.5
-- **Many many new capabilities that avatar shader creators have been incorporating, so if you want to see the latest & greatest AudioLink avatar shader effects, 2.5 will be a requirement**
-- No more limitation on which video player to use!
-- AudioLink audio source input is now way smarter! You can use any audio source whether it is 3D or 2D
-- All shaders used in the repo are now equally compatible in-world and on avatars
-- Increased performance across the board
-
-### Big changes for shader developers from 2.4 to 2.5
-- Massive refactoring and restyling of codebase
-- Lots of changes to the AudioLink.gcinc, please see the changelog
-- Amplify shader templates and functions added w/ examples
-- Left + right VU meter data
-- Left + right waveform data
-- Version read
-- FPS read
-- Synced instance time & synced network time! Thanks @cnlohr!
-
-### Bugfixes in 2.5
-- AVPro + mono audio output (like a gaming headset) caused audio reactivity to break & log spam
-- Various issues with video players, input methods, and audio sources resolved
-
-## Updating to 2.5 (...first time setup? please see next section)
+## Updating from version 2.4 or lower? (...first time setup? please see next section)
 1. Install the latest VRChat SDK3 and UdonSharp (following their directions)
 2. Close unity
 3. With Windows explorer (NOT within Unity), remove the following files & folders:
@@ -83,6 +75,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - [VR Stage Lighting](https://github.com/AcChosen/VR-Stage-Lighting) by AcChosen
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
+- [VRC Things](https://github.com/PiMaker/VRChatUnityThings) by \_pi\_
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
