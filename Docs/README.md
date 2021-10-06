@@ -269,11 +269,11 @@ Internal ColorChord note representation.  Subject to change.
 
 ### `ALPASS_CCCOLORS`
 
-Raw color outputs from notes.  Just a color, you can UV map into, for the base ColorChord colors.
+Also known as ColorChord index colors. These are raw color outputs from derived from notes by ColorChord. Good for mapping UVs onto.
 
 It is recommended you index into no more than the first 4 or 5, after that the colors are much less interesting.
 
-It's just a color, with an intensity, so you can just use it as a color.
+These really are just colors with varying intensities, so you can just use it as a color. Unlike other ways to sample colors from ColorChord, these colors will be relatively stable over time, and may thus lend themselves nicely to coloring world props such as lights.
 
 Example:
 
@@ -429,7 +429,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif width=512 height=288>
+![Demo1](Materials/tex_AudioLinkDocs_Demo1.gif)
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the AudioLink texture.  This red color of this group of 128x16 pixels represents the last 85ms of the incoming waveform data.  This
@@ -440,7 +440,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo2.gif width=512 height=288>
+![Demo2](Materials/tex_AudioLinkDocs_Demo2.gif)
 
 ### Using the spectrogram
 
@@ -463,7 +463,7 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif width=512 height=288>
+![Demo3](Materials/tex_AudioLinkDocs_Demo3.gif)
 
 ### AutoCorrelator + ColorChord Linear + Geometry
 
@@ -526,13 +526,13 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo4.gif width=512 height=288>
+![Demo4](Materials/tex_AudioLinkDocs_Demo4.gif)
 
 ### Using Ordinal UVs to make some neat speakers.
 
 UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anything ±3.4028 × 10³⁸.  They don't care. So, while we can make the factional part of a UV still represent something meaningful in a texture or otherwise, we can use the whole number (ordinal) part to represent something else.  For instance, the band of AudioLink we want an object to respond to.
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo5.gif width=512 height=288>
+![Demo5](Materials/tex_AudioLinkDocs_Demo5.gif)
 
 ```hlsl
 v2f vert (appdata v)
@@ -587,7 +587,7 @@ You can virtually sync objects, which means they will be synced across the insta
 
 If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsSeconds(ALPASS_GENERALVU_NETWORK_TIME)` then all players will see your effect exactly the same.
 
-![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif =512x288)
+![Demo6](Materials/tex_AudioLinkDocs_Demo6.gif)
 
 ```hlsl
 // Utility function to check if a point lies in the unit square. (0 ... 1)
@@ -641,15 +641,60 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
+### Chronotensity
 
-### Application of ColorChord Lights
+One use of chronotensity is to make shader-based animations audio reactive in a way that only allows the animation to progress in one direction of time. In the below example, each of the 4 depicted fractals only moves forward when the respective AudioLink band is active.
+
+![Demo7](Materials/tex_AudioLinkDocs_Demo7.gif)
+```glsl
+float GenFractal( float2 uv, float rotqty )
+{
+    // Generate a 2x2 rotation matrix. We can apply this in subsequent steps.
+    float2 cs;
+    sincos( rotqty, cs.x, cs.y );
+    float2x2 rotmat = float2x2( cs.x, -cs.y, cs.y, cs.x );
+
+    const int maxIterations = 6;
+    float circleSize = 2.0/(3.0*pow(2.0,float(maxIterations)));
+            
+    uv = mul( rotmat, uv*.9 );
+                
+    //mirror, rotate and scale 6 times...
+    float s= 0.3;
+    for( int i=0; i < maxIterations; i++ )
+    {
+        uv = abs( uv ) - s;
+        uv = mul( rotmat, uv );
+        s = s/2.1;
+    }
+
+    float intensity = length(uv) / circleSize;
+    return 1.-intensity*.5;
+}
+            
+float4 frag (v2f i) : SV_Target
+{
+    uint2 quadrant = i.uv * 2;
+    int quadrant_id = quadrant.x + quadrant.y * 2;
+    int mode = 0;
+
+    float time = AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY +
+        uint2( mode, quadrant_id ) ) % 628318;
+
+    float2 localuv = i.uv * 4 - quadrant * 2 - 1;
+    float colout = GenFractal( localuv, time/100000. );
+
+    return float4( colout.xxx, 1.);
+}
+```
+
+<!-- ### Application of ColorChord Lights 
 
 TODO
 
 ### Using the VU data and info block
 
-TODO
-
+TODO -->
 
 ## Pertinent Notes and Tradeoffs.
 
@@ -702,7 +747,7 @@ Filtered Value = New Value * ( 1 - Filter Constant ) + Last Frame's Filtered Val
 Or, in GPU Land, it turns into:
 
 ```hlsl
-    filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
+filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
 ```
 
 Where filter constant is between 0 and 1, where 0 is bypass, as though the filter doesn't exist, and 1 completely blocks any new values.  A value of 0.9 weights the incoming value smally, but after a few frames, the output will track it.
