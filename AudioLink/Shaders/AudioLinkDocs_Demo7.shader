@@ -1,5 +1,4 @@
-﻿// Code notice:  This code is 
-Shader "AudioLink/Examples/Demo7"
+﻿Shader "AudioLink/Examples/Demo7"
 {
     Properties
     {
@@ -86,7 +85,7 @@ Shader "AudioLink/Examples/Demo7"
                 uint2 quadrant = i.uv * 2;
                 int quadrant_id = quadrant.x + quadrant.y * 2;
 
-                int mode = 4;
+                int mode = 0;
 
                 float time = AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY +
                     uint2( mode, quadrant_id ) ) % 628318;
