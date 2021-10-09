@@ -329,6 +329,22 @@ This allows things to move smoothly in time, where the speed of motion is contro
 
 You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `100000.0`. As a reference, with this scaling, you can expect a full rotation every 2.8 seconds if you're using `offset.x = 4` and the band is dark during that time.
 
+One can think of the values from chronotensity as being in some very small unit of time, like a millisecond. Thus, the values will get very large very fast, until they finally overflow and loop back to 0. To make the overflow happen faster, one can use a modulo operation as mentioned above. To get resulting value into a usable range, one can then divide by some constant. The size of the value used for the modulo will control how long the final value takes to loop back to 0, and the value in the division will control the interval (or speed) of the final value. Here are some examples:
+```hlsl
+// Gives a value in [0; 1] interval
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 1000000) / 1000000.0;
+
+// Gives a value also in [0; 1], but it will loop around faster
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 100000) / 100000.0;
+
+// Gives a value in [0; 6.28] range
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 628319) / 100000.0;
+
+// Also gives a value in [0; 6.28 range]
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 100000) / 100000.0 * 6.28;
+```
+When doing this division, make sure to divide by a float! Dividing by `1000` is _NOT_ the same as dividing by `1000.0`, as the former will result in integer division, which is not what you want!
+
 `offset.y` offset is which one of the 4 AudioLink bands the effect is based off of.
 
 | `offset.x` | Description |
@@ -685,6 +701,16 @@ float4 frag (v2f i) : SV_Target
     float colout = GenFractal( localuv, time/100000. );
 
     return float4( colout.xxx, 1.);
+}
+```
+
+Another, simpler example is shown below. This example will scroll a texture at constant speed, but then increase that speed when 0-th AudioLink band is active. Notice how both chronotensity and `_Time.y` are being used here.
+```glsl
+float4 frag (v2f i) : SV_Target
+{
+    float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + float2(0, 0) ) % 1000000) / 1000000.0;
+    i.uv.x += + chrono + _Time.y*0.1;
+    return tex2D(_MainTex, i.uv);
 }
 ```
 
