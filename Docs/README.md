@@ -705,14 +705,14 @@ float4 frag (v2f i) : SV_Target
 ```
 
 Another, simpler example is shown below. This example will scroll a texture at constant speed, but then increase that speed when 0-th AudioLink band is active. Notice how both chronotensity and `_Time.y` are being used here.
-```hlsl
-sampler2D _MainTex;
+```glsl
 float4 frag (v2f i) : SV_Target
 {
     float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + float2(0, 0) ) % 1000000) / 1000000.0;
     i.uv.x += + chrono + _Time.y*0.1;
     return tex2D(_MainTex, i.uv);
-}```
+}
+```
 
 <!-- ### Application of ColorChord Lights 
 
