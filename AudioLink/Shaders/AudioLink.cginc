@@ -23,6 +23,9 @@
 #define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
 #define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
 #define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
+#define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
+#define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
+#define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -42,6 +45,7 @@
 #define AUDIOLINK_DELAY_COEFFICIENT_MAX 0.9
 #define AUDIOLINK_DFT_Q                 4.0
 #define AUDIOLINK_TREBLE_CORRECTION     5.0
+#define AUDIOLINK_4BAND_TARGET_RATE     90.0
 
 // ColorChord constants
 #define COLORCHORD_EMAXBIN              192
@@ -186,4 +190,18 @@ float3 AudioLinkCCtoRGB(float bin, float intensity, int rootNote)
     }
     float val = intensity - 0.1;
     return AudioLinkHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
+}
+
+// Sample the amplitude of a given frequency in the DFT, supports frequencies in [13.75; 14080].
+float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
+{
+    float note = AUDIOLINK_EXPBINS * log2(hertz / AUDIOLINK_BOTTOM_FREQUENCY);
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(note, 0));
+}
+
+// Sample the amplitude of a given semitone in an octave. Octave is in [0; 9] while note is [0; 11].
+float AudioLinkGetAmplitudeAtNote(float octave, float note)
+{
+    float quarter = note * 2.0;
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
 }

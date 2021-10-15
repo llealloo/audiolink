@@ -81,13 +81,13 @@ namespace VRCAudioLink
       var audioSource = sO.FindProperty("audioSource");
       var audioDataToggle = sO.FindProperty("audioDataToggle");
       // once we get the properties, we can set them to saved values same way as we do for WORLD code
-      audioMaterial.objectReferenceValue = t.audioMaterial;
-      audioMaterialInLeft.objectReferenceValue = t.audioMaterialInLeft;
-      audioMaterialInRight.objectReferenceValue = t.audioMaterialInRight;
-      audioTextureExport.objectReferenceValue = t.audioTextureExport;
-      audioData2D.objectReferenceValue = t.audioData2d;
-      audioSource.objectReferenceValue = t.audioSource;
-      audioDataToggle.boolValue = false;
+      if (audioMaterial != null) audioMaterial.objectReferenceValue = t.audioMaterial;
+      if (audioMaterialInLeft != null) audioMaterialInLeft.objectReferenceValue = t.audioMaterialInLeft;
+      if (audioMaterialInRight != null) audioMaterialInRight.objectReferenceValue = t.audioMaterialInRight;
+      if (audioTextureExport != null) audioTextureExport.objectReferenceValue = t.audioTextureExport;
+      if (audioData2D != null) audioData2D.objectReferenceValue = t.audioData2d;
+      if (audioSource != null) audioSource.objectReferenceValue = t.audioSource;
+      if (audioDataToggle != null) audioDataToggle.boolValue = false;
       sO.ApplyModifiedProperties();
 
       valuesSet = true;

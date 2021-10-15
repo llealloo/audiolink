@@ -6,7 +6,7 @@ AudioLink can be used in 2 ways.
 
 ## Using AudioLink in Udon
 
-{ Llealloo, should this link to main page? See main readme and examples }
+AudioLink can be used in Udon via the included UdonBehaviours prefixed by `AudioReactive`, such as `AudioReactiveLight` and `AudioReactiveSurface`. However, this use case is not recommended as it requires a fairly expensive GPU readback. Performing all of the work directly in a shader yields much better performance.
 
 ## The AudioLink Texture
 
@@ -26,6 +26,7 @@ The basic map is sort of a hodgepodge of various features avatars may want, and 
 | Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |
 | VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |
 | VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |
+| Filtered VU meter       |       |       |       |       |       |       |       |   X   |
 | AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |
 | AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |
 | Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |
@@ -34,8 +35,6 @@ The basic map is sort of a hodgepodge of various features avatars may want, and 
 | Theme Colors            |       |       |       |       |       |       |       |   X   |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
-
-{ Llealloo, Insert Avatar map }
 
 ## Using the AudioLink Texture
 
@@ -102,6 +101,9 @@ Shader "MyTestShader"
 #define ALPASS_THEME_COLOR1             uint2(1,23)
 #define ALPASS_THEME_COLOR2             uint2(2,23)
 #define ALPASS_THEME_COLOR3             uint2(3,23)
+#define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
+#define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
+#define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -196,17 +198,23 @@ It contains the following dedicated pixels:
 <tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr>
 <tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time (You probably want this one for syncing effects!)</td><td colspan=4>`ALDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
+<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
 <tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+
+<tr><td>0, 1</td><td>0, 23</td><td>Theme Color 0 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR0</td></tr>
+<tr><td>1, 1</td><td>1, 23</td><td>Theme Color 1 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR1</td></tr>
+<tr><td>2, 1</td><td>2, 23</td><td>Theme Color 2 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR2</td></tr>
+<tr><td>3, 1</td><td>3, 23</td><td>Theme Color 3 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR3</td></tr>
+<tr><td>4, 1</td><td>4, 23</td><td>(Internal)</td><td colspan=4>Internal Timing Tracking</td></tr>
 </table>
 
-Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `ALDecodeDataAsUInt(...)` and `ALDecodeDataAsSeconds(...)`
+Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`
 
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)
@@ -220,14 +228,31 @@ Various Usages of this field would be:
 ```hlsl
     AudioLinkData( ALPASS_GENERALVU + uint2( 0, 0 )).x;  //2.04 for AudioLink 2.4.
     AudioLinkData( ALPASS_GENERALVU + uint2( 1, 0 )).x;  //System FPS
-    ALDecodeDataAsSeconds( ALPASS_GENERALVU_INSTANCE_TIME ); //Time since start of instance, but wraps every 1.5 days.
-    ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME ); //Time that matches for all players for animations, but wraps every 1.5 days.
-    ALDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
+    AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_INSTANCE_TIME ); //Time since start of instance, but wraps every 1.5 days.
+    AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME ); //Time that matches for all players for animations, but wraps every 1.5 days.
+    AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_LOCAL_TIME ); //Local time.
     AudioLinkData( ALPASS_GENERALVU + uint2( 8, 0 )).x;  // Current intensity of sound.
     AudioLinkData( ALPASS_GENERALVU + uint2( 11, 0 )).y;  // slow responce of volume of incoming sound.
 ```
 
 NOTE: There are potentially issues with `ALPASS_GENERALVU_INSTANCE_TIME` if a map is updated mid-instance and the instance owner leaves mid-instance, so it is preferred that for effects that don't care when the instance started, use `ALPASS_GENERALVU_NETWORK_TIME` as this will allow you to animate things so that all players see your animation the same as you.
+
+### `ALPASS_FILTEREDVU`
+This section of the data texture contains filtered versions of the "Current Intensity" (both RMS and Peak), "Marker Values" from the `ALPASS_GENERALVU` section. These values move in slower, much more natural fashion. 
+
+`ALPASS_FILTEREDVU` and `ALPASS_FILTEREDVU_INTENSITY` refer to the filtered intensity. It is a strip of 4x1 pixels, each with varying levels of filtering, from slowest to fastest moving. You can sample them like so:
+```hlsl
+float4 vu = AudioLinkData(ALPASS_FILTEREDVU_INTENSITY + uint2(i.uv.x*4, 0));
+```
+
+`ALPASS_FILTEREDVU_MARKER` refers to filtered marker values. Whenever a new 'peak volume' is reached, these values rapidly increase. If no peaks occur for a brief moment, they rapidly fade to the current intensity. They can sampled like so:
+```hlsl
+float4 marker = AudioLinkData(ALPASS_FILTEREDVU_MARKER + uint2(i.uv.x*4, 0));
+```
+
+Just as with `ALPASS_GENERALVU`, each color channel for both of these sections stores left RMS, left peak, right RMS, right peak respectively.
+
+For an example of how to use this feature, check the "FilteredVUDebug" shader in the Shaders folder.
 
 ### `ALPASS_THEME_COLORx`
 
@@ -250,11 +275,11 @@ Internal ColorChord note representation.  Subject to change.
 
 ### `ALPASS_CCCOLORS`
 
-Raw color outputs from notes.  Just a color, you can UV map into, for the base ColorChord colors.
+Also known as ColorChord index colors. These are raw color outputs from derived from notes by ColorChord. Good for mapping UVs onto.
 
 It is recommended you index into no more than the first 4 or 5, after that the colors are much less interesting.
 
-It's just a color, with an intensity, so you can just use it as a color.
+These really are just colors with varying intensities, so you can just use it as a color. Unlike other ways to sample colors from ColorChord, these colors will be relatively stable over time, and may thus lend themselves nicely to coloring world props such as lights.
 
 Example:
 
@@ -305,20 +330,42 @@ This is just the initial audiolink values, but very heavily filtered, so they mo
 
 ### `ALPASS_CHRONOTENSITY`
 
-This is a section of data which can be used to allow things to move smoothly in time, where the speed of motion is controlled by intensity.  Each X value has a different effect.
+This is a section of values which increase and decrease cumulatively based on 4-band data.
+This allows things to move smoothly in time, where the speed of motion is controlled by intensity.  Each X offset has a different effect.
 
-You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `628319.0`.
+You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `100000.0`. As a reference, with this scaling, you can expect a full rotation every 2.8 seconds if you're using `offset.x = 4` and the band is dark during that time.
 
-Y offset is which one of the 4 AudioLink bands the effect is based off of.
+One can think of the values from chronotensity as being in some very small unit of time, like a millisecond. Thus, the values will get very large very fast, until they finally overflow and loop back to 0. To make the overflow happen faster, one can use a modulo operation as mentioned above. To get resulting value into a usable range, one can then divide by some constant. The size of the value used for the modulo will control how long the final value takes to loop back to 0, and the value in the division will control the interval (or speed) of the final value. Here are some examples:
+```hlsl
+// Gives a value in [0; 1] interval
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 1000000) / 1000000.0;
 
-| X Offset (fast) | X Offset (slow) | Description |
-| ---- | ---- | ----------- |
-| 0    | 1    | Motion increases as intensity of band increases. It does not go backwards. |
-| 2    | 3    | Motion moves back and forth as a function of intenity. |
-| 4    | 5    | Motion only when the band is dark. |
-| 6    | 7    | Fixed speed motion positive when dark, negative when light. |
+// Gives a value also in [0; 1], but it will loop around faster
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 100000) / 100000.0;
 
-Even X offsets are based on quickly responding values. Odd X offsets are based on a filtered band and are less jerky.
+// Gives a value in [0; 6.28] range
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 628319) / 100000.0;
+
+// Also gives a value in [0; 6.28 range]
+float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY  + uint2( 1, _AudioLinkBand ) ) % 100000) / 100000.0 * 6.28;
+```
+When doing this division, make sure to divide by a float! Dividing by `1000` is _NOT_ the same as dividing by `1000.0`, as the former will result in integer division, which is not what you want!
+
+`offset.y` offset is which one of the 4 AudioLink bands the effect is based off of.
+
+| `offset.x` | Description |
+| - | ----------- |
+| 0 | Motion increases as intensity of band increases. It does not go backwards. |
+| 1 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
+| 2 | Motion moves back and forth as a function of intensity. |
+| 3 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
+| 4 | Fixed speed increase when the band is dark. Stationary when light. |
+| 5 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK` |
+| 6 | Fixed speed increase when the band is dark. Fixed speed decrease when light. |
+| 7 | Same as above but uses `ALPASS_FILTERAUDIOLINK` instead of `ALPASS_AUDIOLINK`. |
+
+You can combine these to create new motion.
+For example, to get "Fixed increase when the band is light" you could subtract a uint sample with `offset.x = 6` from a uint sample with `offset.x = 4`.
 
 ### Other defines
 
@@ -404,7 +451,7 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo1.gif width=512 height=288>
+![Demo1](Materials/tex_AudioLinkDocs_Demo1.gif)
 
 ### Basic Test with sample data.
 Audio waveform data is in the ALPASS_WAVEFORM section of the AudioLink texture.  This red color of this group of 128x16 pixels represents the last 85ms of the incoming waveform data.  This
@@ -415,7 +462,7 @@ float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 
 return 1 - 50 * abs( Sample - i.uv.y* 2. + 1 );
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo2.gif width=512 height=288>
+![Demo2](Materials/tex_AudioLinkDocs_Demo2.gif)
 
 ### Using the spectrogram
 
@@ -438,7 +485,7 @@ else if( i.uv.y < spectrum_value.z + 0.01 )
 return 0.1;
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo3.gif width=512 height=288>
+![Demo3](Materials/tex_AudioLinkDocs_Demo3.gif)
 
 ### AutoCorrelator + ColorChord Linear + Geometry
 
@@ -501,13 +548,13 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo4.gif width=512 height=288>
+![Demo4](Materials/tex_AudioLinkDocs_Demo4.gif)
 
 ### Using Ordinal UVs to make some neat speakers.
 
 UVs go from 0 to 1, right?  Wrong!  You can make UVs anything you fancy, anything ±3.4028 × 10³⁸.  They don't care. So, while we can make the factional part of a UV still represent something meaningful in a texture or otherwise, we can use the whole number (ordinal) part to represent something else.  For instance, the band of AudioLink we want an object to respond to.
 
-<img src=https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo5.gif width=512 height=288>
+![Demo5](Materials/tex_AudioLinkDocs_Demo5.gif)
 
 ```hlsl
 v2f vert (appdata v)
@@ -560,9 +607,9 @@ fixed4 frag (v2f i) : SV_Target
 
 You can virtually sync objects, which means they will be synced across the instance for all users, however they use no networking, syncing or Udon to do so.  Application would be effects that you want to have be in motion and appear the same on all player's screens.
 
-If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `ALDecodeDataAsSeconds(ALPASS_GENERALVU_NETWORK_TIME)` then all players will see your effect exactly the same.
+If you were to make your effect using _Time, it would use the player's local instance time, but if you make your effect using `AudioLinkDecodeDataAsSeconds(ALPASS_GENERALVU_NETWORK_TIME)` then all players will see your effect exactly the same.
 
-![Demo6](https://github.com/cnlohr/vrc-udon-audio-link/raw/dev/Docs/Materials/tex_AudioLinkDocs_Demo6.gif =512x288)
+![Demo6](Materials/tex_AudioLinkDocs_Demo6.gif)
 
 ```hlsl
 // Utility function to check if a point lies in the unit square. (0 ... 1)
@@ -584,7 +631,7 @@ fixed4 frag (v2f i) : SV_Target
     float2 remainder = 1. - logoSize;
 
     // Retrieve the instance time.
-    float instanceTime = ALDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
+    float instanceTime = AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME );
 
     // Calculate the total progress made along X and Y irrespective of
     // the total number of bounces made.  But then compute where the
@@ -616,15 +663,70 @@ fixed4 frag (v2f i) : SV_Target
 }
 ```
 
+### Chronotensity
 
-### Application of ColorChord Lights
+One use of chronotensity is to make shader-based animations audio reactive in a way that only allows the animation to progress in one direction of time. In the below example, each of the 4 depicted fractals only moves forward when the respective AudioLink band is active.
+
+![Demo7](Materials/tex_AudioLinkDocs_Demo7.gif)
+```glsl
+float GenFractal( float2 uv, float rotqty )
+{
+    // Generate a 2x2 rotation matrix. We can apply this in subsequent steps.
+    float2 cs;
+    sincos( rotqty, cs.x, cs.y );
+    float2x2 rotmat = float2x2( cs.x, -cs.y, cs.y, cs.x );
+
+    const int maxIterations = 6;
+    float circleSize = 2.0/(3.0*pow(2.0,float(maxIterations)));
+            
+    uv = mul( rotmat, uv*.9 );
+                
+    //mirror, rotate and scale 6 times...
+    float s= 0.3;
+    for( int i=0; i < maxIterations; i++ )
+    {
+        uv = abs( uv ) - s;
+        uv = mul( rotmat, uv );
+        s = s/2.1;
+    }
+
+    float intensity = length(uv) / circleSize;
+    return 1.-intensity*.5;
+}
+            
+float4 frag (v2f i) : SV_Target
+{
+    uint2 quadrant = i.uv * 2;
+    int quadrant_id = quadrant.x + quadrant.y * 2;
+    int mode = 0;
+
+    float time = AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY +
+        uint2( mode, quadrant_id ) ) % 628318;
+
+    float2 localuv = i.uv * 4 - quadrant * 2 - 1;
+    float colout = GenFractal( localuv, time/100000. );
+
+    return float4( colout.xxx, 1.);
+}
+```
+
+Another, simpler example is shown below. This example will scroll a texture at constant speed, but then increase that speed when 0-th AudioLink band is active. Notice how both chronotensity and `_Time.y` are being used here.
+```glsl
+float4 frag (v2f i) : SV_Target
+{
+    float chrono = (AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + float2(0, 0) ) % 1000000) / 1000000.0;
+    i.uv.x += + chrono + _Time.y*0.1;
+    return tex2D(_MainTex, i.uv);
+}
+```
+
+<!-- ### Application of ColorChord Lights 
 
 TODO
 
 ### Using the VU data and info block
 
-TODO
-
+TODO -->
 
 ## Pertinent Notes and Tradeoffs.
 
@@ -677,7 +779,7 @@ Filtered Value = New Value * ( 1 - Filter Constant ) + Last Frame's Filtered Val
 Or, in GPU Land, it turns into:
 
 ```hlsl
-    filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
+filteredValue = lerp( newValue, lastFramesFilteredValue, filterConstant );
 ```
 
 Where filter constant is between 0 and 1, where 0 is bypass, as though the filter doesn't exist, and 1 completely blocks any new values.  A value of 0.9 weights the incoming value smally, but after a few frames, the output will track it.

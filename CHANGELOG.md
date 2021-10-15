@@ -1,13 +1,19 @@
 # Changelog
 
 ## 0.2.6 - August 10th, 2021
-### New features added by @cnlohr
-- Chronotensity
-- ColorChord index colors
-- Theme colors!
+### New features (big thanks to @cnlohr and @pema99)
+- Chronotensity feature provides timing information to shaders which changes in reaction to audio
+- ColorChord index colors, a new way to get audio reactive colors from ColorChord
+- Globally configurable theme colors
+- Filtered VU, smoothly filtered versions of VU data
+- Amplify nodes and example shaders for above features
+- Added `AudioLinkGetAmplitudeAtFrequency` and `AudioLinkGetAmplitudeAtNote` functions for easily sampling specific parts of the audio spectrum corresponding to certain frequencies or semitones
 ### Changes
 - UnU sliders (thanks Texelsaur)
+- Various improvements to included video player, now with a resync button (thanks again, Texelsaur)
 - Recursive / nesting support for AudioReactiveSurfaceArray prefab
+### Bugfixes
+- Fixed certain parts of filtered 4band data always being zero (thanks DomNomNom)
 
 ## 0.2.5 - June 7th, 2021
 ### Breaking changes
@@ -27,7 +33,7 @@
 - Amplify functions for use in the above templates
 - Left/right VU meter data (instead of just left)
 - Left/right Waveform data (instead of just left)
-- 
+
 ### Changes
 - Refactoring, restyling, and renaming across entire codebase
 - AudioReactiveSurface (Amplify shader) converted to built-in AudioLink.cginc functions

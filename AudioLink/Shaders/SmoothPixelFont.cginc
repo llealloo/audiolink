@@ -238,6 +238,7 @@ float PrintNumberOnLine(float value, float2 charUV, float2 softness, uint digit,
     }
     else
     {
+        value += 0.5 * pow( 0.1, numFractDigits );
         int dmfd = (int)digit - (int)digitOffset;
         if (dmfd > 0)
         {

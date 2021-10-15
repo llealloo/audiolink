@@ -20,12 +20,12 @@ Shader "AudioLink/Internal/AudioLink"
         _SourceVolume("Audio Source Volume", float) = 1
         _SourceDistance("Distance to Source", float) = 1
         _SourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
-		
-		_ThemeColorsEnable( "Theme Colors Enable", float ) = 0
-		_ThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
-		_ThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
-		_ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
-		_ThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+        
+        _ThemeColorsEnable( "Theme Colors Enable", float ) = 0
+        _ThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
+        _ThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
+        _ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
+        _ThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
     }
 
     SubShader
@@ -86,11 +86,11 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _SourceVolume;
             uniform float _SourceDistance;
             uniform float _SourceSpatialBlend;
-			uniform float _ThemeColorsEnable;
-			uniform float4 _ThemeColor0;
-			uniform float4 _ThemeColor1;
-			uniform float4 _ThemeColor2;
-			uniform float4 _ThemeColor3;
+            uniform float _ThemeColorsEnable;
+            uniform float4 _ThemeColor0;
+            uniform float4 _ThemeColor1;
+            uniform float4 _ThemeColor2;
+            uniform float4 _ThemeColor3;
 
             // Extra Properties
             uniform float _EnableAutogain;
@@ -319,8 +319,31 @@ Shader "AudioLink/Internal/AudioLink"
 
                 // If part of the delay
                 } else {
-                    // Return pixel to the left
-                    return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - 1, coordinateLocal.y));
+                    // Slide pixels (coordinateLocal.x > 0)
+                    float4 lastval_timing = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                    lastval_timing.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                    int frames_to_roll = floor( lastval_timing.x );
+
+                    if( frames_to_roll == 0 )
+                    {
+                        return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
+                    }
+                    else // 1 or more.
+                    {
+                        if( coordinateLocal.x > frames_to_roll )
+                        {
+                            // For the rest of the line, move by the appropriate speed
+                            return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - frames_to_roll, coordinateLocal.y));
+                        }
+                        else
+                        {
+                            // For the first part, extrapolate the cells.
+                            float last = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                            float next = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(1, coordinateLocal.y));
+                            float lperv = (coordinateLocal.x - 1) / (float)frames_to_roll;
+                            return lerp( last, next, lperv );
+                        }
+                    }
                 }
             }
             ENDCG
@@ -387,145 +410,156 @@ Shader "AudioLink/Internal/AudioLink"
                 markerTimes = peakout?0:markerTimes;
                 markerValue = peakout?RMSPeak:markerValue;
 
-				if( coordinateLocal.y == 0 )
-				{
-					if(coordinateLocal.x >= 8)
-					{
-						if(coordinateLocal.x == 8)
-						{
-							// First pixel: Current value.
-							return RMSPeak;
-						}
-						else if(coordinateLocal.x == 9)
-						{
-							// Second pixel: Limit Output
-							return markerValue;
-						}
-						else if(coordinateLocal.x == 10)
-						{
-							// Second pixel: Limit time
-							return markerTimes;
-						}
-						else if(coordinateLocal.x == 11)
-						{
-							// Third pixel: Auto Gain / Volume Monitor for ColorChord
+                if( coordinateLocal.y == 0 )
+                {
+                    if(coordinateLocal.x >= 8)
+                    {
+                        if(coordinateLocal.x == 8)
+                        {
+                            // First pixel: Current value.
+                            return RMSPeak;
+                        }
+                        else if(coordinateLocal.x == 9)
+                        {
+                            // Second pixel: Limit Output
+                            return markerValue;
+                        }
+                        else if(coordinateLocal.x == 10)
+                        {
+                            // Second pixel: Limit time
+                            return markerTimes;
+                        }
+                        else if(coordinateLocal.x == 11)
+                        {
+                            // Third pixel: Auto Gain / Volume Monitor for ColorChord
 
-							// Compensate for the fact that we've already gain'd our samples.
-							float deratePeak = peak / (lastAutogain.x + _AutogainDerate);
+                            // Compensate for the fact that we've already gain'd our samples.
+                            float deratePeak = peak / (lastAutogain.x + _AutogainDerate);
 
-							if(deratePeak > lastAutogain.x)
-							{
-								lastAutogain.x = lerp(deratePeak, lastAutogain.x, .5); //Make attack quick
-							}
-							else
-							{
-								lastAutogain.x = lerp(deratePeak, lastAutogain.x, .995); //Make decay long.
-							}
+                            if(deratePeak > lastAutogain.x)
+                            {
+                                lastAutogain.x = lerp(deratePeak, lastAutogain.x, .5); //Make attack quick
+                            }
+                            else
+                            {
+                                lastAutogain.x = lerp(deratePeak, lastAutogain.x, .995); //Make decay long.
+                            }
 
-							lastAutogain.y = lerp(peak, lastAutogain.y, 0.95);
-							return lastAutogain;
-						}
-					}
-					else
-					{
-						if(coordinateLocal.x == 0)
-						{
-							// Pixel 0 = Version
-							return _VersionNumberAndFPSProperty;
-						}
-						else if(coordinateLocal.x == 1)
-						{
-							// Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
-							// Note: This is also used to measure FPS.
+                            lastAutogain.y = lerp(peak, lastAutogain.y, 0.95);
+                            return lastAutogain;
+                        }
+                    }
+                    else
+                    {
+                        if(coordinateLocal.x == 0)
+                        {
+                            // Pixel 0 = Version
+                            return _VersionNumberAndFPSProperty;
+                        }
+                        else if(coordinateLocal.x == 1)
+                        {
+                            // Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
+                            // Note: This is also used to measure FPS.
 
-							float4 lastVal = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(1, 0));
-							float frameCount = lastVal.r;
-							float frameCountFPS = lastVal.g;
-							float frameCountLastFPS = lastVal.b;
-							float lastTimeFPS = lastVal.a;
-							frameCount++;
-							if(frameCount >= 7776000) //~24 hours.
-								frameCount = 0;
-							frameCountFPS++;
+                            float4 lastVal = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(1, 0));
+                            float frameCount = lastVal.r;
+                            float frameCountFPS = lastVal.g;
+                            float frameCountLastFPS = lastVal.b;
+                            float lastTimeFPS = lastVal.a;
+                            frameCount++;
+                            if(frameCount >= 7776000) //~24 hours.
+                                frameCount = 0;
+                            frameCountFPS++;
 
-							// See if we've been reset.
-							if(lastTimeFPS > _Time.y)
-							{
-								lastTimeFPS = 0;
-							}
+                            // See if we've been reset.
+                            if(lastTimeFPS > _Time.y)
+                            {
+                                lastTimeFPS = 0;
+                            }
 
-							// After one second, take the running FPS and present it as the now FPS.
-							if(_Time.y > lastTimeFPS + 1)
-							{
-								frameCountLastFPS = frameCountFPS;
-								frameCountFPS = 0;
-								lastTimeFPS = _Time.y;
-							}
-							return float4(frameCount, frameCountFPS, frameCountLastFPS, lastTimeFPS);
-						}
-						else if(coordinateLocal.x == 2)
-						{
-							// Output of this is daytime, in milliseconds
-							// This is done a little awkwardly as to prevent any overflows.
-							uint dtms = _AdvancedTimeProps.x * 1000;
-							uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
-							return float4(
-								(float)(dtms & 0x3ff),
-								(float)((dtms2) & 0x3ff),
-								(float)((dtms2 >> 10) & 0x3ff),
-								(float)((dtms2 >> 20) & 0x3ff)
-								);
-						}
-						else if(coordinateLocal.x == 3)
-						{
-							// Current time of day, in local time.
-							// Generally this will not exceed 90 million milliseconds. (25 hours)
-							int ftpa = _AdvancedTimeProps.z * 1000.;
-							return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
-						}
-						else if(coordinateLocal.x == 4)
-						{
-							// Time sync'd off of Networking.GetServerTimeInMilliseconds()
-							float fractional = _AdvancedTimeProps2.x;
-							float major = _AdvancedTimeProps2.y;
-							if( major < 0 )
-								major = 65536 + major;
-							int currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
-							return float4((currentNetworkTimeMS & 0x3ff), (currentNetworkTimeMS >> 10) & 0x3ff, (currentNetworkTimeMS >> 20) & 0x3ff, (currentNetworkTimeMS >> 30) & 0x3ff );
-						}
-						else if(coordinateLocal.x == 6)
-						{
-							//.x = Player Count
-							//.y = IsMaster
-							//.z = IsInstanceOwner
-							return float4( _PlayerCountAndData );
-						}
-						else if(coordinateLocal.x == 7)
-						{
-							//General Debug Register
-							//Use this for whatever.
-							return float4( _AdvancedTimeProps.a, unity_DeltaTime.x, markerTimes.y, 1 );
-						}
-					}
-				}
-				else
-				{
-					//Second Row
-					if( coordinateLocal.x < 4 )
-					{
-						if( _ThemeColorsEnable>0.5 )
-						{
-							if( coordinateLocal.x == 0 ) return _ThemeColor0;
-							if( coordinateLocal.x == 1 ) return _ThemeColor1;
-							if( coordinateLocal.x == 2 ) return _ThemeColor2;
-							if( coordinateLocal.x == 3 ) return _ThemeColor3;
-						}
-						else
-						{
-							return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(1+coordinateLocal.x,0));
-						}
-					}
-				}
+                            // After one second, take the running FPS and present it as the now FPS.
+                            if(_Time.y > lastTimeFPS + 1)
+                            {
+                                frameCountLastFPS = frameCountFPS;
+                                frameCountFPS = 0;
+                                lastTimeFPS = _Time.y;
+                            }
+                            return float4(frameCount, frameCountFPS, frameCountLastFPS, lastTimeFPS);
+                        }
+                        else if(coordinateLocal.x == 2)
+                        {
+                            // Output of this is daytime, in milliseconds
+                            // This is done a little awkwardly as to prevent any overflows.
+                            uint dtms = _AdvancedTimeProps.x * 1000;
+                            uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
+                            return float4(
+                                (float)(dtms & 0x3ff),
+                                (float)((dtms2) & 0x3ff),
+                                (float)((dtms2 >> 10) & 0x3ff),
+                                (float)((dtms2 >> 20) & 0x3ff)
+                                );
+                        }
+                        else if(coordinateLocal.x == 3)
+                        {
+                            // Current time of day, in local time.
+                            // Generally this will not exceed 90 million milliseconds. (25 hours)
+                            int ftpa = _AdvancedTimeProps.z * 1000.;
+                            return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
+                        }
+                        else if(coordinateLocal.x == 4)
+                        {
+                            // Time sync'd off of Networking.GetServerTimeInMilliseconds()
+                            float fractional = _AdvancedTimeProps2.x;
+                            float major = _AdvancedTimeProps2.y;
+                            if( major < 0 )
+                                major = 65536 + major;
+                            int currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
+                            return float4((currentNetworkTimeMS & 0x3ff), (currentNetworkTimeMS >> 10) & 0x3ff, (currentNetworkTimeMS >> 20) & 0x3ff, (currentNetworkTimeMS >> 30) & 0x3ff );
+                        }
+                        else if(coordinateLocal.x == 6)
+                        {
+                            //.x = Player Count
+                            //.y = IsMaster
+                            //.z = IsInstanceOwner
+                            return float4( _PlayerCountAndData );
+                        }
+                        else if(coordinateLocal.x == 7)
+                        {
+                            //General Debug Register
+                            //Use this for whatever.
+                            return float4( _AdvancedTimeProps.a, unity_DeltaTime.x, markerTimes.y, 1 );
+                        }
+                    }
+                }
+                else
+                {
+                    //Second Row y = 1
+                    if( coordinateLocal.x < 4 )
+                    {
+                        if( _ThemeColorsEnable>0.5 )
+                        {
+                            if( coordinateLocal.x == 0 ) return _ThemeColor0;
+                            if( coordinateLocal.x == 1 ) return _ThemeColor1;
+                            if( coordinateLocal.x == 2 ) return _ThemeColor2;
+                            if( coordinateLocal.x == 3 ) return _ThemeColor3;
+                        }
+                        else
+                        {
+                            return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(1+coordinateLocal.x,0));
+                        }
+                    }
+                    else if( coordinateLocal.x == 4 )
+                    {
+                        // Computation for history timing.
+                        float4 lastval = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                        lastval.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                        // This looks like a frac() but I want to make sure the math gets done the same here
+                        // to prevent any possible mismatch between here and the use of finding the int.
+                        int frames_to_roll = floor( lastval.x );
+                        lastval.x -= frames_to_roll;
+                        return lastval;
+                    }
+                }
 
                 // Reserved
                 return 0;
@@ -1008,11 +1042,10 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 Previous = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
                     return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
                 }
-                else if( coordinateLocal.x >= 16 &&  coordinateLocal.x <= 22 )
+                else if( coordinateLocal.x >= 16 &&  coordinateLocal.x < 24 )
                 {
-                    // For pixel 16, we are actually making something that accelerates forward.
-                    // This is called ALPASS_CHRONOTENSITY
-                    uint Value = AudioLinkDecodeDataAsUInt( coordinateGlobal.xy );
+                    // This section is for ALPASS_CHRONOTENSITY
+                    uint4 rpx = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
                     
                     float ComparingValue = (coordinateLocal.x & 1) ? 
                         AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2(4, coordinateLocal.y)) :
@@ -1021,7 +1054,7 @@ Shader "AudioLink/Internal/AudioLink"
                     //Get a heavily filtered value to compare against.
                     float FilteredAudioLinkValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2( 0, coordinateLocal.y ) );
                     
-                    float DifferentialValue = AudioLinkBase - FilteredAudioLinkValue;
+                    float DifferentialValue = ComparingValue - FilteredAudioLinkValue;
 
                     float ValueDiff;
 
@@ -1037,19 +1070,14 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else if( mode == 2 )
                     {
-                        if( DifferentialValue < 0 )
-                            ValueDiff = .1;
-                        else
-                            ValueDiff = 0;
+                        ValueDiff = DifferentialValue < 0? .1 : -.1;
                     }
                     else
                     {
-                        if( DifferentialValue < 0 )
-                            ValueDiff = .1;
-                        else
-                            ValueDiff = -.1;
+                        ValueDiff = DifferentialValue < 0? .1 : -.1;
                     }
                     
+                    uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
                     Value += ValueDiff * 32768;
 
                     return float4(
@@ -1068,6 +1096,57 @@ Shader "AudioLink/Internal/AudioLink"
             ENDCG
         }
 
+        Pass
+        {
+            Name "Pass11-Filtered-VU"
+            CGPROGRAM
+            float4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDVU)
+                
+                float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
+                float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
+                float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
+                float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(.95, coordinateLocal.x+1)).r;
+
+                float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
+                float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
+                bool4 peak = filteredRMSPeak > markerValue || timerValue > 0.5;
+
+                // Filtered VU intensity
+                if(coordinateLocal.y == 0)
+                {
+                    return filteredRMSPeak;
+                }
+                // Filtered VU marker
+                else if (coordinateLocal.y == 1)
+                {
+                    // For linear fallof (we use exp now)
+                    /*float4 res =
+                        abs(prev - markerValue) <= 0.01
+                            ? markerValue
+                            : prev < markerValue
+                                ? prev + 0.01 
+                                : prev - 0.01;*/
+
+                    float4 speed = lerp(0.1, 0.05, abs(prev - markerValue));
+                    float4 res = lerp(prev, markerValue, speed);
+                    return max(filteredRMSPeak, res);
+                }
+                // VU markers values
+                else if (coordinateLocal.y == 2)
+                {
+                    return peak ? filteredRMSPeak : markerValue;
+                }
+                // VU marker timers
+                else if (coordinateLocal.y == 3)
+                {
+                    return peak ? 0 : prev + unity_DeltaTime.xxxx;
+                }
+                return 1;
+            }
+            ENDCG
+        }
 
         Pass
         {
