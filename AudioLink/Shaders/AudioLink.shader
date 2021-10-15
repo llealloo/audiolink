@@ -319,8 +319,31 @@ Shader "AudioLink/Internal/AudioLink"
 
                 // If part of the delay
                 } else {
-                    // Return pixel to the left
-                    return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - 1, coordinateLocal.y));
+                    // Slide pixels (coordinateLocal.x > 0)
+                    float4 lastval_timing = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                    lastval_timing.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                    int frames_to_roll = floor( lastval_timing.x );
+
+                    if( frames_to_roll == 0 )
+                    {
+                        return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
+                    }
+                    else // 1 or more.
+                    {
+                        if( coordinateLocal.x > frames_to_roll )
+                        {
+                            // For the rest of the line, move by the appropriate speed
+                            return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - frames_to_roll, coordinateLocal.y));
+                        }
+                        else
+                        {
+                            // For the first part, extrapolate the cells.
+                            float last = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                            float next = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(1, coordinateLocal.y));
+                            float lperv = (coordinateLocal.x - 1) / (float)frames_to_roll;
+                            return lerp( last, next, lperv );
+                        }
+                    }
                 }
             }
             ENDCG
@@ -510,7 +533,7 @@ Shader "AudioLink/Internal/AudioLink"
                 }
                 else
                 {
-                    //Second Row
+                    //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
                         if( _ThemeColorsEnable>0.5 )
@@ -524,6 +547,17 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(1+coordinateLocal.x,0));
                         }
+                    }
+                    else if( coordinateLocal.x == 4 )
+                    {
+                        // Computation for history timing.
+                        float4 lastval = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                        lastval.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                        // This looks like a frac() but I want to make sure the math gets done the same here
+                        // to prevent any possible mismatch between here and the use of finding the int.
+                        int frames_to_roll = floor( lastval.x );
+                        lastval.x -= frames_to_roll;
+                        return lastval;
                     }
                 }
 
