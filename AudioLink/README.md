@@ -61,6 +61,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ### Installing to test Avatar projects
 1. Import AudioLink into your avatar project
+   - **NOTE**: Do _not_ install UdonSharp, CyanEmu or any other tools meant for worlds into your project. When testing avatars, you should import _only_ the AudioLink package, and none of its usual dependencies.
 2. Drag AudioLinkAvatar prefab into scene with your avatar
 3. Add your favorite music track to test with to your project
 4. Drag your music track from the Project panel into the Hierarchy to create a new AudioSource GameObject
