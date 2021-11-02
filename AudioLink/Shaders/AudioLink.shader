@@ -320,28 +320,28 @@ Shader "AudioLink/Internal/AudioLink"
                 // If part of the delay
                 } else {
                     // Slide pixels (coordinateLocal.x > 0)
-                    float4 lastval_timing = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
-                    lastval_timing.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                    int frames_to_roll = floor( lastval_timing.x );
+                    float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                    lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                    int framesToRoll = floor( lastvalTiming.x );
 
-                    if( frames_to_roll == 0 )
+                    if( framesToRoll == 0 )
                     {
                         return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
                     }
                     else // 1 or more.
                     {
-                        if( coordinateLocal.x > frames_to_roll )
+                        if( coordinateLocal.x > framesToRoll )
                         {
                             // For the rest of the line, move by the appropriate speed
-                            return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - frames_to_roll, coordinateLocal.y));
+                            return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - framesToRoll, coordinateLocal.y));
                         }
                         else
                         {
                             // For the first part, extrapolate the cells.
                             float last = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
                             float next = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(1, coordinateLocal.y));
-                            float lperv = (coordinateLocal.x - 1) / (float)frames_to_roll;
-                            return lerp( last, next, lperv );
+                            float lprev = (coordinateLocal.x - 1) / (float)framesToRoll;
+                            return lerp( last, next, lprev );
                         }
                     }
                 }
