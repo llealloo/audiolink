@@ -201,11 +201,17 @@ It contains the following dedicated pixels:
 <tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
 <tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
 <tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
+<tr><td>4, 0 </td><td>6, 22</td><td>Player Data Info</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+
+<tr><td>0, 1</td><td>0, 23</td><td>Theme Color 0 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR0</td></tr>
+<tr><td>1, 1</td><td>1, 23</td><td>Theme Color 1 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR1</td></tr>
+<tr><td>2, 1</td><td>2, 23</td><td>Theme Color 2 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR2</td></tr>
+<tr><td>3, 1</td><td>3, 23</td><td>Theme Color 3 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR3</td></tr>
+<tr><td>4, 1</td><td>4, 23</td><td>(Internal)</td><td colspan=4>Internal Timing Tracking</td></tr>
 </table>
 
 Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`

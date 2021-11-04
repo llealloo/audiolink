@@ -45,6 +45,7 @@
 #define AUDIOLINK_DELAY_COEFFICIENT_MAX 0.9
 #define AUDIOLINK_DFT_Q                 4.0
 #define AUDIOLINK_TREBLE_CORRECTION     5.0
+#define AUDIOLINK_4BAND_TARGET_RATE     90.0
 
 // ColorChord constants
 #define COLORCHORD_EMAXBIN              192
