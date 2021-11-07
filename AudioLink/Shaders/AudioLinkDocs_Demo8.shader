@@ -1,4 +1,5 @@
-﻿Shader "AudioLink/Examples/Demo8"
+// Shader written by DomNomNom. MIT License.
+Shader "AudioLink/Examples/Demo8"
 {
     Properties
     {
