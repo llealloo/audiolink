@@ -109,7 +109,7 @@
                 float4 finalColor = float4(color, mainColor.a);
                 UNITY_APPLY_FOG(i.fogCoord, finalColor);
 
-                return finalColor;
+                return saturate(finalColor);
             }
             ENDCG
         }

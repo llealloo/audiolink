@@ -146,7 +146,7 @@ float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
 // Enable/Disable autogain.
 if( _EnableAutogain )
 {
-    float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
+    float4 LastAutogain = AudioLinkData( ALPASS_GENERALVU + int2( 11, 0 ) );
 
     //Divide by the running volume.
     incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
@@ -198,14 +198,19 @@ It contains the following dedicated pixels:
 <tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr>
 <tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )</pre></td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
+<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
+<tr><td>4, 0 </td><td>6, 22</td><td>Player Data Info</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+<tr><td>0, 1</td><td>0, 23</td><td>Theme Color 0 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR0</td></tr>
+<tr><td>1, 1</td><td>1, 23</td><td>Theme Color 1 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR1</td></tr>
+<tr><td>2, 1</td><td>2, 23</td><td>Theme Color 2 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR2</td></tr>
+<tr><td>3, 1</td><td>3, 23</td><td>Theme Color 3 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR3</td></tr>
+<tr><td>4, 1</td><td>4, 23</td><td>(Internal)</td><td colspan=4>Internal Timing Tracking</td></tr>
 </table>
 
 Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`
@@ -731,8 +736,8 @@ You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampl
 There are situations where you may need to interpolate between two points in a shader, and we find that it's still worthwhile to just do it using the indexing method.
 
 ```hlsl
-Texture2D<float4>   _SelfTexture2D;
-#define GetAudioPixelData(xy) _SelfTexture2D[xy]
+Texture2D<float4>   _AudioTexture;
+#define GetAudioPixelData(xy) _AudioTexture[xy]
 ```
 
 And the less recommended method.

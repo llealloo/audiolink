@@ -83,7 +83,7 @@
                     float flip = (iuv.y > 0.5)?1.:-1.;
                     float extrathicc = 
                         //(AudioLinkLerp( ALPASS_AUTOCORRELATOR + uint2( 127-iuv.x*128, 0. )))*.3;
-                        sin( iuv.x*3.14*8-.1 )*.2-.1;
+                        sin( iuv.x*3.14*8-.1 )*.1;
                     ivertex.xyz += cross( inorm, itan ) * extrathicc * flip;
                     
                     o.vertex = UnityObjectToClipPos(ivertex);

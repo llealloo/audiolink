@@ -92,7 +92,7 @@ Material:
     - _FadeLength: 0.8
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
-    - _Gain: 1
+    - _Gain: 1.25
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -109,9 +109,9 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 1.603122
+    - _SourceDistance: 9999999
     - _SourceSpatialBlend: 0
-    - _SourceVolume: 1
+    - _SourceVolume: 0.9
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _ThemeColorsEnable: 0
