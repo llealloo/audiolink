@@ -22,6 +22,7 @@
             #include "UnityCG.cginc"
 
             #include "Assets/AudioLink/Shaders/AudioLink.cginc"
+            #include "Assets/AudioLink/Shaders/SmoothPixelFont.cginc"
 
 
             uniform uint _AudioLinkBand;
@@ -69,9 +70,26 @@
 
             float4 frag (v2f i) : SV_Target
             {
-                float2 grid_dimensions = float2(4,3);
+                float2 grid_dimensions = float2(4,4);
                 float2 uv = i.uv * grid_dimensions;
                 uint2 grid_index = floor(uv);
+				
+				// Add labels (This part by CNL)
+				if( grid_index.y == 3 )
+				{
+					uv *= float2( 5./4.,1 );
+					float2 luv = uv;
+					luv.x = 1.-uv.x;
+					uint chars[] = { 'B', 'A', 'N', 'D', '0' };
+					int chno = floor(uv.x);
+					int ch = chars[chno];
+					if( chno == 4 ) 
+					{
+						ch += _AudioLinkBand;
+					}
+					float4 c = PrintChar( ch, frac(luv)*float2(4,6), 10, 0.0 );
+					return c;
+				}
                 float2 pos = frac(uv)*2 - 1; // position relative to the circle center.
                 float angle = getCellAngle(grid_index);
                 float2 direction;

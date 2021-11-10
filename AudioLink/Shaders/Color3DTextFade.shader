@@ -10,9 +10,9 @@ Shader "GUI/Color3DTextFade"
     Properties
     {
         _MainTex ("Font Texture", 2D) = "white" {}
-        _FadeNear ("Fade Distance", float) = 1.0
-        _FadeCull ("Fade Distance", float) = 1.0
-        _FadeSharpness ("Fade Range", float ) = .5
+        _FadeNear ("Fade Near", float) = 2.0
+        _FadeCull ("Fade Cull", float) = 3.0
+        _FadeSharpness ("Fade Range", float ) = 1
         [HDR]_Colorize ("Colorize", Color) = (1,1,1,1)
     }
     SubShader
@@ -86,7 +86,7 @@ Shader "GUI/Color3DTextFade"
                 {
                     return;
                 }
-                float strength = saturate( 1 + (_FadeNear - avgdist) );
+                float strength = pow( saturate( 1 + (_FadeNear - avgdist) ), 1.5 );
                 float4 center = (p[0].pos+p[1].pos+p[2].pos)/3;
                 float4 v0 = p[0].pos-center;
                 float4 v1 = p[1].pos-center;
@@ -107,7 +107,7 @@ Shader "GUI/Color3DTextFade"
                 // this gives us text or not based on alpha, apparently
                 o.color.a  *= tex2D( _MainTex, o.uv ).a
                     //;
-                    * saturate( 1 + (_FadeNear - length( o.camrelpos )) );
+                    * pow( saturate( 1 + (_FadeNear - length( o.camrelpos )) ), 2 );
                 o.color *= _Colorize;               
                 return o.color;
             }

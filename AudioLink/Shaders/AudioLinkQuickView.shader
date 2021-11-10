@@ -103,7 +103,12 @@
                 int points_after_decimal = 0; 
                 int max_decimals = 5;
 
-				if( dig.x < cols - number_area_cols && dig.y < 8 )
+				if( pos.y > 10.9 ) 
+				{
+					// Prevent ugly under-chart next line.
+					c = 0;
+				}
+				else if( dig.x < cols - number_area_cols && dig.y < 8 )
 				{
 					uint sendchar = 0;
 					const uint sendarr[80] = { 
@@ -255,7 +260,7 @@
 						c.a = saturate(ramp + lamp);
 						break;
 					default:
-						value = 99.99;
+						c = 0;
 						break;
 					}
 					float num = PrintNumberOnLine( value, fmxy, softness, dig.x - xoffset, points_after_decimal, max_decimals, leadingzero, 0 );
