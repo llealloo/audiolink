@@ -97,3 +97,31 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Barry, OM3, GRIMECRAFT for stoking my fire!
 - Lamp for the awesome example music and inspiration. Follow them!! https://soundcloud.com/lampdx
 - Shelter, Loner, Rizumu, and all of the other dance communities in VRChat for making this
+
+## Developer Notes
+
+### `reup.bat` for auto syncing a developer branch
+
+First, fork vrc-udon-audio-link into your personal github account using the github GUI, then make a new unity project called `AudioLinkWork` then, check out your copy of of vrc-udon-audio-link, and move its contents, `.git` included into the `Assets` folder of the project you made.  Once done, place the following .bat file in that Assets folder.
+
+I recommend executing this following `reup.bat` from the command line to address merge conflicts and other errors.
+
+```bat
+rem be sure you're on the `dev` branch!
+git remote set-url origin https://github.com/llealloo/vrc-udon-audio-link
+git pull
+git remote set-url origin https://github.com/YOUR_GITHUB_USERNAME_HERE/vrc-udon-audio-link
+```
+
+### Version update processes
+
+ * Update readme in both places (root and AudioLink folder)
+    * Check section on how to update
+    * Copy over changelog for the new version to readme 
+ * Update documentation where necessary
+ * Update changelog
+ * Bump version number in AudioLink.cs
+ * Clean up assets in wrong folders
+ * Test with latest U#
+ * Make release GitHub release with new relevant changelog attached
+ * Update the live world

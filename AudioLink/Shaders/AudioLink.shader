@@ -1051,11 +1051,14 @@ Shader "AudioLink/Internal/AudioLink"
                         AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2(4, coordinateLocal.y)) :
                         AudioLinkBase;
 
+					
                     //Get a heavily filtered value to compare against.
                     float FilteredAudioLinkValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2( 0, coordinateLocal.y ) );
                     
                     float DifferentialValue = ComparingValue - FilteredAudioLinkValue;
 
+
+		
                     float ValueDiff;
 
                     int mode = ( coordinateLocal.x - 16 ) / 2;
@@ -1070,15 +1073,18 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else if( mode == 2 )
                     {
-                        ValueDiff = DifferentialValue < 0? .1 : -.1;
+                        ValueDiff = DifferentialValue < 0? .1 : 0;
                     }
                     else
                     {
-                        ValueDiff = DifferentialValue < 0? .1 : -.1;
+						if( coordinateLocal.x & 1 )
+							ValueDiff = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2( 7, coordinateLocal.y ) )*.5;
+						else
+							ValueDiff = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) )*.5;
                     }
                     
                     uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
-                    Value += ValueDiff * 32768;
+                    Value += ValueDiff * unity_DeltaTime.x * 1048576;
 
                     return float4(
                         (float)(Value & 0x3ff),

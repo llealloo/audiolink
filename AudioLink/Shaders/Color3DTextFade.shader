@@ -10,13 +10,45 @@ Shader "GUI/Color3DTextFade"
     Properties
     {
         _MainTex ("Font Texture", 2D) = "white" {}
-        _FadeNear ("Fade Distance", float) = 1.0
-        _FadeCull ("Fade Distance", float) = 1.0
-        _FadeSharpness ("Fade Range", float ) = .5
+        _FadeNear ("Fade Near", float) = 2.0
+        _FadeCull ("Fade Cull", float) = 3.0
+        _FadeSharpness ("Fade Range", float ) = 1
         [HDR]_Colorize ("Colorize", Color) = (1,1,1,1)
     }
     SubShader
     {
+		// shadow caster rendering pass, implemented manually
+		// using macros from UnityCG.cginc
+		Pass
+		{
+			Tags {"LightMode"="ShadowCaster"}
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile_shadowcaster
+			#include "UnityCG.cginc"
+			#pragma multi_compile_instancing
+
+			struct v2f { 
+				V2F_SHADOW_CASTER;
+			};
+
+			v2f vert(appdata_base v)
+			{
+				v2f o;
+				UNITY_SETUP_INSTANCE_ID(v);
+				TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
+				return o;
+			}
+
+			float4 frag(v2f i) : SV_Target
+			{
+				SHADOW_CASTER_FRAGMENT(i)
+			}
+			ENDCG
+		}
+
         Tags { "RenderType"="Transparent" "Queue"="Transparent"}
    
         Pass
@@ -86,7 +118,7 @@ Shader "GUI/Color3DTextFade"
                 {
                     return;
                 }
-                float strength = saturate( 1 + (_FadeNear - avgdist) );
+                float strength = pow( saturate( 1 + (_FadeNear - avgdist) ), 1.5 );
                 float4 center = (p[0].pos+p[1].pos+p[2].pos)/3;
                 float4 v0 = p[0].pos-center;
                 float4 v1 = p[1].pos-center;
@@ -107,7 +139,7 @@ Shader "GUI/Color3DTextFade"
                 // this gives us text or not based on alpha, apparently
                 o.color.a  *= tex2D( _MainTex, o.uv ).a
                     //;
-                    * saturate( 1 + (_FadeNear - length( o.camrelpos )) );
+                    * pow( saturate( 1 + (_FadeNear - length( o.camrelpos )) ), 2 );
                 o.color *= _Colorize;               
                 return o.color;
             }
