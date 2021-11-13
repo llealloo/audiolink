@@ -753,6 +753,19 @@ Shader "AudioLink/Internal/AudioLink"
                         }
                     }
 
+                    #if 0
+                    //Old values, framerate-invariant, assumed 60 FPS medium.
+                    #define COLORCHORD_IIR_DECAY_1          0.90
+                    #define COLORCHORD_IIR_DECAY_2          0.85
+                    #define COLORCHORD_CONSTANT_DECAY_1     0.01
+                    #define COLORCHORD_CONSTANT_DECAY_2     0.0
+                    #else
+                    // Calculated from above values using: 0.9 = pow( x, .016666 ), or new_component = x ^ 60
+                    float COLORCHORD_IIR_DECAY_1 = pow( 0.0018, unity_DeltaTime.x );
+                    float COLORCHORD_IIR_DECAY_2 = pow( 5.822e-5, unity_DeltaTime.x );
+                    float COLORCHORD_CONSTANT_DECAY_1 = (0.01*60)*unity_DeltaTime.x;
+                    float COLORCHORD_CONSTANT_DECAY_2 = (0.0*60)*unity_DeltaTime.x;
+                    #endif
                     // Filter n1.z from n1.y.
                     if(n1.z >= 0)
                     {
@@ -1040,25 +1053,22 @@ Shader "AudioLink/Internal/AudioLink"
                 {
                     // For pixels 0..15, filtered output.
                     float4 Previous = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
-                    return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
+                    return lerp( AudioLinkBase, Previous, pow( pow(.55, unity_DeltaTime.x ), coordinateLocal.x+1 ) ); //IIR-Filter
                 }
                 else if( coordinateLocal.x >= 16 &&  coordinateLocal.x < 24 )
                 {
                     // This section is for ALPASS_CHRONOTENSITY
                     uint4 rpx = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
-                    
+
                     float ComparingValue = (coordinateLocal.x & 1) ? 
                         AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2(4, coordinateLocal.y)) :
                         AudioLinkBase;
 
-					
                     //Get a heavily filtered value to compare against.
                     float FilteredAudioLinkValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2( 0, coordinateLocal.y ) );
                     
                     float DifferentialValue = ComparingValue - FilteredAudioLinkValue;
 
-
-		
                     float ValueDiff;
 
                     int mode = ( coordinateLocal.x - 16 ) / 2;
@@ -1077,10 +1087,10 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else
                     {
-						if( coordinateLocal.x & 1 )
-							ValueDiff = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2( 7, coordinateLocal.y ) )*.5;
-						else
-							ValueDiff = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) )*.5;
+                        if( coordinateLocal.x & 1 )
+                            ValueDiff = (AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) )<=0.0001)?.1:0;
+                        else
+                            ValueDiff = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) )*.5;
                     }
                     
                     uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
@@ -1113,7 +1123,7 @@ Shader "AudioLink/Internal/AudioLink"
                 float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
                 float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
                 float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
-                float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(.95, coordinateLocal.x+1)).r;
+                float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(pow(.046,unity_DeltaTime), coordinateLocal.x+1)).r;
 
                 float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
                 float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
