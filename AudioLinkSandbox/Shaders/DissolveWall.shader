@@ -45,6 +45,8 @@
 			float dist = length( _WorldSpaceCameraPos - IN.worldPos );
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
+			
+			dist = min( dist, 2.2 );
 
 			float alpha = (csimplex3( IN.worldPos*5 + float3( 20, 20, frac( AudioLinkDecodeDataAsSeconds( ALPASS_GENERALVU_NETWORK_TIME ) / 10000 ) * 5000 ) )*.75 + dist-1.7);
             o.Albedo = c.rgb;
