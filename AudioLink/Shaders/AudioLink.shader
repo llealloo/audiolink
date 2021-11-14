@@ -1073,6 +1073,25 @@ Shader "AudioLink/Internal/AudioLink"
 
                     int mode = ( coordinateLocal.x - 16 ) / 2;
 
+                    // Chronotensity is organized in a (4x2)x4 grid of accumulated values.
+                    // Y is which band we are using.  X is as follows:
+                    //
+                    // x = 0, 1: Accumulates as a function of intensity of band.
+                    //           The louder the band, the quicker the function increments.
+                    // x = 0: Difference between base and heavily filtered.
+                    // x = 1: Difference between slightly filtered and heavily filtered.
+                    //
+                    // x = 2, 3: Goes positive when band is higher, negative when lower.
+                    // x = 2: Difference between base and heavily filtered.
+                    // x = 3: Difference between slightly filtered and heavily filtered.
+                    //
+                    // x = 4, 5: Increments when respective filtered value is 0 or negative.
+                    // x = 4: Difference between base and heavily filtered.
+                    // x = 5: Difference between slightly filtered and heavily filtered.
+                    //
+                    // x = 6: Unfiltered, increments when band is above 0.05 threshold.
+                    // x = 7: Unfiltered, increments when band is below 0.05 threshold.
+
                     if( mode == 0 )
                     {
                         ValueDiff = max( DifferentialValue, 0 );
@@ -1083,14 +1102,14 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else if( mode == 2 )
                     {
-                        ValueDiff = DifferentialValue < 0? .1 : 0;
+                        ValueDiff = max( -DifferentialValue, 0 );
                     }
                     else
                     {
                         if( coordinateLocal.x & 1 )
-                            ValueDiff = (AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) )<=0.0001)?.1:0;
+                            ValueDiff = max((-(AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) ) - 0.05 )), 0 )*2;
                         else
-                            ValueDiff = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) )*.5;
+                            ValueDiff = max(((AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) ) - 0.05 )), 0 )*.5;
                     }
                     
                     uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
