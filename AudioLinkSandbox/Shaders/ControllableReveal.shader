@@ -83,12 +83,12 @@ Shader "Custom/ControllableReveal"
 			}
 			
 			float2 uvox = float2( ( uvpoint.x > 0.5 )?.16:-.01, ( uvpoint.y > 0.5 )?.16:.01 );
-			float2 panuv = (IN.uv_MainTex - uvpoint + uvox ) * float2( 6.5, 7 );
+			float2 panuv = (IN.uv_MainTex - uvpoint + uvox ) * float2( 6.5, 6 );
 			if( !any(abs(panuv-.5)>.5) && !any(abs(uvpoint-.5)>.5))
 			{
-				float4 AudioLinkValueAtCell = AudioLinkData( uvpoint * int2( 128,64 ) );
-				float2 pos = panuv * float2(13,5);
-				pos.y = 5.-pos.y;
+				float4 AudioLinkValueAtCell = AudioLinkData( uvpoint * int2( 128, 64 ) );
+				float2 pos = panuv * float2(13,6);
+				pos.y = 6.-pos.y;
 				uint2 dig = (uint2)(pos);
 				float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
 				int xoffset = 3;
@@ -109,11 +109,15 @@ Shader "Custom/ControllableReveal"
 							else if( dig.y == 2 ) char = 'B';
 							else char = 'A';
 						}
-						else
+						else if( dig.y == 4 )
 						{
 							if( dig.x == 10 ) char = 'I';
 							else if( dig.x == 11 ) char = 'n';
 							else char = 't';
+						}
+						else
+						{
+							char = ' ';
 						}
 					
 						float pfv = PrintChar(char, fmxy, 10, 0);
@@ -161,6 +165,23 @@ Shader "Custom/ControllableReveal"
 							max_decimals = 0;
 							value = aval/100000;
 							if( value == 0 ) points_after_decimal = 3; // Hide digit if too small.
+						}
+					}
+					else if( dig.y == 5 )
+					{
+						uint aval = AudioLinkDecodeDataAsUInt( uvpoint * int2( 128,64 ) );
+						if( dig.x >= 5 )
+						{
+							points_after_decimal = 6;
+							xoffset = 3;
+							max_decimals = 0;
+							value = (int)(uvpoint.y*64);
+						}
+						else
+						{
+							points_after_decimal = 2;
+							max_decimals = 0;
+							value = (int)(uvpoint.x*128);
 						}
 					}
 					float pfv = PrintNumberOnLine( value, fmxy, 1, dig.x - xoffset, points_after_decimal, max_decimals, leadingzero, 0 );
