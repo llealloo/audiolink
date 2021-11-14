@@ -545,7 +545,7 @@ Shader "AudioLink/Internal/AudioLink"
                         }
                         else
                         {
-                            return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(1+coordinateLocal.x,0));
+                            return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(coordinateLocal.x,0));
                         }
                     }
                     else if( coordinateLocal.x == 4 )
@@ -555,8 +555,8 @@ Shader "AudioLink/Internal/AudioLink"
                         lastval.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
                         // This looks like a frac() but I want to make sure the math gets done the same here
                         // to prevent any possible mismatch between here and the use of finding the int.
-                        int frames_to_roll = floor( lastval.x );
-                        lastval.x -= frames_to_roll;
+                        int framesToRoll = floor( lastval.x );
+                        lastval.x -= framesToRoll;
                         return lastval;
                     }
                 }
@@ -1179,11 +1179,15 @@ Shader "AudioLink/Internal/AudioLink"
                         return peak ? 0 : prev + unity_DeltaTime.xxxx;
                     }
                 }
+                else if (coordinateLocal.x == 4)
+                {
+                    // PEMA
+                }
                 else
                 {
 					// BEAT DETECTION STILL IN EARLY DEVELOPMENT - DO NOT USE
                     float4 prev = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
-                    if( coordinateLocal.x == 4 )
+                    if( coordinateLocal.x == 5 )
                     {
                         float nowv = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
                         float beatdist = 0;
@@ -1194,7 +1198,7 @@ Shader "AudioLink/Internal/AudioLink"
                         }
                         return float4( nowv, prev.x, prev.z+1, beatdist );
                     }
-                    else if( coordinateLocal.x == 5 )
+                    else if( coordinateLocal.x == 6 )
                     {
                         uint y = coordinateLocal.y;
                         // for y = 0..3, each in decreasing levels of forced confidence

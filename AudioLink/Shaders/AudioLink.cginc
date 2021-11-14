@@ -17,7 +17,7 @@
 #define ALPASS_THEME_COLOR2             uint2(2,23)
 #define ALPASS_THEME_COLOR3             uint2(3,23)
 #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
-#define ALPASS_CCCOLORS                 uint2(24,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
+#define ALPASS_CCCOLORS                 uint2(25,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
 #define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
 #define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
 #define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
