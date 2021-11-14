@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.7 - November 14th, 2021
+### New features
+- Add helper functions `AudioLinkGetChronoTime`, `AudioLinkGetChronoTimeNormalized`, `AudioLinkGetChronoTimeInterval` to more easily sample chronotensity values. `AudioLinkGetChronoTime(index, band)` functions as a more-or-less drop-in replacement for `_Time.y`.
+### Changes
+- bla
+### Bugfixes
+- bla
+
 ## 0.2.6 - August 10th, 2021
 ### New features (big thanks to @cnlohr and @pema99)
 - Chronotensity feature provides timing information to shaders which changes in reaction to audio
