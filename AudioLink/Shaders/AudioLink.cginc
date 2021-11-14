@@ -201,3 +201,24 @@ float AudioLinkGetAmplitudeAtNote(float octave, float note)
     float quarter = note * 2.0;
     return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
 }
+
+// Get a reasonable drop-in replacement time value for _Time.y with the
+// given chronotensity index [0; 7] and AudioLink band [0; 3].
+float AudioLinkGetChronoTime(uint index, uint band)
+{
+    return (AudioLinkDecodeDataAsUInt(ALPASS_CHRONOTENSITY + uint2(index, band))) / 180000.0;
+}
+
+// Get a chronotensity value in the interval [0; 1], modulated by the speed input, 
+// with the given chronotensity index [0; 7] and AudioLink band [0; 3].
+float AudioLinkGetChronoTime01(uint index, uint band, float speed)
+{
+    return frac(AudioLinkGetChronoTime(index, band) * speed);
+}
+
+// Get a chronotensity value in the interval [0; interval], modulated by the speed input, 
+// with the given chronotensity index [0; 7] and AudioLink band [0; 3].
+float AudioLinkGetChronoTimeInterval(uint index, uint band, float speed, float interval)
+{
+    return AudioLinkGetChronoTime01(index, band, speed) * interval;
+}
