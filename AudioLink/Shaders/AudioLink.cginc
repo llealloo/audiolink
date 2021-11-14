@@ -49,10 +49,6 @@
 
 // ColorChord constants
 #define COLORCHORD_EMAXBIN              192
-#define COLORCHORD_IIR_DECAY_1          0.90
-#define COLORCHORD_IIR_DECAY_2          0.85
-#define COLORCHORD_CONSTANT_DECAY_1     0.01
-#define COLORCHORD_CONSTANT_DECAY_2     0.0
 #define COLORCHORD_NOTE_CLOSEST         3.0
 #define COLORCHORD_NEW_NOTE_GAIN        8.0
 #define COLORCHORD_MAX_NOTES            10
