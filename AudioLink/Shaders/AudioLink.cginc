@@ -211,7 +211,7 @@ float AudioLinkGetChronoTime(uint index, uint band)
 
 // Get a chronotensity value in the interval [0; 1], modulated by the speed input, 
 // with the given chronotensity index [0; 7] and AudioLink band [0; 3].
-float AudioLinkGetChronoTime01(uint index, uint band, float speed)
+float AudioLinkGetChronoTimeNormalized(uint index, uint band, float speed)
 {
     return frac(AudioLinkGetChronoTime(index, band) * speed);
 }
@@ -220,5 +220,5 @@ float AudioLinkGetChronoTime01(uint index, uint band, float speed)
 // with the given chronotensity index [0; 7] and AudioLink band [0; 3].
 float AudioLinkGetChronoTimeInterval(uint index, uint band, float speed, float interval)
 {
-    return AudioLinkGetChronoTime01(index, band, speed) * interval;
+    return AudioLinkGetChronoTimeNormalized(index, band, speed) * interval;
 }
