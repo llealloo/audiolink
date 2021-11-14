@@ -1138,45 +1138,79 @@ Shader "AudioLink/Internal/AudioLink"
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDVU)
-                
-                float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
-                float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
-                float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
-                float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(pow(.046,unity_DeltaTime), coordinateLocal.x+1)).r;
+                if( coordinateLocal.x < 4 )
+                {
+                    float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
+                    float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
+                    float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
+                    float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(pow(.046,unity_DeltaTime), coordinateLocal.x+1)).r;
 
-                float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
-                float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
-                bool4 peak = filteredRMSPeak > markerValue || timerValue > 0.5;
+                    float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
+                    float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
+                    bool4 peak = filteredRMSPeak > markerValue || timerValue > 0.5;
+                    // Filtered VU intensity
+                    if(coordinateLocal.y == 0)
+                    {
+                        return filteredRMSPeak;
+                    }
+                    // Filtered VU marker
+                    else if (coordinateLocal.y == 1)
+                    {
+                        // For linear fallof (we use exp now)
+                        /*float4 res =
+                            abs(prev - markerValue) <= 0.01
+                                ? markerValue
+                                : prev < markerValue
+                                    ? prev + 0.01 
+                                    : prev - 0.01;*/
 
-                // Filtered VU intensity
-                if(coordinateLocal.y == 0)
-                {
-                    return filteredRMSPeak;
+                        float4 speed = lerp(0.1, 0.05, abs(prev - markerValue));
+                        float4 res = lerp(prev, markerValue, speed);
+                        return max(filteredRMSPeak, res);
+                    }
+                    // VU markers values
+                    else if (coordinateLocal.y == 2)
+                    {
+                        return peak ? filteredRMSPeak : markerValue;
+                    }
+                    // VU marker timers
+                    else if (coordinateLocal.y == 3)
+                    {
+                        return peak ? 0 : prev + unity_DeltaTime.xxxx;
+                    }
                 }
-                // Filtered VU marker
-                else if (coordinateLocal.y == 1)
+                else
                 {
-                    // For linear fallof (we use exp now)
-                    /*float4 res =
-                        abs(prev - markerValue) <= 0.01
-                            ? markerValue
-                            : prev < markerValue
-                                ? prev + 0.01 
-                                : prev - 0.01;*/
+					// BEAT DETECTION STILL IN EARLY DEVELOPMENT - DO NOT USE
+                    float4 prev = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
+                    if( coordinateLocal.x == 4 )
+                    {
+                        float nowv = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                        float beatdist = 0;
+                        if( prev.x > prev.y && prev.x > nowv )
+                        {
+                            beatdist = prev.z;
+                            prev.z = 0;
+                        }
+                        return float4( nowv, prev.x, prev.z+1, beatdist );
+                    }
+                    else if( coordinateLocal.x == 5 )
+                    {
+                        uint y = coordinateLocal.y;
+                        // for y = 0..3, each in decreasing levels of forced confidence
+                        // used to enact a change on the one above.
 
-                    float4 speed = lerp(0.1, 0.05, abs(prev - markerValue));
-                    float4 res = lerp(prev, markerValue, speed);
-                    return max(filteredRMSPeak, res);
-                }
-                // VU markers values
-                else if (coordinateLocal.y == 2)
-                {
-                    return peak ? filteredRMSPeak : markerValue;
-                }
-                // VU marker timers
-                else if (coordinateLocal.y == 3)
-                {
-                    return peak ? 0 : prev + unity_DeltaTime.xxxx;
+                        for( uint ib = 0; ib < 4; ib++ )
+                        {
+                            int beat = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2( 4, ib ) ).x;
+                            // Anywhere beat is nonzero is a data point.
+                        }
+                    }
+                    else
+                    {
+                        float4 this_bd_data = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(4, coordinateLocal.y));
+                        //Assume beats in the range of 80..160 BPM only.
+                    }
                 }
                 return 1;
             }
