@@ -206,7 +206,7 @@ float AudioLinkGetAmplitudeAtNote(float octave, float note)
 // given chronotensity index [0; 7] and AudioLink band [0; 3].
 float AudioLinkGetChronoTime(uint index, uint band)
 {
-    return (AudioLinkDecodeDataAsUInt(ALPASS_CHRONOTENSITY + uint2(index, band))) / 180000.0;
+    return (AudioLinkDecodeDataAsUInt(ALPASS_CHRONOTENSITY + uint2(index, band))) / 100000.0;
 }
 
 // Get a chronotensity value in the interval [0; 1], modulated by the speed input, 
