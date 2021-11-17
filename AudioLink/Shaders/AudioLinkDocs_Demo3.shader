@@ -6,7 +6,6 @@
     SubShader
     {
         Tags { "RenderType"="Opaque" }
-        LOD 100
 
         Pass
         {
@@ -17,8 +16,7 @@
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-
-            #include "AudioLink.cginc"
+            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
 
             struct appdata
             {

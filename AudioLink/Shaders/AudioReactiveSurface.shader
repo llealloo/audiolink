@@ -194,7 +194,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "AutoLight.cginc"
-			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
+			#include "/Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			#pragma multi_compile_instancing
 
@@ -730,7 +730,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "AutoLight.cginc"
-			#include "Assets/AudioLink/Shaders/AudioLink.cginc"
+			#include "/Assets/AudioLink/Shaders/AudioLink.cginc"
 
 			#pragma multi_compile_instancing
 
