@@ -156,7 +156,7 @@ public class AudioLink : UdonSharpBehaviour
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
-            GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" );
+            //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
         }
 
         public void UpdateThemeColors()
