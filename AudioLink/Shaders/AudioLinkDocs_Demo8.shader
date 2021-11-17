@@ -22,8 +22,8 @@ Shader "AudioLink/Examples/Demo8"
 
             #include "UnityCG.cginc"
 
-            #include "Assets/AudioLink/Shaders/AudioLink.cginc"
-            #include "Assets/AudioLink/Shaders/SmoothPixelFont.cginc"
+            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
+            #include "/Assets/AudioLink/Shaders/SmoothPixelFont.cginc"
 
 
             uniform uint _AudioLinkBand;
