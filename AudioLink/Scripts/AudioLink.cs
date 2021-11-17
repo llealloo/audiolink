@@ -156,7 +156,7 @@ public class AudioLink : UdonSharpBehaviour
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
-            GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" );
+            //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
         }
 
         public void UpdateThemeColors()
@@ -244,6 +244,11 @@ public class AudioLink : UdonSharpBehaviour
 
         private void Update()
         {
+            /*var tracking = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            Vector3 pos = tracking.position;
+            Vector3 view = (tracking.rotation * Vector3.forward).normalized;
+            transform.position = pos - view * 1e7f;*/
+
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
 
