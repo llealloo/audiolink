@@ -244,11 +244,6 @@ public class AudioLink : UdonSharpBehaviour
 
         private void Update()
         {
-            /*var tracking = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-            Vector3 pos = tracking.position;
-            Vector3 view = (tracking.rotation * Vector3.forward).normalized;
-            transform.position = pos - view * 1e7f;*/
-
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
 
