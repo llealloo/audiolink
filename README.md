@@ -9,22 +9,18 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 0.2.6 - October 6th, 2021
-### New features (big thanks to @cnlohr and @pema99)
-- Chronotensity feature provides timing information to shaders which changes in reaction to audio
-- ColorChord index colors, a new way to get audio reactive colors from ColorChord
-- Globally configurable theme colors
-- Filtered VU, smoothly filtered versions of VU data
-- Amplify nodes and example shaders for above features
-- Added `AudioLinkGetAmplitudeAtFrequency` and `AudioLinkGetAmplitudeAtNote` functions for easily sampling specific parts of the audio spectrum corresponding to certain frequencies or semitones
-### Changes
-- UnU sliders (thanks Texelsaur)
-- Various improvements to included video player, now with a resync button (thanks again, Texelsaur)
-- Recursive / nesting support for AudioReactiveSurfaceArray prefab
+## 0.2.7 - December 1st, 2021
+### New features
+- Make AudioLink framerate-invariant, instead of assuming a specific framerate. Features that rely on timing have been updated to reflect this change.
+- Add helper functions `AudioLinkGetChronoTime`, `AudioLinkGetChronoTimeNormalized`, `AudioLinkGetChronoTimeInterval` to more easily sample chronotensity values. `AudioLinkGetChronoTime(index, band)` functions as a more-or-less drop-in replacement for `_Time.y`.
+- Move `ALPASS_CCCOLORS` section from `(24,22)` to `(25,22)` to avoid confusion. Code that uses the define should continue to work fine.
 ### Bugfixes
-- Fixed certain parts of filtered 4band data always being zero (thanks DomNomNom)
+- Fix a nasty bug where mirrors would sometimes causing AudioLink to stop functioning when observed from specific angles.
+- Fix erroneous timing code for filtered VU and ColorChord.
+- Fix some issues in the documentation.
+- Version number was wrong last release. It is fixed now.
 
-## Updating from version 2.5 or lower? (...first time setup? please see next section)
+## Updating from version 2.6 or lower? (...first time setup? please see next section)
 1. Take note of which AudioSource you are using to feed AudioLink, this reference may be lost during upgrade.
 2. Install the latest VRChat SDK3 and UdonSharp (following their directions)
 3. Close unity
@@ -51,7 +47,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ### Installation
 1. Install VRChat SDK3, UdonSharp, CyanEmu, and the latest release of AudioLInk
-1. Have a look at the example scene, "AudioLink_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
+2. Have a look at the example scene, "AudioLink_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
 
 ### Getting started
 1. Drag AudioLink into scene

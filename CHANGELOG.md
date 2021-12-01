@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.7 - November 14th, 2021
+## 0.2.7 - December 1st, 2021
 ### New features
 - Make AudioLink framerate-invariant, instead of assuming a specific framerate. Features that rely on timing have been updated to reflect this change.
 - Add helper functions `AudioLinkGetChronoTime`, `AudioLinkGetChronoTimeNormalized`, `AudioLinkGetChronoTimeInterval` to more easily sample chronotensity values. `AudioLinkGetChronoTime(index, band)` functions as a more-or-less drop-in replacement for `_Time.y`.
