@@ -4,6 +4,7 @@
 ### New features
 - Make AudioLink framerate-invariant, instead of assuming a specific framerate. Features that rely on timing have been updated to reflect this change.
 - Add helper functions `AudioLinkGetChronoTime`, `AudioLinkGetChronoTimeNormalized`, `AudioLinkGetChronoTimeInterval` to more easily sample chronotensity values. `AudioLinkGetChronoTime(index, band)` functions as a more-or-less drop-in replacement for `_Time.y`.
+- Move `ALPASS_CCCOLORS` section from `(24,22)` to `(25,22)` to avoid confusion. Code that uses the define should continue to work fine.
 ### Bugfixes
 - Fix a nasty bug where mirrors would sometimes causing AudioLink to stop functioning when observed from specific angles.
 - Fix erroneous timing code for filtered VU and ColorChord.
