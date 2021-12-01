@@ -27,6 +27,7 @@ public class ExportAudioLinkPackage : MonoBehaviour
         exportedMinimal.Add( "Assets/AudioLink/Scripts" );
         exportedMinimal.Add( "Assets/AudioLink/RenderTextures" );
         exportedMinimal.Add( "Assets/AudioLink/Shaders" );
+        exportedMinimal.Add( "Assets/AudioLink/Materials" );
         exportedMinimal.Add( "Assets/CHANGELOG.md" );
 
         AssetDatabase.ExportPackage(exportedMinimal.ToArray(), "AudioLink-minimal.unitypackage",
