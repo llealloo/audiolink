@@ -334,6 +334,8 @@ This allows things to move smoothly in time, where the speed of motion is contro
 
 You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `100000.0`. As a reference, with this scaling, you can expect a full rotation every 2.8 seconds if you're using `offset.x = 4` and the band is dark during that time.
 
+There are some helper methods for sampling chronotensity in the `AudioLink.cginc` file that may make sampling this part of the texture simpler. If you are looking for a replacement for `_Time.y`, check out `AudioLinkGetChronoTime(index, band)`.
+
 One can think of the values from chronotensity as being in some very small unit of time, like a millisecond. Thus, the values will get very large very fast, until they finally overflow and loop back to 0. To make the overflow happen faster, one can use a modulo operation as mentioned above. To get resulting value into a usable range, one can then divide by some constant. The size of the value used for the modulo will control how long the final value takes to loop back to 0, and the value in the division will control the interval (or speed) of the final value. Here are some examples:
 ```hlsl
 // Gives a value in [0; 1] interval
