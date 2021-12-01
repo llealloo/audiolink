@@ -54,6 +54,3 @@
 ### Bugfixes
 - Audio values clamped to prevent overflow
 - AVPro log spamming & mono output bugfix (mainly a problem if using VRChat w/ a headset)
-
-##  Might want to add older versions here
-It can be the same as release notes. Update on each packaged release.
