@@ -43,7 +43,7 @@ Shader "AudioLink/Debug/AudioLinkDebug"
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-            #include "AudioLink.cginc"
+            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
 
             struct appdata
             {

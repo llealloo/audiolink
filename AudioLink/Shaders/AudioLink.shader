@@ -31,7 +31,6 @@ Shader "AudioLink/Internal/AudioLink"
     SubShader
     {
         Tags { "RenderType"="Opaque" }
-        LOD 100
 
         Cull Off
         Lighting Off
@@ -319,8 +318,31 @@ Shader "AudioLink/Internal/AudioLink"
 
                 // If part of the delay
                 } else {
-                    // Return pixel to the left
-                    return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - 1, coordinateLocal.y));
+                    // Slide pixels (coordinateLocal.x > 0)
+                    float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                    lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                    int framesToRoll = floor( lastvalTiming.x );
+
+                    if( framesToRoll == 0 )
+                    {
+                        return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
+                    }
+                    else // 1 or more.
+                    {
+                        if( coordinateLocal.x > framesToRoll )
+                        {
+                            // For the rest of the line, move by the appropriate speed
+                            return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - framesToRoll, coordinateLocal.y));
+                        }
+                        else
+                        {
+                            // For the first part, extrapolate the cells.
+                            float last = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                            float next = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(1, coordinateLocal.y));
+                            float lprev = (coordinateLocal.x - 1) / (float)framesToRoll;
+                            return lerp( last, next, lprev );
+                        }
+                    }
                 }
             }
             ENDCG
@@ -510,7 +532,7 @@ Shader "AudioLink/Internal/AudioLink"
                 }
                 else
                 {
-                    //Second Row
+                    //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
                         if( _ThemeColorsEnable>0.5 )
@@ -522,8 +544,19 @@ Shader "AudioLink/Internal/AudioLink"
                         }
                         else
                         {
-                            return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(1+coordinateLocal.x,0));
+                            return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(coordinateLocal.x,0));
                         }
+                    }
+                    else if( coordinateLocal.x == 4 )
+                    {
+                        // Computation for history timing.
+                        float4 lastval = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                        lastval.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                        // This looks like a frac() but I want to make sure the math gets done the same here
+                        // to prevent any possible mismatch between here and the use of finding the int.
+                        int framesToRoll = floor( lastval.x );
+                        lastval.x -= framesToRoll;
+                        return lastval;
                     }
                 }
 
@@ -719,6 +752,19 @@ Shader "AudioLink/Internal/AudioLink"
                         }
                     }
 
+                    #if 0
+                    //Old values, framerate-invariant, assumed 60 FPS medium.
+                    #define COLORCHORD_IIR_DECAY_1          0.90
+                    #define COLORCHORD_IIR_DECAY_2          0.85
+                    #define COLORCHORD_CONSTANT_DECAY_1     0.01
+                    #define COLORCHORD_CONSTANT_DECAY_2     0.0
+                    #else
+                    // Calculated from above values using: 0.9 = pow( x, .016666 ), or new_component = x ^ 60
+                    float COLORCHORD_IIR_DECAY_1 = pow( 0.0018, unity_DeltaTime.x );
+                    float COLORCHORD_IIR_DECAY_2 = pow( 5.822e-5, unity_DeltaTime.x );
+                    float COLORCHORD_CONSTANT_DECAY_1 = (0.01*60)*unity_DeltaTime.x;
+                    float COLORCHORD_CONSTANT_DECAY_2 = (0.0*60)*unity_DeltaTime.x;
+                    #endif
                     // Filter n1.z from n1.y.
                     if(n1.z >= 0)
                     {
@@ -1006,13 +1052,13 @@ Shader "AudioLink/Internal/AudioLink"
                 {
                     // For pixels 0..15, filtered output.
                     float4 Previous = AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
-                    return lerp( AudioLinkBase, Previous, pow( .99, coordinateLocal.x+1 ) );
+                    return lerp( AudioLinkBase, Previous, pow( pow(.55, unity_DeltaTime.x ), coordinateLocal.x+1 ) ); //IIR-Filter
                 }
                 else if( coordinateLocal.x >= 16 &&  coordinateLocal.x < 24 )
                 {
                     // This section is for ALPASS_CHRONOTENSITY
                     uint4 rpx = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
-                    
+
                     float ComparingValue = (coordinateLocal.x & 1) ? 
                         AudioLinkGetSelfPixelData(ALPASS_FILTEREDAUDIOLINK + uint2(4, coordinateLocal.y)) :
                         AudioLinkBase;
@@ -1026,6 +1072,25 @@ Shader "AudioLink/Internal/AudioLink"
 
                     int mode = ( coordinateLocal.x - 16 ) / 2;
 
+                    // Chronotensity is organized in a (4x2)x4 grid of accumulated values.
+                    // Y is which band we are using.  X is as follows:
+                    //
+                    // x = 0, 1: Accumulates as a function of intensity of band.
+                    //           The louder the band, the quicker the function increments.
+                    // x = 0: Difference between base and heavily filtered.
+                    // x = 1: Difference between slightly filtered and heavily filtered.
+                    //
+                    // x = 2, 3: Goes positive when band is higher, negative when lower.
+                    // x = 2: Difference between base and heavily filtered.
+                    // x = 3: Difference between slightly filtered and heavily filtered.
+                    //
+                    // x = 4, 5: Increments when respective filtered value is 0 or negative.
+                    // x = 4: Difference between base and heavily filtered.
+                    // x = 5: Difference between slightly filtered and heavily filtered.
+                    //
+                    // x = 6: Unfiltered, increments when band is above 0.05 threshold.
+                    // x = 7: Unfiltered, increments when band is below 0.05 threshold.
+
                     if( mode == 0 )
                     {
                         ValueDiff = max( DifferentialValue, 0 );
@@ -1036,15 +1101,18 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else if( mode == 2 )
                     {
-                        ValueDiff = DifferentialValue < 0? .1 : -.1;
+                        ValueDiff = max( -DifferentialValue, 0 );
                     }
                     else
                     {
-                        ValueDiff = DifferentialValue < 0? .1 : -.1;
+                        if( coordinateLocal.x & 1 )
+                            ValueDiff = max((-(AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) ) - 0.05 )), 0 )*2;
+                        else
+                            ValueDiff = max(((AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) ) - 0.05 )), 0 )*.5;
                     }
                     
                     uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
-                    Value += ValueDiff * 32768;
+                    Value += ValueDiff * unity_DeltaTime.x * 1048576;
 
                     return float4(
                         (float)(Value & 0x3ff),
@@ -1069,45 +1137,83 @@ Shader "AudioLink/Internal/AudioLink"
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_FILTEREDVU)
-                
-                float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
-                float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
-                float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
-                float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(.95, coordinateLocal.x+1)).r;
+                if( coordinateLocal.x < 4 )
+                {
+                    float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
+                    float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
+                    float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
+                    float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(pow(.046,unity_DeltaTime), coordinateLocal.x+1)).r;
 
-                float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
-                float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
-                bool4 peak = filteredRMSPeak > markerValue || timerValue > 0.5;
+                    float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
+                    float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));
+                    bool4 peak = filteredRMSPeak > markerValue || timerValue > 0.5;
+                    // Filtered VU intensity
+                    if(coordinateLocal.y == 0)
+                    {
+                        return filteredRMSPeak;
+                    }
+                    // Filtered VU marker
+                    else if (coordinateLocal.y == 1)
+                    {
+                        // For linear fallof (we use exp now)
+                        /*float4 res =
+                            abs(prev - markerValue) <= 0.01
+                                ? markerValue
+                                : prev < markerValue
+                                    ? prev + 0.01 
+                                    : prev - 0.01;*/
 
-                // Filtered VU intensity
-                if(coordinateLocal.y == 0)
-                {
-                    return filteredRMSPeak;
+                        float4 speed = lerp(0.1, 0.05, abs(prev - markerValue));
+                        float4 res = lerp(prev, markerValue, speed);
+                        return max(filteredRMSPeak, res);
+                    }
+                    // VU markers values
+                    else if (coordinateLocal.y == 2)
+                    {
+                        return peak ? filteredRMSPeak : markerValue;
+                    }
+                    // VU marker timers
+                    else if (coordinateLocal.y == 3)
+                    {
+                        return peak ? 0 : prev + unity_DeltaTime.xxxx;
+                    }
                 }
-                // Filtered VU marker
-                else if (coordinateLocal.y == 1)
+                else if (coordinateLocal.x == 4)
                 {
-                    // For linear fallof (we use exp now)
-                    /*float4 res =
-                        abs(prev - markerValue) <= 0.01
-                            ? markerValue
-                            : prev < markerValue
-                                ? prev + 0.01 
-                                : prev - 0.01;*/
+                    // PEMA
+                }
+                else
+                {
+					// BEAT DETECTION STILL IN EARLY DEVELOPMENT - DO NOT USE
+                    float4 prev = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
+                    if( coordinateLocal.x == 5 )
+                    {
+                        float nowv = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                        float beatdist = 0;
+                        if( prev.x > prev.y && prev.x > nowv )
+                        {
+                            beatdist = prev.z;
+                            prev.z = 0;
+                        }
+                        return float4( nowv, prev.x, prev.z+1, beatdist );
+                    }
+                    else if( coordinateLocal.x == 6 )
+                    {
+                        uint y = coordinateLocal.y;
+                        // for y = 0..3, each in decreasing levels of forced confidence
+                        // used to enact a change on the one above.
 
-                    float4 speed = lerp(0.1, 0.05, abs(prev - markerValue));
-                    float4 res = lerp(prev, markerValue, speed);
-                    return max(filteredRMSPeak, res);
-                }
-                // VU markers values
-                else if (coordinateLocal.y == 2)
-                {
-                    return peak ? filteredRMSPeak : markerValue;
-                }
-                // VU marker timers
-                else if (coordinateLocal.y == 3)
-                {
-                    return peak ? 0 : prev + unity_DeltaTime.xxxx;
+                        for( uint ib = 0; ib < 4; ib++ )
+                        {
+                            int beat = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2( 4, ib ) ).x;
+                            // Anywhere beat is nonzero is a data point.
+                        }
+                    }
+                    else
+                    {
+                        float4 this_bd_data = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(4, coordinateLocal.y));
+                        //Assume beats in the range of 80..160 BPM only.
+                    }
                 }
                 return 1;
             }

@@ -27,7 +27,6 @@
     {
         Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
         Blend SrcAlpha OneMinusSrcAlpha
-        LOD 100
 
         Pass
         {
@@ -37,7 +36,7 @@
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-            #include "AudioLink.cginc"
+            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
 
             struct appdata
             {
@@ -109,7 +108,7 @@
                 float4 finalColor = float4(color, mainColor.a);
                 UNITY_APPLY_FOG(i.fogCoord, finalColor);
 
-                return finalColor;
+                return saturate(finalColor);
             }
             ENDCG
         }

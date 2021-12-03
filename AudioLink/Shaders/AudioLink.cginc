@@ -17,7 +17,7 @@
 #define ALPASS_THEME_COLOR2             uint2(2,23)
 #define ALPASS_THEME_COLOR3             uint2(3,23)
 #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
-#define ALPASS_CCCOLORS                 uint2(24,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
+#define ALPASS_CCCOLORS                 uint2(25,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
 #define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
 #define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
 #define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
@@ -45,13 +45,10 @@
 #define AUDIOLINK_DELAY_COEFFICIENT_MAX 0.9
 #define AUDIOLINK_DFT_Q                 4.0
 #define AUDIOLINK_TREBLE_CORRECTION     5.0
+#define AUDIOLINK_4BAND_TARGET_RATE     90.0
 
 // ColorChord constants
 #define COLORCHORD_EMAXBIN              192
-#define COLORCHORD_IIR_DECAY_1          0.90
-#define COLORCHORD_IIR_DECAY_2          0.85
-#define COLORCHORD_CONSTANT_DECAY_1     0.01
-#define COLORCHORD_CONSTANT_DECAY_2     0.0
 #define COLORCHORD_NOTE_CLOSEST         3.0
 #define COLORCHORD_NEW_NOTE_GAIN        8.0
 #define COLORCHORD_MAX_NOTES            10
@@ -203,4 +200,25 @@ float AudioLinkGetAmplitudeAtNote(float octave, float note)
 {
     float quarter = note * 2.0;
     return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
+}
+
+// Get a reasonable drop-in replacement time value for _Time.y with the
+// given chronotensity index [0; 7] and AudioLink band [0; 3].
+float AudioLinkGetChronoTime(uint index, uint band)
+{
+    return (AudioLinkDecodeDataAsUInt(ALPASS_CHRONOTENSITY + uint2(index, band))) / 100000.0;
+}
+
+// Get a chronotensity value in the interval [0; 1], modulated by the speed input, 
+// with the given chronotensity index [0; 7] and AudioLink band [0; 3].
+float AudioLinkGetChronoTimeNormalized(uint index, uint band, float speed)
+{
+    return frac(AudioLinkGetChronoTime(index, band) * speed);
+}
+
+// Get a chronotensity value in the interval [0; interval], modulated by the speed input, 
+// with the given chronotensity index [0; 7] and AudioLink band [0; 3].
+float AudioLinkGetChronoTimeInterval(uint index, uint band, float speed, float interval)
+{
+    return AudioLinkGetChronoTimeNormalized(index, band, speed) * interval;
 }

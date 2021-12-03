@@ -1,4 +1,5 @@
-﻿Shader "AudioLink/Examples/Demo6"
+﻿
+Shader "AudioLink/Examples/Demo6"
 {
     Properties
     {
@@ -12,8 +13,6 @@
 		
 		Blend SrcAlpha OneMinusSrcAlpha 
 
-        LOD 100
-
         Pass
         {
             CGPROGRAM
@@ -21,8 +20,7 @@
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-
-            #include "AudioLink.cginc"
+            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
 
 
 			uniform float4 _Background;

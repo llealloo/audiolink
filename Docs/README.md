@@ -85,7 +85,7 @@ Shader "MyTestShader"
 #define ALPASS_AUDIOLINKHISTORY         uint2(1,0)   //Size: 127, 4
 #define ALPASS_GENERALVU                uint2(0,22)  //Size: 12, 1
 #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
-#define ALPASS_CCCOLORS                 uint2(13,22) //Size: 12, 1
+#define ALPASS_CCCOLORS                 uint2(25,22) //Size: 11, 1
 #define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
 #define ALPASS_CCLIGHTS                 uint2(0,25)  //Size: 128, 2
 #define ALPASS_AUTOCORRELATOR           uint2(0,27)  //Size: 128, 1
@@ -146,7 +146,7 @@ float incomingGain = ((_AudioSource2D > 0.5) ? 1.f : 100.f);
 // Enable/Disable autogain.
 if( _EnableAutogain )
 {
-    float4 LastAutogain = GetSelfPixelData( ALPASS_GENERALVU + int2( 11, 0 ) );
+    float4 LastAutogain = AudioLinkData( ALPASS_GENERALVU + int2( 11, 0 ) );
 
     //Divide by the running volume.
     incomingGain *= 1./(LastAutogain.x + _AutogainDerate);
@@ -198,14 +198,19 @@ It contains the following dedicated pixels:
 <tr><th>Pixel Offset</th><th>Absolute Pixel</th><th>Description</th><th>Red</th><th>Green</th><th>Blue</th><th>Alpha</th></tr>
 <tr><td>0, 0 </td><td>0, 22</td><td>Version Number and FPS</td><td>Version (Version Minor)</td><td>0 (Version Major)</td><td>System FPS</td><td></td></tr>
 <tr><td>1, 0 </td><td>1, 22</td><td>AudioLink FPS</td><td></td><td>AudioLink FPS</td><td></td><td></td></tr>
-<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )`</td></tr>
-<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4>`AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )`</td></tr>
-<tr><td>4, 0 </td><td>6, 22</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td><td></td></tr>
+<tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )</pre></td></tr>
+<tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
+<tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
+<tr><td>4, 0 </td><td>6, 22</td><td>Player Data Info</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>11, 0</td><td>11, 22</td><td>Autogain</td><td>Asymmetrically Filtered Volume</td><td>Symmetrically filtered Volume</td><td></td><td></td></tr>
+<tr><td>0, 1</td><td>0, 23</td><td>Theme Color 0 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR0</td></tr>
+<tr><td>1, 1</td><td>1, 23</td><td>Theme Color 1 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR1</td></tr>
+<tr><td>2, 1</td><td>2, 23</td><td>Theme Color 2 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR2</td></tr>
+<tr><td>3, 1</td><td>3, 23</td><td>Theme Color 3 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR3</td></tr>
+<tr><td>4, 1</td><td>4, 23</td><td>(Internal)</td><td colspan=4>Internal Timing Tracking</td></tr>
 </table>
 
 Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`
@@ -328,6 +333,8 @@ This is a section of values which increase and decrease cumulatively based on 4-
 This allows things to move smoothly in time, where the speed of motion is controlled by intensity.  Each X offset has a different effect.
 
 You must read this using `AudioLinkDecodeDataAsUInt( ALPASS_CHRONOTENSITY + offset ) % LOOP`. Where `LOOP` is the period in which you want to loop over.  Otherwise, as the number gets too large, motion will become chonky.  For instance, if you want to get a rotation, since rotation goes from 0 to `2*pi`, you can modulus by `628319` and divide by `100000.0`. As a reference, with this scaling, you can expect a full rotation every 2.8 seconds if you're using `offset.x = 4` and the band is dark during that time.
+
+There are some helper methods for sampling chronotensity in the `AudioLink.cginc` file that may make sampling this part of the texture simpler. If you are looking for a replacement for `_Time.y`, check out `AudioLinkGetChronoTime(index, band)`.
 
 One can think of the values from chronotensity as being in some very small unit of time, like a millisecond. Thus, the values will get very large very fast, until they finally overflow and loop back to 0. To make the overflow happen faster, one can use a modulo operation as mentioned above. To get resulting value into a usable range, one can then divide by some constant. The size of the value used for the modulo will control how long the final value takes to loop back to 0, and the value in the division will control the interval (or speed) of the final value. Here are some examples:
 ```hlsl
@@ -731,8 +738,8 @@ You can use either `Texture2D<float4>` and `.load()`/indexing or by using `sampl
 There are situations where you may need to interpolate between two points in a shader, and we find that it's still worthwhile to just do it using the indexing method.
 
 ```hlsl
-Texture2D<float4>   _SelfTexture2D;
-#define GetAudioPixelData(xy) _SelfTexture2D[xy]
+Texture2D<float4>   _AudioTexture;
+#define GetAudioPixelData(xy) _AudioTexture[xy]
 ```
 
 And the less recommended method.

@@ -23,7 +23,7 @@ public class AudioLink : UdonSharpBehaviour
     public class AudioLink : MonoBehaviour
 #endif
     {
-        const float AUDIOLINK_VERSION_NUMBER = 2.05f;
+        const float AUDIOLINK_VERSION_NUMBER = 2.07f;
 
         [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
@@ -156,7 +156,7 @@ public class AudioLink : UdonSharpBehaviour
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
-            GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" );
+            //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
         }
 
         public void UpdateThemeColors()

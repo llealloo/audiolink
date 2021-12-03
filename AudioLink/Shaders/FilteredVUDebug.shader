@@ -43,7 +43,7 @@
 
                 // Show ground truth marker value
                 if (i.uv.x > 1)
-                    return i.uv.y < AudioLinkData(ALPASS_GENERALVU + uint2(9, 0)).r;
+                    return (i.uv.y < AudioLinkData(ALPASS_GENERALVU + uint2(9, 0)).r) * float4( 0.8, 0.8, 0.8, 1.);
 
                 // Sample filtered VU / markers
                 float vu = AudioLinkData(ALPASS_FILTEREDVU_INTENSITY + uint2(i.uv.x*4, 0)).r;
@@ -54,7 +54,7 @@
                     return float4(0, 1, 0, 1);
                 
                 // Show columns
-                return i.uv.y < vu;
+                return (i.uv.y < vu) * float4( 0.7, 0.7, 0.7, 1.);
             }
             ENDCG
         }

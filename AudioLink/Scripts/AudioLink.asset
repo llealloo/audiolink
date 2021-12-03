@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioLink
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: dab4c799a9e1ca948b5ed1267c616935,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 9ad82cbefb635024195e8ce501b6bd2a,
     type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: aa856f4528fc71343ae13d211071a669, type: 3}
-  behaviourSyncMode: 3
+  behaviourSyncMode: 4
   behaviourIDHeapVarName: __refl_const_intnl_udonTypeID
   compileErrors: []
   hasInteractEvent: 0
