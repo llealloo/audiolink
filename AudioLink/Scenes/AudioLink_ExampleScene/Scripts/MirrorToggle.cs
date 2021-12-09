@@ -18,9 +18,7 @@ public class MirrorToggle : UdonSharpBehaviour
         
     }
 
-#pragma warning disable 108,114 ///hides inherited member
-    void Interact()
-#pragma warning restore 108,114
+    public override void Interact()
     {
         mirror.SetActive(!mirror.activeSelf);
     }
