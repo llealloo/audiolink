@@ -196,10 +196,10 @@ float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
 }
 
 // Sample the amplitude of a given semitone in an octave. Octave is in [0; 9] while note is [0; 11].
-float AudioLinkGetAmplitudeAtNote(float octave, float note)
+float4 AudioLinkGetAmplitudeAtNote(float octave, float note)
 {
     float quarter = note * 2.0;
-    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0)).r;
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
 }
 
 // Get a reasonable drop-in replacement time value for _Time.y with the
