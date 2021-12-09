@@ -1,6 +1,8 @@
 ﻿
 using UnityEngine;
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.SDKBase;
+#endif
 
 #if UDON
 using UdonSharp;
@@ -16,7 +18,7 @@ public class MirrorToggle : UdonSharpBehaviour
         
     }
 
-    void Interact()
+    public override void Interact()
     {
         mirror.SetActive(!mirror.activeSelf);
     }

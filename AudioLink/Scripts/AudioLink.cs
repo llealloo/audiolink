@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.SDKBase;
+#endif
 using UnityEngine.UI;
 using System;
 
@@ -100,14 +102,18 @@ public class AudioLink : UdonSharpBehaviour
         private double _elapsedTimeMSW = 0;
         private int    _networkTimeMS;
         private double _networkTimeMSAccumulatedError;
+#pragma warning disable 414 ///The private field is assigned but its value is never used
         private bool   _hasInitializedTime = false;
+#pragma warning restore 414
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
         private float  _ReadbackTime = 0;
         private System.Diagnostics.Stopwatch stopwatch;
 
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
+#endif
 
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
         private int _rightChannelTestDelay = 300;
@@ -197,6 +203,7 @@ public class AudioLink : UdonSharpBehaviour
             #endif
 
             audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
+            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
             audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
@@ -240,6 +247,7 @@ public class AudioLink : UdonSharpBehaviour
                 _networkTimeMS += networkTimeDelta/20;
             }
             //Debug.Log( $"Refinement: ${networkTimeDelta}" );
+            #endif
         }
 
         private void Update()
@@ -302,12 +310,13 @@ public class AudioLink : UdonSharpBehaviour
                 audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
             }
 
-            if (Networking.LocalPlayer != null)
-            {
-                float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-                audioMaterial.SetFloat("_SourceDistance", distanceToSource);
-            }
-            
+            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                if (Networking.LocalPlayer != null)
+                {
+                    float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                    audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+                }
+            #endif            
 
         #if UNITY_EDITOR
             UpdateSettings();
