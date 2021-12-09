@@ -102,7 +102,9 @@ public class AudioLink : UdonSharpBehaviour
         private double _elapsedTimeMSW = 0;
         private int    _networkTimeMS;
         private double _networkTimeMSAccumulatedError;
+#pragma warning disable 414 ///The private field is assigned but its value is never used
         private bool   _hasInitializedTime = false;
+#pragma warning restore 414
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
         private float  _ReadbackTime = 0;
