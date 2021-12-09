@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public class ExportAudioLinkPackage : MonoBehaviour
 {
     [MenuItem("Tools/Export AudioLink Packages")]
@@ -35,3 +36,4 @@ public class ExportAudioLinkPackage : MonoBehaviour
             ExportPackageOptions.Recurse );
     }
 }
+#endif
