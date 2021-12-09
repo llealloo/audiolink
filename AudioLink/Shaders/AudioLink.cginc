@@ -199,7 +199,7 @@ float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
 float AudioLinkGetAmplitudeAtNote(float octave, float note)
 {
     float quarter = note * 2.0;
-    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0)).r;
 }
 
 // Get a reasonable drop-in replacement time value for _Time.y with the
