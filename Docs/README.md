@@ -283,7 +283,7 @@ These really are just colors with varying intensities, so you can just use it as
 Example:
 
 ```hlsl
-	AudioLinkData( ALPASS_CCCOLORS + uint( colornumber + 1, 0 ) );
+	AudioLinkData( ALPASS_CCCOLORS + uint2( colornumber + 1, 0 ) );
 ```
 
 ### `ALPASS_CCSTRIP`
