@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.SDKBase;
+#else
+using UnityEngine.Rendering;
 #endif
 using UnityEngine.UI;
 using System;
@@ -79,6 +81,9 @@ public class AudioLink : UdonSharpBehaviour
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public GameObject audioTextureExport;
         private Shader _shaderAudioLinkExport;
+        #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
+        public RenderTexture audioRenderTexture;
+        #endif
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
@@ -113,6 +118,8 @@ public class AudioLink : UdonSharpBehaviour
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
+#else
+        private double GetElapsedSecondsSince2019() { return 0; }
 #endif
 
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
@@ -162,6 +169,9 @@ public class AudioLink : UdonSharpBehaviour
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
+            #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
+            Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
+            #endif
             //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
         }
 
@@ -210,6 +220,13 @@ public class AudioLink : UdonSharpBehaviour
                 Networking.IsInstanceOwner?1.0f:0.0f,
                 0 ) );
 
+            #else
+                audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
+                0,
+                0,
+                0,
+                0 ) );
+            #endif
             _FPSCount = 0;
             _FPSTime++;
 
@@ -229,7 +246,11 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             // Finely adjust our network time estimate if needed.
+            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
             int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
+            #else
+            int networkTimeMSNow = (int)(Time.time*1000.0f);
+            #endif
             int networkTimeDelta = networkTimeMSNow - _networkTimeMS;
             if( networkTimeDelta > 3000 )
             {
@@ -247,7 +268,6 @@ public class AudioLink : UdonSharpBehaviour
                 _networkTimeMS += networkTimeDelta/20;
             }
             //Debug.Log( $"Refinement: ${networkTimeDelta}" );
-            #endif
         }
 
         private void Update()
