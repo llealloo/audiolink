@@ -12,7 +12,7 @@ public class ExportAudioLinkPackage : MonoBehaviour
         var exportedPackageAssetList = new List<string>();
         exportedPackageAssetList.Add("Assets/AudioLink");
         exportedPackageAssetList.Add("Assets/Docs");
-        exportedPackageAssetList.Add("Assets/CHANGELOG.md");
+        exportedPackageAssetList.Add("Assets/AudioLink/CHANGELOG.md");
 
         AssetDatabase.ExportPackage(exportedPackageAssetList.ToArray(), "AudioLink-full.unitypackage",
             ExportPackageOptions.Recurse );
@@ -30,7 +30,7 @@ public class ExportAudioLinkPackage : MonoBehaviour
         exportedMinimal.Add( "Assets/AudioLink/Shaders" );
         exportedMinimal.Add( "Assets/AudioLink/Materials" );
         exportedMinimal.Add( "Assets/AudioLink/Resources" );
-        exportedMinimal.Add( "Assets/CHANGELOG.md" );
+        exportedMinimal.Add( "Assets/AudioLink/CHANGELOG.md" );
 
         AssetDatabase.ExportPackage(exportedMinimal.ToArray(), "AudioLink-minimal.unitypackage",
             ExportPackageOptions.Recurse );
