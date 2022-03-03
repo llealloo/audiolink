@@ -1,3 +1,6 @@
+#ifndef AUDIOLINK_CGINC_INCLUDED
+#define AUDIOLINK_CGINC_INCLUDED
+
 // Map of where features in AudioLink are.
 #define ALPASS_DFT                      uint2(0,4)  //Size: 128, 2
 #define ALPASS_WAVEFORM                 uint2(0,6)  //Size: 128, 16
@@ -222,3 +225,5 @@ float AudioLinkGetChronoTimeInterval(uint index, uint band, float speed, float i
 {
     return AudioLinkGetChronoTimeNormalized(index, band, speed) * interval;
 }
+
+#endif
