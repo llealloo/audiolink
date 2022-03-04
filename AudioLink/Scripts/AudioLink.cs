@@ -217,7 +217,7 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
-                Networking.IsInstanceOwner?1.0f:0.0f,
+                Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
                 0 ) );
 
             #else
