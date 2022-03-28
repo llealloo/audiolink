@@ -73,6 +73,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
 - [VRC Things](https://github.com/PiMaker/VRChatUnityThings) by \_pi\_
+- [June Screen FX](https://luka.moe/june.html) by luka
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
