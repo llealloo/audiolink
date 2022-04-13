@@ -406,6 +406,7 @@ public class AudioLink : UdonSharpBehaviour
             UdonBehaviour[] allBehaviours = UnityEngine.Object.FindObjectsOfType<UdonBehaviour>();
             foreach (UdonBehaviour behaviour in allBehaviours)
             {
+                if (!behaviour.programSource) continue;
                 var program = behaviour.programSource.SerializedProgramAsset.RetrieveProgram();
                 ImmutableArray<string> exportedSymbolNames = program.SymbolTable.GetExportedSymbols();
                 foreach (string exportedSymbolName in exportedSymbolNames)
