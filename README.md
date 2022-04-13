@@ -41,7 +41,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ### Requirements
 - [VRChat SDK3](https://vrchat.com/home/download) for worlds (Udon)
-- [UdonSharp](https://github.com/MerlinVR/UdonSharp/releases/latest)
+- [UdonSharp](https://github.com/vrchat-community/UdonSharp/releases/latest)
 - [CyanEmu](https://github.com/CyanLaser/CyanEmu/releases/latest) (optional but highly recommended)
 - The latest release: https://github.com/llealloo/vrc-udon-audio-link/releases/latest
 
@@ -73,6 +73,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
 - [VRC Things](https://github.com/PiMaker/VRChatUnityThings) by \_pi\_
+- [June Screen FX](https://luka.moe/june.html) by luka
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
