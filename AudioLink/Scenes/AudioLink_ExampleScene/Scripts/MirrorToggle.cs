@@ -8,23 +8,29 @@ using VRC.SDKBase;
 using UdonSharp;
 using VRC.Udon;
 
-public class MirrorToggle : UdonSharpBehaviour
+namespace VRCAudioLink
 {
-
-    public GameObject mirror;
-
-    void Start()
+    public class MirrorToggle : UdonSharpBehaviour
     {
-        
-    }
 
-    public override void Interact()
-    {
-        mirror.SetActive(!mirror.activeSelf);
-    }
+        public GameObject mirror;
 
+        void Start()
+        {
+            
+        }
+
+        public override void Interact()
+        {
+            mirror.SetActive(!mirror.activeSelf);
+        }
+
+    }
 }
 
 #else
-public class MirrorToggle : MonoBehaviour { }
+namespace VRCAudioLink
+{
+    public class MirrorToggle : MonoBehaviour { }
+}
 #endif
