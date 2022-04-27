@@ -56,10 +56,12 @@ Shader "AudioLink/Examples/Demo9"
                 float2 uv = i.uv * grid_dimensions;
                 uint2 grid_index = floor(uv);
                 grid_index.y = (grid_dimensions.y-1) - grid_index.y;
-				
-                if (grid_index.x > grid_index.y) return 0;
-
-                return AudioLinkData(ALPASS_THEME_COLOR0 + uint2(grid_index.y, 0));
+                // Note: The following is a bit of a abuse of undocumented relationships between
+                // ALPASS_THEME_COLOR0
+                // ALPASS_THEME_COLOR1
+                // ALPASS_THEME_COLOR2
+                // ALPASS_THEME_COLOR3
+                return AudioLinkData(ALPASS_THEME_COLOR0 + uint2(grid_index.x, 0));
 
             }
             ENDCG
