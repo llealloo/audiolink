@@ -372,7 +372,8 @@ public class AudioLink : UdonSharpBehaviour
 
         // Note: These might be changed frequently so as an optimization, they're in a different function
         // rather than bundled in with the other things in UpdateSettings().
-        public void UpdateThemeColors() {
+        public void UpdateThemeColors()
+        {
             audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
             audioMaterial.SetColor("_ThemeColor0", themeColor0);
             audioMaterial.SetColor("_ThemeColor1", themeColor1);
