@@ -6,12 +6,37 @@ using UnityEngine;
 #if UNITY_EDITOR
 public class ExportAudioLinkPackage : MonoBehaviour
 {
+    static void CopyArtifacts()
+    {
+        FileUtil.CopyFileOrDirectory("Assets/Docs", "Assets/AudioLink/Docs");
+        FileUtil.CopyFileOrDirectory("Assets/README.md", "Assets/AudioLink/README.md");
+        FileUtil.CopyFileOrDirectory("Assets/CHANGELOG.md", "Assets/AudioLink/CHANGELOG.md");
+        FileUtil.CopyFileOrDirectory("Assets/LICENSE", "Assets/AudioLink/LICENSE.txt");
+        AssetDatabase.Refresh();
+    }
+
+    static void CleanupArtifacts()
+    {
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/Docs");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/Docs.meta");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/README.md");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/README.md.meta");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/CHANGELOG.md");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/CHANGELOG.md.meta");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/LICENSE.txt");
+        FileUtil.DeleteFileOrDirectory("Assets/AudioLink/LICENSE.txt.meta");
+        AssetDatabase.Refresh();
+    }
+
     [MenuItem("Tools/Export AudioLink Packages")]
     static void ExportPackageAudioLink()
     {
+        CleanupArtifacts();
+        CopyArtifacts();
+
         var exportedPackageAssetList = new List<string>();
         exportedPackageAssetList.Add("Assets/AudioLink");
-        exportedPackageAssetList.Add("Assets/Docs");
+        exportedPackageAssetList.Add("Assets/AudioLink/Docs");
         exportedPackageAssetList.Add("Assets/AudioLink/CHANGELOG.md");
 
         AssetDatabase.ExportPackage(exportedPackageAssetList.ToArray(), "AudioLink-full.unitypackage",
@@ -34,6 +59,8 @@ public class ExportAudioLinkPackage : MonoBehaviour
 
         AssetDatabase.ExportPackage(exportedMinimal.ToArray(), "AudioLink-minimal.unitypackage",
             ExportPackageOptions.Recurse );
+
+        CleanupArtifacts();
     }
 }
 #endif
