@@ -161,6 +161,7 @@ public class AudioLink : UdonSharpBehaviour
             stopwatch = new System.Diagnostics.Stopwatch();
             
             UpdateSettings();
+            UpdateThemeColors();
             if (audioSource.name.Equals("AudioLinkInput"))
             {
                 audioSource.volume = _audioLinkInputVolume;
@@ -173,15 +174,6 @@ public class AudioLink : UdonSharpBehaviour
             Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
             #endif
             //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
-        }
-
-        public void UpdateThemeColors()
-        {
-            audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
-            audioMaterial.SetColor("_ThemeColor0", themeColor0);
-            audioMaterial.SetColor("_ThemeColor1", themeColor1);
-            audioMaterial.SetColor("_ThemeColor2", themeColor2);
-            audioMaterial.SetColor("_ThemeColor3", themeColor3);
         }
 
         // Only happens once per second.
@@ -338,8 +330,13 @@ public class AudioLink : UdonSharpBehaviour
                 }
             #endif            
 
+        // As an optimization: when in-game, require others to call these after
+        // setting values on this object.
+        // Since we expect changes to values on this object in editor through the GUI,
+        // we do not have explicit events to when things change.
         #if UNITY_EDITOR
             UpdateSettings();
+            UpdateThemeColors();
         #endif
         }
 
@@ -371,6 +368,16 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
             audioMaterial.SetFloat("_Bass", bass);
             audioMaterial.SetFloat("_Treble", treble);
+        }
+
+        // Note: These might be changed frequently so as an optimization, they're in a different function
+        // rather than bundled in with the other things in UpdateSettings().
+        public void UpdateThemeColors() {
+            audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
+            audioMaterial.SetColor("_ThemeColor0", themeColor0);
+            audioMaterial.SetColor("_ThemeColor1", themeColor1);
+            audioMaterial.SetColor("_ThemeColor2", themeColor2);
+            audioMaterial.SetColor("_ThemeColor3", themeColor3);
         }
 
         public void SendAudioOutputData()
