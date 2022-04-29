@@ -323,7 +323,7 @@ Shader "AudioLink/Internal/AudioLink"
                     // Slide pixels (coordinateLocal.x > 0)
                     float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
                     lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                    int framesToRoll = floor( lastvalTiming.x );
+                    uint framesToRoll = floor( lastvalTiming.x );
 
                     if( framesToRoll == 0 )
                     {
