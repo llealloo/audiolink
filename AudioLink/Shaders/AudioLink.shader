@@ -21,7 +21,7 @@ Shader "AudioLink/Internal/AudioLink"
         _SourceDistance("Distance to Source", float) = 1
         _SourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
         
-        _ThemeColorsEnable( "Theme Colors Enable", float ) = 0
+        _ThemeColorMode( "Theme Color Mode", int ) = 0
         _ThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
         _ThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
         _ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
@@ -87,7 +87,7 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _SourceVolume;
             uniform float _SourceDistance;
             uniform float _SourceSpatialBlend;
-            uniform float _ThemeColorsEnable;
+            uniform uint _ThemeColorMode;
             uniform float4 _ThemeColor0;
             uniform float4 _ThemeColor1;
             uniform float4 _ThemeColor2;
@@ -537,7 +537,7 @@ Shader "AudioLink/Internal/AudioLink"
                     //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
-                        if( _ThemeColorsEnable>0.5 )
+                        if( _ThemeColorMode == 1 )
                         {
                             if( coordinateLocal.x == 0 ) return _ThemeColor0;
                             if( coordinateLocal.x == 1 ) return _ThemeColor1;

@@ -72,7 +72,8 @@ public class AudioLink : UdonSharpBehaviour
         public float fadeExpFalloff = 0.3f;
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
-        public bool themeColorsEnable;
+        [StringInList("CC Colors", "Fixed")]
+        public int themeColorMode;
         public Color themeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
         public Color themeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
         public Color themeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -374,7 +375,8 @@ public class AudioLink : UdonSharpBehaviour
         // rather than bundled in with the other things in UpdateSettings().
         public void UpdateThemeColors()
         {
-            audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
+            Debug.Log("set " + themeColorMode);
+            audioMaterial.SetInt("_ThemeColorMode", themeColorMode);
             audioMaterial.SetColor("_ThemeColor0", themeColor0);
             audioMaterial.SetColor("_ThemeColor1", themeColor1);
             audioMaterial.SetColor("_ThemeColor2", themeColor2);
