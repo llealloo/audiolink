@@ -72,7 +72,7 @@ public class AudioLink : UdonSharpBehaviour
         public float fadeExpFalloff = 0.3f;
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
-        [StringInList("CC Colors", "Fixed")]
+        [StringInList("ColorChord Colors", "Custom")]
         public int themeColorMode;
         public Color themeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
         public Color themeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
