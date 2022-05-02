@@ -19,6 +19,9 @@
 #define ALPASS_THEME_COLOR1             uint2(1,23)
 #define ALPASS_THEME_COLOR2             uint2(2,23)
 #define ALPASS_THEME_COLOR3             uint2(3,23)
+#define ALPASS_GENERALVU_UNIX_DAYS      uint2(5,23)
+#define ALPASS_GENERALVU_UNIX_SECONDS   uint2(6,23)
+
 #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
 #define ALPASS_CCCOLORS                 uint2(25,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
 #define ALPASS_CCSTRIP                  uint2(0,24)  //Size: 128, 1
