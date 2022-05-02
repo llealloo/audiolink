@@ -192,17 +192,42 @@ float3 AudioLinkCCtoRGB(float bin, float intensity, int rootNote)
 }
 
 // Sample the amplitude of a given frequency in the DFT, supports frequencies in [13.75; 14080].
-float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
+float AudioLinkGetAmplitudeAtFrequency(float hertz)
 {
     float note = AUDIOLINK_EXPBINS * log2(hertz / AUDIOLINK_BOTTOM_FREQUENCY);
-    return AudioLinkLerpMultiline(ALPASS_DFT + float2(note, 0));
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(note, 0)).r;
+}
+
+// Sample the amplitude of a given semitone in an octave. Octave is in [0; 9] while quarter is [0; 23].
+float AudioLinkGetAmplitudeAtQuarterNote(float octave, float quarter)
+{
+    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0)).r;
 }
 
 // Sample the amplitude of a given semitone in an octave. Octave is in [0; 9] while note is [0; 11].
-float4 AudioLinkGetAmplitudeAtNote(float octave, float note)
+float AudioLinkGetAmplitudeAtNote(float octave, float note)
 {
     float quarter = note * 2.0;
-    return AudioLinkLerpMultiline(ALPASS_DFT + float2(octave * AUDIOLINK_EXPBINS + quarter, 0));
+    return AudioLinkGetAmplitudeAtQuarterNote(octave, quarter);
+}
+
+// Sample the amplitude of a give quartertone across all octaves. Quarter is [0; 23].
+float AudioLinkGetAmplitudesAtQuarterNote(float quarter)
+{
+    float amplitude = 0;
+    UNITY_UNROLL
+    for (int i = 0; i < AUDIOLINK_EXPOCT; i++)
+    {
+        amplitude += AudioLinkGetAmplitudeAtQuarterNote(i,quarter);
+    }
+    return amplitude;
+}
+
+// Sample the amplitude of a give semitone across all octaves. Note is [0; 11].
+float AudioLinkGetAmplitudesAtNote(float note)
+{
+    float quarter = note * 2.0;
+    return AudioLinkGetAmplitudesAtQuarterNote(quarter);
 }
 
 // Get a reasonable drop-in replacement time value for _Time.y with the
