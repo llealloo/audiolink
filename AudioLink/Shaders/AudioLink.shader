@@ -1229,7 +1229,8 @@ Shader "AudioLink/Internal/AudioLink"
             Name "Pass12-VideoTheme"
             CGPROGRAM
             sampler2D _VideoTexture;
-            const static float2 samplePositions[16] = {
+            #define SAMPLE_COUNT 16
+            const static float2 samplePositions[SAMPLE_COUNT] = {
                 // hand picked. https://www.desmos.com/calculator/rp4fjgbba4
                 {0.87, 0.662}, {0.63, 0.555}, {0.83, 0.84}, {0.627, 0.947},
                 {0.863, 0.132}, {0.632, 0.096}, {0.947, 0.384}, {0.716, 0.315},
@@ -1237,30 +1238,60 @@ Shader "AudioLink/Internal/AudioLink"
                 {0.365, 0.673}, {0.143, 0.575}, {0.12, 0.92}, {0.367, 0.845}
             };
 
+            float sort_key1(float3 hsv) {
+                // return hsv.z;
+                return hsv.y + hsv.z;
+            }
+
             float4 frag (v2f_customrendertexture IN) : SV_Target
             {
                 uint2 ALPASS_VIDEOTHEME = uint2(0, 32);
                 AUDIO_LINK_ALPHA_START(ALPASS_VIDEOTHEME)
+                // return float4(0, 0, 1, 1);
 
                 // Debug to see raw colors.
-                if (coordinateLocal.y >= 16) {
-                    return float4(AudioLinkHSVtoRGB(
-                        AudioLinkGetSelfPixelData(coordinateGlobal - uint2(0, 16)).rgb
-                    ), 1);
+                if (coordinateLocal.y >= SAMPLE_COUNT) {
+                    float3 hsv = AudioLinkGetSelfPixelData(coordinateGlobal + uint2(0, -SAMPLE_COUNT)).rgb;
+                    // hsv.r = 0;
+                    // hsv.y = 0;
+                    return float4(AudioLinkHSVtoRGB(hsv), 1);
                 }
 
                 if (coordinateLocal.x == 0) {
-                    float2 samplePosition = samplePositions[coordinateLocal.y % 16];
+                    float2 samplePosition = samplePositions[coordinateLocal.y % SAMPLE_COUNT];
                     float3 col = tex2D(_VideoTexture, samplePosition).rgb;
-                    return float4(AudioLinkRGBtoHSV(col),1);
-                } else if (coordinateLocal.x <= 64) {
-                    return AudioLinkGetSelfPixelData(coordinateGlobal - uint2(1, 0));
+                    float3 hsv = AudioLinkRGBtoHSV(col);
+                    // hsv.x = 0;
+                    // hsv.y = 0;
+                    return float4(hsv,1);
+                } else if (coordinateLocal.x <= SAMPLE_COUNT) {
+                    // only half-sort even/odd sort to separate the lowest from highest saturations.
+                    // TODO: Link to python code demonstrating the sort
+                    uint x_base = coordinateLocal.x - 1; // Start off with even
+                    bool even = x_base % 2 == 0;
+                    bool current_sample_is_bottom = (coordinateLocal.x + coordinateLocal.y)% 2 == 1;
+                    int y_offset = current_sample_is_bottom? 1 : -1;
+                    if (!even && (coordinateLocal.y == 0 || coordinateLocal.y == 16-1)) y_offset = 0;
+                    // return even? float4(1,0,0,1) : float4(0,0,1,1);
+                    // return current_sample_is_bottom? float4(1,0,0,1) : float4(0,1,0,1);
+                    // return float4(float(y_offset), float(-y_offset),0,1);
+                    float4 sample_other = AudioLinkGetSelfPixelData(coordinateGlobal + int2(-1, y_offset));
+                    float4 sample_self = AudioLinkGetSelfPixelData(coordinateGlobal + uint2(-1, 0));
+                    float4 sample_top = current_sample_is_bottom? sample_other : sample_self;
+                    float4 sample_bot = current_sample_is_bottom? sample_self : sample_other;
+                    return (sort_key1(sample_bot) < sort_key1(sample_top))? sample_self : sample_other;
+                } else if (coordinateLocal.x <= SAMPLE_COUNT*2) {
+                    if (coordinateLocal.y < SAMPLE_COUNT / 2) {
+                        return 0;
+                    }
+                    return AudioLinkGetSelfPixelData(coordinateGlobal + uint2(-1, 0));
+                } else{
+                    return AudioLinkGetSelfPixelData(coordinateGlobal + uint2(-1, 0));
                 }
 
                 if (coordinateLocal.y == 0 ) return float4(1,0,0,1);
                 return float4(0,float(coordinateLocal.y) / 32,0,1);
                 // if (coordinateLocal.y > 1) return float4(0, 1, 0, 1);
-                // return float4(0, 0, 1, 1);
             }
             ENDCG
         }

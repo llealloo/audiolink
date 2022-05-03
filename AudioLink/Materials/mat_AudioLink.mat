@@ -68,7 +68,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VideoTexture:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 8400000, guid: ae663e2ced2769948a3fe2d855143d66, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _texcoord:
@@ -113,7 +113,7 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 3.329065
+    - _SourceDistance: 24.441086
     - _SourceSpatialBlend: 0
     - _SourceVolume: 0.9
     - _SpecularHighlights: 1
