@@ -539,6 +539,12 @@ Shader "AudioLink/Internal/AudioLink"
                     //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
+                        // HAAAX - This should be done through a proper switch
+                        if( coordinateLocal.x == 0 ) return float4(AudioLinkHSVtoRGB(AudioLinkGetSelfPixelData(uint2(16*1.5+1, 32+8+ 2*0 + 1))), 1);
+                        if( coordinateLocal.x == 1 ) return float4(AudioLinkHSVtoRGB(AudioLinkGetSelfPixelData(uint2(16*1.5+1, 32+8+ 2*1 + 1))), 1);
+                        if( coordinateLocal.x == 2 ) return float4(AudioLinkHSVtoRGB(AudioLinkGetSelfPixelData(uint2(16*1.5+1, 32+8+ 2*2 + 1))), 1);
+                        if( coordinateLocal.x == 3 ) return float4(AudioLinkHSVtoRGB(AudioLinkGetSelfPixelData(uint2(16*1.5+1, 32+8+ 2*3 + 1))), 1);
+
                         if( _ThemeColorMode == 1 )
                         {
                             if( coordinateLocal.x == 0 ) return _ThemeColor0;
@@ -1231,16 +1237,30 @@ Shader "AudioLink/Internal/AudioLink"
             sampler2D _VideoTexture;
             #define SAMPLE_COUNT 16
             const static float2 samplePositions[SAMPLE_COUNT] = {
-                // hand picked. https://www.desmos.com/calculator/rp4fjgbba4
-                {0.87, 0.662}, {0.63, 0.555}, {0.83, 0.84}, {0.627, 0.947},
-                {0.863, 0.132}, {0.632, 0.096}, {0.947, 0.384}, {0.716, 0.315},
-                {0.38, 0.163}, {0.407, 0.377}, {0.177, 0.305}, {0.108, 0.075},
-                {0.365, 0.673}, {0.143, 0.575}, {0.12, 0.92}, {0.367, 0.845}
+                // // hand picked. https://www.desmos.com/calculator/rp4fjgbba4
+                // {0.87, 0.662}, {0.63, 0.555}, {0.83, 0.84}, {0.627, 0.947},
+                // {0.863, 0.132}, {0.632, 0.096}, {0.947, 0.384}, {0.716, 0.315},
+                // {0.38, 0.163}, {0.407, 0.377}, {0.177, 0.305}, {0.108, 0.075},
+                // {0.365, 0.673}, {0.143, 0.575}, {0.12, 0.92}, {0.367, 0.845}
+
+                // hand picked https://www.desmos.com/calculator/iwbfj8p9bq
+                // chosen such that when y is flipped, we still get a good coverage.
+                {0.91, 0.616},{0.602, 0.577},{0.821, 0.829},{0.594, 0.93},
+                {0.931, 0.05},{0.65, 0.164},{0.887, 0.274},{0.71, 0.307},
+                {0.335, 0.213},{0.454, 0.407},{0.166, 0.272},{0.108, 0.075},
+                {0.365, 0.673},{0.14, 0.58},{0.22, 0.928},{0.425, 0.93},
             };
 
             float sort_key1(float3 hsv) {
-                // return hsv.z;
-                return hsv.y + hsv.z;
+                return hsv.y + hsv.z; // More vibrant colors are better
+            }
+            float sort_key2(float3 hsv) {
+                return hsv.x;
+            }
+
+
+            float rand(float2 co){
+                return frac(sin(dot(co, float2(12.9898, 78.233))) * 43758.5453);
             }
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
@@ -1259,19 +1279,18 @@ Shader "AudioLink/Internal/AudioLink"
 
                 if (coordinateLocal.x == 0) {
                     float2 samplePosition = samplePositions[coordinateLocal.y % SAMPLE_COUNT];
-                    float3 col = tex2D(_VideoTexture, samplePosition).rgb;
-                    float3 hsv = AudioLinkRGBtoHSV(col);
-                    // hsv.x = 0;
-                    // hsv.y = 0;
-                    return float4(hsv,1);
+                    // Pick the better of two samples.
+                    float3 sample_a = AudioLinkRGBtoHSV(tex2D(_VideoTexture, samplePosition).rgb);
+                    float3 sample_b = AudioLinkRGBtoHSV(tex2D(_VideoTexture, float2(samplePosition.x, 1-samplePosition.y)).rgb);
+                    float3 better_sample = sort_key1(sample_a) < sort_key1(sample_b) ? sample_b : sample_a;
+                    return float4(better_sample, 1);
                 } else if (coordinateLocal.x <= SAMPLE_COUNT) {
-                    // only half-sort even/odd sort to separate the lowest from highest saturations.
-                    // TODO: Link to python code demonstrating the sort
+                    // half-sort even/odd sort with sort_key1.
                     uint x_base = coordinateLocal.x - 1; // Start off with even
                     bool even = x_base % 2 == 0;
                     bool current_sample_is_bottom = (coordinateLocal.x + coordinateLocal.y)% 2 == 1;
                     int y_offset = current_sample_is_bottom? 1 : -1;
-                    if (!even && (coordinateLocal.y == 0 || coordinateLocal.y == 16-1)) y_offset = 0;
+                    if (!even && (coordinateLocal.y == 0 || coordinateLocal.y == SAMPLE_COUNT-1)) y_offset = 0;
                     // return even? float4(1,0,0,1) : float4(0,0,1,1);
                     // return current_sample_is_bottom? float4(1,0,0,1) : float4(0,1,0,1);
                     // return float4(float(y_offset), float(-y_offset),0,1);
@@ -1280,12 +1299,29 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 sample_top = current_sample_is_bottom? sample_other : sample_self;
                     float4 sample_bot = current_sample_is_bottom? sample_self : sample_other;
                     return (sort_key1(sample_bot) < sort_key1(sample_top))? sample_self : sample_other;
-                } else if (coordinateLocal.x <= SAMPLE_COUNT*2) {
+                } else if (coordinateLocal.x <= SAMPLE_COUNT*1.5) {
                     if (coordinateLocal.y < SAMPLE_COUNT / 2) {
+                        return 0; // Discard the bad half of the samples
+                    }
+                    // half-sort even/odd sort with sort_key2.
+                    uint x_base = coordinateLocal.x - 1; // Start off with even
+                    bool even = x_base % 2 == 0;
+                    bool current_sample_is_bottom = (coordinateLocal.x + coordinateLocal.y)% 2 == 1;
+                    int y_offset = current_sample_is_bottom? 1 : -1;
+                    if (!even && (coordinateLocal.y == SAMPLE_COUNT / 2 || coordinateLocal.y == SAMPLE_COUNT-1)) y_offset = 0;
+                    float4 sample_other = AudioLinkGetSelfPixelData(coordinateGlobal + int2(-1, y_offset));
+                    float4 sample_self = AudioLinkGetSelfPixelData(coordinateGlobal + uint2(-1, 0));
+                    float4 sample_top = current_sample_is_bottom? sample_other : sample_self;
+                    float4 sample_bot = current_sample_is_bottom? sample_self : sample_other;
+                    float4 hsv = (sort_key2(sample_bot) < sort_key2(sample_top))? sample_self : sample_other;
+                    hsv.yz = lerp(hsv.yz, float2(1,1), .008);
+                    return hsv;
+                } else if (coordinateLocal.x == SAMPLE_COUNT*1.5+1) {
+                    if (coordinateLocal.y % 2 == 0) {
                         return 0;
                     }
                     return AudioLinkGetSelfPixelData(coordinateGlobal + uint2(-1, 0));
-                } else{
+                } else {
                     return AudioLinkGetSelfPixelData(coordinateGlobal + uint2(-1, 0));
                 }
 
