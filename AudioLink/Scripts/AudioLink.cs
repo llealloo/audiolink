@@ -375,7 +375,6 @@ public class AudioLink : UdonSharpBehaviour
         // rather than bundled in with the other things in UpdateSettings().
         public void UpdateThemeColors()
         {
-            Debug.Log("set " + themeColorMode);
             audioMaterial.SetInt("_ThemeColorMode", themeColorMode);
             audioMaterial.SetColor("_ThemeColor0", themeColor0);
             audioMaterial.SetColor("_ThemeColor1", themeColor1);
