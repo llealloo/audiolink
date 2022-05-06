@@ -211,7 +211,11 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
-                Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                #if UNITY_EDITOR
+                    0.0f,
+                #else
+                    Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                #endif
                 0 ) );
 
             #else
@@ -296,10 +300,14 @@ public class AudioLink : UdonSharpBehaviour
                 (float)DateTime.Now.TimeOfDay.TotalSeconds,
                 _ReadbackTime ) );
 
+			// Jan 1, 1970 = 621355968000000000.0 ticks.
+            double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
             audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
                 (float)((_networkTimeMS)&65535),
                 (float)((_networkTimeMS)>>16),
-                0, 0 ) );
+                (float)(Math.Floor(UTCSecondsUnix/86400)),
+                (float)(UTCSecondsUnix%86400)
+            ) );
 
             // General Profiling Notes:
             //    Profiling done on 2021-05-26 on an Intel Intel Core i7-8750H CPU @ 2.20GHz

@@ -67,15 +67,17 @@
                 int points_after_decimal = 0; 
                 int max_decimals = 6;
 
-                if( dig.y < 11 )
+                if( dig.y < 13 )
                 {
                     if( dig.x < cols - number_area_cols )
                     {
                         uint sendchar = 0;
-                        const uint sendarr[110] = { 
+                        const uint sendarr[130] = { 
                             'I', 'n', 's', 't', 'a', 'n', 'c', 'e', ' ', ' ',
                             'W', 'a', 'l', 'l', 'c', 'l', 'o', 'c', 'k', ' ',
                             'N', 'e', 't', 'w', 'o', 'r', 'k', ' ', ' ', ' ',
+                            'U', 'T', 'C', ' ', 'D', 'a', 'y', 's', ' ', ' ',
+                            'U', 'T', 'C', ' ', 'S', 'e', 'c', 'o', 'n', 'd',
                             'A', 'u', 't', 'o', ' ', 'g', 'a', 'i', 'n', ' ',
                             'P', 'e', 'a', 'k', ' ', 'v', 'a', 'l', 'u', 'e',
                             'R', 'M', 'S', ' ', 'v', 'a', 'l', 'u', 'e', ' ',
@@ -141,16 +143,33 @@
                     }
                     break;
                 case 3:
+					value = AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_UNIX_DAYS );
+					xoffset = 11;
+					break;
+                case 4:
+					if( dig.x < 8 )
+					{
+						value = AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_UNIX_SECONDS )/1000;
+						xoffset = 7;
+					}
+					else
+					{
+						value = AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_UNIX_SECONDS )%1000;
+						xoffset = 11;
+						leadingzero = 1;
+					}
+					break;
+                case 5:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 11, 0 ) ) ); //Autogain Debug
                     break;
-                case 4:
+                case 6:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 8, 0 ) ) ).y; //Peak
                     break;
-                case 5:
+                case 7:
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 8, 0 ) ) ).x; //RMS
                     break;
 
-                case 6:
+                case 8:
                     if( dig.x < 7 )
                     {
                         value = AudioLinkData( int2( ALPASS_GENERALVU + int2( 0, 0 ) ) ).b; //True FPS
@@ -163,7 +182,7 @@
                     }
                     break;
 
-                case 7:
+                case 9:
                     if( dig.x < 3 )
                     {
                         value = AudioLinkData( int2( ALPASS_GENERALVU_PLAYERINFO ) ).r;
@@ -180,15 +199,15 @@
                         xoffset = 11;
                     }
                     break;
-                case 8:
+                case 10:
                     //GENERAL DEBUG VALUE 1
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2(7, 0 ) ) ).x;
                     break;
-                case 9:
+                case 11:
                     //GENERAL DEBUG VALUE 2
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2(7, 0 ) ) ).y;
                     break;
-                case 10:
+                case 12:
                     //GENERAL DEBUG VALUE 3
                     value = AudioLinkData( int2( ALPASS_GENERALVU + int2(7, 0 ) ) ).z;
                     break;
@@ -196,26 +215,26 @@
                     if( dig.x < 5 )
                     {
                         // CC Note
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 0 ) ).x;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 13, 0 ) ).x;
                         xoffset = 2;
                     }
                     else if( dig.x < 10 )
                     {
                         //CC Note Number
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 1 ) ).x;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 13, 1 ) ).x;
                         xoffset = 10;
                     }
                     else if( dig.x < 15 )
                     {
                         //Time Existed
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 1 ) ).y;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 13, 1 ) ).y;
                         xoffset = 13;
                     }
                     else if( dig.x < 20 )
                     {
                         //Intensity
                         xoffset = 18;
-                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 11, 0 ) ).a;
+                        value = AudioLinkData( ALPASS_CCINTERNAL + int2( 1 + dig.y - 13, 0 ) ).a;
                     }
                     break;
                 }
