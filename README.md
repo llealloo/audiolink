@@ -11,7 +11,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ## 0.2.8 - May 6th, 2022
 ### New features
-- Added the ability to get the time since Unix epoch, either in milliseconds or in days. Additionally, a helper function, `AudioLinkGetTimeOfDay()` has been added, which lets you easily get the current time of day in UTC timezone.
+- Added the ability to get the time since Unix epoch in days, and milliseconds since 12:00 AM UTC. Additionally, a helper function, `AudioLinkGetTimeOfDay()` has been added, which lets you easily get the current hours, minutes and seconds of the time of day in UTC.
 - An editor scripting define, `AUDIOLINK`, which will be automatically added when AudioLink is included. (Thanks, Float3)
 - AudioLink can now compile without VRCSDK and UDON, for use outside of VRChat. This kind of usecase is still experimental at best, though. (Thanks, Float3 and yewnyx)
 - Added a few new helper methods to sample various notes of the DFT. (Thanks, Float3)
