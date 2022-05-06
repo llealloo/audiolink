@@ -22,10 +22,10 @@ Shader "AudioLink/Internal/AudioLink"
         _SourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
         
         _ThemeColorMode( "Theme Color Mode", int ) = 0
-        _ThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
-        _ThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
-        _ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
-        _ThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+        _CustomThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
+        _CustomThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
+        _CustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
+        _CustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
     }
 
     SubShader
@@ -88,10 +88,10 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _SourceDistance;
             uniform float _SourceSpatialBlend;
             uniform uint _ThemeColorMode;
-            uniform float4 _ThemeColor0;
-            uniform float4 _ThemeColor1;
-            uniform float4 _ThemeColor2;
-            uniform float4 _ThemeColor3;
+            uniform float4 _CustomThemeColor0;
+            uniform float4 _CustomThemeColor1;
+            uniform float4 _CustomThemeColor2;
+            uniform float4 _CustomThemeColor3;
 
             // Extra Properties
             uniform float _EnableAutogain;
@@ -539,10 +539,10 @@ Shader "AudioLink/Internal/AudioLink"
                     {
                         if( _ThemeColorMode == 1 )
                         {
-                            if( coordinateLocal.x == 0 ) return _ThemeColor0;
-                            if( coordinateLocal.x == 1 ) return _ThemeColor1;
-                            if( coordinateLocal.x == 2 ) return _ThemeColor2;
-                            if( coordinateLocal.x == 3 ) return _ThemeColor3;
+                            if( coordinateLocal.x == 0 ) return _CustomThemeColor0;
+                            if( coordinateLocal.x == 1 ) return _CustomThemeColor1;
+                            if( coordinateLocal.x == 2 ) return _CustomThemeColor2;
+                            if( coordinateLocal.x == 3 ) return _CustomThemeColor3;
                         }
                         else
                         {
