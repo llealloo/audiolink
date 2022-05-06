@@ -24,7 +24,7 @@ namespace VRCAudioLink
   }
 
   [CustomEditor(typeof(AudioLinkAutoConfigurator))]
-  public class AudioLinkConfiguratorEditor : Editor
+  public class AudioLinkConfiguratorEditor : UnityEditor.Editor
   {
     private bool valuesSet;
     private bool showAdvanced;

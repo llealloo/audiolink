@@ -92,7 +92,7 @@ Material:
     - _FadeLength: 0.8
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
-    - _Gain: 1.25
+    - _Gain: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -109,11 +109,12 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 25.74769
+    - _SourceDistance: 8.28243
     - _SourceSpatialBlend: 0
-    - _SourceVolume: 0.9
+    - _SourceVolume: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _ThemeColorMode: 0
     - _ThemeColorsEnable: 0
     - _Threshold0: 0.45
     - _Threshold1: 0.45
@@ -136,6 +137,10 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _CustomThemeColor0: {r: 1, g: 1, b: 0, a: 1}
+    - _CustomThemeColor1: {r: 0, g: 0, b: 1, a: 1}
+    - _CustomThemeColor2: {r: 1, g: 0, b: 0, a: 1}
+    - _CustomThemeColor3: {r: 0, g: 1, b: 0, a: 1}
     - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}

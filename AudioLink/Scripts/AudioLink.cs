@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 #endif
 using UnityEngine.UI;
 using System;
+using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
@@ -428,7 +429,7 @@ public class AudioLink : UdonSharpBehaviour
 
     #if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
     [CustomEditor(typeof(AudioLink))]
-    public class AudioLinkEditor : Editor
+    public class AudioLinkEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
