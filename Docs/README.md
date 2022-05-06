@@ -218,7 +218,9 @@ It contains the following dedicated pixels:
 <tr><td>6, 1</td><td>6, 22</td><td>Milliseconds Since 12:00 AM of UTC Unix Time Day Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_UNIX_SECONDS )</pre></td></tr>
 </table>
 
-Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_UNIX_SECONDS`, `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`
+Note: For milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_UNIX_SECONDS`, `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`. 
+
+Note: A helper function, `AudioLinkGetTimeOfDay()` exists to easily get the time of day in UTC timezone, consisting of hour, minute and second in each channel of the returned value.
 
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)

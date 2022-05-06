@@ -254,4 +254,16 @@ float AudioLinkGetChronoTimeInterval(uint index, uint band, float speed, float i
     return AudioLinkGetChronoTimeNormalized(index, band, speed) * interval;
 }
 
+// Get time of day. The return value is a float4 with the values float3(hour, minute, second).
+float3 AudioLinkGetTimeOfDay()
+{
+    float value = AudioLinkDecodeDataAsSeconds(ALPASS_GENERALVU_UNIX_SECONDS);
+    float rounded = floor(value / 86400.0) * 86400.0;
+    float delta = value - rounded;
+    float hour = floor(delta / 3600.0);
+    float minute = floor(delta / 60.0) % 60.0;
+    float second = delta % 60.0;
+    return float3(hour, minute, second);
+}
+
 #endif
