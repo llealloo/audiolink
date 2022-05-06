@@ -66,10 +66,10 @@ public class AudioLink : UdonSharpBehaviour
         public float threshold3 = 0.45f;
 
         [Header("Fade Controls")] [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
-        public float fadeLength = 0.8f;
+        public float fadeLength = 0.25f;
 
         [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
-        public float fadeExpFalloff = 0.3f;
+        public float fadeExpFalloff = 0.75f;
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
         public bool themeColorsEnable;
