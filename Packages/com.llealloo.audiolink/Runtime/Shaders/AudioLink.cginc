@@ -32,6 +32,7 @@
 #define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
 #define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
+#define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.

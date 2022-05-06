@@ -339,6 +339,7 @@ public class AudioLink : UdonSharpBehaviour
         #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
+            UpdateGlobalString("_StringLocalPlayer", "Pema99");
         #endif
         }
 
@@ -381,6 +382,107 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetColor("_CustomThemeColor1", customThemeColor1);
             audioMaterial.SetColor("_CustomThemeColor2", customThemeColor2);
             audioMaterial.SetColor("_CustomThemeColor3", customThemeColor3);
+        }
+
+        public void UpdateGlobalString(string name, string input)
+        {
+            // Get unicode codepoints
+            var codePoints = new int[input.Length];
+            int codePointsLength = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                codePoints[codePointsLength++] = Char.ConvertToUtf32(input, i);
+                if (Char.IsHighSurrogate(input[i]))
+                {
+                    i += 1;
+                }
+            }
+
+            // Convert to bytes
+            byte[] bytes = new byte[codePointsLength * 6];
+            int bytesLength = 0;
+            for (int i = 0; i < codePointsLength; i++)
+            {
+                int codePoint = codePoints[i];
+                if (codePoint < 0x80)
+                {
+                    bytes[bytesLength++] = (byte)codePoint;
+                }
+                else if (codePoint < 0x800)
+                {
+                    bytes[bytesLength++] = (byte)(0xC0 | (codePoint >> 6));
+                    bytes[bytesLength++] = (byte)(0x80 | (codePoint & 0x3F));
+                }
+                else if (codePoint < 0x10000)
+                {
+                    bytes[bytesLength++] = (byte)(0xE0 | (codePoint >> 12));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 6) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | (codePoint & 0x3F));
+                }
+                else if (codePoint < 0x200000)
+                {
+                    bytes[bytesLength++] = (byte)(0xF0 | (codePoint >> 18));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 12) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 6) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | (codePoint & 0x3F));
+                }
+                else if (codePoint < 0x4000000)
+                {
+                    bytes[bytesLength++] = (byte)(0xF8 | (codePoint >> 24));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 18) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 12) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 6) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | (codePoint & 0x3F));
+                }
+                else
+                {
+                    bytes[bytesLength++] = (byte)(0xFC | (codePoint >> 30));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 24) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 18) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 12) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | ((codePoint >> 6) & 0x3F));
+                    bytes[bytesLength++] = (byte)(0x80 | (codePoint & 0x3F));
+                }
+            }
+
+            // Pack the bytes into vectors
+            int vecsLength = 128 / 16;
+            Vector4[] vecs = new Vector4[vecsLength]; // 16 bytes per vector
+            int j = 0;
+            for (int i = 0; i < vecsLength; i++)
+            {
+                if (j < bytesLength) vecs[i].x = IntToFloat(FloatToInt(vecs[i].x) | (bytes[j++]      )); else break;
+                if (j < bytesLength) vecs[i].x = IntToFloat(FloatToInt(vecs[i].x) | (bytes[j++] << 8 )); else break;
+                if (j < bytesLength) vecs[i].x = IntToFloat(FloatToInt(vecs[i].x) | (bytes[j++] << 16)); else break;
+                if (j < bytesLength) vecs[i].x = IntToFloat(FloatToInt(vecs[i].x) | (bytes[j++] << 24)); else break;
+                if (j < bytesLength) vecs[i].y = IntToFloat(FloatToInt(vecs[i].y) | (bytes[j++]      )); else break;
+                if (j < bytesLength) vecs[i].y = IntToFloat(FloatToInt(vecs[i].y) | (bytes[j++] << 8 )); else break;
+                if (j < bytesLength) vecs[i].y = IntToFloat(FloatToInt(vecs[i].y) | (bytes[j++] << 16)); else break;
+                if (j < bytesLength) vecs[i].y = IntToFloat(FloatToInt(vecs[i].y) | (bytes[j++] << 24)); else break;
+                if (j < bytesLength) vecs[i].z = IntToFloat(FloatToInt(vecs[i].z) | (bytes[j++]      )); else break;
+                if (j < bytesLength) vecs[i].z = IntToFloat(FloatToInt(vecs[i].z) | (bytes[j++] << 8 )); else break;
+                if (j < bytesLength) vecs[i].z = IntToFloat(FloatToInt(vecs[i].z) | (bytes[j++] << 16)); else break;
+                if (j < bytesLength) vecs[i].z = IntToFloat(FloatToInt(vecs[i].z) | (bytes[j++] << 24)); else break;
+                if (j < bytesLength) vecs[i].w = IntToFloat(FloatToInt(vecs[i].w) | (bytes[j++]      )); else break;
+                if (j < bytesLength) vecs[i].w = IntToFloat(FloatToInt(vecs[i].w) | (bytes[j++] << 8 )); else break;
+                if (j < bytesLength) vecs[i].w = IntToFloat(FloatToInt(vecs[i].w) | (bytes[j++] << 16)); else break;
+                if (j < bytesLength) vecs[i].w = IntToFloat(FloatToInt(vecs[i].w) | (bytes[j++] << 24)); else break;
+            }
+
+            // Expose the vectors to shader
+            audioMaterial.SetVectorArray(name, vecs);
+        }
+
+        private int FloatToInt(float v)
+        {
+            var res = BitConverter.GetBytes(v);
+            return BitConverter.ToInt32(res, 0);
+        }
+
+        private float IntToFloat(int v)
+        {
+            var res = BitConverter.GetBytes(v);
+            return BitConverter.ToSingle(res, 0);
         }
 
         public void SendAudioOutputData()
