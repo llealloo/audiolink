@@ -72,11 +72,12 @@ public class AudioLink : UdonSharpBehaviour
         public float fadeExpFalloff = 0.3f;
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
-        public bool themeColorsEnable;
-        public Color themeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
-        public Color themeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-        public Color themeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-        public Color themeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+        [StringInList("ColorChord Colors", "Custom")]
+        public int themeColorMode;
+        public Color customThemeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+        public Color customThemeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+        public Color customThemeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+        public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public GameObject audioTextureExport;
@@ -374,11 +375,11 @@ public class AudioLink : UdonSharpBehaviour
         // rather than bundled in with the other things in UpdateSettings().
         public void UpdateThemeColors()
         {
-            audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
-            audioMaterial.SetColor("_ThemeColor0", themeColor0);
-            audioMaterial.SetColor("_ThemeColor1", themeColor1);
-            audioMaterial.SetColor("_ThemeColor2", themeColor2);
-            audioMaterial.SetColor("_ThemeColor3", themeColor3);
+            audioMaterial.SetInt("_ThemeColorMode", themeColorMode);
+            audioMaterial.SetColor("_CustomThemeColor0", customThemeColor0);
+            audioMaterial.SetColor("_CustomThemeColor1", customThemeColor1);
+            audioMaterial.SetColor("_CustomThemeColor2", customThemeColor2);
+            audioMaterial.SetColor("_CustomThemeColor3", customThemeColor3);
         }
 
         public void SendAudioOutputData()
