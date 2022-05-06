@@ -26,6 +26,8 @@ Shader "AudioLink/Internal/AudioLink"
         _ThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
         _ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
         _ThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+
+        _VideoTexture ("Video Texture", 2D) = "green"
     }
 
     SubShader
@@ -323,7 +325,7 @@ Shader "AudioLink/Internal/AudioLink"
                     // Slide pixels (coordinateLocal.x > 0)
                     float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
                     lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                    int framesToRoll = floor( lastvalTiming.x );
+                    uint framesToRoll = floor( lastvalTiming.x );
 
                     if( framesToRoll == 0 )
                     {
@@ -1186,7 +1188,7 @@ Shader "AudioLink/Internal/AudioLink"
                 }
                 else
                 {
-					// BEAT DETECTION STILL IN EARLY DEVELOPMENT - DO NOT USE
+                    // BEAT DETECTION STILL IN EARLY DEVELOPMENT - DO NOT USE
                     float4 prev = AudioLinkGetSelfPixelData(coordinateGlobal.xy);
                     if( coordinateLocal.x == 5 )
                     {
@@ -1218,6 +1220,47 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                 }
                 return 1;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "Pass12-VideoTheme"
+            CGPROGRAM
+            sampler2D _VideoTexture;
+            const static float2 samplePositions[16] = {
+                // hand picked. https://www.desmos.com/calculator/rp4fjgbba4
+                {0.87, 0.662}, {0.63, 0.555}, {0.83, 0.84}, {0.627, 0.947},
+                {0.863, 0.132}, {0.632, 0.096}, {0.947, 0.384}, {0.716, 0.315},
+                {0.38, 0.163}, {0.407, 0.377}, {0.177, 0.305}, {0.108, 0.075},
+                {0.365, 0.673}, {0.143, 0.575}, {0.12, 0.92}, {0.367, 0.845}
+            };
+
+            float4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                uint2 ALPASS_VIDEOTHEME = uint2(0, 32);
+                AUDIO_LINK_ALPHA_START(ALPASS_VIDEOTHEME)
+
+                // Debug to see raw colors.
+                if (coordinateLocal.y >= 16) {
+                    return float4(AudioLinkHSVtoRGB(
+                        AudioLinkGetSelfPixelData(coordinateGlobal - uint2(0, 16)).rgb
+                    ), 1);
+                }
+
+                if (coordinateLocal.x == 0) {
+                    float2 samplePosition = samplePositions[coordinateLocal.y % 16];
+                    float3 col = tex2D(_VideoTexture, samplePosition).rgb;
+                    return float4(AudioLinkRGBtoHSV(col),1);
+                } else if (coordinateLocal.x <= 64) {
+                    return AudioLinkGetSelfPixelData(coordinateGlobal - uint2(1, 0));
+                }
+
+                if (coordinateLocal.y == 0 ) return float4(1,0,0,1);
+                return float4(0,float(coordinateLocal.y) / 32,0,1);
+                // if (coordinateLocal.y > 1) return float4(0, 1, 0, 1);
+                // return float4(0, 0, 1, 1);
             }
             ENDCG
         }
