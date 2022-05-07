@@ -122,6 +122,17 @@ Shader "AudioLink/Internal/AudioLink"
             const static float _ContrastOffset = 0.62;
 
             const static float _WaveInClampValue = 2.0;
+
+            // Encodes a uint so it can be read-out by AudioLinkDecodeDataAsUInt().
+            inline float4 AudioLinkEncodeUInt(uint val)
+            {
+                return float4(
+                    (float)((val) & 0x3ff),
+                    (float)((val >> 10) & 0x3ff),
+                    (float)((val >> 20) & 0x3ff),
+                    (float)((val >> 30) & 0x3ff)
+                );
+            }
             ENDCG
 
             Name "Pass1AudioDFT"
@@ -494,18 +505,20 @@ Shader "AudioLink/Internal/AudioLink"
                             // This is done a little awkwardly as to prevent any overflows.
                             uint dtms = _AdvancedTimeProps.x * 1000;
                             uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
+                            // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(
                                 (float)(dtms & 0x3ff),
                                 (float)((dtms2) & 0x3ff),
                                 (float)((dtms2 >> 10) & 0x3ff),
                                 (float)((dtms2 >> 20) & 0x3ff)
-                                );
+                            );
                         }
                         else if(coordinateLocal.x == 3)
                         {
                             // Current time of day, in local time.
                             // Generally this will not exceed 90 million milliseconds. (25 hours)
                             int ftpa = _AdvancedTimeProps.z * 1000.;
+                            // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
                         }
                         else if(coordinateLocal.x == 4)
@@ -515,8 +528,8 @@ Shader "AudioLink/Internal/AudioLink"
                             float major = _AdvancedTimeProps2.y;
                             if( major < 0 )
                                 major = 65536 + major;
-                            int currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
-                            return float4((currentNetworkTimeMS & 0x3ff), (currentNetworkTimeMS >> 10) & 0x3ff, (currentNetworkTimeMS >> 20) & 0x3ff, (currentNetworkTimeMS >> 30) & 0x3ff );
+                            uint currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
+                            return AudioLinkEncodeUInt(currentNetworkTimeMS);
                         }
                         else if(coordinateLocal.x == 6)
                         {
@@ -564,23 +577,11 @@ Shader "AudioLink/Internal/AudioLink"
                     else if( coordinateLocal.x == 5 )
                     {
                         // UTC Day number
-                        uint dayno = _AdvancedTimeProps2.z;
-                        return float4(
-                            (float)((dayno) & 0x3ff),
-                            (float)((dayno >> 10) & 0x3ff),
-                            (float)((dayno >> 20) & 0x3ff),
-                            (float)((dayno >> 30) & 0x3ff)
-                        );
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps2.z);
                     }
                     else if( coordinateLocal.x == 6 )
                     {
-                        uint timeinday = _AdvancedTimeProps2.w * 1000;
-                        return float4(
-                            (float)((timeinday) & 0x3ff),
-                            (float)((timeinday >> 10) & 0x3ff),
-                            (float)((timeinday >> 20) & 0x3ff),
-                            (float)((timeinday >> 30) & 0x3ff)
-                        );
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps2.w * 1000);
                     }
                 }
 
@@ -1138,12 +1139,7 @@ Shader "AudioLink/Internal/AudioLink"
                     uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
                     Value += ValueDiff * unity_DeltaTime.x * 1048576;
 
-                    return float4(
-                        (float)(Value & 0x3ff),
-                        (float)((Value >> 10) & 0x3ff),
-                        (float)((Value >> 20) & 0x3ff),
-                        (float)((Value >> 30) & 0x3ff)
-                        );
+                    return AudioLinkEncodeUInt(Value);
                 }
                 else
                 {
