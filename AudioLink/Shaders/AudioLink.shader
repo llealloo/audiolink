@@ -98,7 +98,7 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _AutogainDerate;
 
             // Set by Udon
-            uniform float4 _AdvancedTimeProps, _AdvancedTimeProps2, _AdvancedTimeProps3;
+            uniform float4 _AdvancedTimeProps, _AdvancedTimeProps2;
             uniform float4 _VersionNumberAndFPSProperty;
             uniform float4 _PlayerCountAndData;
 
