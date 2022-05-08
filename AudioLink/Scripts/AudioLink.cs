@@ -164,7 +164,11 @@ public class AudioLink : UdonSharpBehaviour
             
             UpdateSettings();
             UpdateThemeColors();
-            if (audioSource.name.Equals("AudioLinkInput"))
+            if (audioSource == null)
+            {
+                Debug.LogWarning("No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
+            }
+            else if (audioSource.name.Equals("AudioLinkInput"))
             {
                 audioSource.volume = _audioLinkInputVolume;
             }
@@ -330,15 +334,15 @@ public class AudioLink : UdonSharpBehaviour
                 // Used to correct for the volume of the audio source component
                 audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
                 audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+                #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                    if (Networking.LocalPlayer != null)
+                    {
+                        float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                        audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+                    }
+                #endif
             }
-
-            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-                if (Networking.LocalPlayer != null)
-                {
-                    float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-                    audioMaterial.SetFloat("_SourceDistance", distanceToSource);
-                }
-            #endif            
+         
 
         // As an optimization: when in-game, require others to call these after
         // setting values on this object.
