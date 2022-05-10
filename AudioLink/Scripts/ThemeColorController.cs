@@ -15,37 +15,43 @@ namespace VRCAudioLink
         {
             [UdonSynced] private int themeColorMode;
 
-            [UdonSynced] public Color customThemeColor0 = Color.yellow;
-            [UdonSynced] public Color customThemeColor1 = Color.blue;
-            [UdonSynced] public Color customThemeColor2 = Color.red;
-            [UdonSynced] public Color customThemeColor3 = Color.green;
+            [UdonSynced] public Color[] customThemeColors = new Color[4]{
+                Color.yellow,
+                Color.blue,
+                Color.red,
+                Color.green
+            };
 
             public UdonBehaviour audioLink;  // Initialized by AudioLinkController.
 
 
             // Initialized from prefab.
             public Dropdown themeColorDropdown;
-            private Color _initCustomThemeColor0;
-            private Color _initCustomThemeColor1;
-            private Color _initCustomThemeColor2;
-            private Color _initCustomThemeColor3;
 
+            private Color[] _initCustomThemeColors;
             private int _initThemeColorMode; // Initialized from themeColorDropdown.
 
             private bool processGUIevents = true;
             private VRCPlayerApi localPlayer;
 
-
-            private Slider slider;
-
+            // A view-controller for customThemeColors
+            public Transform extensionCanvas;
+            public Slider slider_Hue;
+            public Slider slider_Saturation;
+            public Slider slider_Value;
+            public Transform[] customColorSelection;
+            public int customColorIndex = 0;
 
             private void Start()
             {
                 localPlayer = Networking.LocalPlayer;
-                _initCustomThemeColor0 = customThemeColor0;
-                _initCustomThemeColor1 = customThemeColor1;
-                _initCustomThemeColor2 = customThemeColor2;
-                _initCustomThemeColor3 = customThemeColor3;
+                _initCustomThemeColors = new Color[4] {
+                    customThemeColors[0],
+                    customThemeColors[1],
+                    customThemeColors[2],
+                    customThemeColors[3],
+                };
+
                 _initThemeColorMode = themeColorDropdown.value;
                 themeColorMode = _initThemeColorMode;
 
@@ -61,10 +67,14 @@ namespace VRCAudioLink
                 UpdateAudioLinkThemeColors();
             }
 
-            public void SelectCustomColor0() { Debug.Log("SelectCustomColor0"); }
-            public void SelectCustomColor1() { Debug.Log("SelectCustomColor1"); }
-            public void SelectCustomColor2() { Debug.Log("SelectCustomColor2"); }
-            public void SelectCustomColor3() { Debug.Log("SelectCustomColor3"); }
+            public void SelectCustomColor0() { SelectCustomColorN(0); }
+            public void SelectCustomColor1() { SelectCustomColorN(1); }
+            public void SelectCustomColor2() { SelectCustomColorN(2); }
+            public void SelectCustomColor3() { SelectCustomColorN(3); }
+            public void SelectCustomColorN(int n) {
+                customColorIndex = n;
+                UpdateGUI();
+            }
 
             public void OnGUIchange()
             {
@@ -74,19 +84,24 @@ namespace VRCAudioLink
                 if (!Networking.IsOwner(gameObject))
                     Networking.SetOwner(localPlayer, gameObject);
 
+                bool modeChanged = (themeColorMode != themeColorDropdown.value);
                 themeColorMode = themeColorDropdown.value;
-                // TODO: Update colors from HSV sliders
+                customThemeColors[customColorIndex] = Color.HSVToRGB(
+                    slider_Hue.value,
+                    slider_Saturation.value,
+                    slider_Value.value
+                );
 
+                if (modeChanged) UpdateGUI();
                 UpdateAudioLinkThemeColors();
                 RequestSerialization();
             }
 
             public void ResetThemeColors() {
                 themeColorMode = _initThemeColorMode;
-                customThemeColor0 = _initCustomThemeColor0;
-                customThemeColor1 = _initCustomThemeColor1;
-                customThemeColor2 = _initCustomThemeColor2;
-                customThemeColor3 = _initCustomThemeColor3;
+                for (int i=0; i < 4; ++i) {
+                    customThemeColors[i] = _initCustomThemeColors[i];
+                }
                 UpdateGUI();
                 UpdateAudioLinkThemeColors();
                 RequestSerialization();
@@ -95,17 +110,32 @@ namespace VRCAudioLink
             public void UpdateGUI() {
                 processGUIevents = false;
                 themeColorDropdown.value = themeColorMode;
-                // TODO: update HSV sliders
+
+                bool isCustom = themeColorMode == 1;
+                extensionCanvas.gameObject.SetActive(isCustom);
+                for (int i=0; i < 4; ++i) {
+                    customColorSelection[i].gameObject.SetActive(
+                        i == customColorIndex
+                    );
+                }
+
+                // update HSV sliders
+                float H,S,V;
+                Color.RGBToHSV(customThemeColors[customColorIndex], out H, out S, out V);
+                slider_Hue.value = H;
+                slider_Saturation.value = S;
+                slider_Value.value = V;
+
                 processGUIevents = true;
             }
 
             public void UpdateAudioLinkThemeColors() {
                 if (audioLink == null) return;
                 audioLink.SetProgramVariable("themeColorMode", themeColorMode);
-                audioLink.SetProgramVariable("customThemeColor0", customThemeColor0);
-                audioLink.SetProgramVariable("customThemeColor1", customThemeColor1);
-                audioLink.SetProgramVariable("customThemeColor2", customThemeColor2);
-                audioLink.SetProgramVariable("customThemeColor3", customThemeColor3);
+                audioLink.SetProgramVariable("customThemeColor0", customThemeColors[0]);
+                audioLink.SetProgramVariable("customThemeColor1", customThemeColors[1]);
+                audioLink.SetProgramVariable("customThemeColor2", customThemeColors[2]);
+                audioLink.SetProgramVariable("customThemeColor3", customThemeColors[3]);
                 audioLink.SendCustomEvent("UpdateThemeColors");
             }
         }

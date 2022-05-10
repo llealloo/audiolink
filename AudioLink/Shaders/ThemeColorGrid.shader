@@ -43,9 +43,9 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                uint2 themeColorLocation = (i.uv.x < .5) ?
-                    ((i.uv.y < .5)? ALPASS_THEME_COLOR0 : ALPASS_THEME_COLOR1) :
-                    ((i.uv.y < .5)? ALPASS_THEME_COLOR2 : ALPASS_THEME_COLOR3);
+                uint2 themeColorLocation = (i.uv.y > .5) ?
+                    ((i.uv.x < .5)? ALPASS_THEME_COLOR0 : ALPASS_THEME_COLOR1) :
+                    ((i.uv.x < .5)? ALPASS_THEME_COLOR2 : ALPASS_THEME_COLOR3);
                 fixed3 themeColor = AudioLinkData(themeColorLocation).rgb;
                 fixed4 col = tex2D(_MainTex, i.uv);
                 themeColor = lerp(themeColor, col.rgb, col.a *.25);

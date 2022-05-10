@@ -109,12 +109,12 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 14.3202
+    - _SourceDistance: 12.190627
     - _SourceSpatialBlend: 0
     - _SourceVolume: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _ThemeColorMode: 0
+    - _ThemeColorMode: 1
     - _ThemeColorsEnable: 0
     - _Threshold0: 0.45
     - _Threshold1: 0.45
@@ -137,7 +137,7 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _CustomThemeColor0: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    - _CustomThemeColor0: {r: 1, g: 0.92156863, b: 0.015686274, a: 1}
     - _CustomThemeColor1: {r: 0, g: 0, b: 1, a: 1}
     - _CustomThemeColor2: {r: 1, g: 0, b: 0, a: 1}
     - _CustomThemeColor3: {r: 0, g: 1, b: 0, a: 1}
