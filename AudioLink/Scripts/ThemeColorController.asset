@@ -787,7 +787,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: ignoreGUIevents
+      Data: processGUIevents
     - Name: $v
       Entry: 7
       Data: 47|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -814,10 +814,10 @@ MonoBehaviour:
       Data: SystemBoolean
     - Name: symbolOriginalName
       Entry: 1
-      Data: ignoreGUIevents
+      Data: processGUIevents
     - Name: symbolUniqueName
       Entry: 1
-      Data: ignoreGUIevents
+      Data: processGUIevents
     - Name: symbolDefaultValue
       Entry: 6
       Data: 

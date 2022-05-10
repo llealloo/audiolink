@@ -32,7 +32,7 @@ namespace VRCAudioLink
 
             private int _initThemeColorMode; // Initialized from themeColorDropdown.
 
-            private bool ignoreGUIevents = false;
+            private bool processGUIevents = true;
             private VRCPlayerApi localPlayer;
 
 
@@ -68,14 +68,15 @@ namespace VRCAudioLink
 
             public void OnGUIchange()
             {
-                Debug.Log("OnGUIchange");
-                if (ignoreGUIevents)
+                if (!processGUIevents) {
                     return;
+                }
                 if (!Networking.IsOwner(gameObject))
                     Networking.SetOwner(localPlayer, gameObject);
-                themeColorMode = themeColorDropdown.value;
 
+                themeColorMode = themeColorDropdown.value;
                 // TODO: Update colors from HSV sliders
+
                 UpdateAudioLinkThemeColors();
                 RequestSerialization();
             }
@@ -92,10 +93,10 @@ namespace VRCAudioLink
             }
 
             public void UpdateGUI() {
-                ignoreGUIevents = false;
+                processGUIevents = false;
                 themeColorDropdown.value = themeColorMode;
                 // TODO: update HSV sliders
-                ignoreGUIevents = true;
+                processGUIevents = true;
             }
 
             public void UpdateAudioLinkThemeColors() {
