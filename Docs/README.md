@@ -14,25 +14,26 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want, and many features have been added over time.
 
-|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 |
-|-------------------------|-------|-------|-------|-------|-------|-------|-------|-------|
-| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band Filtered         |       |       |       |       |       |       |   X   |   X   |
-| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |   X   |
-| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |
-| VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |
-| VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |
-| Filtered VU meter       |       |       |       |       |       |       |       |   X   |
-| AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |
-| AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |
-| Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |
-| Chronotensity           |       |       |       |       |       |       |       |   X   |
-| ColorChord Index Colors |       |       |       |       |       |       |       |   X   |
-| Theme Colors            |       |       |       |       |       |       |       |   X   |
+|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 | 0.2.7 |
+|-------------------------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
+| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band Filtered         |       |       |       |       |       |       |   X   |   X   |   X   |
+| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |   X   |   X   |
+| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |   X   |
+| Filtered VU meter       |       |       |       |       |       |       |       |   X   |   X   |
+| AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |   X   |
+| AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |   X   |
+| Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |   X   |
+| Chronotensity           |       |       |       |       |       |       |       |   X   |   X   |
+| ColorChord Index Colors |       |       |       |       |       |       |       |   X   |   X   |
+| Theme Colors            |       |       |       |       |       |       |       |   X   |   X   |
+| UTC Time                |       |       |       |       |       |       |       |       |   X   |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
@@ -201,7 +202,9 @@ It contains the following dedicated pixels:
 <tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )</pre></td></tr>
 <tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
 <tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
-<tr><td>4, 0 </td><td>6, 22</td><td>Player Data Info</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td></tr>
+<tr><td>5, 0 </td><td>5, 22</td><td>(Internal)</td><td colspan=4>Reserved for future use</td></tr>
+<tr><td>6, 0 </td><td>6, 22</td><td>Player Data Info</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td></tr>
+<tr><td>7, 0 </td><td>7, 22</td><td>(Internal)</td><td colspan=4>Reserved for future use</td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
 <tr><td>9, 0 </td><td>9, 22</td><td>Marker Value</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
 <tr><td>10, 0</td><td>10, 22</td><td>Marker Times</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak Right</td></tr>
@@ -211,9 +214,13 @@ It contains the following dedicated pixels:
 <tr><td>2, 1</td><td>2, 23</td><td>Theme Color 2 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR2</td></tr>
 <tr><td>3, 1</td><td>3, 23</td><td>Theme Color 3 / Auto Audio Color</td><td colspan=4>ALPASS_THEME_COLOR3</td></tr>
 <tr><td>4, 1</td><td>4, 23</td><td>(Internal)</td><td colspan=4>Internal Timing Tracking</td></tr>
+<tr><td>5, 1</td><td>5, 23</td><td>UTC Days since Unix Epoch</td><td colspan=4><pre>AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_UNIX_DAYS )</pre></td></tr>
+<tr><td>6, 1</td><td>6, 22</td><td>Milliseconds Since 12:00 AM of UTC Unix Time Day Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_UNIX_SECONDS )</pre></td></tr>
 </table>
 
-Note that for milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`
+Note: For milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_UNIX_SECONDS`, `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`. 
+
+Note: A helper function, `AudioLinkGetTimeOfDay()` exists to easily get the time of day in UTC timezone, consisting of hour, minute and second in each channel of the returned value.
 
 ```hlsl
 #define ALPASS_GENERALVU_INSTANCE_TIME   int2(2,22)

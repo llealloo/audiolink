@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 #endif
 using UnityEngine.UI;
 using System;
+using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
@@ -66,10 +67,10 @@ public class AudioLink : UdonSharpBehaviour
         public float threshold3 = 0.45f;
 
         [Header("Fade Controls")] [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
-        public float fadeLength = 0.8f;
+        public float fadeLength = 0.25f;
 
         [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
-        public float fadeExpFalloff = 0.3f;
+        public float fadeExpFalloff = 0.75f;
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
         [StringInList("ColorChord Colors", "Custom")]
@@ -163,7 +164,11 @@ public class AudioLink : UdonSharpBehaviour
             
             UpdateSettings();
             UpdateThemeColors();
-            if (audioSource.name.Equals("AudioLinkInput"))
+            if (audioSource == null)
+            {
+                Debug.LogWarning("No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
+            }
+            else if (audioSource.name.Equals("AudioLinkInput"))
             {
                 audioSource.volume = _audioLinkInputVolume;
             }
@@ -210,7 +215,11 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
-                Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                #if UNITY_EDITOR
+                    0.0f,
+                #else
+                    Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                #endif
                 0 ) );
 
             #else
@@ -295,10 +304,14 @@ public class AudioLink : UdonSharpBehaviour
                 (float)DateTime.Now.TimeOfDay.TotalSeconds,
                 _ReadbackTime ) );
 
+			// Jan 1, 1970 = 621355968000000000.0 ticks.
+            double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
             audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
                 (float)((_networkTimeMS)&65535),
                 (float)((_networkTimeMS)>>16),
-                0, 0 ) );
+                (float)(Math.Floor(UTCSecondsUnix/86400)),
+                (float)(UTCSecondsUnix%86400)
+            ) );
 
             // General Profiling Notes:
             //    Profiling done on 2021-05-26 on an Intel Intel Core i7-8750H CPU @ 2.20GHz
@@ -321,15 +334,15 @@ public class AudioLink : UdonSharpBehaviour
                 // Used to correct for the volume of the audio source component
                 audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
                 audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+                #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                    if (Networking.LocalPlayer != null)
+                    {
+                        float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                        audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+                    }
+                #endif
             }
-
-            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-                if (Networking.LocalPlayer != null)
-                {
-                    float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-                    audioMaterial.SetFloat("_SourceDistance", distanceToSource);
-                }
-            #endif            
+         
 
         // As an optimization: when in-game, require others to call these after
         // setting values on this object.
@@ -428,7 +441,7 @@ public class AudioLink : UdonSharpBehaviour
 
     #if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
     [CustomEditor(typeof(AudioLink))]
-    public class AudioLinkEditor : Editor
+    public class AudioLinkEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

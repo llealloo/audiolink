@@ -323,7 +323,7 @@ Shader "AudioLink/Internal/AudioLink"
                     // Slide pixels (coordinateLocal.x > 0)
                     float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
                     lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                    int framesToRoll = floor( lastvalTiming.x );
+                    uint framesToRoll = floor( lastvalTiming.x );
 
                     if( framesToRoll == 0 )
                     {
@@ -460,6 +460,7 @@ Shader "AudioLink/Internal/AudioLink"
                         else if(coordinateLocal.x == 1)
                         {
                             // Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
+                            // So, instead we just reset it every 24 hours.  Note this is after 24 hours in an instance.
                             // Note: This is also used to measure FPS.
 
                             float4 lastVal = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(1, 0));
@@ -559,6 +560,27 @@ Shader "AudioLink/Internal/AudioLink"
                         int framesToRoll = floor( lastval.x );
                         lastval.x -= framesToRoll;
                         return lastval;
+                    }
+                    else if( coordinateLocal.x == 5 )
+                    {
+                        // UTC Day number
+                        uint dayno = _AdvancedTimeProps2.z;
+                        return float4(
+                            (float)((dayno) & 0x3ff),
+                            (float)((dayno >> 10) & 0x3ff),
+                            (float)((dayno >> 20) & 0x3ff),
+                            (float)((dayno >> 30) & 0x3ff)
+                        );
+                    }
+                    else if( coordinateLocal.x == 6 )
+                    {
+                        uint timeinday = _AdvancedTimeProps2.w * 1000;
+                        return float4(
+                            (float)((timeinday) & 0x3ff),
+                            (float)((timeinday >> 10) & 0x3ff),
+                            (float)((timeinday >> 20) & 0x3ff),
+                            (float)((timeinday >> 30) & 0x3ff)
+                        );
                     }
                 }
 

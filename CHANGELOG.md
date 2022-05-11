@@ -1,11 +1,14 @@
 # Changelog
 
-## 0.2.8 - April 27th, 2022
+## 0.2.8 - May 6th, 2022
 ### New features
+- Added the ability to get the time since Unix epoch in days, and milliseconds since 12:00 AM UTC. Additionally, a helper function, `AudioLinkGetTimeOfDay()` has been added, which lets you easily get the current hours, minutes and seconds of the time of day in UTC.
 - An editor scripting define, `AUDIOLINK`, which will be automatically added when AudioLink is included. (Thanks, Float3)
 - AudioLink can now compile without VRCSDK and UDON, for use outside of VRChat. This kind of usecase is still experimental at best, though. (Thanks, Float3 and yewnyx)
+- Added a few new helper methods to sample various notes of the DFT. (Thanks, Float3)
 ### Changes
 - AudioLink theme colors have been cleaned up, including a new demo in the example scene, and the ability to change the colors in realtime in the editor. (Thanks, DomNomNom)
+- Changed a few default settings on the AudioLink controller to be more responsive. (Thanks, DomNomNom)
 - Changed folder structure to put less clutter into user projects.
 ### Bugfixes
 - Fix vertical UV flip of the AudioLink texture on Quest. (Thanks, Shadowriver)

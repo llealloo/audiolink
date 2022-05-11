@@ -367,7 +367,7 @@ namespace VRCAudioLink
 
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
     [CustomEditor(typeof(AudioLinkMiniPlayerController))]
-    internal class AudioLinkMiniPlayerControllerInspector : Editor
+    internal class AudioLinkMiniPlayerControllerInspector : UnityEditor.Editor
     {
         static bool _showObjectFoldout;
 
