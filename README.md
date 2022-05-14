@@ -9,8 +9,9 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 0.2.8 - May 6th, 2022
+## 0.2.8 - May 14th, 2022
 ### New features
+- AudioLink theme colors are now configurable via the AudioLink controller with a slick color-picker GUI. (Thanks, DomNomNom)
 - Added the ability to get the time since Unix epoch in days, and milliseconds since 12:00 AM UTC. Additionally, a helper function, `AudioLinkGetTimeOfDay()` has been added, which lets you easily get the current hours, minutes and seconds of the time of day in UTC.
 - An editor scripting define, `AUDIOLINK`, which will be automatically added when AudioLink is included. (Thanks, Float3)
 - AudioLink can now compile without VRCSDK and UDON, for use outside of VRChat. This kind of usecase is still experimental at best, though. (Thanks, Float3 and yewnyx)
@@ -27,8 +28,9 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Fix NaN-propagation issue in the included video player. (Thanks, Texelsaur)
 - Add a player validity check to the included video player. (Thanks, Texelsaur)
 - Use `Networking.LocalPlayer.isInstanceOwner` instead of `Networking.IsInstanceOwner`, which is broken. (Thanks, techanon)
+- The logos on the AudioLink controller were using point filtering, which was changed to bilinear. (Thanks, DomNomNom)
 
-## Updating from version 2.6 or lower? (...first time setup? please see next section)
+## Updating from version 2.7 or lower? (...first time setup? please see next section)
 1. Take note of which AudioSource you are using to feed AudioLink, this reference may be lost during upgrade.
 2. Install the latest VRChat SDK3 and UdonSharp (following their directions)
 3. Close unity
@@ -37,13 +39,14 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
    - AudioLink.meta
 5. Reopen unity
 6. Download and install the [latest AudioLink release](https://github.com/llealloo/vrc-udon-audio-link/releases/latest)
-7. In scene(s) containing old versions of AudioLink:
+7. If using AudioReactiveObject or AudioReactiveLight
+   components, you will need to manually re-enable the "Audio Data" under AudioLink "experimental" settings. This feature is now considered experimental until VRChat *maybe* gives us native asynchronous readback.
+8. In scene(s) containing old versions of AudioLink:
    1. Delete both AudioLink and AudioLinkController prefabs from the scene
    2. Re-add AudioLink and AudioLinkController to the scene by dragging the prefabs from the AudioLink folder in projects *(world creators only)*
    3. Click the "Link all sound reactive objects to this AudioLink" button on AudioLink inspector panel *(world creators only)*
    4. Drag the AudioSource you were using previously into the AudioLink audio source parameter
       - NOTE: If you previously used AudioLinkInput, you are welcome to continue doing so, however now in 2.5+ AudioLink is much smarter about inputs. Try dragging it straight into the AudioLink / audio source parameter!
-7. If using AudioReactiveObject or AudioReactiveLight components, you will need to manually re-enable the "Audio Data" under AudioLink "experimental" settings. This feature is now considered experimental until VRChat *maybe* gives us native asynchronous readback.
 
 ## First time setup
 
