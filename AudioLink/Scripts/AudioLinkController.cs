@@ -67,11 +67,13 @@ namespace VRCAudioLink
 
             void Start()
             {
-                if (audioLink == null) {
+                if (audioLink == null)
+                {
                     Debug.LogError("Controller not connected to AudioLink");
                     return;
                 }
-                if (themeColorController == null) {
+                if (themeColorController == null)
+                {
                     // This is here in case someone upgraded AudioLink, which updates
                     // everything in the prefab, but not the outermost properties of the prefab.
                     // TODO: Double check that this is how upgrading ends up working.
@@ -133,7 +135,8 @@ namespace VRCAudioLink
                 audioSpectrumDisplay.SetFloat("_Threshold2", threshold2Slider.value);
                 audioSpectrumDisplay.SetFloat("_Threshold3", threshold3Slider.value);
 
-                if (audioLink == null) {
+                if (audioLink == null)
+                {
                     Debug.LogError("Controller not connected to AudioLink");
                     return;
                 }

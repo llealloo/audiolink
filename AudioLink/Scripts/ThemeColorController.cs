@@ -71,14 +71,16 @@ namespace VRCAudioLink
             public void SelectCustomColor1() { SelectCustomColorN(1); }
             public void SelectCustomColor2() { SelectCustomColorN(2); }
             public void SelectCustomColor3() { SelectCustomColorN(3); }
-            public void SelectCustomColorN(int n) {
+            public void SelectCustomColorN(int n)
+            {
                 customColorIndex = n;
                 UpdateGUI();
             }
 
             public void OnGUIchange()
             {
-                if (!processGUIevents) {
+                if (!processGUIevents)
+                {
                     return;
                 }
                 if (!Networking.IsOwner(gameObject))
@@ -97,9 +99,11 @@ namespace VRCAudioLink
                 RequestSerialization();
             }
 
-            public void ResetThemeColors() {
+            public void ResetThemeColors()
+            {
                 themeColorMode = _initThemeColorMode;
-                for (int i=0; i < 4; ++i) {
+                for (int i=0; i < 4; ++i)
+                {
                     customThemeColors[i] = _initCustomThemeColors[i];
                 }
                 UpdateGUI();
@@ -107,13 +111,15 @@ namespace VRCAudioLink
                 RequestSerialization();
             }
 
-            public void UpdateGUI() {
+            public void UpdateGUI()
+            {
                 processGUIevents = false;
                 themeColorDropdown.value = themeColorMode;
 
                 bool isCustom = themeColorMode == 1;
                 extensionCanvas.gameObject.SetActive(isCustom);
-                for (int i=0; i < 4; ++i) {
+                for (int i=0; i < 4; ++i)
+                {
                     customColorSelection[i].gameObject.SetActive(
                         i == customColorIndex
                     );
@@ -129,7 +135,8 @@ namespace VRCAudioLink
                 processGUIevents = true;
             }
 
-            public void UpdateAudioLinkThemeColors() {
+            public void UpdateAudioLinkThemeColors()
+            {
                 if (audioLink == null) return;
                 audioLink.SetProgramVariable("themeColorMode", themeColorMode);
                 audioLink.SetProgramVariable("customThemeColor0", customThemeColors[0]);
