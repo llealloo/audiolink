@@ -7,10 +7,17 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 using System;
 
+// HAAAX
+using System.ComponentModel;
+
 namespace VRCAudioLink
 {
 #if UDON
 using UdonSharp;
+using VRC.SDK3.Components.Video;
+using VRC.SDK3.Video.Components.AVPro;
+using VRC.SDK3.Video.Components.Base;
+
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR
 using UnityEditor;
@@ -19,6 +26,7 @@ using VRC.Udon;
 using VRC.Udon.Common;
 using VRC.Udon.Common.Interfaces;
 using System.Collections.Immutable;
+
 #endif
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
@@ -31,6 +39,9 @@ public class AudioLink : UdonSharpBehaviour
 
         [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
+
+        [Tooltip("AVPro video player component")]
+        public VRCAVProVideoPlayer videoSourceAvPro;
 
         [Header("Basic EQ")] [Range(0.0f, 2.0f)] [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
         public float gain = 1f;
@@ -81,6 +92,7 @@ public class AudioLink : UdonSharpBehaviour
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public GameObject audioTextureExport;
+        public GameObject videoTextureExport;
         private Shader _shaderAudioLinkExport;
         #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
         public RenderTexture audioRenderTexture;
@@ -175,6 +187,28 @@ public class AudioLink : UdonSharpBehaviour
             Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
             #endif
             //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
+        }
+
+        public void SetupVideo()
+        {
+            videoTextureExport.SetActive(videoSourceAvPro == null);
+            if (videoSourceAvPro != null)
+            {
+                VRCAVProVideoScreen screen = (VRCAVProVideoScreen) videoTextureExport.gameObject.GetComponent(typeof(VRCAVProVideoScreen));
+                screen.VideoPlayer = videoSourceAvPro;
+                // object screen = (object) videoTextureExport.gameObject.GetComponent(typeof(VRCAVProVideoScreen));
+                // foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(screen))
+                // {
+                //     string name = descriptor.Name;
+                //     object value = descriptor.GetValue(screen);
+                //     Console.WriteLine("{0}={1}", name, value);
+                // }
+
+            }
+            else
+            {
+                Debug.Log("skipping AudioLink Video setup.");
+            }
         }
 
         // Only happens once per second.

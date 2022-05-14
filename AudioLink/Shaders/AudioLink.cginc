@@ -78,6 +78,8 @@ uniform float4               _AudioTexture_TexelSize;
     #define AudioLinkData(xycoord) _AudioTexture[uint2(xycoord)]
 #endif
 
+sampler2D _VideoTexture;
+
 // Convenient mechanism to read from the AudioLink texture that handles reading off the end of one line and onto the next above it.
 float4 AudioLinkDataMultiline(uint2 xycoord) { return AudioLinkData(uint2(xycoord.x % AUDIOLINK_WIDTH, xycoord.y + xycoord.x/AUDIOLINK_WIDTH)); }
 

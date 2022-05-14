@@ -27,7 +27,7 @@ Shader "AudioLink/Internal/AudioLink"
         _ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
         _ThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
 
-        _VideoTexture ("Video Texture", 2D) = "green"
+        // _VideoTexture ("Video Texture", 2D) = "green"
     }
 
     SubShader
@@ -1234,7 +1234,7 @@ Shader "AudioLink/Internal/AudioLink"
         {
             Name "Pass12-VideoTheme"
             CGPROGRAM
-            sampler2D _VideoTexture;
+            // sampler2D _VideoTexture;
             #define SAMPLE_COUNT 16
             const static float2 samplePositions[SAMPLE_COUNT] = {
                 // // hand picked. https://www.desmos.com/calculator/rp4fjgbba4
@@ -1283,6 +1283,7 @@ Shader "AudioLink/Internal/AudioLink"
                     float3 sample_a = AudioLinkRGBtoHSV(tex2D(_VideoTexture, samplePosition).rgb);
                     float3 sample_b = AudioLinkRGBtoHSV(tex2D(_VideoTexture, float2(samplePosition.x, 1-samplePosition.y)).rgb);
                     float3 better_sample = sort_key1(sample_a) < sort_key1(sample_b) ? sample_b : sample_a;
+                    better_sample.yz = lerp(better_sample.yz, float2(1,1), .2); // Make things slightly more vivid.
                     return float4(better_sample, 1);
                 } else if (coordinateLocal.x <= SAMPLE_COUNT) {
                     // half-sort even/odd sort with sort_key1.
@@ -1314,7 +1315,6 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 sample_top = current_sample_is_bottom? sample_other : sample_self;
                     float4 sample_bot = current_sample_is_bottom? sample_self : sample_other;
                     float4 hsv = (sort_key2(sample_bot) < sort_key2(sample_top))? sample_self : sample_other;
-                    hsv.yz = lerp(hsv.yz, float2(1,1), .008);
                     return hsv;
                 } else if (coordinateLocal.x == SAMPLE_COUNT*1.5+1) {
                     if (coordinateLocal.y % 2 == 0) {

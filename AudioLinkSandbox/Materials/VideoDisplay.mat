@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: EditorVideoPlayerScreen
-  m_Shader: {fileID: 4800000, guid: 0ac2473163ae19845bddd6406628d3ab, type: 3}
+  m_Name: VideoDisplay
+  m_Shader: {fileID: 4800000, guid: 5231da4f446e6b4409012d1a1f0669f6, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 8400000, guid: f0e6dd0463550ae4fb73db663a9eae4c, type: 2}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
