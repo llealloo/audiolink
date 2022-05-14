@@ -14,7 +14,7 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want, and many features have been added over time.
 
-|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 | 0.2.7 |
+|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 | 0.2.8 |
 |-------------------------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
 | Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
 | Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
