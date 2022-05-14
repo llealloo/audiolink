@@ -68,7 +68,7 @@ namespace VRCAudioLink
             UdonBehaviour findThemeColorController() {
                 Transform controllerTransform = transform.Find("ThemeColorController");
                 if (controllerTransform == null) return null;
-                return controllerTransform.GetComponent(typeof(UdonBehaviour)) as UdonBehaviour;
+                return (UdonBehaviour) controllerTransform.GetComponent(typeof(UdonBehaviour));
             }
 
             void Start()
