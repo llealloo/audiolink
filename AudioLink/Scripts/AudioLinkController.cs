@@ -13,9 +13,12 @@ namespace VRCAudioLink
 
         public class AudioLinkController : UdonSharpBehaviour
         {
+            [Space(10)]
 
             public UdonBehaviour audioLink;
             [Space(10)]
+            [Header("Internal (Do not modify)")]
+            public UdonBehaviour themeColorController;
             public Material audioSpectrumDisplay;
             public Text gainLabel;
             public Slider gainSlider;
@@ -62,9 +65,40 @@ namespace VRCAudioLink
             }
             #endif
 
+            UdonBehaviour findThemeColorController() {
+                Transform controllerTransform = transform.Find("ThemeColorController");
+                if (controllerTransform == null) return null;
+                return (UdonBehaviour) controllerTransform.GetComponent(typeof(UdonBehaviour));
+            }
+
             void Start()
             {
-                if (audioLink == null) Debug.Log("Controller not connected to AudioLink");
+                if (audioLink == null)
+                {
+                    Debug.LogError("Controller not connected to AudioLink");
+                    return;
+                }
+
+                if (themeColorController == null)
+                {
+                    // This is here in case someone upgraded AudioLink, which updates
+                    // everything in the prefab, but not the outermost properties of the prefab.
+                    // TODO: Double check that this is how upgrading ends up working.
+                    Debug.Log("AudioLinkController using fallback method for finding themeColorController");
+                    themeColorController = findThemeColorController();
+                }
+                if (themeColorController == null)
+                {
+                    // Something really weird has gone on. maybe using updated script
+                    // on un-updated prefab?
+                    Debug.LogError("AudioLinkController could not find themeColorController");
+                }
+                else
+                {
+                    themeColorController.SetProgramVariable("audioLink", audioLink);
+                    themeColorController.SendCustomEvent("UpdateAudioLinkThemeColors");
+                }
+
                 _initGain = gainSlider.value;
                 _initTreble = trebleSlider.value;
                 _initBass = bassSlider.value;
@@ -107,6 +141,20 @@ namespace VRCAudioLink
                 _threshold3Rect.anchorMin = anchor3;
                 // threshold3Rect.anchorMax is a constant value. Skip
 
+                audioSpectrumDisplay.SetFloat("_X0", x0Slider.value);
+                audioSpectrumDisplay.SetFloat("_X1", x1Slider.value);
+                audioSpectrumDisplay.SetFloat("_X2", x2Slider.value);
+                audioSpectrumDisplay.SetFloat("_X3", x3Slider.value);
+                audioSpectrumDisplay.SetFloat("_Threshold0", threshold0Slider.value);
+                audioSpectrumDisplay.SetFloat("_Threshold1", threshold1Slider.value);
+                audioSpectrumDisplay.SetFloat("_Threshold2", threshold2Slider.value);
+                audioSpectrumDisplay.SetFloat("_Threshold3", threshold3Slider.value);
+
+                if (audioLink == null)
+                {
+                    Debug.LogError("Controller not connected to AudioLink");
+                    return;
+                }
                 // General settings
                 audioLink.SetProgramVariable("gain", gainSlider.value);
                 audioLink.SetProgramVariable("treble", trebleSlider.value);
@@ -124,14 +172,6 @@ namespace VRCAudioLink
                 audioLink.SetProgramVariable("threshold1", threshold1Slider.value);
                 audioLink.SetProgramVariable("threshold2", threshold2Slider.value);
                 audioLink.SetProgramVariable("threshold3", threshold3Slider.value);
-                audioSpectrumDisplay.SetFloat("_X0", x0Slider.value);
-                audioSpectrumDisplay.SetFloat("_X1", x1Slider.value);
-                audioSpectrumDisplay.SetFloat("_X2", x2Slider.value);
-                audioSpectrumDisplay.SetFloat("_X3", x3Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold0", threshold0Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold1", threshold1Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold2", threshold2Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold3", threshold3Slider.value);
 
                 audioLink.SendCustomEvent("UpdateSettings");
             }
@@ -151,6 +191,10 @@ namespace VRCAudioLink
                 threshold1Slider.value = _initThreshold1;
                 threshold2Slider.value = _initThreshold2;
                 threshold3Slider.value = _initThreshold3;
+                if (themeColorController != null)
+                {
+                    themeColorController.SendCustomEvent("ResetThemeColors");
+                }
             }
 
 
