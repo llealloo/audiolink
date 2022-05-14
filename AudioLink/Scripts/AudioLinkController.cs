@@ -65,7 +65,8 @@ namespace VRCAudioLink
             }
             #endif
 
-            UdonBehaviour findThemeColorController() {
+            UdonBehaviour FindThemeColorController()
+            {
                 Transform controllerTransform = transform.Find("ThemeColorController");
                 if (controllerTransform == null) return null;
                 return (UdonBehaviour) controllerTransform.GetComponent(typeof(UdonBehaviour));
@@ -85,7 +86,7 @@ namespace VRCAudioLink
                     // everything in the prefab, but not the outermost properties of the prefab.
                     // TODO: Double check that this is how upgrading ends up working.
                     Debug.Log("AudioLinkController using fallback method for finding themeColorController");
-                    themeColorController = findThemeColorController();
+                    themeColorController = FindThemeColorController();
                 }
                 if (themeColorController == null)
                 {
