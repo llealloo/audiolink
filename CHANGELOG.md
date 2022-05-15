@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.8 - May 14th, 2022
+### New features
+- AudioLink theme colors are now configurable via the AudioLink controller with a slick color-picker GUI. (Thanks, DomNomNom)
+- Added the ability to get the time since Unix epoch in days, and milliseconds since 12:00 AM UTC. Additionally, a helper function, `AudioLinkGetTimeOfDay()` has been added, which lets you easily get the current hours, minutes and seconds of the time of day in UTC.
+- An editor scripting define, `AUDIOLINK`, which will be automatically added when AudioLink is included. (Thanks, Float3)
+- AudioLink can now compile without VRCSDK and UDON, for use outside of VRChat. This kind of usecase is still experimental at best, though. (Thanks, Float3 and yewnyx)
+- Added a few new helper methods to sample various notes of the DFT. (Thanks, Float3)
+### Changes
+- AudioLink theme colors have been cleaned up, including a new demo in the example scene, and the ability to change the colors in realtime in the editor. (Thanks, DomNomNom)
+- Changed a few default settings on the AudioLink controller to be more responsive. (Thanks, DomNomNom)
+- Changed folder structure to put less clutter into user projects.
+### Bugfixes
+- Fix vertical UV flip of the AudioLink texture on Quest. (Thanks, Shadowriver)
+- Fix error when using "Link all sound reactive objects to this AudioLink" button. (Thanks, Nestorboy)
+- Add a header guard to `AudioLink.cginc` to prevent duplicate includes. (Thanks, PiMaker)
+- Fix various warnings in shader code. (Thanks, Float3)
+- Fix NaN-propagation issue in the included video player. (Thanks, Texelsaur)
+- Add a player validity check to the included video player. (Thanks, Texelsaur)
+- Use `Networking.LocalPlayer.isInstanceOwner` instead of `Networking.IsInstanceOwner`, which is broken. (Thanks, techanon)
+- The logos on the AudioLink controller were using point filtering, which was changed to bilinear. (Thanks, DomNomNom)
+
 ## 0.2.7 - December 1st, 2021
 ### New features
 - Make AudioLink framerate-invariant, instead of assuming a specific framerate. Features that rely on timing have been updated to reflect this change.

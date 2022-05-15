@@ -1,7 +1,12 @@
 ﻿using UnityEngine;
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.SDKBase;
+#else
+using UnityEngine.Rendering;
+#endif
 using UnityEngine.UI;
 using System;
+using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
@@ -23,7 +28,7 @@ public class AudioLink : UdonSharpBehaviour
     public class AudioLink : MonoBehaviour
 #endif
     {
-        const float AUDIOLINK_VERSION_NUMBER = 2.07f;
+        const float AUDIOLINK_VERSION_NUMBER = 2.08f;
 
         [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
@@ -62,21 +67,25 @@ public class AudioLink : UdonSharpBehaviour
         public float threshold3 = 0.45f;
 
         [Header("Fade Controls")] [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
-        public float fadeLength = 0.8f;
+        public float fadeLength = 0.25f;
 
         [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
-        public float fadeExpFalloff = 0.3f;
+        public float fadeExpFalloff = 0.75f;
 
         [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
-        public bool themeColorsEnable;
-        public Color themeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
-        public Color themeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-        public Color themeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-        public Color themeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+        [StringInList("ColorChord Colors", "Custom")]
+        public int themeColorMode;
+        public Color customThemeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+        public Color customThemeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+        public Color customThemeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+        public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public GameObject audioTextureExport;
         private Shader _shaderAudioLinkExport;
+        #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
+        public RenderTexture audioRenderTexture;
+        #endif
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
@@ -100,14 +109,20 @@ public class AudioLink : UdonSharpBehaviour
         private double _elapsedTimeMSW = 0;
         private int    _networkTimeMS;
         private double _networkTimeMSAccumulatedError;
+#pragma warning disable 414 ///The private field is assigned but its value is never used
         private bool   _hasInitializedTime = false;
+#pragma warning restore 414
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
         private float  _ReadbackTime = 0;
         private System.Diagnostics.Stopwatch stopwatch;
 
+#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
+#else
+        private double GetElapsedSecondsSince2019() { return 0; }
+#endif
 
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
         private int _rightChannelTestDelay = 300;
@@ -148,7 +163,12 @@ public class AudioLink : UdonSharpBehaviour
             stopwatch = new System.Diagnostics.Stopwatch();
             
             UpdateSettings();
-            if (audioSource.name.Equals("AudioLinkInput"))
+            UpdateThemeColors();
+            if (audioSource == null)
+            {
+                Debug.LogWarning("No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
+            }
+            else if (audioSource.name.Equals("AudioLinkInput"))
             {
                 audioSource.volume = _audioLinkInputVolume;
             }
@@ -156,16 +176,10 @@ public class AudioLink : UdonSharpBehaviour
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
+            #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
+            Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
+            #endif
             //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
-        }
-
-        public void UpdateThemeColors()
-        {
-            audioMaterial.SetFloat("_ThemeColorsEnable", themeColorsEnable ? 1 : 0);
-            audioMaterial.SetColor("_ThemeColor0", themeColor0);
-            audioMaterial.SetColor("_ThemeColor1", themeColor1);
-            audioMaterial.SetColor("_ThemeColor2", themeColor2);
-            audioMaterial.SetColor("_ThemeColor3", themeColor3);
         }
 
         // Only happens once per second.
@@ -197,12 +211,24 @@ public class AudioLink : UdonSharpBehaviour
             #endif
 
             audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
+            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
             audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
-                Networking.IsInstanceOwner?1.0f:0.0f,
+                #if UNITY_EDITOR
+                    0.0f,
+                #else
+                    Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                #endif
                 0 ) );
 
+            #else
+                audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
+                0,
+                0,
+                0,
+                0 ) );
+            #endif
             _FPSCount = 0;
             _FPSTime++;
 
@@ -222,7 +248,11 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             // Finely adjust our network time estimate if needed.
+            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
             int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
+            #else
+            int networkTimeMSNow = (int)(Time.time*1000.0f);
+            #endif
             int networkTimeDelta = networkTimeMSNow - _networkTimeMS;
             if( networkTimeDelta > 3000 )
             {
@@ -274,10 +304,14 @@ public class AudioLink : UdonSharpBehaviour
                 (float)DateTime.Now.TimeOfDay.TotalSeconds,
                 _ReadbackTime ) );
 
+			// Jan 1, 1970 = 621355968000000000.0 ticks.
+            double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
             audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
                 (float)((_networkTimeMS)&65535),
                 (float)((_networkTimeMS)>>16),
-                0, 0 ) );
+                (float)(Math.Floor(UTCSecondsUnix/86400)),
+                (float)(UTCSecondsUnix%86400)
+            ) );
 
             // General Profiling Notes:
             //    Profiling done on 2021-05-26 on an Intel Intel Core i7-8750H CPU @ 2.20GHz
@@ -300,17 +334,23 @@ public class AudioLink : UdonSharpBehaviour
                 // Used to correct for the volume of the audio source component
                 audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
                 audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+                #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                    if (Networking.LocalPlayer != null)
+                    {
+                        float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                        audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+                    }
+                #endif
             }
+         
 
-            if (Networking.LocalPlayer != null)
-            {
-                float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-                audioMaterial.SetFloat("_SourceDistance", distanceToSource);
-            }
-            
-
+        // As an optimization: when in-game, require others to call these after
+        // setting values on this object.
+        // Since we expect changes to values on this object in editor through the GUI,
+        // we do not have explicit events to when things change.
         #if UNITY_EDITOR
             UpdateSettings();
+            UpdateThemeColors();
         #endif
         }
 
@@ -342,6 +382,17 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
             audioMaterial.SetFloat("_Bass", bass);
             audioMaterial.SetFloat("_Treble", treble);
+        }
+
+        // Note: These might be changed frequently so as an optimization, they're in a different function
+        // rather than bundled in with the other things in UpdateSettings().
+        public void UpdateThemeColors()
+        {
+            audioMaterial.SetInt("_ThemeColorMode", themeColorMode);
+            audioMaterial.SetColor("_CustomThemeColor0", customThemeColor0);
+            audioMaterial.SetColor("_CustomThemeColor1", customThemeColor1);
+            audioMaterial.SetColor("_CustomThemeColor2", customThemeColor2);
+            audioMaterial.SetColor("_CustomThemeColor3", customThemeColor3);
         }
 
         public void SendAudioOutputData()
@@ -390,7 +441,7 @@ public class AudioLink : UdonSharpBehaviour
 
     #if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
     [CustomEditor(typeof(AudioLink))]
-    public class AudioLinkEditor : Editor
+    public class AudioLinkEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
@@ -406,6 +457,7 @@ public class AudioLink : UdonSharpBehaviour
             UdonBehaviour[] allBehaviours = UnityEngine.Object.FindObjectsOfType<UdonBehaviour>();
             foreach (UdonBehaviour behaviour in allBehaviours)
             {
+                if (!behaviour.programSource) continue;
                 var program = behaviour.programSource.SerializedProgramAsset.RetrieveProgram();
                 ImmutableArray<string> exportedSymbolNames = program.SymbolTable.GetExportedSymbols();
                 foreach (string exportedSymbolName in exportedSymbolNames)

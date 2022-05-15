@@ -21,11 +21,11 @@ Shader "AudioLink/Internal/AudioLink"
         _SourceDistance("Distance to Source", float) = 1
         _SourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
         
-        _ThemeColorsEnable( "Theme Colors Enable", float ) = 0
-        _ThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
-        _ThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
-        _ThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
-        _ThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+        _ThemeColorMode( "Theme Color Mode", int ) = 0
+        _CustomThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
+        _CustomThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
+        _CustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
+        _CustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
     }
 
     SubShader
@@ -40,7 +40,9 @@ Shader "AudioLink/Internal/AudioLink"
         Pass
         {
             CGINCLUDE
-            #if UNITY_UV_STARTS_AT_TOP
+            //On Quest UNITY_UV_STARTS_AT_TOP is false but actual uv behaves as it's true breaking entire audio texture,same issue occur in editor on OpenGL ES mode
+            //So SHADER_API_GLES3 is included to fix texture on Quest, in case of same issue occuring on PC entire conditioning here need to be removed.
+            #if UNITY_UV_STARTS_AT_TOP || SHADER_API_GLES3
             #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
                 uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
@@ -85,11 +87,11 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _SourceVolume;
             uniform float _SourceDistance;
             uniform float _SourceSpatialBlend;
-            uniform float _ThemeColorsEnable;
-            uniform float4 _ThemeColor0;
-            uniform float4 _ThemeColor1;
-            uniform float4 _ThemeColor2;
-            uniform float4 _ThemeColor3;
+            uniform uint _ThemeColorMode;
+            uniform float4 _CustomThemeColor0;
+            uniform float4 _CustomThemeColor1;
+            uniform float4 _CustomThemeColor2;
+            uniform float4 _CustomThemeColor3;
 
             // Extra Properties
             uniform float _EnableAutogain;
@@ -120,6 +122,17 @@ Shader "AudioLink/Internal/AudioLink"
             const static float _ContrastOffset = 0.62;
 
             const static float _WaveInClampValue = 2.0;
+
+            // Encodes a uint so it can be read-out by AudioLinkDecodeDataAsUInt().
+            inline float4 AudioLinkEncodeUInt(uint val)
+            {
+                return float4(
+                    (float)((val) & 0x3ff),
+                    (float)((val >> 10) & 0x3ff),
+                    (float)((val >> 20) & 0x3ff),
+                    (float)((val >> 30) & 0x3ff)
+                );
+            }
             ENDCG
 
             Name "Pass1AudioDFT"
@@ -321,7 +334,7 @@ Shader "AudioLink/Internal/AudioLink"
                     // Slide pixels (coordinateLocal.x > 0)
                     float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
                     lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                    int framesToRoll = floor( lastvalTiming.x );
+                    uint framesToRoll = floor( lastvalTiming.x );
 
                     if( framesToRoll == 0 )
                     {
@@ -458,6 +471,7 @@ Shader "AudioLink/Internal/AudioLink"
                         else if(coordinateLocal.x == 1)
                         {
                             // Pixel 1 = Frame Count, if we did not repeat, this would stop counting after ~51 hours.
+                            // So, instead we just reset it every 24 hours.  Note this is after 24 hours in an instance.
                             // Note: This is also used to measure FPS.
 
                             float4 lastVal = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(1, 0));
@@ -491,18 +505,20 @@ Shader "AudioLink/Internal/AudioLink"
                             // This is done a little awkwardly as to prevent any overflows.
                             uint dtms = _AdvancedTimeProps.x * 1000;
                             uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
+                            // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(
                                 (float)(dtms & 0x3ff),
                                 (float)((dtms2) & 0x3ff),
                                 (float)((dtms2 >> 10) & 0x3ff),
                                 (float)((dtms2 >> 20) & 0x3ff)
-                                );
+                            );
                         }
                         else if(coordinateLocal.x == 3)
                         {
                             // Current time of day, in local time.
                             // Generally this will not exceed 90 million milliseconds. (25 hours)
                             int ftpa = _AdvancedTimeProps.z * 1000.;
+                            // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
                         }
                         else if(coordinateLocal.x == 4)
@@ -512,8 +528,8 @@ Shader "AudioLink/Internal/AudioLink"
                             float major = _AdvancedTimeProps2.y;
                             if( major < 0 )
                                 major = 65536 + major;
-                            int currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
-                            return float4((currentNetworkTimeMS & 0x3ff), (currentNetworkTimeMS >> 10) & 0x3ff, (currentNetworkTimeMS >> 20) & 0x3ff, (currentNetworkTimeMS >> 30) & 0x3ff );
+                            uint currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
+                            return AudioLinkEncodeUInt(currentNetworkTimeMS);
                         }
                         else if(coordinateLocal.x == 6)
                         {
@@ -535,12 +551,12 @@ Shader "AudioLink/Internal/AudioLink"
                     //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
-                        if( _ThemeColorsEnable>0.5 )
+                        if( _ThemeColorMode == 1 )
                         {
-                            if( coordinateLocal.x == 0 ) return _ThemeColor0;
-                            if( coordinateLocal.x == 1 ) return _ThemeColor1;
-                            if( coordinateLocal.x == 2 ) return _ThemeColor2;
-                            if( coordinateLocal.x == 3 ) return _ThemeColor3;
+                            if( coordinateLocal.x == 0 ) return _CustomThemeColor0;
+                            if( coordinateLocal.x == 1 ) return _CustomThemeColor1;
+                            if( coordinateLocal.x == 2 ) return _CustomThemeColor2;
+                            if( coordinateLocal.x == 3 ) return _CustomThemeColor3;
                         }
                         else
                         {
@@ -557,6 +573,15 @@ Shader "AudioLink/Internal/AudioLink"
                         int framesToRoll = floor( lastval.x );
                         lastval.x -= framesToRoll;
                         return lastval;
+                    }
+                    else if( coordinateLocal.x == 5 )
+                    {
+                        // UTC Day number
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps2.z);
+                    }
+                    else if( coordinateLocal.x == 6 )
+                    {
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps2.w * 1000);
                     }
                 }
 
@@ -1114,12 +1139,7 @@ Shader "AudioLink/Internal/AudioLink"
                     uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
                     Value += ValueDiff * unity_DeltaTime.x * 1048576;
 
-                    return float4(
-                        (float)(Value & 0x3ff),
-                        (float)((Value >> 10) & 0x3ff),
-                        (float)((Value >> 20) & 0x3ff),
-                        (float)((Value >> 30) & 0x3ff)
-                        );
+                    return AudioLinkEncodeUInt(Value);
                 }
                 else
                 {
