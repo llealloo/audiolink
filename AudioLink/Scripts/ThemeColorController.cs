@@ -39,7 +39,7 @@ namespace VRCAudioLink
             public Slider slider_Hue;
             public Slider slider_Saturation;
             public Slider slider_Value;
-            public Transform[] customColorSelection;
+            public Transform[] customColorLassos;
             public int customColorIndex = 0;
 
             private void Start()
@@ -120,7 +120,7 @@ namespace VRCAudioLink
                 extensionCanvas.gameObject.SetActive(isCustom);
                 for (int i=0; i < 4; ++i)
                 {
-                    customColorSelection[i].gameObject.SetActive(
+                    customColorLassos[i].gameObject.SetActive(
                         i == customColorIndex
                     );
                 }
