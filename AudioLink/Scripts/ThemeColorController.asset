@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ThemeColorController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: ef940ea284855cb44aceb23d306f9260,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d1e68912d0cd2244598023593cdf376d,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -793,7 +793,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: customColorSelection
+      Data: customColorLassos
     - Name: $v
       Entry: 7
       Data: 48|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -820,10 +820,10 @@ MonoBehaviour:
       Data: UnityEngineTransformArray
     - Name: symbolOriginalName
       Entry: 1
-      Data: customColorSelection
+      Data: customColorLassos
     - Name: symbolUniqueName
       Entry: 1
-      Data: customColorSelection
+      Data: customColorLassos
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
