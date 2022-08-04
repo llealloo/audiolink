@@ -142,7 +142,6 @@ namespace VRC.PackageManagement.Resolver
             VPMProjectManifest.Resolve(ProjectDir);
             EditorUtility.ClearProgressBar();
             ForceRefresh();
-            SessionState.SetBool("SDK_RELOADED", true); // skip SDK reload after resolving, usually unnecessary and has caused crashes
         }
 
         public static void ForceRefresh ()
