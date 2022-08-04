@@ -1,9 +1,9 @@
 {
     "name": "com.llealloo.audiolink",
     "references": [
-        "GUID:99835874ee819da44948776e0df4ff1d",
-        "GUID:e1a67d4778ffb214390ddafa61c1a557",
-        "GUID:3c1bc1267eab5884ebe7f232c09ee0d9"
+        "UdonSharp.Runtime",
+        "UdonSharp.Lib",
+        "VRC.Udon"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,7 +11,15 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
+    "defineConstraints": [
+        "VRC_WORLDS_READY"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.vrchat.worlds",
+            "expression": "3.1.0",
+            "define": "VRC_WORLDS_READY"
+        }
+    ],
     "noEngineReferences": false
 }
