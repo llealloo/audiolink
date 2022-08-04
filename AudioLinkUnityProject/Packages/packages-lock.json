@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.llealloo.audiolink": {
-      "version": "file:../../Packages/vrchat.llealloo.audiolink",
+      "version": "file:../../Packages/com.llealloo.audiolink",
       "depth": 0,
       "source": "local",
       "dependencies": {}

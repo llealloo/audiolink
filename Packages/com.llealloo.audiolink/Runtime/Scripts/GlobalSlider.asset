@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: GlobalSlider
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 95efe505a25d55a46816ac899d2efa85,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 241d4d4571e4f8f4892d3ef4c62f758e,
     type: 2}
   udonAssembly: 
   assemblyError: 

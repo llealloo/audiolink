@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioReactiveLight
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2c5e38381e8e0544b978b2922994fbf5,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: af7cc0c8ee534b94fb370b05793b137c,
     type: 2}
   udonAssembly: 
   assemblyError: 
