@@ -141,7 +141,16 @@ namespace VRC.PackageManagement.Resolver
             EditorUtility.DisplayProgressBar($"Getting all VRChat Packages", "Downloading and Installing...", 0.5f);
             VPMProjectManifest.Resolve(ProjectDir);
             EditorUtility.ClearProgressBar();
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+            ForceRefresh();
+        }
+        
+        public static void ForceRefresh ()
+        {
+            MethodInfo method = typeof( UnityEditor.PackageManager.Client ).GetMethod( "Resolve", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly );
+            if( method != null )
+                method.Invoke( null, null );
+
+            AssetDatabase.Refresh();
         }
     }
 }
