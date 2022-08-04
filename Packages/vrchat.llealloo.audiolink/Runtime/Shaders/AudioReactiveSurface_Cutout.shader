@@ -198,7 +198,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_Cutout"
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "AutoLight.cginc"
-			#include "/Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
 			#pragma multi_compile_instancing
 
@@ -741,7 +741,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_Cutout"
 			#include "Lighting.cginc"
 			#include "UnityPBSLighting.cginc"
 			#include "AutoLight.cginc"
-			#include "/Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
 			#pragma multi_compile_instancing
 

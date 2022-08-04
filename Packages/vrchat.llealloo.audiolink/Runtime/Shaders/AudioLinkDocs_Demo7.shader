@@ -20,7 +20,7 @@
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-            #include "/Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
             uniform float4 _Background;
             sampler2D _Logo;

@@ -52,8 +52,8 @@
 
         #pragma target 5.0
 		
-		#include "/Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
-		#include "/Assets/AudioLink/Shaders/SmoothPixelFont.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/SmoothPixelFont.cginc"
 
         sampler2D _MainTex;
 

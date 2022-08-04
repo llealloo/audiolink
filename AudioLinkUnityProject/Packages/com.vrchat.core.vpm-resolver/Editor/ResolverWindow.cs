@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,80 +7,39 @@ using VRC.PackageManagement.Core.Types.Packages;
 
 namespace VRC.PackageManagement.Resolver
 {
-    [InitializeOnLoad]
     public class ResolverWindow : EditorWindow
     {
         // VisualElements
-        private VisualElement _rootView;
-        private Button _refreshButton;
-        private Button _createButton;
-        private Button _resolveButton;
-        private Box _manifestInfo;
-        private TextElement _manifestReadout;
-        private static string _projectDir;
-        private const string _projectLoadedKey = "PROJECT_LOADED";
+        private static VisualElement _rootView;
+        private static Button _refreshButton;
+        private static Button _createButton;
+        private static Button _resolveButton;
+        private static Box _manifestInfo;
+        private static TextElement _manifestReadout;
 
-        static ResolverWindow()
-        {
-            try
-            {
-                // This library will be in something like  C:\ProjectName\Library\ScriptAssemblies\com.vrchat.tools.vpm-resolver.Editor.dll
-                _projectDir = new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.Parent.Parent.FullName;
-
-                if (VPMProjectManifest.ResolveIsNeeded(_projectDir))
-                {
-                    bool projectIsReady = SessionState.GetBool(_projectLoadedKey, false);
-                    string cancelMessage = projectIsReady ? "Show Me the Details" : "Not yet";
-                    string cancelInfo = projectIsReady
-                        ? "" : "\n\nPress \"Not Yet\" to skip for now. You can open this window later from the menu via\n\nVRChat SDK > Utilities > VPM Resolver";
-                    var result = EditorUtility.DisplayDialog("VRChat Package Management",
-                        $"This project requires some VRChat Packages which are not in the project yet.\n\nPress OK to download and install them.{cancelInfo}",
-                        "OK", cancelMessage);
-                    if (result)
-                    {
-                        ResolveStatic(_projectDir);
-                    }
-                    else
-                    {
-                        // Don't try to open window while project is still opening
-                        if (!SessionState.GetBool(_projectLoadedKey, false))
-                        {
-                            SessionState.SetBool(_projectLoadedKey, true);
-                            return;
-                        }
-                        ShowWindow();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // Unity says we can't open windows from this function so it throws an exception but also works fine.
-            }
-        }
-
-        [MenuItem("VRChat SDK/Utilities/VPM Resolver")]
+        [MenuItem("VRChat SDK/Utilities/Package Resolver")]
         public static void ShowWindow()
         {
             ResolverWindow wnd = GetWindow<ResolverWindow>();
-            wnd.titleContent = new GUIContent("VPM Resolver");
+            wnd.titleContent = new GUIContent("Package Resolver");
         }
 
-        private void Refresh()
+        public static void Refresh()
         {
-            if (_rootView == null) return;
+            if (_rootView == null || string.IsNullOrWhiteSpace(Resolver.ProjectDir)) return;
 
-            bool needsResolve = VPMProjectManifest.ResolveIsNeeded(_projectDir);
+            bool needsResolve = VPMProjectManifest.ResolveIsNeeded(Resolver.ProjectDir);
             string resolveStatus = needsResolve ? "Please press  \"Resolve\" to Download them." : "All of them are in the project.";
             
             // check for vpm dependencies
-            if (!VPMManifestExists())
+            if (!Resolver.VPMManifestExists())
             {
                 _manifestReadout.text = "No VPM Manifest";
             }
             else
             {
-                var manifest = VPMProjectManifest.Load(_projectDir);
-                var project = new UnityProject(_projectDir);
+                var manifest = VPMProjectManifest.Load(Resolver.ProjectDir);
+                var project = new UnityProject(Resolver.ProjectDir);
                 StringBuilder readout = new StringBuilder();
                 
                 // Here is where we detect if all dependencies are installed
@@ -112,29 +67,6 @@ namespace VRC.PackageManagement.Resolver
             _resolveButton.SetEnabled(needsResolve);
         }
 
-        private bool VPMManifestExists()
-        {
-            return VPMProjectManifest.Exists(_projectDir, out _);
-        }
-
-        private void CreateManifest()
-        {
-            VPMProjectManifest.Load(_projectDir);
-            Refresh();
-        }
-        
-        private void ResolveManifest()
-        {
-            ResolveStatic(_projectDir);
-        }
-
-        private static void ResolveStatic(string dir)
-        {
-            EditorUtility.DisplayProgressBar($"Getting all VRChat Packages", "Downloading and Installing...", 0.5f);
-            VPMProjectManifest.Resolve(_projectDir);
-            EditorUtility.ClearProgressBar();
-        }
-
         /// <summary>
         /// Unity calls the CreateGUI method automatically when the window needs to display
         /// </summary>
@@ -152,9 +84,9 @@ namespace VRC.PackageManagement.Resolver
             _rootView.Add(container);
 
             // Create Button
-            if (!VPMManifestExists())
+            if (!Resolver.VPMManifestExists())
             {
-                _createButton = new Button(CreateManifest)
+                _createButton = new Button(Resolver.CreateManifest)
                 {
                     text = "Create",
                     name = "create-button-base"
@@ -163,7 +95,7 @@ namespace VRC.PackageManagement.Resolver
             }
             else
             {
-                _resolveButton = new Button(ResolveManifest)
+                _resolveButton = new Button(Resolver.ResolveManifest)
                 {
                     text = "Resolve",
                     name = "resolve-button-base"
