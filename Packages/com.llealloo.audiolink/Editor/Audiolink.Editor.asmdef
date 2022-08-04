@@ -1,11 +1,14 @@
 {
-    "name": "com.llealloo.audiolink",
+    "name": "AudioLink.Editor",
     "references": [
+        "AudioLink",
+        "UdonSharp.Editor",
         "UdonSharp.Runtime",
-        "UdonSharp.Lib",
         "VRC.Udon"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
