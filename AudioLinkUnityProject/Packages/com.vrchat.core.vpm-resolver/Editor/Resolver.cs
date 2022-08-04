@@ -143,6 +143,12 @@ namespace VRC.PackageManagement.Resolver
             EditorUtility.ClearProgressBar();
             ForceRefresh();
         }
+
+        [MenuItem("VRChat SDK/SetSDKRefreshed")]
+        public static void SetSDKRefreshed()
+        {
+            SessionState.SetBool("SDK_RELOADED", true); // skip SDK reload after resolving, usually unnecessary and has caused crashes
+        }
         
         public static void ForceRefresh ()
         {
