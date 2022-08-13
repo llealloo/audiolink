@@ -8,6 +8,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 
 ### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
+### [If you are looking to use AudioLink for ChilloutVR, check out this fork instead](https://github.com/DomNomNomVR/cvr-audio-link)
 
 ## 0.2.8 - May 14th, 2022
 ### New features
