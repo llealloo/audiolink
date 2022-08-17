@@ -16,7 +16,7 @@
 		#pragma surface surf Standard fullforwardshadows alpha
 
 		#include "/Assets/AudioLinkSandbox/Shaders/hashwithoutsine/hashwithoutsine.cginc"
-		#include "/Assets/AudioLink/Shaders/AudioLink.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
         #pragma target 5.0
 
         sampler2D _MainTex;

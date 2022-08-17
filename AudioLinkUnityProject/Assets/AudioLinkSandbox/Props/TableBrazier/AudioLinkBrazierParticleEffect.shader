@@ -22,7 +22,7 @@
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
             #include "/Assets/AudioLinkSandbox/Shaders/tanoise/tanoise.cginc"
 
             struct appdata

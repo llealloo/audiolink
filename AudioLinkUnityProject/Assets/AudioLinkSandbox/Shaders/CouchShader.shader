@@ -63,7 +63,7 @@ Shader "cnlohr/CouchShader"
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 4.0
 		#include "/Assets/AudioLinkSandbox/Shaders/tanoise/tanoise.cginc"
-		#include "/Assets/AudioLink/Shaders/AudioLink.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
 		sampler2D _MainTex;
 		

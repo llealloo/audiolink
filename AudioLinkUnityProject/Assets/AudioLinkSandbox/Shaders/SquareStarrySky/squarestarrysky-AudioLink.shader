@@ -33,7 +33,7 @@ SubShader {
         #include "UnityCG.cginc"
         #include "Lighting.cginc"
 
-		#include "/Assets/AudioLink/Shaders/AudioLink.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 		
         #pragma multi_compile_local _SUNDISK_NONE _SUNDISK_SIMPLE _SUNDISK_HIGH_QUALITY
 		#pragma shader_feature_local _USEINPUTBASIS

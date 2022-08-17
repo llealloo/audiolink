@@ -18,7 +18,7 @@
             #pragma multi_compile_fog
             #pragma target 5.0
             #include "UnityCG.cginc"
-            #include "../../AudioLink/Shaders/SmoothPixelFont.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/SmoothPixelFont.cginc"
 
             #define PIXELFONT_ROWS 35
             #define PIXELFONT_COLS 60

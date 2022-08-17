@@ -24,8 +24,8 @@ Shader "Custom/ControllableReveal"
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
 
-		#include "/Assets/AudioLink/Shaders/AudioLink.cginc"
-		#include "/Assets/AudioLink/Shaders/SmoothPixelFont.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+		#include "Packages/com.llealloo.audiolink/Runtime/Shaders/SmoothPixelFont.cginc"
 
         sampler2D _MainTex;
 

@@ -28,7 +28,7 @@
 
             #include "UnityCG.cginc"
 
-            #include "/Assets/AudioLink/Shaders/AudioLink.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
 			// Hash without Sine
 			// Original code MIT License...
