@@ -10,7 +10,7 @@ jobs:
         mkdir -p Assets/AudioLink/Editor/Scripts
  
         cp -R Packages/com.llealloo.audiolink/Runtime/* Assets/AudioLink/
-        cp Packages/com.llealloo.audiolink/Editor/Scripts/* Assets/AudioLink/Editor/Scripts/
+        cp Packages/com.llealloo.audiolink/Editor/Scripts/* Assets/AudioLink/Scripts/
 
         cp LICENSE* Assets/AudioLink/
         cp README.md* Assets/AudioLink/
@@ -27,8 +27,9 @@ jobs:
         echo "Assets/AudioLink/README.md.meta" >> metaList
         echo "Assets/AudioLink/VERSION.txt.meta" >> metaList
         echo "Assets/AudioLink/CHANGELOG.md.meta" >> metaList
-        echo "Assets/AudioLink/Scripts/AudioLink.cs.meta" >> metaList
-        
+
+        echo "Assets/AudioLink/Scripts.meta" >> metaList
+        find "Assets/AudioLink/Scripts/" -name \*.meta >> metaList
         echo "Assets/AudioLink/RenderTextures.meta" >> metaList
         find "Assets/AudioLink/RenderTextures/" -name \*.meta >> metaList
         echo "Assets/AudioLink/Shaders.meta" >> metaList
