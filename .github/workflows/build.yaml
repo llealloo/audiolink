@@ -7,12 +7,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        mkdir -p Assets/AudioLink/Editor
+        mkdir -p Assets/AudioLink/Editor/Scripts
+ 
         cp -R Packages/com.llealloo.audiolink/Runtime/* Assets/AudioLink/
-        cp Packages/com.llealloo.audiolink/Editor/Scripts/* Assets/AudioLink/Scripts/
+        cp Packages/com.llealloo.audiolink/Editor/Scripts/* Assets/AudioLink/Editor/Scripts/
+
+        cp LICENSE* Assets/AudioLink/
+        cp README.md* Assets/AudioLink/
+        cp CHANGELOG.md* Assets/AudioLink/
+
         rm Assets/AudioLink/AudioLink.asmdef
         rm Assets/AudioLink/AudioLink.asmdef.meta
+
         find Assets/AudioLink/Shaders/ -type f -exec sed -i 's/#include "Packages\/com\.llealloo\.audiolink\/Runtime/#include "Assets\/AudioLink/g' {} +
+
         echo "Assets/AudioLink/AudioLink.prefab.meta" >> metaList
         echo "Assets/AudioLink/AudioLinkController.prefab.meta" >> metaList
         echo "Assets/AudioLink/AudioLinkMiniPlayer.prefab.meta" >> metaList
@@ -23,6 +31,8 @@ jobs:
         echo "Assets/AudioLink/CHANGELOG.md.meta" >> metaList
         echo "Assets/AudioLink/Scripts.meta" >> metaList
         find "Assets/AudioLink/Scripts/" -name \*.meta >> metaList
+        echo "Assets/AudioLink/Editor.meta" >> metaList
+        find "Assets/AudioLink/Editor/" -name \*.meta >> metaList
         echo "Assets/AudioLink/RenderTextures.meta" >> metaList
         find "Assets/AudioLink/RenderTextures/" -name \*.meta >> metaList
         echo "Assets/AudioLink/Shaders.meta" >> metaList
