@@ -25,7 +25,7 @@ jobs:
         echo "Assets/AudioLink/AudioLinkController.prefab.meta" >> metaList
         echo "Assets/AudioLink/AudioLinkMiniPlayer.prefab.meta" >> metaList
         echo "Assets/AudioLink/AudioLinkAvatar.prefab.meta" >> metaList
-        echo "Assets/AudioLink/LICENSE.txt.meta" >> metaList
+        echo "Assets/AudioLink/LICENSE.meta" >> metaList
         echo "Assets/AudioLink/README.md.meta" >> metaList
         echo "Assets/AudioLink/VERSION.txt.meta" >> metaList
         echo "Assets/AudioLink/CHANGELOG.md.meta" >> metaList
