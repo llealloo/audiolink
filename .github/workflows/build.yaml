@@ -22,17 +22,13 @@ jobs:
         find Assets/AudioLink/Shaders/ -type f -exec sed -i 's/#include "Packages\/com\.llealloo\.audiolink\/Runtime/#include "Assets\/AudioLink/g' {} +
 
         echo "Assets/AudioLink/AudioLink.prefab.meta" >> metaList
-        echo "Assets/AudioLink/AudioLinkController.prefab.meta" >> metaList
-        echo "Assets/AudioLink/AudioLinkMiniPlayer.prefab.meta" >> metaList
         echo "Assets/AudioLink/AudioLinkAvatar.prefab.meta" >> metaList
         echo "Assets/AudioLink/LICENSE.meta" >> metaList
         echo "Assets/AudioLink/README.md.meta" >> metaList
         echo "Assets/AudioLink/VERSION.txt.meta" >> metaList
         echo "Assets/AudioLink/CHANGELOG.md.meta" >> metaList
-        echo "Assets/AudioLink/Scripts.meta" >> metaList
-        find "Assets/AudioLink/Scripts/" -name \*.meta >> metaList
-        echo "Assets/AudioLink/Editor.meta" >> metaList
-        find "Assets/AudioLink/Editor/" -name \*.meta >> metaList
+        echo "Assets/AudioLink/Scripts/AudioLink.cs.meta" >> metaList
+        
         echo "Assets/AudioLink/RenderTextures.meta" >> metaList
         find "Assets/AudioLink/RenderTextures/" -name \*.meta >> metaList
         echo "Assets/AudioLink/Shaders.meta" >> metaList
