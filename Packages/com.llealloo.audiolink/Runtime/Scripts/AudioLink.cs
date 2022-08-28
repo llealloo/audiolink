@@ -4,8 +4,10 @@ using VRC.SDKBase;
 #else
 using UnityEngine.Rendering;
 #endif
-using System;
+#if UDON
 using UdonSharp;
+#endif
+using System;
 using VRCAudioLink.Editor;
 
 namespace VRCAudioLink

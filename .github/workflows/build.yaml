@@ -10,7 +10,6 @@ jobs:
         mkdir -p Assets/AudioLink/Editor/Scripts
  
         cp -R Packages/com.llealloo.audiolink/Runtime/* Assets/AudioLink/
-        cp Packages/com.llealloo.audiolink/Editor/Scripts/* Assets/AudioLink/Scripts/
 
         cp LICENSE* Assets/AudioLink/
         cp README.md* Assets/AudioLink/
