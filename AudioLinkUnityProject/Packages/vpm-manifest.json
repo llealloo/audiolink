@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.vrchat.udonsharp": {
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     "com.vrchat.clientsim": {
       "version": "1.2.0"
@@ -9,7 +9,7 @@
   },
   "locked": {
     "com.vrchat.udonsharp": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "dependencies": {
         "com.vrchat.worlds": "3.1.x"
       }
