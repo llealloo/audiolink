@@ -2,6 +2,21 @@ on: push
 
 jobs:
 
+  build-package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        cp LICENSE* Packages/com.llealloo.audiolink/
+        cp README.md* Packages/com.llealloo.audiolink/
+        cp CHANGELOG.md* Packages/com.llealloo.audiolink/
+        mkdir -p Packages/com.llealloo.audiolink/Docs~/
+        cp -R Docs/* Packages/com.llealloo.audiolink/Docs~/
+    - uses: actions/upload-artifact@v3
+      with:
+        name: com.llealloo.audiolink.zip
+        path: Packages
+
   build-minimal:
     runs-on: ubuntu-latest
     steps:
