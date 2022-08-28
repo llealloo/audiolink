@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioLinkMiniPlayerController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 3668927ed55073a41ac4681e24326764,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 064b522cca0103d4ba09863f0f30e999,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCAudioLink.AudioLinkMiniPlayer, com.llealloo.audiolink
+      Data: VRCAudioLink.AudioLinkMiniPlayer, AudioLink
     - Name: 
       Entry: 8
       Data: 
