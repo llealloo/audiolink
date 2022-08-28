@@ -10,8 +10,8 @@ jobs:
         cp LICENSE* Packages/com.llealloo.audiolink/
         cp README.md* Packages/com.llealloo.audiolink/
         cp CHANGELOG.md* Packages/com.llealloo.audiolink/
-        mkdir -p Packages/com.llealloo.audiolink/Docs~/
-        cp -R Docs/* Packages/com.llealloo.audiolink/Docs~/
+        mkdir -p Packages/com.llealloo.audiolink/Docs/
+        cp -R Docs/* Packages/com.llealloo.audiolink/Docs/
     - uses: actions/upload-artifact@v3
       with:
         name: com.llealloo.audiolink.zip
