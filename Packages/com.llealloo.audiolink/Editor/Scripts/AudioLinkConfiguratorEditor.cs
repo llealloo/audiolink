@@ -2,6 +2,7 @@
   using System.IO;
   using UnityEditor;
   using UnityEngine;
+  using VRCAudioLink;
 #if UNITY_2021_1_OR_NEWER
   using UnityEditor.SceneManagement;
 #else
@@ -98,5 +99,4 @@
       var aL = t.gameObject.AddComponent<AudioLink>();
     }
   }
-}
 #endif
