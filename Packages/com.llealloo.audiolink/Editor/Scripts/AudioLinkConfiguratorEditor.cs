@@ -1,10 +1,19 @@
-﻿using UnityEditor;
-using UnityEditor.Experimental.SceneManagement;
-using UnityEngine;
-using VRC.SDK3.Components;
-using VRC.SDK3.Video.Components.AVPro;
-using VRC.Udon;
-using VRCAudioLink;
+#if UNITY_EDITOR
+  using System.IO;
+  using UnityEditor;
+  using UnityEngine;
+#if UNITY_2021_1_OR_NEWER
+  using UnityEditor.SceneManagement;
+#else
+  using UnityEditor.Experimental.SceneManagement;
+#endif
+#if UDON
+  using UdonSharp;
+  using UdonSharpEditor;
+  using VRC.SDK3.Components;
+  using VRC.SDK3.Video.Components.AVPro;
+  using VRC.Udon;
+#endif
 
 [CustomEditor(typeof(AudioLinkAutoConfigurator))]
   public class AudioLinkConfiguratorEditor : UnityEditor.Editor
@@ -89,3 +98,5 @@ using VRCAudioLink;
       var aL = t.gameObject.AddComponent<AudioLink>();
     }
   }
+}
+#endif
