@@ -72,11 +72,7 @@ public class AudioLink : UdonSharpBehaviour
         public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
-        public GameObject audioTextureExport;
-        private Shader _shaderAudioLinkExport;
-        #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
         public RenderTexture audioRenderTexture;
-        #endif
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
@@ -166,11 +162,12 @@ public class AudioLink : UdonSharpBehaviour
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
-            _shaderAudioLinkExport = audioTextureExport.GetComponent<Renderer>().material.shader;
             #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
             Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
+            #else
+            VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_AudioTexture"), audioRenderTexture);
+            VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_UdonAudioTexture"), audioRenderTexture);
             #endif
-            //GetComponent<Camera>().SetReplacementShader( _shaderAudioLinkExport, "AudioLinkExport" ); 
         }
 
         // Only happens once per second.
