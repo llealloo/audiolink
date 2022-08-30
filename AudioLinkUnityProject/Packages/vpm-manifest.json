@@ -5,6 +5,9 @@
     },
     "com.vrchat.clientsim": {
       "version": "1.2.0"
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "0.1.13"
     }
   },
   "locked": {
@@ -15,19 +18,22 @@
       }
     },
     "com.vrchat.worlds": {
-      "version": "3.1.4",
+      "version": "3.1.6",
       "dependencies": {
         "com.vrchat.base": "3.1.x"
       }
     },
     "com.vrchat.base": {
-      "version": "3.1.4"
+      "version": "3.1.6"
     },
     "com.vrchat.clientsim": {
-      "version": "1.2.0",
+      "version": "1.2.2",
       "dependencies": {
         "com.vrchat.worlds": "3.1.x"
       }
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "0.1.13"
     }
   }
 }
