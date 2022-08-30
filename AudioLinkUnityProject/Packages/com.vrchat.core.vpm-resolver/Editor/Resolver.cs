@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Serilog;
+using Serilog.Sinks.Unity3D;
 using UnityEditor;
 using UnityEngine;
+using VRC.PackageManagement.Core;
+using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
-using Serilog.Sinks.Unity3D;
-using UnityEditor.SceneManagement;
 
 namespace VRC.PackageManagement.Resolver
 {
@@ -57,26 +60,6 @@ namespace VRC.PackageManagement.Resolver
                     .WriteTo.Unity3D()
                     .CreateLogger()
             );
-        }
-
-        [MenuItem("VRC/Reload")]
-        public static void ReloadCurrentScene()
-        {
-            var activeScene = EditorSceneManager.GetActiveScene();
-            if (!string.IsNullOrWhiteSpace(activeScene.path))
-            {
-                if (activeScene.isDirty)
-                {
-                    var result = EditorUtility.DisplayDialog("Reload SDK",
-                        $"This will reload the SDK and your scene, discarding any changes (probably what you want if something is broken). Is that OK?",
-                        "Yes", "No, I want to save the scene first.");
-                    if (result)
-                    {
-                        EditorSceneManager.OpenScene(activeScene.path);
-                    }
-                }
-            }
-            
         }
 
         private static IEnumerator CheckResolveNeeded()
@@ -143,7 +126,64 @@ namespace VRC.PackageManagement.Resolver
             EditorUtility.ClearProgressBar();
             ForceRefresh();
         }
+        
+        public static List<string> GetAllVersionsOf(string id)
+        {
+            var project = new UnityProject(ProjectDir);
 
+            var versions = new List<string>();
+            foreach (var provider in Repos.GetAll)
+            {
+                var packagesWithVersions = provider.GetAllWithVersions();
+
+                foreach (var packageVersionList in packagesWithVersions)
+                {
+                    foreach (var package in packageVersionList.Value.VersionsDescending)
+                    {
+                        if (package.Id != id)
+                            continue;
+                        if (Version.TryParse(package.Version, out var result))
+                        {
+                            if (!versions.Contains(package.Version))
+                                versions.Add(package.Version);
+                        }
+                    }
+                }
+            }
+
+            // Sort packages in project to the top
+            var sorted = from entry in versions orderby project.VPMProvider.HasPackage(entry) descending select entry;
+
+            return sorted.ToList<string>();
+        }
+
+        public static List<string> GetAffectedPackageList(IVRCPackage package)
+        {
+            List<string> list = new List<string>();
+
+            var project = new UnityProject(ProjectDir);
+
+            if (Repos.GetAllDependencies(package, out Dictionary<string, string> dependencies, null))
+            {
+                foreach (KeyValuePair<string, string> item in dependencies)
+                {
+                    project.VPMProvider.Refresh();
+                    if (project.VPMProvider.GetPackage(item.Key, item.Value) == null)
+                    {
+                        IVRCPackage d = Repos.GetPackageWithVersionMatch(item.Key, item.Value);
+                        if (d != null)
+                        {
+                            list.Add(d.Id + " " + d.Version + "\n");
+                        }
+                    }
+                }
+
+                return list;
+            }
+
+            return null;
+        }
+        
         public static void ForceRefresh ()
         {
             MethodInfo method = typeof( UnityEditor.PackageManager.Client ).GetMethod( "Resolve", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.DeclaredOnly );
@@ -152,5 +192,6 @@ namespace VRC.PackageManagement.Resolver
 
             AssetDatabase.Refresh();
         }
+
     }
 }
