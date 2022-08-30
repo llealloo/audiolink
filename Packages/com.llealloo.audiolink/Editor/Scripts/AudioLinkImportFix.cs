@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 
 namespace VRCAudioLink.Editor
 {
@@ -31,6 +33,21 @@ namespace VRCAudioLink.Editor
         {
             AssetDatabase.ImportAsset(Path.Combine("Packages", "com.llealloo.audiolink"), ImportAssetOptions.ImportRecursive);
             SessionState.SetBool(audioLinkReimportedKey, true);
+        }
+
+        [MenuItem("VRChat SDK/Samples/AudioLink/AudioLink Example Scene")]
+        public static void OpenExampleScene()
+        {
+            string baseAssetsPath = "Samples/AudioLink/0.3.0";
+            string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
+            string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
+            if (!Directory.Exists(Path.Combine(Application.dataPath, baseAssetsPath, "AudioLinkExampleScene")))
+            {
+                Directory.CreateDirectory(Path.Combine(Application.dataPath, baseAssetsPath));
+                FileUtil.CopyFileOrDirectory(packagePath, assetsPath);
+                AssetDatabase.Refresh();
+            }
+            EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
         }
     }
 }
