@@ -68,7 +68,7 @@ namespace VRCAudioLink.Editor
             string[] files = Directory.GetFiles(path);
             foreach (string file in files)
             {
-                if (file.EndsWith(".cginc"))
+                if (file.EndsWith(".cginc") || file.EndsWith(".hlsl"))
                 {
                     cgincList.Add(file);
                 }
