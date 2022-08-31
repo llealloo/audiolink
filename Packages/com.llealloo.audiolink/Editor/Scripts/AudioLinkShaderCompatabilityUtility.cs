@@ -12,7 +12,7 @@ namespace VRCAudioLink.Editor
         private const string MenuItemPath = "AudioLink/Upgrade AudioLink shaders";
 
         private const string DialogText =
-            "Do you want to check all shaders in this project for AudioLink 0.3.x compatibility and update them if necessary? This is useful for upgrading projects using AudioLink 0.2.x or below.?"
+            "Do you want to check all shaders in this project for AudioLink 0.3.x compatibility and update them if necessary? This is useful for upgrading projects using AudioLink 0.2.x or below."
             + "\n" + "\n" +
             "If you choose 'Go Ahead', shader files in this project which include 'AudioLink.cginc' will be edited to use the new path introduced by AudioLink 0.3.x. Shaders which already use the new path will be unaffected. You should make a backup before proceeding."
             + "\n" + "\n" +
