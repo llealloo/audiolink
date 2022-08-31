@@ -88,9 +88,9 @@ namespace VRCAudioLink.Editor
         {
             string[] shaderSource = File.ReadAllLines(path);
             bool shouldWrite = false;
-            for (int index = 0; index < shaderSource.Length; index++)
+            for (int i = 0; i < shaderSource.Length; i++)
             {
-                string line = shaderSource[index];
+                string line = shaderSource[i];
                 if (line.Contains(OldAbsolutePath))
                 {
                     line = line.Replace(OldAbsolutePath, NewAbsolutePath);
@@ -99,7 +99,7 @@ namespace VRCAudioLink.Editor
                         line = line.Replace("./Packages", "Packages");
                         line = line.Replace("/Packages", "Packages");
                     }
-                    shaderSource[index] = line;
+                    shaderSource[i] = line;
                     shouldWrite = true;
                 }
                 else if (!line.Contains(NewAbsolutePath) && line.Contains("AudioLink.cginc"))
@@ -108,7 +108,9 @@ namespace VRCAudioLink.Editor
                     string fullPath = Path.GetFullPath(Path.GetDirectoryName(path) + '/' + trimmedLine.TrimStart('/')).Replace('\\', '/');
                     if (fullPath.EndsWith(OldAbsolutePath))
                     {
-                        shaderSource[index] = "#include \"" + NewAbsolutePath + "\"";
+                        int index = line.IndexOf("#include");
+                        string whitespace = line.Remove(index, line.Length - index);
+                        shaderSource[i] = whitespace + "#include \"" + NewAbsolutePath + "\"";
                         shouldWrite = true;
                     }
                 }
