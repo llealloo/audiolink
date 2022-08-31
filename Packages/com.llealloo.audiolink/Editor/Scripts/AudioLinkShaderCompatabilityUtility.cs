@@ -7,8 +7,8 @@ namespace VRCAudioLink.Editor
 {
     public class AudioLinkShaderCompatabilityUtility
     {
-        private const string OldPath = "Assets/AudioLink/Shaders/AudioLink.cginc";
-        private const string NewPath = "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc";
+        private const string OldAbsolutePath = "Assets/AudioLink/Shaders/AudioLink.cginc";
+        private const string NewAbsolutePath = "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc";
         private const string MenuItemPath = "AudioLink/Upgrade AudioLink shaders";
 
         private const string DialogText =
