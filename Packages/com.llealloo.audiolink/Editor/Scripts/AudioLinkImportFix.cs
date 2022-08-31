@@ -25,6 +25,7 @@ namespace VRCAudioLink.Editor
                 {
                     ReimportPackage();
                     File.WriteAllText(canaryFilePath, audioLinkReimportedKey);
+                    AudioLinkShaderCompatabilityUtility.UpgradeShaders();
                 }
             }
         }
