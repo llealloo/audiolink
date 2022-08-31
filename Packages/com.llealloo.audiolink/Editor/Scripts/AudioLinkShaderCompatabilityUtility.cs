@@ -86,11 +86,37 @@ namespace VRCAudioLink.Editor
 
         private static void ReplaceInFile(string path)
         {
-            string shaderSource = File.ReadAllText(path);
-            if (shaderSource.Contains(OldPath))
+            string[] shaderSource = File.ReadAllLines(path);
+            bool shouldWrite = false;
+            for (int index = 0; index < shaderSource.Length; index++)
             {
-                shaderSource = shaderSource.Replace(OldPath, NewPath);
-                File.WriteAllText(path, shaderSource);
+                string line = shaderSource[index];
+                if (line.Contains(OldAbsolutePath))
+                {
+                    line = line.Replace(OldAbsolutePath, NewAbsolutePath);
+                    while (line.Contains("/Packages"))
+                    {
+                        line = line.Replace("./Packages", "Packages");
+                        line = line.Replace("/Packages", "Packages");
+                    }
+                    shaderSource[index] = line;
+                    shouldWrite = true;
+                }
+                else if (!line.Contains(NewAbsolutePath) && line.Contains("AudioLink.cginc"))
+                {
+                    string trimmedLine = line.Replace("#include", "").Trim().Trim('"');
+                    string fullPath = Path.GetFullPath(Path.GetDirectoryName(path) + '/' + trimmedLine.TrimStart('/')).Replace('\\', '/');
+                    if (fullPath.EndsWith(OldAbsolutePath))
+                    {
+                        shaderSource[index] = "#include \"" + NewAbsolutePath + "\"";
+                        shouldWrite = true;
+                    }
+                }
+            }
+
+            if (shouldWrite)
+            {
+                File.WriteAllLines(path, shaderSource);
             }
         }
     }
