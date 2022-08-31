@@ -30,6 +30,7 @@ namespace VRCAudioLink.Editor
             {
                 UpgradeShaderFiles();
                 UpgradeCgincFiles();
+                AssetDatabase.Refresh();
             }
         }
 
