@@ -6,9 +6,7 @@ using UnityEngine.Rendering;
 #endif
 #if UDON
 using UdonSharp;
-using BitConverter = VRCAudioLink.Utils.BitConverter;
-#else
-using BitConverter = System.BitConverter;
+using VRCAudioLink.Utils;
 #endif
 using System;
 using VRCAudioLink.Editor;
@@ -478,15 +476,23 @@ public class AudioLink : UdonSharpBehaviour
 
         private int FloatToInt(float v)
         {
-            var res = BitConverter.GetBytes(v);
+            #if UDON
+            return Utils.BitConverter.GetBytesSingleToInt32(v);
+            #else
+            byte[] res = BitConverter.GetBytes(v);
             return BitConverter.ToInt32(res, 0);
+            #endif
         }
 
         private float IntToFloat(int v)
         {
-            var res = BitConverter.GetBytes(v);
+            #if UDON
+            return Utils.BitConverter.GetBytesIntToSingle(v);
+            #else
+            byte[] res = BitConverter.GetBytes(v);
             return BitConverter.ToSingle(res, 0);
-        }
+            #endif
+            }
 
         public void SendAudioOutputData()
         {
