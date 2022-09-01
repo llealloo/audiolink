@@ -36,7 +36,7 @@ namespace VRCAudioLink.Editor
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
-        [MenuItem("VRChat SDK/Samples/AudioLink/AudioLink Example Scene")]
+        [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
             string baseAssetsPath = "Samples/AudioLink/0.3.0";
