@@ -6,6 +6,9 @@ using UnityEngine.Rendering;
 #endif
 #if UDON
 using UdonSharp;
+using BitConverter = VRCAudioLink.Utils.BitConverter;
+#else
+using BitConverter = System.BitConverter;
 #endif
 using System;
 using VRCAudioLink.Editor;
