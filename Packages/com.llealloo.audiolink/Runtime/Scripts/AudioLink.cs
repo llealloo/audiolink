@@ -101,8 +101,6 @@ public class AudioLink : UdonSharpBehaviour
 #pragma warning restore 414
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
-        private float  _ReadbackTime = 0;
-        private System.Diagnostics.Stopwatch stopwatch;
 
 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
@@ -147,8 +145,6 @@ public class AudioLink : UdonSharpBehaviour
             }
             #endif
 
-            stopwatch = new System.Diagnostics.Stopwatch();
-            
             UpdateSettings();
             UpdateThemeColors();
             if (audioSource == null)
@@ -286,11 +282,10 @@ public class AudioLink : UdonSharpBehaviour
                 FPSUpdate();
             }
 
-            audioMaterial.SetVector("_AdvancedTimeProps", new Vector4(
+            audioMaterial.SetVector("_AdvancedTimeProps", new Vector3(
                 (float)_elapsedTime,
                 (float)_elapsedTimeMSW,
-                (float)DateTime.Now.TimeOfDay.TotalSeconds,
-                _ReadbackTime ) );
+                (float)DateTime.Now.TimeOfDay.TotalSeconds) );
 
 			// Jan 1, 1970 = 621355968000000000.0 ticks.
             double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
@@ -346,12 +341,8 @@ public class AudioLink : UdonSharpBehaviour
         {
             if (audioDataToggle)
             {
-                // This profiling should be removed in a few weeks. (If it's still here on 2021-07-30, please remove refrences to stopwatch and _ReadbackTime)
-                stopwatch.Restart();
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
-                stopwatch.Stop();
-                _ReadbackTime = ((float)(stopwatch.Elapsed.TotalMilliseconds));
             }
         }
 
