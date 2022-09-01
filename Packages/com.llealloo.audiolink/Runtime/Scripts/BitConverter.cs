@@ -155,7 +155,7 @@ namespace VRCAudioLink.Utils
 		/// Reads 32-bit signed integer <see cref="int"/>
 		/// </summary>
 		/// <returns><see cref="int"/></returns>
-		public static int ToInt32(byte[] buffer)
+		public static int ToInt32(byte[] buffer, int i)
 		{
 			/*
 			int value = 0;
@@ -271,7 +271,7 @@ namespace VRCAudioLink.Utils
 		/// Reads 32-bit as <see cref="float"/>
 		/// </summary>
 		/// <returns><see cref="float"/></returns>
-		public static float ToSingle(byte[] buffer)
+		public static float ToSingle(byte[] buffer, int i)
 		{
 			//uint value = ReadUInt32(buffer);
 			uint value = ((uint) buffer[0] << Bit24) | ((uint) buffer[1] << Bit16) | ((uint) buffer[2] << Bit8) | buffer[3];
