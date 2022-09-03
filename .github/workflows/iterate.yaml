@@ -1,0 +1,109 @@
+name: Build For Iterating
+
+on: 
+  workflow_dispatch:
+  push:
+
+env:
+  packageName: "com.llealloo.audiolink"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Checkout
+        uses: actions/checkout@v3
+    
+      - name: Get version
+        id: version
+        uses: notiz-dev/github-action-json-property@7c8cf5cc36eb85d8d287a8086a39dac59628eb31
+        with: 
+            path: "Packages/${{env.packageName}}/package.json"
+            prop_path: "version"
+            
+      - run: echo ${{steps.version.outputs.prop}} 
+    
+      - name: Set Environment Variables
+        run: |
+          echo "zipFile=${{ env.packageName }}-${{ steps.version.outputs.prop }}".zip >> $GITHUB_ENV
+          echo "unityPackage=${{ env.packageName }}-${{ steps.version.outputs.prop }}.unitypackage" >> $GITHUB_ENV
+          echo "minimalUnityPackage=AudioLink_${{ steps.version.outputs.prop }}_minimal.unitypackage" >> $GITHUB_ENV
+      
+      - name: Copy root files
+        run: |
+          cp LICENSE* Packages/${{ env.packageName }}/
+          cp README.md* Packages/${{ env.packageName }}/
+          cp CHANGELOG.md* Packages/${{ env.packageName }}/
+          mkdir -p Packages/${{ env.packageName }}/Documentation~/
+          cp -R Docs/* Packages/${{ env.packageName }}/Documentation~/
+      
+      - name: Create zip
+        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
+        with:
+          type: "zip"
+          directory: "Packages/${{env.packageName}}/"
+          filename: "../../${{env.zipFile}}"
+          
+      - run: find "Packages/${{env.packageName}}/" -name \*.meta >> metaList
+          
+      - name: Create full UnityPackage
+        uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
+        with:
+          package-path: ${{ env.unityPackage }}
+          include-files: metaList
+        
+      - name: Make minimal meta list
+        run: |
+          mkdir -p Assets/AudioLink/Editor/Scripts
+ 
+          cp -R Packages/com.llealloo.audiolink/Runtime/* Assets/AudioLink/
+
+          cp LICENSE* Assets/AudioLink/
+          cp README.md* Assets/AudioLink/
+          cp CHANGELOG.md* Assets/AudioLink/
+
+          rm Assets/AudioLink/AudioLink.asmdef
+          rm Assets/AudioLink/AudioLink.asmdef.meta
+
+          find Assets/AudioLink/Shaders/ -type f -exec sed -i 's/#include "Packages\/com\.llealloo\.audiolink\/Runtime/#include "Assets\/AudioLink/g' {} +
+
+          echo "Assets/AudioLink/AudioLink.prefab.meta" >> minimalMetaList
+          echo "Assets/AudioLink/AudioLinkAvatar.prefab.meta" >> minimalMetaList
+          echo "Assets/AudioLink/AudioLinkController.prefab.meta" >> minimalMetaList
+          echo "Assets/AudioLink/LICENSE.meta" >> minimalMetaList
+          echo "Assets/AudioLink/README.md.meta" >> minimalMetaList
+          echo "Assets/AudioLink/VERSION.txt.meta" >> minimalMetaList
+          echo "Assets/AudioLink/CHANGELOG.md.meta" >> minimalMetaList
+
+          echo "Assets/AudioLink/Scripts.meta" >> minimalMetaList
+          find "Assets/AudioLink/Scripts/" -name \*.meta >> minimalMetaList
+          echo "Assets/AudioLink/RenderTextures.meta" >> minimalMetaList
+          find "Assets/AudioLink/RenderTextures/" -name \*.meta >> minimalMetaList
+          echo "Assets/AudioLink/Shaders.meta" >> minimalMetaList
+          find "Assets/AudioLink/Shaders/" -name \*.meta >> minimalMetaList
+          echo "Assets/AudioLink/Materials.meta" >> minimalMetaList
+          find "Assets/AudioLink/Materials/" -name \*.meta >> minimalMetaList
+          echo "Assets/AudioLink/Resources.meta" >> minimalMetaList
+          find "Assets/AudioLink/Resources/" -name \*.meta >> minimalMetaList
+
+      - name: Create minimal UnityPackage
+        uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
+        with:
+          package-path: ${{ env.minimalUnityPackage }}
+          include-files: minimalMetaList
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Zip release
+          path: ${{ env.zipFile }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: UnityPackage release
+          path: ${{ env.unityPackage }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Minimal UnityPackage release
+          path: ${{ env.minimalUnityPackage }}
