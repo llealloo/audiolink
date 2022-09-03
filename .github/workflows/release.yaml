@@ -94,10 +94,14 @@ jobs:
           package-path: ${{ env.minimalUnityPackage }}
           include-files: minimalMetaList
 
+      - name: Extract release notes
+        run: cat CHANGELOG.md | sed -n '/^## ${{ steps.version.outputs.prop }}.*$/,/^## .*$/p' | sed '$d' > releaseNotes
+
       - name: Make release
         uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
         with:
           name: AudioLink ${{ steps.version.outputs.prop }}
+          body_path: releaseNotes
           tag_name: ${{ steps.version.outputs.prop }}
           files: |
             ${{ env.zipFile }}
