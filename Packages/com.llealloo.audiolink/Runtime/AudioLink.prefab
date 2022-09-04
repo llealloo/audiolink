@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4559840160047443413}
   - component: {fileID: 2439678698260312388}
   - component: {fileID: 8295703945185298429}
+  - component: {fileID: -8008548045606811714}
   m_Layer: 0
   m_Name: AudioLink
   m_TagString: Untagged
@@ -107,6 +108,49 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 5189d837989b9144e8e43d3ce618e450, type: 2}
   - {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 3}
   publicVariablesSerializationDataFormat: 0
+--- !u!20 &-8008548045606811714
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939041022165984647}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 4
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_FocalLength: 50
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: -10
+  far clip plane: 10
+  field of view: 60
+  orthographic: 1
+  orthographic size: 10
+  m_Depth: -99
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_RenderingPath: 0
+  m_TargetTexture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
+  m_TargetDisplay: 0
+  m_TargetEye: 0
+  m_HDR: 1
+  m_AllowMSAA: 0
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 0
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1 &5250813097568517944
 GameObject:
   m_ObjectHideFlags: 0
