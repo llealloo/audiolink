@@ -168,6 +168,12 @@ public class AudioLink : UdonSharpBehaviour
             VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_AudioTexture"), audioRenderTexture);
             VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_UdonAudioTexture"), audioRenderTexture);
             #endif
+
+            // Disable camera on start if user didn't ask for it
+            if (!audioDataToggle)
+            {
+                DisableReadback();
+            }
         }
 
         // Only happens once per second.
@@ -381,6 +387,18 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetColor("_CustomThemeColor1", customThemeColor1);
             audioMaterial.SetColor("_CustomThemeColor2", customThemeColor2);
             audioMaterial.SetColor("_CustomThemeColor3", customThemeColor3);
+        }
+
+        public void EnableReadback()
+        {
+            audioDataToggle = true;
+            GetComponent<Camera>().enabled = true;
+        }
+
+        public void DisableReadback()
+        {
+            audioDataToggle = false;
+            GetComponent<Camera>().enabled = false;
         }
 
         public void SendAudioOutputData()
