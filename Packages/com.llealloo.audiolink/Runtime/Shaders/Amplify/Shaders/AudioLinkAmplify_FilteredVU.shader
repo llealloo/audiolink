@@ -49,7 +49,6 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_FilteredVU"
 			#include "UnityCG.cginc"
 			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
-			
 
 			struct appdata
 			{
@@ -142,8 +141,8 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_FilteredVU"
 	
 }
 /*ASEBEGIN
-Version=18912
-3230.4;36;2531;1599;1342.811;1029.326;1.06;True;False
+Version=18935
+456;73;1463;926;1025.68;1308.728;2.498556;True;True
 Node;AmplifyShaderEditor.RangedFloatNode;62;-627.3104,-466.4664;Inherit;False;Property;_FilterLevel;Filter Level;0;1;[IntRange];Create;True;0;0;0;False;0;False;0;0;0;3;0;1;FLOAT;0
 Node;AmplifyShaderEditor.FunctionNode;61;-316.7311,-463.2865;Inherit;False;VUFiltered;-1;;1;9e3a3efd07ae5af42820ceacf2214050;0;1;8;FLOAT;0;False;2;FLOAT;0;FLOAT;2
 Node;AmplifyShaderEditor.RangedFloatNode;63;-211.7907,-543.8465;Inherit;False;Property;_Gain;Gain;1;0;Create;True;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
@@ -159,7 +158,7 @@ Node;AmplifyShaderEditor.ColorNode;56;227.0493,-76.38652;Inherit;False;Property;
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;58;503.7091,-487.6665;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;59;530.2094,-145.2865;Inherit;False;2;2;0;FLOAT;0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;50;724.3947,-350.9608;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;23;924.2071,-372.684;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_FilteredVU;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;66;924.2071,-372.684;Float;False;True;-1;2;ASEMaterialInspector;100;1;AudioLink/Amplify/AudioLinkAmplify_FilteredVU;0770190933193b94aaa3065e307002fa;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;0;1;True;False;;False;0
 WireConnection;61;8;62;0
 WireConnection;65;0;63;0
 WireConnection;65;1;61;2
@@ -177,6 +176,6 @@ WireConnection;59;0;49;0
 WireConnection;59;1;56;0
 WireConnection;50;0;58;0
 WireConnection;50;1;59;0
-WireConnection;23;0;50;0
+WireConnection;66;0;50;0
 ASEEND*/
-//CHKSM=CD82A8DB7CB1E81C22B04A6DE018D9CB2F761FCB
+//CHKSM=F16851DE2C868212D37B6F1B5A42C8E7CD9D15F6

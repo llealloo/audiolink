@@ -36,8 +36,7 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_Waveform"
 			Tags { "LightMode"="ForwardBase" }
 			CGPROGRAM
 
-			#define ASE_USING_SAMPLING_MACROS 1
-
+			
 
 			#ifndef UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX
 			//only defining to not throw compilation error over Unity 5.5
@@ -48,19 +47,6 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_Waveform"
 			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
 			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
-
-			#if defined(SHADER_API_D3D11) || defined(SHADER_API_XBOXONE) || defined(UNITY_COMPILER_HLSLCC) || defined(SHADER_API_PSSL) || (defined(SHADER_TARGET_SURFACE_ANALYSIS) && !defined(SHADER_TARGET_SURFACE_ANALYSIS_MOJOSHADER))//ASE Sampler Macros
-			#define SAMPLE_TEXTURE2D(tex,samplerTex,coord) tex.Sample(samplerTex,coord)
-			#define SAMPLE_TEXTURE2D_LOD(tex,samplerTex,coord,lod) tex.SampleLevel(samplerTex,coord, lod)
-			#define SAMPLE_TEXTURE2D_BIAS(tex,samplerTex,coord,bias) tex.SampleBias(samplerTex,coord,bias)
-			#define SAMPLE_TEXTURE2D_GRAD(tex,samplerTex,coord,ddx,ddy) tex.SampleGrad(samplerTex,coord,ddx,ddy)
-			#else//ASE Sampling Macros
-			#define SAMPLE_TEXTURE2D(tex,samplerTex,coord) tex2D(tex,coord)
-			#define SAMPLE_TEXTURE2D_LOD(tex,samplerTex,coord,lod) tex2Dlod(tex,float4(coord,0,lod))
-			#define SAMPLE_TEXTURE2D_BIAS(tex,samplerTex,coord,bias) tex2Dbias(tex,float4(coord,0,bias))
-			#define SAMPLE_TEXTURE2D_GRAD(tex,samplerTex,coord,ddx,ddy) tex2Dgrad(tex,coord,ddx,ddy)
-			#endif//ASE Sampling Macros
-			
 
 
 			struct appdata
@@ -147,8 +133,8 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_Waveform"
 	
 }
 /*ASEBEGIN
-Version=18908
-3724;23.2;2347;1269;1091.088;1047.657;1.17;True;False
+Version=18935
+456;73;1463;926;573.9481;847.002;1.17;True;True
 Node;AmplifyShaderEditor.TextureCoordinatesNode;18;-500.2381,-271.9461;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode;20;-156.2578,-153.7764;Inherit;False;Property;_WaveformHeight;Waveform Height;0;0;Create;True;0;0;0;False;0;False;0.5;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.FunctionNode;35;-127.008,-282.4769;Inherit;False;Waveform;-1;;4;86000a57e77967c4ea51f70716038ec2;0;1;2;FLOAT;0;False;1;FLOAT;0
@@ -156,8 +142,8 @@ Node;AmplifyShaderEditor.SimpleAddOpNode;31;195.912,-255.5666;Inherit;False;2;2;
 Node;AmplifyShaderEditor.TextureCoordinatesNode;22;198.2521,-401.8164;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.RangedFloatNode;25;195.9112,-139.7364;Inherit;False;Property;_WaveformThickness;Waveform Thickness;1;0;Create;True;0;0;0;False;0;False;0.05;0;0;1;0;1;FLOAT;0
 Node;AmplifyShaderEditor.RangedFloatNode;32;200.5919,-41.45654;Inherit;False;Property;_WaveformLineSmoothing;Waveform Line Smoothing;2;0;Create;True;0;0;0;False;0;False;0.01;0;0.0001;1;0;1;FLOAT;0
-Node;AmplifyShaderEditor.FunctionNode;30;558.6118,-287.1565;Inherit;False;DrawLine;-1;;2;b931a6c4da53ab6489d06086e5e19048;0;4;5;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0.5;False;1;FLOAT;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;34;899.912,-249.0287;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_Waveform;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
+Node;AmplifyShaderEditor.FunctionNode;30;558.6118,-287.1565;Inherit;False;DrawLine;-1;;5;b931a6c4da53ab6489d06086e5e19048;0;4;5;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0.5;False;1;FLOAT;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;36;899.912,-249.0287;Float;False;True;-1;2;ASEMaterialInspector;100;1;AudioLink/Amplify/AudioLinkAmplify_Waveform;0770190933193b94aaa3065e307002fa;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;0;1;True;False;;False;0
 WireConnection;35;2;18;1
 WireConnection;31;0;35;0
 WireConnection;31;1;20;0
@@ -165,6 +151,6 @@ WireConnection;30;5;22;2
 WireConnection;30;1;31;0
 WireConnection;30;2;25;0
 WireConnection;30;3;32;0
-WireConnection;34;0;30;0
+WireConnection;36;0;30;0
 ASEEND*/
-//CHKSM=ED5E37BCAB01FDEFAB6CE320371904D122471ACE
+//CHKSM=078E4ACBE80641E8A960DD64EEFF0DB3DA94CC4F
