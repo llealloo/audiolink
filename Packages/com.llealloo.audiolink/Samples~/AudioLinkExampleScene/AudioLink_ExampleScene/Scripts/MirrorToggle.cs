@@ -22,7 +22,9 @@ namespace VRCAudioLink
 
         public override void Interact()
         {
-            mirror.SetActive(!mirror.activeSelf);
+            bool toggle = !mirror.activeSelf;
+            mirror.SetActive(toggle);
+            InteractionText = "Mirror is " + (string)((toggle == true) ? "ON" : "OFF") + " (local)";
         }
 
     }
