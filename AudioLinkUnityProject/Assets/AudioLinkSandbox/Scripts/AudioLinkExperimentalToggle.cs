@@ -19,8 +19,13 @@ namespace VRCAudioLink
         public override void Interact()
         {
             bool toggle = !(bool)audioLink.GetProgramVariable("audioDataToggle");
-            audioLink.SetProgramVariable("audioDataToggle", toggle);
-            InteractionText = "Experimental Readback is " + (string)((toggle == true) ? "ON" : "OFF");
+            if (toggle)
+            {
+                audioLink.SendCustomEvent("EnableReadback");
+            } else {
+                audioLink.SendCustomEvent("DisableReadback");
+            }
+            InteractionText = "Experimental Readback is " + (string)((toggle == true) ? "ON" : "OFF") + " (local)";
         }
     }
 }
