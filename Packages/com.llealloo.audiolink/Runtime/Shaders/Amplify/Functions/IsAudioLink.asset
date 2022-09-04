@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: IsAudioLink
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity Asset
-    Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18900\n3240;268;2347;1269;1173.5;633.5;1;True;False\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-40.5,-75.5;Inherit;False;int
+  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
+    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n802;73;1117;926;558.5;462;1;True;True\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-40.5,-75.5;Inherit;False;int
     w = 0@ $int h@ $int res = 0@$#ifndef SHADER_TARGET_SURFACE_ANALYSIS$_AudioTexture.GetDimensions(w,
-    h)@ $#endif$if (w == 128) res = 1@$return res@;1;False;0;If AudioLink v2 Exists;True;False;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;273,-86;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=18E930D0AFE96185E6F7964187ADAEF17BC4BABE"
+    h)@ $#endif$if (w == 128) res = 1@$return res@;1;Create;0;If AudioLink v2 Exists;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;273,-86;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=2919D1F3D8D729BDB479838089DF682D18058C09"
   m_functionName: 
   m_description: Tests if _AudioTexture is available and returns 0 if not, 1 if yes!
   m_additionalIncludes:
@@ -26,17 +26,24 @@ MonoBehaviour:
     m_outsidePragmas: []
   m_additionalDirectives:
     m_validData: 0
-    m_isDirty: 0
+    m_isDirty: 1
     m_moduleName: ' Additional Directives'
     m_independentModule: 1
     m_customEdited: 0
-    m_additionalDirectives: []
+    m_additionalDirectives:
+    - {fileID: 0}
     m_shaderFunctionDirectives: []
     m_nativeDirectives: []
     m_nativeDirectivesIndex: -1
     m_nativeDirectivesFoldout: 0
-    m_directivesSaveItems: []
-  m_nodeCategory: 3
-  m_customNodeCategory: 
+    m_directivesSaveItems:
+    - LineType: 0
+      LineValue: Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc
+      GUIDToggle: 0
+      GUIDValue: 
+      Origin: 2
+  m_nodeCategory: 0
+  m_customNodeCategory: AudioLink
   m_previewPosition: 0
   m_hidden: 0
+  m_url: https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs

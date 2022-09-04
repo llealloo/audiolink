@@ -45,7 +45,6 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_ColorChordLights"
 			#include "UnityCG.cginc"
 			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
-			
 
 			struct appdata
 			{
@@ -126,8 +125,8 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_ColorChordLights"
 	
 }
 /*ASEBEGIN
-Version=18908
-3072;15.2;2155;1227;1142.5;668.5;1;True;False
+Version=18935
+818;73;1101;926;-65.5;368;1;True;True
 Node;AmplifyShaderEditor.TextureCoordinatesNode;1;-543.5,-97;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;6;-210.5,-5.5;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;16;False;1;FLOAT;0
 Node;AmplifyShaderEditor.FloorOpNode;11;-33.5,14.5;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
@@ -136,7 +135,7 @@ Node;AmplifyShaderEditor.SimpleMultiplyOpNode;9;148.5,-8.5;Inherit;False;2;2;0;F
 Node;AmplifyShaderEditor.FloorOpNode;10;-24.5,-121.5;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;7;321.5,-99.5;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
 Node;AmplifyShaderEditor.FunctionNode;8;511.5,-115.5;Inherit;False;ColorChordLights;-1;;4;e4ce5853eedcd214da09ba336aadbc9e;0;1;2;INT;0;False;1;FLOAT4;0
-Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;0;815,-98;Float;False;True;-1;2;ASEMaterialInspector;100;11;AudioLink/Amplify/AudioLinkAmplify_ColorChordLights;98260b9dbbbb4b244bc27a597305f10e;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;1;True;False;;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;12;815,-98;Float;False;True;-1;2;ASEMaterialInspector;100;1;AudioLink/Amplify/AudioLinkAmplify_ColorChordLights;0770190933193b94aaa3065e307002fa;True;Unlit;0;0;Unlit;2;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;RenderType=Opaque=RenderType;True;2;False;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;False;0;;0;0;Standard;1;Vertex Position,InvertActionOnDeselection;1;0;0;1;True;False;;False;0
 WireConnection;6;0;1;2
 WireConnection;11;0;6;0
 WireConnection;5;0;1;1
@@ -145,6 +144,6 @@ WireConnection;10;0;5;0
 WireConnection;7;0;10;0
 WireConnection;7;1;9;0
 WireConnection;8;2;7;0
-WireConnection;0;0;8;0
+WireConnection;12;0;8;0
 ASEEND*/
-//CHKSM=F2FC0921B318BA722D086BE5D5240B6E2BBF42D2
+//CHKSM=11620E3895419B91951285E35C3FEABBB02CF686
