@@ -50,8 +50,8 @@ crashlytics-build.properties
 
 /CyanEmu/
 /CyanEmu.meta
-/AmplifyShaderEditor/
-/AmplifyShaderEditor.meta
+/AudioLinkUnityProject/Assets/AmplifyShaderEditor/
+/AudioLinkUnityProject/Assets/AmplifyShaderEditor.meta
 /Plugins/
 /Plugins.meta
 /TurboRename/
