@@ -57,7 +57,7 @@ namespace VRCAudioLink
         {
 #if !UNITY_EDITOR
             VRCPlayerApi owner = Networking.GetOwner(gameObject);
-            if (Utilities.IsValid(owner) && owner.IsValid())
+            if (VRC.SDKBase.Utilities.IsValid(owner) && owner.IsValid())
                 instanceMaster = owner.displayName;
 #endif
 
@@ -70,7 +70,7 @@ namespace VRCAudioLink
 
         public void _HandleUrlInput()
         {
-            if (!Utilities.IsValid(videoPlayer))
+            if (!VRC.SDKBase.Utilities.IsValid(videoPlayer))
                 return;
 
             pendingFromLoadOverride = loadActive;
@@ -102,7 +102,7 @@ namespace VRCAudioLink
 
         public void _HandleUrlInputChange()
         {
-            if (!Utilities.IsValid(videoPlayer))
+            if (!VRC.SDKBase.Utilities.IsValid(videoPlayer))
                 return;
 
             VRCUrl url = urlInput.GetUrl();
@@ -112,7 +112,7 @@ namespace VRCAudioLink
 
         public void _HandleSync()
         {
-            if (!Utilities.IsValid(videoPlayer))
+            if (!VRC.SDKBase.Utilities.IsValid(videoPlayer))
                 return;
 
             videoPlayer._Resync();
@@ -120,7 +120,7 @@ namespace VRCAudioLink
 
         public void _HandleStop()
         {
-            if (!Utilities.IsValid(videoPlayer))
+            if (!VRC.SDKBase.Utilities.IsValid(videoPlayer))
                 return;
 
             if (videoPlayer._CanTakeControl())
@@ -131,7 +131,7 @@ namespace VRCAudioLink
 
         public void _HandleLock()
         {
-            if (!Utilities.IsValid(videoPlayer))
+            if (!VRC.SDKBase.Utilities.IsValid(videoPlayer))
                 return;
 
             if (videoPlayer._CanTakeControl())
@@ -142,7 +142,7 @@ namespace VRCAudioLink
 
         public void _HandleLoad()
         {
-            if (!Utilities.IsValid(videoPlayer))
+            if (!VRC.SDKBase.Utilities.IsValid(videoPlayer))
                 return;
 
             if (!videoPlayer._CanTakeControl())
@@ -340,7 +340,7 @@ namespace VRCAudioLink
 
             foreach (VRCPlayerApi player in playerList)
             {
-                if (!Utilities.IsValid(player) || !player.IsValid())
+                if (!VRC.SDKBase.Utilities.IsValid(player) || !player.IsValid())
                     continue;
                 if (player.isInstanceOwner)
                     instanceOwner = player.displayName;
@@ -360,7 +360,7 @@ namespace VRCAudioLink
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
             VRCPlayerApi owner = Networking.GetOwner(gameObject);
-            if (Utilities.IsValid(owner) && owner.IsValid())
+            if (VRC.SDKBase.Utilities.IsValid(owner) && owner.IsValid())
                 instanceMaster = owner.displayName;
         }
     }
