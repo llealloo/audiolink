@@ -217,7 +217,7 @@ namespace VRCAudioLink
 
         bool _IsUrlValid(VRCUrl url)
         {
-            if (!Utilities.IsValid(url))
+            if (!VRC.SDKBase.Utilities.IsValid(url))
                 return false;
 
             string urlStr = url.Get();
@@ -432,7 +432,7 @@ namespace VRCAudioLink
         public bool _IsAdmin()
         {
             VRCPlayerApi player = Networking.LocalPlayer;
-            if (!Utilities.IsValid(player))
+            if (!VRC.SDKBase.Utilities.IsValid(player))
                 return false;
 
             return player.isMaster || player.isInstanceOwner;
@@ -441,7 +441,7 @@ namespace VRCAudioLink
         public bool _CanTakeControl()
         {
             VRCPlayerApi player = Networking.LocalPlayer;
-            if (!Utilities.IsValid(player))
+            if (!VRC.SDKBase.Utilities.IsValid(player))
                 return false;
 
             return player.isMaster || player.isInstanceOwner || !_syncLocked;
