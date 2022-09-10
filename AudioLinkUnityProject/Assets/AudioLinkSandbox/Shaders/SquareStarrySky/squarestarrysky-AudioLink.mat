@@ -117,6 +117,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GroundColor: {r: 0.36899996, g: 0.34899998, b: 0.34099993, a: 1}
-    - _InputBasisQuaternion: {r: -0.8249345, g: 0, b: 0, a: 0.56522846}
+    - _InputBasisQuaternion: {r: 0.58331627, g: 0.3996772, b: 0.5833172, a: -0.3996765}
     - _SkyTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _Tint: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
