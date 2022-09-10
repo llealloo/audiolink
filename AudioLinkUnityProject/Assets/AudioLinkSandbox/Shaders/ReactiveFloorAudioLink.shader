@@ -20,6 +20,7 @@ Shader "ReactiveFloorAudioLink"
 		Cull Off
 		ZWrite Off
 		Blend One One
+		
 		CGPROGRAM
 		#include "UnityPBSLighting.cginc"
 		#pragma target 3.0
@@ -140,7 +141,7 @@ Node;AmplifyShaderEditor.SimpleMultiplyOpNode;21;263.8983,546.6095;Inherit;False
 Node;AmplifyShaderEditor.CustomExpressionNode;3;-292,53.7;Inherit;False;float4 intensity = 0@$for (int i = 0@ i < Length@ i++)${$	float dist = length(PlayerPositions[i].xyz - TestPosition)@$	float normalizedDist = dist / Radius@$	//float delay = pow((1 - saturate(normalizedDist)), 2) * 128@$	float delay = pow(normalizedDist, 3) * 128@$	float amplitude = AudioLinkLerp( ALPASS_AUDIOLINK + float2(delay, 0 )).r@$	intensity += lerp(lerp(ColorA * amplitude, ColorB * amplitude, normalizedDist), 0, normalizedDist)@$}$return intensity@;4;Create;6;True;VectorArray;FLOAT4;0,0,0,0;In;;Inherit;False;True;Length;INT;0;In;;Inherit;False;True;Radius;FLOAT;0;In;;Inherit;False;True;TestPosition;FLOAT3;0,0,0;In;;Inherit;False;True;ColorA;FLOAT4;0,0,0,0;In;;Inherit;False;True;ColorB;FLOAT4;0,0,0,0;In;;Inherit;False;AudioLink Intensity;True;False;0;;False;6;0;FLOAT4;0,0,0,0;False;1;INT;0;False;2;FLOAT;0;False;3;FLOAT3;0,0,0;False;4;FLOAT4;0,0,0,0;False;5;FLOAT4;0,0,0,0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.SaturateNode;31;478.3985,443.9096;Inherit;False;1;0;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;18;365.2984,194.3096;Inherit;False;2;2;0;FLOAT4;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;FLOAT4;0
-Node;AmplifyShaderEditor.StandardSurfaceOutputNode;28;776.1999,-29.9;Float;False;True;-1;2;ASEMaterialInspector;0;0;CustomLighting;ReactiveFloorAudioLink;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Off;2;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Custom;0;True;True;0;False;Custom;;Transparent;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;4;1;False;-1;1;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;0;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;1;Include;Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc;False;;Custom;0;0;False;0.1;False;-1;0;False;-1;False;15;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.StandardSurfaceOutputNode;28;776.1999,-29.9;Float;False;True;-1;2;ASEMaterialInspector;0;0;CustomLighting;ReactiveFloorAudioLink;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Off;2;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Custom;0;True;True;0;True;Custom;;Transparent;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;4;1;False;-1;1;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;0;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;1;Include;Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc;False;;Custom;0;0;False;0.1;False;-1;0;False;-1;False;15;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
 WireConnection;25;0;1;0
 WireConnection;25;1;2;0
 WireConnection;25;2;24;0
@@ -158,4 +159,4 @@ WireConnection;18;0;3;0
 WireConnection;18;1;31;0
 WireConnection;28;13;18;0
 ASEEND*/
-//CHKSM=9EF1DD57C0985B35E1874B5C84E6549CE8838491
+//CHKSM=0B6315567D666DD895F86D5DA5D547FB4CB96097
