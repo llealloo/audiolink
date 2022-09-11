@@ -1,22 +1,14 @@
 ﻿
-using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
-#if UDON
-using VRC.Udon;
 using UdonSharp;
-#endif
+using UnityEngine;
+using VRC.SDKBase;
+using VRC.Udon;
 
 
 #if !COMPILER_UDONSHARP && UNITY_EDITOR // These using statements must be wrapped in this check to prevent issues on builds
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
 using VRC.SDKBase.Editor.BuildPipeline;
-#endif
 using UnityEditor;
-#if UDON
 using UdonSharpEditor;
-#endif
 #endif
 
 namespace AudioLink
@@ -56,6 +48,7 @@ namespace AudioLink
 		public int Rows;
 		public Material mat_ApplySmoothTex;
 		public string uuidStr;
+		public float ScaleMultiplier;
 
 		private int lasthash;
 		private Material UseMaterial;
@@ -78,13 +71,16 @@ namespace AudioLink
 			if (GenerateMaterial)
 			{
 				UseMaterial.SetTexture( "_TextData", UseTexture );
-				AssetDatabase.CreateAsset(UseMaterial, $"Assets/Compiled/cmat_{uuidStr}.mat");
+				AssetDatabase.CreateAsset(UseMaterial, $"Assets/AudioLinkSandbox/Compiled/cmat_{uuidStr}.mat");
 				GenerateMaterial = false;
 			}
 		}
 
 		public void UpdateProps()
 		{
+
+			transform.localScale = new Vector3(Columns, 1f, Rows) * ScaleMultiplier;
+
 			if( uuidStr.Length == 0 )
 			{
 				uuidStr = System.Guid.NewGuid().ToString();
@@ -99,11 +95,11 @@ namespace AudioLink
 			if( Rows == 0 ) Rows = 10;
 			if( Columns == 0 ) Columns = 20;
 
-			UseTexture = AssetDatabase.LoadAssetAtPath($"Assets/Compiled/ctex_{uuidStr}.asset", typeof( Texture2D ) ) as Texture2D;
+			UseTexture = AssetDatabase.LoadAssetAtPath($"Assets/AudioLinkSandbox/Compiled/ctex_{uuidStr}.asset", typeof( Texture2D ) ) as Texture2D;
 			if( UseTexture == null )
 			{
 				Texture2D UseTexture = new Texture2D( Columns, Rows, TextureFormat.RGBAHalf, false );
-				AssetDatabase.CreateAsset( UseTexture, $"Assets/Compiled/ctex_{uuidStr}.asset");
+				AssetDatabase.CreateAsset( UseTexture, $"Assets/AudioLinkSandbox/Compiled/ctex_{uuidStr}.asset");
 			}
 			else
 			{
@@ -117,13 +113,13 @@ namespace AudioLink
 			currentColor.r = 1;
 			currentColor.g = 1;
 			currentColor.b = 1;
-			currentColor.a = 0;
+			currentColor.a = 1;
 			
 			int mode = 0;
 			string thistag = "";
 			int weight = 0;
 			int submode = 0;
-			
+
 			for( i = 0; i < TextSet.Length && lx+ly*Columns < Rows*Columns; i++ )
 			{
 				char tc = TextSet[i];
@@ -212,12 +208,12 @@ namespace AudioLink
 						thistag += TextSet[i];
 					}
 				}
+				
 				if( emit != (char)0 )
 				{
 					// Actually emit a character.
 					Color c = currentColor;
 					c.a = (emit/256.0f) + weight*2+2;
-					
 					UseTexture.SetPixel( lx, ly, c );
 					
 					lx++;
@@ -230,7 +226,7 @@ namespace AudioLink
 			}
 			UseTexture.Apply();
 
-			UseMaterial = AssetDatabase.LoadAssetAtPath($"Assets/Compiled/cmat_{uuidStr}.asset", typeof( Material ) ) as Material;
+			UseMaterial = AssetDatabase.LoadAssetAtPath($"Assets/AudioLinkSandbox/Compiled/cmat_{uuidStr}.asset", typeof( Material ) ) as Material;
 			if( UseMaterial == null )
 			{
 				UseMaterial = 
