@@ -32,9 +32,9 @@ Material:
     - _Bottom: 36
     - _ColSpeed: 0.15
     - _Dither: 0.1
-    - _Height: 11
+    - _Height: 20.31
     - _MaxOpaque: 1
-    - _OpacityMod: 0.45
+    - _OpacityMod: 0.32
     - _Reactive: 1
     - _Scale: 0.25
     - _ScaleDown: 1
