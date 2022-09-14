@@ -54,6 +54,13 @@
 #define AUDIOLINK_TREBLE_CORRECTION     5.0
 #define AUDIOLINK_4BAND_TARGET_RATE     90.0
 
+// Text constants
+#define AUDIOLINK_STRING_MAX_CHARS      32
+#define AUDIOLINK_STRING_LOCALPLAYER    0
+#define AUDIOLINK_STRING_MASTER         1
+#define AUDIOLINK_STRING_CUSTOM1        2
+#define AUDIOLINK_STRING_CUSTOM2        3
+
 // ColorChord constants
 #define COLORCHORD_EMAXBIN              192
 #define COLORCHORD_NOTE_CLOSEST         3.0
@@ -273,22 +280,22 @@ uint AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)
 
 uint AudioLinkGetLocalPlayerNameChar(uint charIndex)
 {
-    return AudioLinkGetGlobalStringChar(0, charIndex);
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_LOCALPLAYER, charIndex);
 }
 
 uint AudioLinkGetMasterNameChar(uint charIndex)
 {
-    return AudioLinkGetGlobalStringChar(1, charIndex);
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_MASTER, charIndex);
 }
 
 uint AudioLinkGetCustomString1Char(uint charIndex)
 {
-    return AudioLinkGetGlobalStringChar(2, charIndex);
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM1, charIndex);
 }
 
 uint AudioLinkGetCustomString2Char(uint charIndex)
 {
-    return AudioLinkGetGlobalStringChar(3, charIndex);
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM2, charIndex);
 }
 
 #endif
