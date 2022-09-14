@@ -127,7 +127,7 @@ float AudioLinkGetVersion()
 uint AudioLinkDecodeDataAsUInt(uint2 indexloc)
 {
     uint4 rpx = AudioLinkData(indexloc);
-    return rpx.r + rpx.g*1024 + rpx.b * 1048576 + rpx.a * 1073741824;
+    return rpx.x + rpx.y*1024 + rpx.z * 1048576 + rpx.w * 1073741824;
 }
 
 //Note: This will truncate time to every 134,217.728 seconds (~1.5 days of an instance being up) to prevent floating point aliasing.
