@@ -9,21 +9,23 @@ namespace AudioLinkWorld
     public class MirrorTriggerZone : UdonSharpBehaviour
     {
 
+        private VRCPlayerApi _localPlayer;
+
         public UdonBehaviour mirrorButton;
 
         void Start()
         {
-            
+            _localPlayer = Networking.LocalPlayer;
         }
 
         public override void OnPlayerTriggerExit(VRC.SDKBase.VRCPlayerApi player)
         {
-            mirrorButton.SendCustomEvent("DisableMirror");
+            if (player == _localPlayer) mirrorButton.SendCustomEvent("DisableMirror");
         }
 
         public override void OnPlayerTriggerEnter(VRC.SDKBase.VRCPlayerApi player)
         {
-            mirrorButton.SendCustomEvent("SetMirrorFromState");
+            if (player == _localPlayer) mirrorButton.SendCustomEvent("SetMirrorFromState");
         }
     }
 }

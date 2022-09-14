@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_ReactiveFloorAudioLink
-  m_Shader: {fileID: 4800000, guid: 705e0a6ee8697af4da9b9c69a4037495, type: 3}
+  m_Name: mat_InfinityPlane
+  m_Shader: {fileID: 4800000, guid: c9afc0810e41f9f48a0ce66950a7d9a6, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,21 +19,21 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _TextureSample0:
-        m_Texture: {fileID: 2800000, guid: a7164fc426094f741aaac6f9d96c7cc3, type: 3}
-        m_Scale: {x: 500, y: 500}
-        m_Offset: {x: 0.5, y: 0.5}
+    - _Texture:
+        m_Texture: {fileID: 2800000, guid: 37e6f91f3efb0954cbdce254638862ea, type: 3}
+        m_Scale: {x: 100, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _texcoord:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _ArrayLength: 0
-    - _AudioLinkRadius: 0.5
-    - _Contrast: 0.87
-    - _GridRadius: 3
-    - _Radius: 1
+    - _AudioLinkRadius: 2
+    - _HeightMod: 0.1
+    - _Opacity: 0.25
+    - _Step: 0.25
+    - _TextureOpacity: 1
     - __dirty: 0
     m_Colors:
-    - _Color1: {r: 0.7169523, g: 0, b: 1, a: 0}
-    - _Color2: {r: 0, g: 0.77507114, b: 1, a: 0}
+    - _Color1: {r: 0, g: 0.72313213, b: 1, a: 0}
+    - _Color2: {r: 0.84403324, g: 0, b: 1, a: 0}
