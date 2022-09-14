@@ -14,9 +14,7 @@ namespace VRCAudioLink
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLinkMiniPlayer : UdonSharpBehaviour
     {
-        [Tooltip("AVPro video player component")]
-        public VRCAVProVideoPlayer avProVideo;
-
+        [Header("Options")]
         [Tooltip("Optional default URL to play on world load")]
         public VRCUrl defaultUrl;
 
@@ -30,6 +28,12 @@ namespace VRCAudioLink
 
         [Tooltip("Automatically loop track when finished")]
         public bool loop = false;
+
+        [Header("Internal")]
+        [Tooltip("Use this texture as an input to materials and other shader systems like LTCGI.")]
+        public CustomRenderTexture videoRenderTexture;
+        [Tooltip("AVPro video player component")]
+        public VRCAVProVideoPlayer avProVideo;
 
         float retryTimeout = 6;
         float syncFrequency = 5;
@@ -280,7 +284,7 @@ namespace VRCAudioLink
                 return;
 
             DebugLog("Start video load " + _syncUrl);
-            localPlayerState = PLAYER_STATE_LOADING;
+            _UpdatePlayerState(PLAYER_STATE_LOADING);
 
 #if !UNITY_EDITOR
             _currentPlayer.LoadURL(_syncUrl);
@@ -294,7 +298,7 @@ namespace VRCAudioLink
             if (seekableSource)
                 _lastVideoPosition = _currentPlayer.GetTime();
 
-            localPlayerState = PLAYER_STATE_STOPPED;
+            _UpdatePlayerState(PLAYER_STATE_STOPPED);
 
             _currentPlayer.Stop();
             _videoTargetTime = 0;
@@ -343,7 +347,7 @@ namespace VRCAudioLink
 
             if (Networking.IsOwner(gameObject))
             {
-                localPlayerState = PLAYER_STATE_PLAYING;
+                _UpdatePlayerState(PLAYER_STATE_PLAYING);
                 _playStartTime = Time.time;
 
                 _syncVideoStartNetworkTime = (float)Networking.GetServerTimeInSeconds() - _videoTargetTime;
@@ -362,7 +366,7 @@ namespace VRCAudioLink
                 }
                 else
                 {
-                    localPlayerState = PLAYER_STATE_PLAYING;
+                    _UpdatePlayerState(PLAYER_STATE_PLAYING);
                     _playStartTime = Time.time;
 
                     SyncVideo();
@@ -378,7 +382,7 @@ namespace VRCAudioLink
                 return;
             }
 
-            localPlayerState = PLAYER_STATE_STOPPED;
+            _UpdatePlayerState(PLAYER_STATE_STOPPED);
             seekableSource = false;
 
             DebugLog("Video end");
@@ -406,7 +410,7 @@ namespace VRCAudioLink
             DebugLog("Video stream failed: " + _syncUrl);
             DebugLog("Error code: " + videoError);
 
-            localPlayerState = PLAYER_STATE_ERROR;
+            _UpdatePlayerState(PLAYER_STATE_ERROR);
             localLastErrorCode = videoError;
 
             if (Networking.IsOwner(gameObject))
@@ -509,7 +513,7 @@ namespace VRCAudioLink
                 return;
 
             // Got go-ahead from owner, start playing video
-            localPlayerState = PLAYER_STATE_PLAYING;
+            _UpdatePlayerState(PLAYER_STATE_PLAYING);
 
             _waitForSync = false;
             _currentPlayer.Play();
@@ -556,6 +560,19 @@ namespace VRCAudioLink
             _currentPlayer.Stop();
             if (_syncOwnerPlaying)
                 _StartVideoLoad();
+        }
+
+        void _UpdatePlayerState(int state)
+        {
+            localPlayerState = state;
+
+            if (Utilities.IsValid(videoRenderTexture))
+            {
+                if (state == PLAYER_STATE_PLAYING)
+                    videoRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+                else
+                    videoRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+            }
         }
 
         // Debug
