@@ -345,6 +345,10 @@ public class AudioLink : UdonSharpBehaviour
         #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
+            UpdateGlobalString("_StringLocalPlayer", "Pema99");
+            UpdateGlobalString("_StringMasterPlayer", "Master player name goes here");
+            UpdateGlobalString("_StringCustom1", "I'm a custom string");
+            UpdateGlobalString("_StringCustom2", "I'm a custom string, also");
         #endif
         }
 
@@ -387,6 +391,45 @@ public class AudioLink : UdonSharpBehaviour
             audioMaterial.SetColor("_CustomThemeColor1", customThemeColor1);
             audioMaterial.SetColor("_CustomThemeColor2", customThemeColor2);
             audioMaterial.SetColor("_CustomThemeColor3", customThemeColor3);
+        }
+
+        private static float IntToFloatBits24Bit(uint value)
+        {
+            uint frac = value & 0x007FFFFF;
+            return (frac / 8388608F) * 1.1754944e-38F;
+        }
+
+        private void UpdateGlobalString(string name, string input)
+        {
+            const int maxLength = 32;
+            if (input.Length > maxLength)
+                input = input.Substring(0, maxLength);
+
+            // Get unicode codepoints
+            var codePoints = new int[input.Length];
+            int codePointsLength = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                codePoints[codePointsLength++] = Char.ConvertToUtf32(input, i);
+                if (Char.IsHighSurrogate(input[i]))
+                {
+                    i += 1;
+                }
+            }
+
+            // Pack them into vectors
+            Vector4[] vecs = new Vector4[maxLength / 4]; // 4 chars per vector
+            int j = 0;
+            for (int i = 0; i < vecs.Length; i++)
+            {
+                if (j < codePoints.Length) vecs[i].x = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
+                if (j < codePoints.Length) vecs[i].y = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
+                if (j < codePoints.Length) vecs[i].z = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
+                if (j < codePoints.Length) vecs[i].w = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
+            }
+
+            // Expose the vectors to shader
+            audioMaterial.SetVectorArray(name, vecs);
         }
 
         public void EnableReadback()
