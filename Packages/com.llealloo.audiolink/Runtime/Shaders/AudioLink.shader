@@ -45,13 +45,13 @@ Shader "AudioLink/Internal/AudioLink"
             #if UNITY_UV_STARTS_AT_TOP || SHADER_API_GLES3
             #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
-                uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
+                uint2 coordinateGlobal = round(guv * _SelfTexture2D_TexelSize.zw - 0.5); \
                 uint2 coordinateLocal = uint2(coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y);
             #else
             #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
                 guv.y = 1.-guv.y; \
-                uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
+                uint2 coordinateGlobal = round(guv * _SelfTexture2D_TexelSize.zw - 0.5); \
                 uint2 coordinateLocal = uint2(coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y);
             #endif
 
