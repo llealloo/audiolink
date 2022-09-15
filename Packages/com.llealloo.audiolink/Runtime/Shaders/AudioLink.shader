@@ -45,13 +45,13 @@ Shader "AudioLink/Internal/AudioLink"
             #if UNITY_UV_STARTS_AT_TOP || SHADER_API_GLES3
             #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
-                uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
+                uint2 coordinateGlobal = round(guv * _SelfTexture2D_TexelSize.zw - 0.5); \
                 uint2 coordinateLocal = uint2(coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y);
             #else
             #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
                 guv.y = 1.-guv.y; \
-                uint2 coordinateGlobal = round(guv/_SelfTexture2D_TexelSize.xy - 0.5); \
+                uint2 coordinateGlobal = round(guv * _SelfTexture2D_TexelSize.zw - 0.5); \
                 uint2 coordinateLocal = uint2(coordinateGlobal.x - BASECOORDY.x, coordinateGlobal.y - BASECOORDY.y);
             #endif
 
@@ -173,7 +173,7 @@ Shader "AudioLink/Internal/AudioLink"
                 {
                     // XXX TODO: Try better windows, this is just a triangle.
                     float window = max(0, halfWindowSize - abs(idx - (AUDIOLINK_SAMPHIST / 2 - halfWindowSize)));
-                    float af = AudioLinkGetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).r;
+                    float af = AudioLinkGetSelfPixelData(ALPASS_WAVEFORM + uint2(idx % AUDIOLINK_WIDTH, idx / AUDIOLINK_WIDTH)).x;
 
                     // Sin and cosine components to convolve.
                     float2 sinCos; sincos(phase, sinCos.x, sinCos.y);
@@ -309,7 +309,7 @@ Shader "AudioLink/Internal/AudioLink"
                     for (uint i=binStart; i<binEnd; i++)
                     {
                         int2 spectrumCoord = int2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH);
-                        float rawMagnitude = AudioLinkGetSelfPixelData(ALPASS_DFT + spectrumCoord).g;
+                        float rawMagnitude = AudioLinkGetSelfPixelData(ALPASS_DFT + spectrumCoord).y;
                         total += rawMagnitude;
                     }
                     float magnitude = total / (binEnd - binStart);
@@ -321,7 +321,7 @@ Shader "AudioLink/Internal/AudioLink"
                     magnitude = saturate(magnitude * tan(1.57 * _ContrastSlope) + magnitude + _ContrastOffset * tan(1.57 * _ContrastSlope) - tan(1.57 * _ContrastSlope));
 
                     // Fade
-                    float lastMagnitude = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, band)).g;
+                    float lastMagnitude = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, band)).y;
                     lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);                                                                            // Inverse cubic remap
                     lastMagnitude = saturate(lastMagnitude * (1.0 + (pow(lastMagnitude - 1.0, 4.0) * _FadeExpFalloff) - _FadeExpFalloff));     // Exp falloff
 
@@ -475,9 +475,9 @@ Shader "AudioLink/Internal/AudioLink"
                             // Note: This is also used to measure FPS.
 
                             float4 lastVal = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(1, 0));
-                            float frameCount = lastVal.r;
-                            float frameCountFPS = lastVal.g;
-                            float frameCountLastFPS = lastVal.b;
+                            float frameCount = lastVal.x;
+                            float frameCountFPS = lastVal.y;
+                            float frameCountLastFPS = lastVal.z;
                             float lastTimeFPS = lastVal.a;
                             frameCount++;
                             if(frameCount >= 7776000) //~24 hours.
@@ -542,7 +542,7 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             //General Debug Register
                             //Use this for whatever.
-                            return float4( _AdvancedTimeProps.a, unity_DeltaTime.x, markerTimes.y, 1 );
+                            return float4( _AdvancedTimeProps.w, unity_DeltaTime.x, markerTimes.y, 1 );
                         }
                     }
                 }
@@ -645,12 +645,12 @@ Shader "AudioLink/Internal/AudioLink"
 
                 float4 noteSummary = AudioLinkGetSelfPixelData(ALPASS_CCINTERNAL);
                 float4 noteSummaryB = AudioLinkGetSelfPixelData(ALPASS_CCINTERNAL + int2(0, 1));
-                float lastAmplitude = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(AUDIOLINK_EXPBINS, 0)).b;
-                float thisAmplitude = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(1 + AUDIOLINK_EXPBINS, 0)).b;
+                float lastAmplitude = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(AUDIOLINK_EXPBINS, 0)).z;
+                float thisAmplitude = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(1 + AUDIOLINK_EXPBINS, 0)).z;
 
                 for(i = AUDIOLINK_EXPBINS + 2; i < COLORCHORD_EMAXBIN; i++)
                 {
-                    float nextAmplitude = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    float nextAmplitude = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).z;
                     if(thisAmplitude > lastAmplitude && thisAmplitude > nextAmplitude && thisAmplitude > noteMinimum)
                     {
                         // Find actual peak by looking ahead and behind.
@@ -704,7 +704,7 @@ Shader "AudioLink/Internal/AudioLink"
                                 // only take max.
                                 + thisAmplitude * COLORCHORD_NEW_NOTE_GAIN * 0.3;
 
-                            notes[closestNote] = float4(n.x + drag, mn, n.z, n.a);
+                            notes[closestNote] = float4(n.x + drag, mn, n.z, n.w);
                         }
                         else if(freeNote != -1)
                         {
@@ -767,7 +767,7 @@ Shader "AudioLink/Internal/AudioLink"
                             {
                                 //Found combination of notes.  Nil out second.
                                 float drag = NoteWrap(n1.x, n2.x) * 0.5;//n1.z/(n2.z+n1.y);
-                                n1 = float4(n1.x + drag, n1.y + thisAmplitude, n1.z, n1.a);
+                                n1 = float4(n1.x + drag, n1.y + thisAmplitude, n1.z, n1.w);
 
                                 //n1B unchanged.
 
@@ -808,7 +808,7 @@ Shader "AudioLink/Internal/AudioLink"
                             n1 = -1;
                             n1B = 0;
                         }
-                        //XXX TODO: Do uniformity calculation on n1 for n1.a.
+                        //XXX TODO: Do uniformity calculation on n1 for n1.w.
                     }
 
                     if(n1.z >= 0)
@@ -873,7 +873,7 @@ Shader "AudioLink/Internal/AudioLink"
                     uint id = coordinateLocal.x - (COLORCHORD_MAX_NOTES+2);
                     float4 ThisNote = notes[id];
                     static const float AudioLinkColorOutputIntensity = 0.4;
-                    return float4( AudioLinkCCtoRGB( glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS), ThisNote.b * AudioLinkColorOutputIntensity, AUDIOLINK_ROOTNOTE), 1.0 );
+                    return float4( AudioLinkCCtoRGB( glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS), ThisNote.z * AudioLinkColorOutputIntensity, AUDIOLINK_ROOTNOTE), 1.0 );
                 }
                 return 0;
             }
@@ -901,10 +901,10 @@ Shader "AudioLink/Internal/AudioLink"
                 uint i;
                 for(i = AUTOCORRELATOR_EBASEBIN; i < AUTOCORRELATOR_EMAXBIN; i++)
                 {
-                    float bin = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).b;
+                    float bin = AudioLinkGetSelfPixelData(ALPASS_DFT + uint2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH)).z;
                     float frequency = pow(2, i / 24.) * AUDIOLINK_BOTTOM_FREQUENCY / AUDIOLINK_SPS * UNITY_TWO_PI;
                     float2 csv = float2(cos(frequency * wavePosition * fvr),  cos(frequency * wavePosition * fvr + i * 0.32));
-                    csv.g *= step(i % 4, 1) * 4.;
+                    csv.y *= step(i % 4, 1) * 4.;
                     fvTotal += csv * (bin * bin);
                 }
 
@@ -946,7 +946,7 @@ Shader "AudioLink/Internal/AudioLink"
                     PowerPlace += Power;
                     if(PowerPlace >= IN.globalTexcoord.x)
                     {
-                        return float4(AudioLinkCCtoRGB(Peak.x, Peak.a*Brightness, AUDIOLINK_ROOTNOTE), 1.0);
+                        return float4(AudioLinkCCtoRGB(Peak.x, Peak.w*Brightness, AUDIOLINK_ROOTNOTE), 1.0);
                     }
                 }
 
@@ -1053,7 +1053,7 @@ Shader "AudioLink/Internal/AudioLink"
                     }
 
                     //XXX TODO: REVISIT THIS!! Ths is an arbitrary value!
-                    float intensity = ThisNote.a/3;
+                    float intensity = ThisNote.w/3;
                     return float4(AudioLinkCCtoRGB(glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS),intensity, AUDIOLINK_ROOTNOTE), 1.0);
                 }
                 else
@@ -1136,7 +1136,7 @@ Shader "AudioLink/Internal/AudioLink"
                             ValueDiff = max(((AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + uint2( 0, coordinateLocal.y ) ) - 0.05 )), 0 )*.5;
                     }
                     
-                    uint Value = rpx.r + rpx.g * 1024 + rpx.b * 1048576 + rpx.a * 1073741824;
+                    uint Value = rpx.x + rpx.y * 1024 + rpx.z * 1048576 + rpx.w * 1073741824;
                     Value += ValueDiff * unity_DeltaTime.x * 1048576;
 
                     return AudioLinkEncodeUInt(Value);
@@ -1162,7 +1162,7 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 prev = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + coordinateLocal.xy);
                     float4 RMSPeak = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + uint2(8, 0));
                     float4 lastFilteredRMSPeak = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 0));
-                    float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(pow(.046,unity_DeltaTime), coordinateLocal.x+1)).r;
+                    float4 filteredRMSPeak = lerp(RMSPeak, lastFilteredRMSPeak, pow(pow(.046,unity_DeltaTime), coordinateLocal.x+1)).x;
 
                     float4 markerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 2));
                     float4 timerValue = AudioLinkGetSelfPixelData(ALPASS_FILTEREDVU + uint2(coordinateLocal.x, 3));

@@ -1813,7 +1813,6 @@ GameObject:
   - component: {fileID: 4069953596670917681}
   - component: {fileID: 4069953596670917684}
   - component: {fileID: 4069953596670917687}
-  - component: {fileID: 4069953596670917686}
   m_Layer: 0
   m_Name: Screen
   m_TagString: Untagged
@@ -1882,22 +1881,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4069953596670917680}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &4069953596670917686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4069953596670917680}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1889044836, guid: 661092b4961be7145bfbe56e1e62337b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  videoPlayer: {fileID: 4069953598432947625}
-  materialIndex: 0
-  textureProperty: _MainTex
-  useSharedMaterial: 0
 --- !u!1 &4069953597416675837
 GameObject:
   m_ObjectHideFlags: 0
