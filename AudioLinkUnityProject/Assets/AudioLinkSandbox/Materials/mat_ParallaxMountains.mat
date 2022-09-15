@@ -20,7 +20,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _BaseBrightness: 0.005
+    - _BaseBrightness: 0.006
     m_Colors:
     - _Color1: {r: 0.07182777, g: 0, b: 0.3019608, a: 0}
     - _Color2: {r: 0, g: 0.0754717, b: 0.07006809, a: 0}
