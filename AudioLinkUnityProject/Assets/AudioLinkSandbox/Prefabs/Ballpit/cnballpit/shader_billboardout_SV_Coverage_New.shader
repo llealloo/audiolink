@@ -33,7 +33,7 @@ Shader "cnballpit/billboardoutSV_Coverage_New"
 
 			CGINCLUDE
 			
-			#include "Assets/cnlohr/Shaders/hashwithoutsine/hashwithoutsine.cginc"
+			#include "../../cnlohr/Shaders/hashwithoutsine/hashwithoutsine.cginc"
 			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 			#pragma vertex vert
 			#pragma geometry geo

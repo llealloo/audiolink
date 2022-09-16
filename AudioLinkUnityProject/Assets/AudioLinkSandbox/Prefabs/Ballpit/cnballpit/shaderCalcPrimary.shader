@@ -62,7 +62,7 @@ Shader "cnballpit/shaderCalcPrimary"
 			#pragma fragment frag
 
 			#include "UnityCG.cginc"
-			#include "/Assets/cnlohr/Shaders/hashwithoutsine/hashwithoutsine.cginc"
+			#include "../../cnlohr/Shaders/hashwithoutsine/hashwithoutsine.cginc"
 
 			struct appdata
 			{
