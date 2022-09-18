@@ -109,9 +109,9 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 44.379704
+    - _SourceDistance: 61.92423
     - _SourceSpatialBlend: 0
-    - _SourceVolume: 0.9
+    - _SourceVolume: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _ThemeColorMode: 0
