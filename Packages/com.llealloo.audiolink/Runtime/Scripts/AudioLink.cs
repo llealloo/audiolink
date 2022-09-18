@@ -158,7 +158,12 @@ public class AudioLink : UdonSharpBehaviour
 
                 // Set localplayer name on start
                 if (Networking.LocalPlayer != null)
-                    UpdateGlobalString("_StringLocalPlayer", Networking.LocalPlayer.displayName);
+                {
+                    if (VRC.SDKBase.Utilities.IsValid(Networking.LocalPlayer))
+                    {
+                        UpdateGlobalString("_StringLocalPlayer", Networking.LocalPlayer.displayName);
+                    }
+                }
 
                 // Set master name once on start
                 FindAndUpdateMasterName();
@@ -420,7 +425,7 @@ public class AudioLink : UdonSharpBehaviour
         {
             if (player != null)
             {
-                if (player.isMaster)
+                if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
                 {
                     masterName = player.displayName;
                     UpdateGlobalString("_StringMasterPlayer", player.displayName);
@@ -432,7 +437,7 @@ public class AudioLink : UdonSharpBehaviour
         {
             if (player != null)
             {
-                if (player.isMaster || player.displayName == masterName)
+                if (VRC.SDKBase.Utilities.IsValid(player) && (player.isMaster || player.displayName == masterName))
                 {
                     FindAndUpdateMasterName();
                 }
@@ -441,13 +446,13 @@ public class AudioLink : UdonSharpBehaviour
 
         private void FindAndUpdateMasterName()
         {
-            VRCPlayerApi[] players = new VRCPlayerApi[82];
+            VRCPlayerApi[] players = new VRCPlayerApi[VRCPlayerApi.GetPlayerCount()];
             VRCPlayerApi.GetPlayers(players);
             foreach (var player in players)
             {
                 if (player != null)
                 {
-                    if (player.isMaster)
+                    if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
                     {
                         masterName = player.displayName;
                         UpdateGlobalString("_StringMasterPlayer", player.displayName);
