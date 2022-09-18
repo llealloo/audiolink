@@ -50,43 +50,31 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, see the "For Worlds" section below.
 
 ### For Worlds
-- TODO
+- Download and install the [VRChat Creator Companion](https://vrchat.com/download/vcc) (VCC), open it up
+- Add your project to the VCC:
+  - If you want to create a new project, use the "New" option in the "Projects" tab and follow the steps there.
+  - If you want to use an existing project, use the "Add" option in the "Projects" tab and follow the steps there.
+- Open the Projects tab and select your project. If you have never used the VCC with the project, use the "Migrate" button to upgrade it.
+- On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
+- At this point, the installation is done. To open your project, you can use the "Open Project" button in the VCC. If you want to view the example scene, use the "AudioLink -> Open AudioLink Example Scene" button in the top menu of the editor.
 
 ### For Avatar Testing
 - Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases
 - Open the AudioLink folder and drag AudioLinkAvatar into your scene's hierarchy
-- Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource.
-  - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01.
+- Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource
+  - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01
+- Enter playmode to test your avatar
 
 ### For non-VRChat uses
 - Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases
 - Open the AudioLink folder and drag the AudioLink prefab into your scene's hierarchy. It should work out of the box.
 
-### Requirements
-- [VRChat SDK3](https://vrchat.com/home/download) for worlds (Udon)
-- [UdonSharp](https://github.com/vrchat-community/UdonSharp/releases/latest)
-- [CyanEmu](https://github.com/CyanLaser/CyanEmu/releases/latest) (optional but highly recommended)
-- The latest release: https://github.com/llealloo/vrc-udon-audio-link/releases/latest
-
-### Installation
-1. Install VRChat SDK3, UdonSharp, CyanEmu, and the latest release of AudioLInk
-2. Have a look at the example scene, "AudioLink_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
-
-### Getting started
-1. Drag AudioLink into scene
+## Getting started
+After installation, to use AudioLink:
+1. Drag AudioLink prefab into scene
 2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter
 3. Drag AudioLinkController into scene and drag AudioLink into the controller's "Audio Link" parameter.
 4. Click the "Link all sound reactive objects..." button to link everything up.
-
-### Installing to test Avatar projects
-1. Import AudioLink into your avatar project
-   - **NOTE**: Do _not_ install UdonSharp, CyanEmu or any other tools meant for worlds into your project. When testing avatars, you should import _only_ the AudioLink package, and none of its usual dependencies.
-2. Drag AudioLinkAvatar prefab into scene with your avatar
-3. Add your favorite music track to test with to your project
-4. Drag your music track from the Project panel into the Hierarchy to create a new AudioSource GameObject
-5. Drag the AudioSource object that was created in the Hierarchy into AudioLinkAvatar/audioSource parameter
-6. Adjust the Gain/Bass/Treble settings on AudioLinkAvatar if necessary
-7. Hit play!
 
 ## Compatible tools / assets
 - [Silent Cel Shading Shader](https://gitlab.com/s-ilent/SCSS) by Silent
