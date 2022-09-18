@@ -33,7 +33,8 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 3. If you haven't ever used VRChat Creator Companion (VCC) with your project, follow the steps below. Otherwise, skip to step 4:
    - Download and install the [VRChat Creator Companion](https://vrchat.com/download/vcc), open it up.
    - Use the "Add" option in the "Projects" tab and follow the steps shown to add your project to the VCC.
-4. Open the Projects tab and select your project. Press the "Migrate" button and follow the steps shown.
+   - Open the Projects tab, select your project, press the "Migrate" button and follow the steps shown.
+4. Open the Projects tab and select your project.
 5. On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
 6. In a file browser, **without Unity open**, navigate to your projects Assets folder and delete the "AudioLink" folder and "AudioLink.meta" file.
 7. Open the Project in Unity.
