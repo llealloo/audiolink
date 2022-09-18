@@ -62,7 +62,7 @@ Shader "cnballpit/shaderCalcPrimary"
 			#pragma fragment frag
 
 			#include "UnityCG.cginc"
-			#include "Assets/AudioLinkSandbox/Prefabs/Ballpit/cnlohr/Shaders/hashwithoutsine/hashwithoutsine.cginc"
+			#include "Assets/AudioLinkSandbox/Shaders/hashwithoutsine/hashwithoutsine.cginc"
 
 			struct appdata
 			{
