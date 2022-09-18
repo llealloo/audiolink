@@ -32,6 +32,7 @@
 #define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
 #define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
+#define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
 
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
@@ -52,6 +53,13 @@
 #define AUDIOLINK_DFT_Q                 4.0
 #define AUDIOLINK_TREBLE_CORRECTION     5.0
 #define AUDIOLINK_4BAND_TARGET_RATE     90.0
+
+// Text constants
+#define AUDIOLINK_STRING_MAX_CHARS      32
+#define AUDIOLINK_STRING_LOCALPLAYER    0
+#define AUDIOLINK_STRING_MASTER         1
+#define AUDIOLINK_STRING_CUSTOM1        2
+#define AUDIOLINK_STRING_CUSTOM2        3
 
 // ColorChord constants
 #define COLORCHORD_EMAXBIN              192
@@ -262,6 +270,32 @@ float3 AudioLinkGetTimeOfDay()
     float minute = floor(value / 60.0) % 60.0;
     float second = value % 60.0;
     return float3(hour, minute, second);
+}
+
+uint AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)
+{
+    uint4 fourChars = asuint(AudioLinkData(ALPASS_GLOBAL_STRINGS + uint2(charIndex / 4, stringIndex)));
+    return fourChars[charIndex % 4];
+}
+
+uint AudioLinkGetLocalPlayerNameChar(uint charIndex)
+{
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_LOCALPLAYER, charIndex);
+}
+
+uint AudioLinkGetMasterNameChar(uint charIndex)
+{
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_MASTER, charIndex);
+}
+
+uint AudioLinkGetCustomString1Char(uint charIndex)
+{
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM1, charIndex);
+}
+
+uint AudioLinkGetCustomString2Char(uint charIndex)
+{
+    return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM2, charIndex);
 }
 
 #endif

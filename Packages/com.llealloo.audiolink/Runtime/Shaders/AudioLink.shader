@@ -93,6 +93,12 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float4 _CustomThemeColor2;
             uniform float4 _CustomThemeColor3;
 
+            // Global strings
+            uniform float4 _StringLocalPlayer[8];
+            uniform float4 _StringMasterPlayer[8];
+            uniform float4 _StringCustom1[8];
+            uniform float4 _StringCustom2[8];
+
             // Extra Properties
             uniform float _EnableAutogain;
             uniform float _AutogainDerate;
@@ -1236,6 +1242,31 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                 }
                 return 1;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "Pass12-Global-Strings"
+            CGPROGRAM
+            float4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START(ALPASS_GLOBAL_STRINGS)
+                float4 char4 = 0;
+                if (coordinateLocal.y == 0) {
+                    char4 = _StringLocalPlayer[coordinateLocal.x];
+                }
+                else if (coordinateLocal.y == 1) {
+                    char4 = _StringMasterPlayer[coordinateLocal.x];
+                }
+                else if (coordinateLocal.y == 2) {
+                    char4 = _StringCustom1[coordinateLocal.x];
+                } 
+                else {
+                    char4 = _StringCustom2[coordinateLocal.x];
+                }
+                return char4;
             }
             ENDCG
         }

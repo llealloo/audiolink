@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 - September 18th, 2022
+### New features
+- Added Global Strings - text which can be read from AudioLink compatible shaders. Use this to retrieve the name of the local player and master in a shader, or to feed custom string data through. Info on usage is in Documentation. See `AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)` in AudioLink.cginc for details.
+### Changes
+- Bla
+### Bugfixes
+- Bla
+
 ## 0.2.8 - May 14th, 2022
 ### New features
 - AudioLink theme colors are now configurable via the AudioLink controller with a slick color-picker GUI. (Thanks, DomNomNom)
