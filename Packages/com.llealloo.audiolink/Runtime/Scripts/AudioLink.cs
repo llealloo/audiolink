@@ -441,7 +441,7 @@ public class AudioLink : UdonSharpBehaviour
 
         private void FindAndUpdateMasterName()
         {
-            VRCPlayerApi[] players = new VRCPlayerApi[40];
+            VRCPlayerApi[] players = new VRCPlayerApi[82];
             VRCPlayerApi.GetPlayers(players);
             foreach (var player in players)
             {
