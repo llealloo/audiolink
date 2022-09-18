@@ -71,6 +71,10 @@ public class AudioLink : UdonSharpBehaviour
         public Color customThemeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
         public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
+        [Header("Custom Global Strings")]
+        public string customString1;
+        public string customString2;
+
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public RenderTexture audioRenderTexture;
 
@@ -87,6 +91,7 @@ public class AudioLink : UdonSharpBehaviour
         private float[] _samples = new float[1023];
         private float _audioLinkInputVolume = 0.01f; // smallify input source volume level
 
+        private string masterName;
         // Mechanism to provide sync'd instance time to all avatars.
 #if UDON
     [UdonSynced]
@@ -143,7 +148,14 @@ public class AudioLink : UdonSharpBehaviour
                 Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}" );
                 Debug.Log($"AudioLink Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
 
-                _rightChannelTestCounter = _rightChannelTestDelay;
+                _rightChannelTestCounter = _rightChannelTestDelay; 
+
+                // Set localplayer name on start
+                if (Networking.LocalPlayer != null)
+                    UpdateGlobalString("_StringLocalPlayer", Networking.LocalPlayer.displayName);
+
+                // Set master name once on start
+                FindAndUpdateMasterName();
             }
             #endif
 
@@ -151,6 +163,7 @@ public class AudioLink : UdonSharpBehaviour
             
             UpdateSettings();
             UpdateThemeColors();
+            UpdateCustomStrings();
             if (audioSource == null)
             {
                 Debug.LogWarning("No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
@@ -345,10 +358,7 @@ public class AudioLink : UdonSharpBehaviour
         #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
-            UpdateGlobalString("_StringLocalPlayer", "Pema99");
-            UpdateGlobalString("_StringMasterPlayer", "Master player name goes here");
-            UpdateGlobalString("_StringCustom1", "I'm a custom string");
-            UpdateGlobalString("_StringCustom2", "I'm a custom string, also");
+            UpdateCustomStrings();
         #endif
         }
 
@@ -398,6 +408,75 @@ public class AudioLink : UdonSharpBehaviour
             uint frac = value & 0x007FFFFF;
             return (frac / 8388608F) * 1.1754944e-38F;
         }
+        
+        #if UDON
+        public override void OnPlayerJoined(VRCPlayerApi player)
+        {
+            if (player != null)
+            {
+                if (player.isMaster)
+                {
+                    masterName = player.displayName;
+                    UpdateGlobalString("_StringMasterPlayer", player.displayName);
+                }
+            }
+        }
+
+        public override void OnPlayerLeft(VRCPlayerApi player)
+        {
+            if (player != null)
+            {
+                if (player.isMaster || player.displayName == masterName)
+                {
+                    FindAndUpdateMasterName();
+                }
+            }
+        }
+
+        private void FindAndUpdateMasterName()
+        {
+            VRCPlayerApi[] players = new VRCPlayerApi[40];
+            VRCPlayerApi.GetPlayers(players);
+            foreach (var player in players)
+            {
+                if (player != null)
+                {
+                    if (player.isMaster)
+                    {
+                        masterName = player.displayName;
+                        UpdateGlobalString("_StringMasterPlayer", player.displayName);
+                        break;
+                    }
+                }
+            }
+        }
+        #endif
+
+        public void UpdateCustomStrings()
+        {
+            #if UDON
+            if (!Networking.IsOwner(gameObject))
+                Networking.SetOwner(Networking.LocalPlayer, gameObject);
+            #endif
+
+            UpdateGlobalString("_StringCustom1", customString1);
+            UpdateGlobalString("_StringCustom2", customString2);
+
+            #if UDON
+            RequestSerialization();
+            #endif
+        }
+
+        #if UDON
+        public override void OnDeserialization()
+        {
+            if (!Networking.IsOwner(gameObject))
+            {
+                UpdateGlobalString("_StringCustom1", customString1);
+                UpdateGlobalString("_StringCustom2", customString2);
+            }
+        }
+        #endif
 
         private void UpdateGlobalString(string name, string input)
         {
