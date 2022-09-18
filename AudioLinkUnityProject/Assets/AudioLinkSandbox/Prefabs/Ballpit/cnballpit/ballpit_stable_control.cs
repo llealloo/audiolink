@@ -58,7 +58,7 @@ public class ballpit_stable_control : UdonSharpBehaviour
 		}
 		qualitymode = 1;
 		Debug.Log( "ballpit stable control " + gravityF + " / " + friction );
-		GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>()._RegisterSlowUpdate( this );
+		//GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>()._RegisterSlowUpdate( this );
 	}
 	
 	public void AddUpdatable( ballpit_update_property btn )

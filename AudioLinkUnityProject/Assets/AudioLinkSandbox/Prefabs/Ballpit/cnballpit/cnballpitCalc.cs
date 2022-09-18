@@ -44,7 +44,7 @@ public class cnballpitCalc : UdonSharpBehaviour
 	void Start()
 	{
 		_DoReload();
-		GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>()._RegisterSlowUpdate( this );
+		//GameObject.Find( "BrokeredUpdateManager" ).GetComponent<BrokeredUpdateManager>()._RegisterSlowUpdate( this );
 	}
 	
 	private void _DoReload()
