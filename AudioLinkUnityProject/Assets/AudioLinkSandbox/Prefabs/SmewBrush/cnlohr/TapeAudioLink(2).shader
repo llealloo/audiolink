@@ -46,7 +46,7 @@ Shader "cnlohr/TapeAudioLink"
 
 			#include "UnityCG.cginc"
 			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
-			#include "./hashwithoutsine/hashwithoutsine.cginc"
+			#include "Assets/AudioLinkSandbox/Shaders/hashwithoutsine/hashwithoutsine.cginc"
 
 			//#include "./AudioLink/Shaders/AudioLink.cginc"
 

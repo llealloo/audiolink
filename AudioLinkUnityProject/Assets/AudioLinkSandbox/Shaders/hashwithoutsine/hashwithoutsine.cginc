@@ -155,6 +155,7 @@ float4 chash44(float4 p4)
 // Licensed under the MIT License
 // Copyright © 2013 Nikita Miropolskiy
 // Modified by cnlohr for HLSL and hashwithoutsine
+// Weird restriction: Positive numbers only.
 float csimplex3(float3 p) {
 	/* 1. find current tetrahedron T and it's four vertices */
 	/* s, s+i1, s+i2, s+1.0 - absolute skewed (integer) coordinates of T vertices */
