@@ -72,7 +72,13 @@ public class AudioLink : UdonSharpBehaviour
         public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Custom Global Strings")]
+        #if UDON
+        [UdonSynced]
+        #endif
         public string customString1;
+        #if UDON
+        [UdonSynced]
+        #endif
         public string customString2;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
