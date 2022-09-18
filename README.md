@@ -27,7 +27,8 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Issue [191](https://github.com/llealloo/vrc-udon-audio-link/issues/191) and [186](https://github.com/llealloo/vrc-udon-audio-link/issues/186) have been fixed. (Thanks, 3)
 - Remove some old profiling code that could have a very slight impact on performance. (Thanks, 3)
 
-## Updating from version 2.8 or lower? (...first time setup? please see next section)
+## Updating world projects from version 2.8 or lower? (...first time setup? please see next section)
+0. If you are trying to upgrade an avatar project, **DO NOT** follow the steps below. Instead, see the next section.
 1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
 2. Take note of which AudioSource you are using to feed AudioLink, this reference may be lost during upgrade.
 3. If you haven't ever used VRChat Creator Companion (VCC) with your project, follow the steps below. Otherwise, skip to step 4:
@@ -48,6 +49,11 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
    - Click the "Link all sound reactive objects to this AudioLink" button on AudioLink inspector panel.
    - Drag the AudioSource you were using previously into the AudioLink audio source parameter.
       - NOTE: If you previously used AudioLinkInput, you are welcome to continue doing so, however now in 2.5+ AudioLink is much smarter about inputs. Try dragging it straight into the AudioLink / audio source parameter!
+
+## Upgrading avatar projects
+1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
+2. In a file browser, delete the "Assets/AudioLink" folder and the "AudioLink.meta" file.
+3. Follow the "First time setup" steps for avatar projects described below.
 
 ## First time setup
 Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, see the "For Worlds" section below. After installation, check the "Getting Started" section for some tips.
