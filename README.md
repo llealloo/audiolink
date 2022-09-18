@@ -102,6 +102,7 @@ If you want to see an example of a scene with AudioLink set up, press the "Audio
 - lox9973 for autocorrelator functionality and the inspirational & tangential math help with signal processing
 - Texelsaur for the AudioLinkMiniPlayer and support!
 - Pema for the help with strengthening the codebase and inspiration!
+- 3 for joining the AudioLink team, helping maintain the codebase, and being instrumental in getting version 0.3.0 out.
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
 - Orels1 for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
 - Xiexe for the help developing and testing
