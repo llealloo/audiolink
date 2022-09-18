@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GlobalStringExampleMat
+  m_Name: mat_GlobalStringExample
   m_Shader: {fileID: 4800000, guid: e6e33eb2a2ec7d14c896aad1f07f1edb, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
