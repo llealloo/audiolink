@@ -272,27 +272,39 @@ float3 AudioLinkGetTimeOfDay()
     return float3(hour, minute, second);
 }
 
+// Get a character from a globally synced string, given an index of string in range [0; 3], and
+// a character index in range [0; 31]. The string at the 0th index is the local player name.
+// The 1st index is the master name, and index 2 and 3 are custom strings.
+// Returns a unsigned integer represented a unicode codepoint, i.e. UTF32.
 uint AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)
 {
     uint4 fourChars = asuint(AudioLinkData(ALPASS_GLOBAL_STRINGS + uint2(charIndex / 4, stringIndex)));
     return fourChars[charIndex % 4];
 }
 
+// Get a character from the local player name given a character index in the range [0; 31].
+// Returns a unsigned integer represented a unicode codepoint, i.e. UTF32.
 uint AudioLinkGetLocalPlayerNameChar(uint charIndex)
 {
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_LOCALPLAYER, charIndex);
 }
 
+// Get a character from the master player name given a character index in the range [0; 31].
+// Returns a unsigned integer represented a unicode codepoint, i.e. UTF32.
 uint AudioLinkGetMasterNameChar(uint charIndex)
 {
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_MASTER, charIndex);
 }
 
+// Get a character from the first custom string given a character index in the range [0; 31].
+// Returns a unsigned integer represented a unicode codepoint, i.e. UTF32.
 uint AudioLinkGetCustomString1Char(uint charIndex)
 {
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM1, charIndex);
 }
 
+// Get a character from the second custom string given a character index in the range [0; 31].
+// Returns a unsigned integer represented a unicode codepoint, i.e. UTF32.
 uint AudioLinkGetCustomString2Char(uint charIndex)
 {
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM2, charIndex);
