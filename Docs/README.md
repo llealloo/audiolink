@@ -64,7 +64,7 @@ Shader "MyTestShader"
     
             ...
             
-            #include "../AudioLink/Shaders/AudioLink.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
             ...
         }
     }
