@@ -1,12 +1,7 @@
-﻿Shader "AudioLink/Examples/Demo2"
+﻿Shader "AudioLink/GlobalStringExample"
 {
-    Properties
-    {
-    }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-
         Pass
         {
             CGPROGRAM
@@ -15,6 +10,7 @@
 
             #include "UnityCG.cginc"
             #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/SmoothPixelFont.cginc"
 
             struct appdata
             {
@@ -44,10 +40,27 @@
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
-            {                
-                float Sample = AudioLinkLerpMultiline( ALPASS_WAVEFORM + float2( 200. * i.uv.x, 0 ) ).r;
-                return clamp( 1 - 50 * abs( Sample - i.uv.y* 2. + 1 ), 0, 1 );
+            #define PIXELFONT_ROWS 4
+            #define PIXELFONT_COLS 32
+
+            float4 frag (v2f i) : SV_Target
+            {
+                i.uv.y = 1.0 - i.uv.y;
+                
+                // Pixel location on font pixel grid
+                float2 pos = i.uv * float2(PIXELFONT_COLS, PIXELFONT_ROWS);
+                uint2 pixel = (uint2)pos;
+                
+                // Fetch character from audiolink 
+                int character = AudioLinkGetGlobalStringChar(pixel.y, pixel.x);
+
+                // AA trick
+                float2 softness_uv = pos * float2( 4, 6 );
+                float softness = 4./(pow( length( float2( ddx( softness_uv.x ), ddy( softness_uv.y ) ) ), 0.5 ))-1.;
+
+                // Render char
+                float2 charUV = float2(4, 6) - fmod(pos, 1.0) * float2(4.0, 6.0);
+                return PrintChar(character, charUV, softness, 0);
             }
             ENDCG
         }

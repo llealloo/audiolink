@@ -23,7 +23,7 @@
 
             #include "UnityCG.cginc"
             #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
-            #include "/Assets/AudioLinkSandbox/Shaders/tanoise/tanoise.cginc"
+            #include "Assets/AudioLinkSandbox/Shaders/tanoise/tanoise.cginc"
 
             struct appdata
             {

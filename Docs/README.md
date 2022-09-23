@@ -14,26 +14,27 @@ The AudioLink Texture is a 128 x 64 px RGBA texture which contains several featu
 
 The basic map is sort of a hodgepodge of various features avatars may want, and many features have been added over time.
 
-|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 | 0.2.8 |
-|-------------------------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
-| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| 4 Band Filtered         |       |       |       |       |       |       |   X   |   X   |   X   |
-| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
-| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |   X   |   X   |
-| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |   X   |
-| VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |   X   |
-| VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |   X   |
-| Filtered VU meter       |       |       |       |       |       |       |       |   X   |   X   |
-| AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |   X   |
-| AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |   X   |
-| Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |   X   |
-| Chronotensity           |       |       |       |       |       |       |       |   X   |   X   |
-| ColorChord Index Colors |       |       |       |       |       |       |       |   X   |   X   |
-| Theme Colors            |       |       |       |       |       |       |       |   X   |   X   |
-| UTC Time                |       |       |       |       |       |       |       |       |   X   |
+|                         | 0.1.5 | 0.2.0 | 0.2.1 | 0.2.2 | 0.2.3 | 0.2.4 | 0.2.5 | 0.2.6 | 0.2.8 | 0.3.0 |
+|-------------------------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
+| Waveform                |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| Spectrogram             |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (32 history)     |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band (128 history)    |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| 4 Band Filtered         |       |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| ColorChord              |       |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |   X   |
+| Autocorrelator          |       |       |       |       |   X   |   X   |   X   |   X   |   X   |   X   |
+| Floating Autocorrelator |       |       |       |       |       |   X   |   X   |   X   |   X   |   X   |
+| VU Meter Left           |       |       |       |       |       |   X   |   X   |   X   |   X   |   X   |
+| VU Meter Left+Right     |       |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| Filtered VU meter       |       |       |       |       |       |       |       |   X   |   X   |   X   |
+| AudioLink FPS           |       |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| AudioLink Version Read  |       |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| Synced Instance Time    |       |       |       |       |       |       |   X   |   X   |   X   |   X   |
+| Chronotensity           |       |       |       |       |       |       |       |   X   |   X   |   X   |
+| ColorChord Index Colors |       |       |       |       |       |       |       |   X   |   X   |   X   |
+| Theme Colors            |       |       |       |       |       |       |       |   X   |   X   |   X   |
+| UTC Time                |       |       |       |       |       |       |       |       |   X   |   X   |
+| Global Strings          |       |       |       |       |       |       |       |       |       |   X   |
 
 <img src=https://raw.githubusercontent.com/cnlohr/vrc-udon-audio-link/dev/Docs/Materials/tex_AudioLinkDocs_BaseImage.png width=512 height=256>
 
@@ -63,7 +64,7 @@ Shader "MyTestShader"
     
             ...
             
-            #include "../AudioLink/Shaders/AudioLink.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
             ...
         }
     }
@@ -105,6 +106,8 @@ Shader "MyTestShader"
 #define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
 #define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
+// Added in version 3.0
+#define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -375,6 +378,36 @@ When doing this division, make sure to divide by a float! Dividing by `1000` is 
 You can combine these to create new motion.
 For example, to get "Fixed increase when the band is light" you could subtract a uint sample with `offset.x = 6` from a uint sample with `offset.x = 4`.
 
+### `ALPASS_GLOBAL_STRINGS`
+This section provides access access to 4 globally synced strings of text. These can be read and displayed in a shader, or used to perform logic like a check for a specific player.
+
+Each string is encoded as UTF32, with a 32 bit integer representing the unicode codepoint. There are 4 strings in total which are:
+- The name of the local player
+- The name of the master
+- 2 customizable strings
+
+The characters of each string can be read with the following functions:
+
+```hlsl
+uint AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)
+uint AudioLinkGetLocalPlayerNameChar(uint charIndex)
+uint AudioLinkGetMasterNameChar(uint charIndex)
+uint AudioLinkGetCustomString1Char(uint charIndex)
+uint AudioLinkGetCustomString2Char(uint charIndex)
+```
+
+Where `charIndex` is a integer from 0-31 and `stringIndex` is an integer from 0-3. For example, to get the third character of the local players name, one could do:
+
+```hlsl
+// 3rd character of player name (0-indexed)
+int myChar = AudioLinkGetLocalPlayerNameChar(2);
+
+// This also works:
+myChar = AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_LOCALPLAYER, 2);
+```
+
+See "GlobalStringExample.shader" for an example use of this feature. Also see "SmoothPixelFont.cginc" for a utility that allows rendering text in shaders.
+
 ### Other defines
 
 ```hlsl
@@ -406,6 +439,13 @@ For example, to get "Fixed increase when the band is light" you could subtract a
 #define COLORCHORD_NOTE_CLOSEST         3.0
 #define COLORCHORD_NEW_NOTE_GAIN        8.0
 #define COLORCHORD_MAX_NOTES            10
+
+// Text constants
+#define AUDIOLINK_STRING_MAX_CHARS      32
+#define AUDIOLINK_STRING_LOCALPLAYER    0
+#define AUDIOLINK_STRING_MASTER         1
+#define AUDIOLINK_STRING_CUSTOM1        2
+#define AUDIOLINK_STRING_CUSTOM2        3
 ```
 
 The tools to read the data out of AudioLink.

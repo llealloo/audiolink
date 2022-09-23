@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: HandCollider
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 587e2ffe371b3274ca0606ca199c2b64,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 2fd1087cb76af4942908ce5c2e1263e7,
     type: 2}
   udonAssembly: 
   assemblyError: 

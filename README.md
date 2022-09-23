@@ -10,72 +10,82 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 ### [If you are looking to use AudioLink for ChilloutVR, check out this fork instead](https://github.com/DomNomNomVR/cvr-audio-link)
 
-## 0.2.8 - May 14th, 2022
+## 0.3.0 - September 18th, 2022
 ### New features
-- AudioLink theme colors are now configurable via the AudioLink controller with a slick color-picker GUI. (Thanks, DomNomNom)
-- Added the ability to get the time since Unix epoch in days, and milliseconds since 12:00 AM UTC. Additionally, a helper function, `AudioLinkGetTimeOfDay()` has been added, which lets you easily get the current hours, minutes and seconds of the time of day in UTC.
-- An editor scripting define, `AUDIOLINK`, which will be automatically added when AudioLink is included. (Thanks, Float3)
-- AudioLink can now compile without VRCSDK and UDON, for use outside of VRChat. This kind of usecase is still experimental at best, though. (Thanks, Float3 and yewnyx)
-- Added a few new helper methods to sample various notes of the DFT. (Thanks, Float3)
+- AudioLink is now a curated package! As such, it can be installed with [VRChat Creator Companion](https://vcc.docs.vrchat.com/). This is new the recommended way to install AudioLink. For avatar projects and non-VRChat use cases, there is a regular old UnityPackage you can use. Please see the readme for [a guide on how to update your projects](#updating-world-projects-from-version-28-or-lower-first-time-setup-please-see-next-section). We recommend you follow this guide, as the update is a breaking change.
+- Since the folder structure has changed, custom shaders may need to be upgraded. A tool has been included to automatically upgrade shaders where needed. This tool is accessible from "AudioLink -> Update AudioLink compatible shaders" in the top menu of the editor. (Thanks, 3)
+- Added Global Strings - text which can be read from AudioLink compatible shaders. Use this to retrieve the name of the local player and master in a shader, or to feed custom string data through. Info on usage is in Documentation. See `AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)` in AudioLink.cginc for details.
+- Included Amplify nodes for using AudioLink have been overhauled. They are now in their own "AudioLink" category, and handle including the relevant files automatically. Also, links to documentation are added. (Thanks, Nestorboy)
+- Various shaders have been updated to supported Single Pass Stereo Instanced rendering, for future compatability. (Thanks, 3)
+- The included video player, AudioLinkMiniPlayer, has been updated to support LTCGI. (Thanks, Texelsaur)
+- The example AudioLink scene can now be quickly accessed using the "AudioLink -> Open AudioLink Example Scene" button in the top menu of the editor.
+- The live AudioLink demo world has gotten an overhaul, and has a bunch of new cool things to play with.
 ### Changes
-- AudioLink theme colors have been cleaned up, including a new demo in the example scene, and the ability to change the colors in realtime in the editor. (Thanks, DomNomNom)
-- Changed a few default settings on the AudioLink controller to be more responsive. (Thanks, DomNomNom)
-- Changed folder structure to put less clutter into user projects.
+- The GrabPass utilized by AudioLink has been removed! We use the new `VRCShader.SetGlobalTexture` to expose a globally available texture now. This is an improvement to stability and performance. Existing shaders should still be compatible with new versions of AudioLink.
+- The camera used by AudioLink to provide audio data to udon (using the Experimental Audio Readback feature) will now be disabled when it isn't needed, which should improve performance a bit.
+- Be consistent with swizzling in AudioLink shaders, use 'xyzw' everywhere.
 ### Bugfixes
-- Fix vertical UV flip of the AudioLink texture on Quest. (Thanks, Shadowriver)
-- Fix error when using "Link all sound reactive objects to this AudioLink" button. (Thanks, Nestorboy)
-- Add a header guard to `AudioLink.cginc` to prevent duplicate includes. (Thanks, PiMaker)
-- Fix various warnings in shader code. (Thanks, Float3)
-- Fix NaN-propagation issue in the included video player. (Thanks, Texelsaur)
-- Add a player validity check to the included video player. (Thanks, Texelsaur)
-- Use `Networking.LocalPlayer.isInstanceOwner` instead of `Networking.IsInstanceOwner`, which is broken. (Thanks, techanon)
-- The logos on the AudioLink controller were using point filtering, which was changed to bilinear. (Thanks, DomNomNom)
+- Issue [191](https://github.com/llealloo/vrc-udon-audio-link/issues/191) and [186](https://github.com/llealloo/vrc-udon-audio-link/issues/186) have been fixed. (Thanks, 3)
+- Remove some old profiling code that could have a very slight impact on performance. (Thanks, 3)
 
-## Updating from version 2.7 or lower? (...first time setup? please see next section)
-1. Take note of which AudioSource you are using to feed AudioLink, this reference may be lost during upgrade.
-2. Install the latest VRChat SDK3 and UdonSharp (following their directions)
-3. Close unity
-4. With Windows explorer (NOT within Unity), remove the following files & folders:
-   - AudioLink (folder)
-   - AudioLink.meta
-5. Reopen unity
-6. Download and install the [latest AudioLink release](https://github.com/llealloo/vrc-udon-audio-link/releases/latest)
-7. If using AudioReactiveObject or AudioReactiveLight
-   components, you will need to manually re-enable the "Audio Data" under AudioLink "experimental" settings. This feature is now considered experimental until VRChat *maybe* gives us native asynchronous readback.
-8. In scene(s) containing old versions of AudioLink:
-   1. Delete both AudioLink and AudioLinkController prefabs from the scene
-   2. Re-add AudioLink and AudioLinkController to the scene by dragging the prefabs from the AudioLink folder in projects *(world creators only)*
-   3. Click the "Link all sound reactive objects to this AudioLink" button on AudioLink inspector panel *(world creators only)*
-   4. Drag the AudioSource you were using previously into the AudioLink audio source parameter
+## Updating world projects from version 2.8 or lower? (...first time setup? please see next section)
+0. If you are trying to upgrade an avatar project, **DO NOT** follow the steps below. Instead, see the next section.
+1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
+2. Take note of which AudioSource you are using to feed AudioLink, this reference may be lost during upgrade.
+3. If you haven't ever used VRChat Creator Companion (VCC) with your project, follow the steps below. Otherwise, skip to step 4:
+   - Download and install the [VRChat Creator Companion](https://vrchat.com/download/vcc), open it up.
+   - Use the "Add" option in the "Projects" tab and follow the steps shown to add your project to the VCC.
+   - Open the Projects tab, select your project, press the "Migrate" button and follow the steps shown.
+4. Open the Projects tab and select your project.
+5. On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
+6. In a file browser, **without Unity open**, navigate to your projects Assets folder and delete the "AudioLink" folder and "AudioLink.meta" file.
+7. Open the Project in Unity.
+8. You may be prompted by the AudioLink shader upgrader to upgrade old shaders. You should do so if your project uses any custom AudioLink-enabled shaders.
+9. If you were using assets from the AudioLink example scene, you'll have to import it, as it isn't imported by default. To do so, use the "AudioLink -> Open AudioLink Example Scene" in top menu of the editor.
+10. If you were using AudioReactiveObject or AudioReactiveLight
+   components, you may need to manually re-enable the "Audio Data" under AudioLink "experimental" settings. This feature is now considered experimental until VRChat *maybe* gives us native asynchronous readback.
+11. In scene(s) containing old versions of AudioLink:
+   - Delete both AudioLink and AudioLinkController prefabs from the scene.
+   - Re-add AudioLink and AudioLinkController to the scene by dragging the prefabs from the Packages/com.llealloo.audiolink/Runtime folder.
+   - Click the "Link all sound reactive objects to this AudioLink" button on AudioLink inspector panel.
+   - Drag the AudioSource you were using previously into the AudioLink audio source parameter.
       - NOTE: If you previously used AudioLinkInput, you are welcome to continue doing so, however now in 2.5+ AudioLink is much smarter about inputs. Try dragging it straight into the AudioLink / audio source parameter!
 
+## Upgrading avatar projects
+1. In a file browser, delete the "Assets/AudioLink" folder and the "AudioLink.meta" file.
+2. Follow the "First time setup" steps for avatar projects described below.
+
 ## First time setup
+Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, see the "For Worlds" section below. After installation, check the "Getting Started" section for some tips.
 
-### Requirements
-- [VRChat SDK3](https://vrchat.com/home/download) for worlds (Udon)
-- [UdonSharp](https://github.com/vrchat-community/UdonSharp/releases/latest)
-- [CyanEmu](https://github.com/CyanLaser/CyanEmu/releases/latest) (optional but highly recommended)
-- The latest release: https://github.com/llealloo/vrc-udon-audio-link/releases/latest
+### For Worlds
+1. Download and install the [VRChat Creator Companion](https://vrchat.com/download/vcc) (VCC), open it up.
+2. Add your project to the VCC:
+   - If you want to create a new project, use the "New" option in the "Projects" tab and follow the steps there.
+   - If you want to use an existing project, use the "Add" option in the "Projects" tab and follow the steps there.
+3. Open the Projects tab and select your project. If you have never used the VCC with the project, use the "Migrate" button to upgrade it.
+4. On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
+5. At this point, the installation is done. To open your project, you can use the "Open Project" button in the VCC. If you want to view the example scene, use the "AudioLink -> Open AudioLink Example Scene" button in the top menu of the editor.
 
-### Installation
-1. Install VRChat SDK3, UdonSharp, CyanEmu, and the latest release of AudioLInk
-2. Have a look at the example scene, "AudioLink_ExampleScene". It contains a lot of visual documentation of what is going on and includes several example setups. Or cut to the chase:
+### For Avatar Testing
+1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
+2. Open the AudioLink folder and drag AudioLinkAvatar into your scene's hierarchy.
+3. Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource.
+   - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01.
+4. Enter playmode to test your avatar.
 
-### Getting started
-1. Drag AudioLink into scene
-2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter
-3. Drag AudioLinkController into scene and drag AudioLink into the controller's "Audio Link" parameter.
+### For non-VRChat uses
+1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
+2. Open the AudioLink folder and drag the AudioLink prefab into your scene's hierarchy. It should work out of the box.
+
+## Getting started
+After installation, to use AudioLink:
+1. Drag AudioLink prefab into scene. For worlds, it is in "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab". For avatars and non-VRChat uses, it is under "Assets/AudioLink/AudioLink.prefab".
+2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter.
+3. Drag AudioLinkController prefab into scene and drag AudioLink into the controller's "Audio Link" parameter.
 4. Click the "Link all sound reactive objects..." button to link everything up.
 
-### Installing to test Avatar projects
-1. Import AudioLink into your avatar project
-   - **NOTE**: Do _not_ install UdonSharp, CyanEmu or any other tools meant for worlds into your project. When testing avatars, you should import _only_ the AudioLink package, and none of its usual dependencies.
-2. Drag AudioLinkAvatar prefab into scene with your avatar
-3. Add your favorite music track to test with to your project
-4. Drag your music track from the Project panel into the Hierarchy to create a new AudioSource GameObject
-5. Drag the AudioSource object that was created in the Hierarchy into AudioLinkAvatar/audioSource parameter
-6. Adjust the Gain/Bass/Treble settings on AudioLinkAvatar if necessary
-7. Hit play!
+If you want to see an example of a scene with AudioLink set up, press the "AudioLink -> Open AudioLink Example Scene" in the top menu of the editor.
 
 ## Compatible tools / assets
 - [Silent Cel Shading Shader](https://gitlab.com/s-ilent/SCSS) by Silent
@@ -93,6 +103,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - lox9973 for autocorrelator functionality and the inspirational & tangential math help with signal processing
 - Texelsaur for the AudioLinkMiniPlayer and support!
 - Pema for the help with strengthening the codebase and inspiration!
+- 3 for joining the AudioLink team, helping maintain the codebase, and being instrumental in getting version 0.3.0 out.
 - Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
 - Orels1 for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
 - Xiexe for the help developing and testing
