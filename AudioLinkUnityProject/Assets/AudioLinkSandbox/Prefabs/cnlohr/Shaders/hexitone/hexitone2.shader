@@ -42,6 +42,7 @@
 
         _Roughness ("Roughness", Range(0.0, 1.0)) = 0.5
         _MainTex ("Texture", 2D) = "white" {}
+        _FloorHeight("Floor Height", float) = 0.0
 	}
 	SubShader
 	{
@@ -160,6 +161,8 @@
             float _Roughness;
             sampler2D _MainTex;
             float4 _MainTex_ST;
+
+            float _FloorHeight;
 
 
 			v2f vert (appdata v)
@@ -283,7 +286,7 @@
 				} 
 				for( uint i = 0; i < players; i++ )
 				{				
-					float4 BodyPos = PlayerPositions[i];
+					float4 BodyPos = PlayerPositions[i] + float4(0, _FloorHeight, 0, 0);
 					
 					//BodyPos = _VectorOfIntensity;
 					float thisinten = 0;

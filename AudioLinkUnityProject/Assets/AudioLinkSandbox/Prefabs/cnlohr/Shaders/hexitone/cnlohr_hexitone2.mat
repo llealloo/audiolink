@@ -44,6 +44,7 @@ Material:
     - _Brightness: 1
     - _FinalBright: 1.8
     - _FlipAdvance: 1
+    - _FloorHeight: 1
     - _HeighStep: 0.5
     - _LTCGI: 0
     - _LTCGI_DIFFUSE_OFF: 0
@@ -59,5 +60,5 @@ Material:
     m_Colors:
     - _BiasColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
     - _NonCCColor: {r: 0.048303604, g: 0, b: 1, a: 1}
-    - _PlayerTestPosition: {r: 35.92, g: 0, b: 20.38, a: 0}
+    - _PlayerTestPosition: {r: 2.6, g: -1, b: 16.7, a: 0}
     - _VectorOfIntensity: {r: 0, g: 0, b: 0, a: 0}

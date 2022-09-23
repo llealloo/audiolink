@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ThryAction
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 4352decfa3e747441abc2ba0948a7bf6,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 9c5ee58612249a9438efd1c2c6b267ac,
     type: 2}
   udonAssembly: 
   assemblyError: 
