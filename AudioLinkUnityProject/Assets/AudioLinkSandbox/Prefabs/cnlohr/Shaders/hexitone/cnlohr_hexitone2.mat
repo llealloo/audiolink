@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _BaseIntensity: 0.125
+    - _BaseIntensity: 0.152
     - _Brightness: 1
     - _FinalBright: 1.8
     - _FlipAdvance: 1
@@ -60,5 +60,5 @@ Material:
     m_Colors:
     - _BiasColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
     - _NonCCColor: {r: 0.048303604, g: 0, b: 1, a: 1}
-    - _PlayerTestPosition: {r: 2.6, g: -1, b: 16.7, a: 0}
+    - _PlayerTestPosition: {r: 2.6, g: -1, b: 40.22, a: 0}
     - _VectorOfIntensity: {r: 0, g: 0, b: 0, a: 0}
