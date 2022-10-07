@@ -1,3 +1,5 @@
+[![Discord - AudioLink Discord](https://img.shields.io/badge/Discord-AudioLink_Discord-7289da?logo=discord&logoColor=7289da)](https://discord.gg/d5wjNwZBR3) [![AudioLink - VRChat World](https://img.shields.io/badge/AudioLink-VRChat_World-4489d7?logo=steam)](vrchat://launch?ref=vrchat.com&id=wrld_8554f998-d256-44b2-b16f-74aa32aac214:AudioLink~region(eu)&shortName=6kbyjrsy)
+
 # Udon AudioLink
 
 ## A repository of audio reactive prefabs for VRChat, written in UdonSharp
