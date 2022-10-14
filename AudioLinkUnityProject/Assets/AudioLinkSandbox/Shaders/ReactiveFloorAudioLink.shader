@@ -126,7 +126,7 @@ Shader "ReactiveFloorAudioLink"
 }
 /*ASEBEGIN
 Version=18935
-3190.4;344;1392;1050;1349.164;518.9529;1.619427;True;False
+3099.2;21.6;2708;1570;1345.024;594.5079;1.849427;True;False
 Node;AmplifyShaderEditor.WorldPosInputsNode;5;-790.6498,536.9501;Inherit;False;0;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
 Node;AmplifyShaderEditor.RangedFloatNode;24;-762.501,857.9602;Inherit;False;Property;_GridRadius;GridRadius;2;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.GlobalArrayNode;32;-834.4102,739.4553;Inherit;False;PlayerPositions;0;100;2;False;False;0;1;False;Object;1;4;0;INT;0;False;2;INT;0;False;1;INT;0;False;3;INT;0;False;1;FLOAT4;0
@@ -135,12 +135,12 @@ Node;AmplifyShaderEditor.CustomExpressionNode;25;-428.2015,712.1096;Inherit;Fals
 Node;AmplifyShaderEditor.ColorNode;14;-801.3004,290.8706;Inherit;False;Property;_Color2;Color2;4;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.ColorNode;13;-802.3004,94.87057;Inherit;False;Property;_Color1;Color1;3;0;Create;True;0;0;0;False;0;False;0,0,0,0;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
 Node;AmplifyShaderEditor.SimpleMultiplyOpNode;21;-13.10172,595.6095;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;FLOAT;0;False;1;COLOR;0
-Node;AmplifyShaderEditor.RangedFloatNode;4;-771.1495,-157.7499;Inherit;False;Property;_AudioLinkRadius;AudioLinkRadius;1;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;4;-771.1495,-157.7499;Inherit;False;Property;_AudioLinkRadius;AudioLinkRadius;0;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
 Node;AmplifyShaderEditor.GlobalArrayNode;1;-800.4501,-49.69999;Inherit;False;FeetPositions;0;200;2;False;False;0;1;False;Object;1;4;0;INT;0;False;2;INT;0;False;1;INT;0;False;3;INT;0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.SaturateNode;31;233.3985,357.9096;Inherit;False;1;0;COLOR;0,0,0,0;False;1;COLOR;0
 Node;AmplifyShaderEditor.CustomExpressionNode;3;-434.8,82.8;Inherit;False;float4 intensity = 0@$for (int i = 0@ i < 200@ i++)${$	float dist = length(FeetPositions[i].xyz - TestPosition)@$	float normalizedDist = dist / Radius@$	//float delay = pow((1 - saturate(normalizedDist)), 2) * 128@$	float delay = pow(normalizedDist, 3) * 128@$	float amplitude = AudioLinkLerp( ALPASS_AUDIOLINK + float2(delay, 0 )).r@$	intensity += lerp(lerp(ColorA * amplitude, ColorB * amplitude, normalizedDist), 0, normalizedDist)@$}$return intensity@;4;Create;5;True;VectorArray;FLOAT4;0,0,0,0;In;;Inherit;False;True;Radius;FLOAT;0;In;;Inherit;False;True;TestPosition;FLOAT3;0,0,0;In;;Inherit;False;True;ColorA;FLOAT4;0,0,0,0;In;;Inherit;False;True;ColorB;FLOAT4;0,0,0,0;In;;Inherit;False;AudioLink Intensity;True;False;0;;False;5;0;FLOAT4;0,0,0,0;False;1;FLOAT;0;False;2;FLOAT3;0,0,0;False;3;FLOAT4;0,0,0,0;False;4;FLOAT4;0,0,0,0;False;1;FLOAT4;0
 Node;AmplifyShaderEditor.SimpleAddOpNode;18;435.2984,186.3096;Inherit;False;2;2;0;FLOAT4;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;FLOAT4;0
-Node;AmplifyShaderEditor.StandardSurfaceOutputNode;28;650.1999,-93.9;Float;False;True;-1;2;ASEMaterialInspector;0;0;CustomLighting;ReactiveFloorAudioLink;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Off;2;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Custom;0;True;True;0;True;Custom;;Transparent;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;4;1;False;-1;1;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;0;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;1;Include;Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc;False;;Custom;0;0;False;0.1;False;-1;0;False;-1;False;15;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
+Node;AmplifyShaderEditor.StandardSurfaceOutputNode;28;650.1999,-93.9;Float;False;True;-1;2;ASEMaterialInspector;0;0;CustomLighting;ReactiveFloorAudioLink;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;Off;2;False;-1;0;False;-1;False;0;False;-1;0;False;-1;False;0;Custom;0;True;True;0;True;Custom;;Transparent;All;18;all;True;True;True;True;0;False;-1;False;0;False;-1;255;False;-1;255;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;-1;False;2;15;10;25;False;0.5;True;4;1;False;-1;1;False;-1;0;0;False;-1;0;False;-1;0;False;-1;0;False;-1;0;False;0;0,0,0,0;VertexOffset;True;False;Cylindrical;False;True;Relative;0;;1;-1;-1;-1;0;False;0;0;False;-1;-1;0;False;-1;1;Include;Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc;False;;Custom;0;0;False;0.1;False;-1;0;False;-1;False;15;0;FLOAT3;0,0,0;False;1;FLOAT3;0,0,0;False;2;FLOAT3;0,0,0;False;3;FLOAT3;0,0,0;False;4;FLOAT;0;False;6;FLOAT3;0,0,0;False;7;FLOAT3;0,0,0;False;8;FLOAT;0;False;9;FLOAT;0;False;10;FLOAT;0;False;13;FLOAT3;0,0,0;False;11;FLOAT3;0,0,0;False;12;FLOAT3;0,0,0;False;14;FLOAT4;0,0,0,0;False;15;FLOAT3;0,0,0;False;0
 WireConnection;25;0;32;0
 WireConnection;25;1;24;0
 WireConnection;25;2;5;0
@@ -156,4 +156,4 @@ WireConnection;18;0;3;0
 WireConnection;18;1;31;0
 WireConnection;28;13;18;0
 ASEEND*/
-//CHKSM=5A05864161F748BA78AB4A71BC76BE38BCC41BE9
+//CHKSM=19F89D93DF9E62C2823C3F54A2F4057FA4610B96

@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FurBall
+  m_Shader: {fileID: 4800000, guid: b843d77b555bafb4db51d3ce9fb3fc6f, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3001
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMask__FurPrimary:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FurMap__FurPrimary:
+        m_Texture: {fileID: 2800000, guid: a3437494f2ecaf142bde5fcdfbd35dd4, type: 3}
+        m_Scale: {x: 4, y: 4}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex__FurPrimary:
+        m_Texture: {fileID: 2800000, guid: f473b64e37713b948bfb3f58ac165db0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _ALBass__FurPrimary: 1
+    - _ALEmission__FurPrimary: 0.5
+    - _ALFur__FurPrimary: 0.5
+    - _ALLength__FurPrimary: 0.25
+    - _ALMidHigh__FurPrimary: 1
+    - _ALMidLow__FurPrimary: 1
+    - _ALRotation__FurPrimary: 0.75
+    - _ALTrebel__FurPrimary: 1
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DL__FurPrimary: 0.5
+    - _Density__FurPrimary: 0.5
+    - _DetailNormalMapScale: 1
+    - _Distance__FurPrimary: 0.15
+    - _Dither: 1
+    - _Dither__FurPrimary: 1
+    - _DstBlend: 0
+    - _Emission__FurPrimary: 0.1
+    - _GlossMapScale: 1
+    - _Gloss__FurPrimary: 0.05
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _HueTime__FurPrimary: 10
+    - _Hue__FurPrimary: 0
+    - _Invert__FurPrimary: 0
+    - _LP__FurPrimary: 1
+    - _Length__FurPrimary: 0.5
+    - _MaxDistance: 0.16
+    - _MaxDistance__FurPrimary: 0
+    - _Metallic: 0
+    - _MinDistance: 0.15
+    - _MinDistance__FurPrimary: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _ProximityFade__FurPrimary: 1
+    - _Sat__FurPrimary: 1
+    - _Shading__FurPrimary: 1
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _Specular__FurPrimary: 0.05
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color__FurPrimary: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
