@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: QvPen_InteractButton
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 1a77603c796d1d546b1f23d0b24ccd2a,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 3864255c4c2cedb48be51425430680ee,
     type: 2}
   udonAssembly: 
   assemblyError: 
