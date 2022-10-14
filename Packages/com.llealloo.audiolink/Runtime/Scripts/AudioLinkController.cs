@@ -17,7 +17,7 @@ namespace VRCAudioLink
             public AudioLink audioLink;
             [Space(10)]
             [Header("Internal (Do not modify)")]
-            public UdonBehaviour themeColorController;
+            public ThemeColorController themeColorController;
             public Material audioSpectrumDisplay;
             public Text gainLabel;
             public Slider gainSlider;
@@ -64,11 +64,11 @@ namespace VRCAudioLink
             }
             #endif
 
-            UdonBehaviour FindThemeColorController()
+            ThemeColorController FindThemeColorController()
             {
                 Transform controllerTransform = transform.Find("ThemeColorController");
                 if (controllerTransform == null) return null;
-                return (UdonBehaviour) controllerTransform.GetComponent(typeof(UdonBehaviour));
+                return controllerTransform.GetComponent<ThemeColorController>();
             }
 
             void Start()
@@ -95,7 +95,7 @@ namespace VRCAudioLink
                 }
                 else
                 {
-                    themeColorController.SetProgramVariable("audioLink", audioLink);
+                    themeColorController.audioLink = audioLink;
                     themeColorController.SendCustomEvent("UpdateAudioLinkThemeColors");
                 }
 
