@@ -14,7 +14,7 @@ namespace VRCAudioLink
         {
             [Space(10)]
 
-            public UdonBehaviour audioLink;
+            public AudioLink audioLink;
             [Space(10)]
             [Header("Internal (Do not modify)")]
             public UdonBehaviour themeColorController;
@@ -156,22 +156,22 @@ namespace VRCAudioLink
                     return;
                 }
                 // General settings
-                audioLink.SetProgramVariable("gain", gainSlider.value);
-                audioLink.SetProgramVariable("treble", trebleSlider.value);
-                audioLink.SetProgramVariable("bass", bassSlider.value);
-                audioLink.SetProgramVariable("fadeLength", fadeLengthSlider.value);
-                audioLink.SetProgramVariable("fadeExpFalloff", fadeExpFalloffSlider.value);
-                audioLink.SetProgramVariable("fadeExpFalloff", fadeExpFalloffSlider.value);
+                audioLink.gain = gainSlider.value;
+                audioLink.treble = trebleSlider.value;
+                audioLink.bass = bassSlider.value;
+                audioLink.fadeLength = fadeLengthSlider.value;
+                audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
+                audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
 
                 // Crossover settings
-                audioLink.SetProgramVariable("x0", x0Slider.value);
-                audioLink.SetProgramVariable("x1", x1Slider.value);
-                audioLink.SetProgramVariable("x2", x2Slider.value);
-                audioLink.SetProgramVariable("x3", x3Slider.value);
-                audioLink.SetProgramVariable("threshold0", threshold0Slider.value);
-                audioLink.SetProgramVariable("threshold1", threshold1Slider.value);
-                audioLink.SetProgramVariable("threshold2", threshold2Slider.value);
-                audioLink.SetProgramVariable("threshold3", threshold3Slider.value);
+                audioLink.x0 = x0Slider.value;
+                audioLink.x1 = x1Slider.value;
+                audioLink.x2 = x2Slider.value;
+                audioLink.x3 = x3Slider.value;
+                audioLink.threshold0 = threshold0Slider.value;
+                audioLink.threshold1 = threshold1Slider.value;
+                audioLink.threshold2 = threshold2Slider.value;
+                audioLink.threshold3 = threshold3Slider.value;
 
                 audioLink.SendCustomEvent("UpdateSettings");
             }

@@ -7,13 +7,12 @@ namespace VRCAudioLink
 {
     #if UDON
         using UdonSharp;
-        using VRC.Udon;
 
         public class AudioReactiveSurface : UdonSharpBehaviour
         {
             [Header("To use custom mesh, swap mesh in Mesh Filter component above")]
             [Header("AudioLink Settings")]
-            public UdonBehaviour audioLink;
+            public AudioLink audioLink;
             public int band;
             [Range(0, 127)]
             public int delay;

@@ -1,31 +1,28 @@
-﻿
-using UdonSharp;
-using UnityEngine;
-using VRC.SDKBase;
-using VRC.Udon;
+﻿using UdonSharp;
 
 namespace VRCAudioLink
 {
     public class AudioLinkExperimentalToggle : UdonSharpBehaviour
     {
-
-        public UdonBehaviour audioLink;
+        public AudioLink audioLink;
 
         void Start()
         {
-            
         }
 
         public override void Interact()
         {
-            bool toggle = !(bool)audioLink.GetProgramVariable("audioDataToggle");
+            bool toggle = !audioLink.audioDataToggle;
             if (toggle)
             {
                 audioLink.SendCustomEvent("EnableReadback");
-            } else {
+            }
+            else
+            {
                 audioLink.SendCustomEvent("DisableReadback");
             }
-            InteractionText = "Experimental Readback is " + (string)((toggle == true) ? "ON" : "OFF") + " (local)";
+
+            InteractionText = "Experimental Readback is " + (toggle ? "ON" : "OFF") + " (local)";
         }
     }
 }
