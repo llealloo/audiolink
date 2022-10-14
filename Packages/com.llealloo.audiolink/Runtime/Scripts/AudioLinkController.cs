@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
 using UnityEngine.UI;
 
 namespace VRCAudioLink
@@ -99,6 +96,8 @@ namespace VRCAudioLink
                     themeColorController.SendCustomEvent("UpdateAudioLinkThemeColors");
                 }
 
+                GetSettings();
+
                 _initGain = gainSlider.value;
                 _initTreble = trebleSlider.value;
                 _initBass = bassSlider.value;
@@ -120,6 +119,27 @@ namespace VRCAudioLink
                 UpdateSettings();
             }
 
+            private void GetSettings()
+            {
+                // General settings
+                gainSlider.value = audioLink.gain;
+                trebleSlider.value = audioLink.treble;
+                bassSlider.value = audioLink.bass;
+                fadeLengthSlider.value = audioLink.fadeLength;
+                fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
+                fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
+
+                // Crossover Settings
+                x0Slider.value = audioLink.x0;
+                x1Slider.value = audioLink.x1;
+                x2Slider.value = audioLink.x2;
+                x3Slider.value = audioLink.x3;
+                threshold0Slider.value = audioLink.threshold0;
+                threshold1Slider.value = audioLink.threshold1;
+                threshold2Slider.value = audioLink.threshold2;
+                threshold3Slider.value = audioLink.threshold3;
+            }
+            
             public void UpdateSettings()
             {
                 // Update labels
