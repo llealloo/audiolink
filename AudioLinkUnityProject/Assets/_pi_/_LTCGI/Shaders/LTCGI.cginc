@@ -8,7 +8,7 @@
 
 #ifdef LTCGI_AUDIOLINK
 #ifndef AUDIOLINK_WIDTH
-#include "Assets/AudioLink/Shaders/AudioLink.cginc"
+#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 #define AUDIOLINK_CGINC_INCLUDED
 #endif
 #endif

@@ -1,4 +1,4 @@
-﻿Shader "cnlohr/hexitone2"
+Shader "cnlohr/hexitone2"
 {
 	Properties
 	{
