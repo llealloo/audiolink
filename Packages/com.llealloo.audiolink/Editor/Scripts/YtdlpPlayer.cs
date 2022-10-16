@@ -21,23 +21,23 @@ namespace VRCAudioLink.Editor
         public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
 
         /// <summary> VideoPlayer component associated with the current YtdlpPlayer instance </summary>
-        public VideoPlayer videoPlayer { get; private set; }
+        public VideoPlayer VideoPlayer { get; private set; }
 
         /// <summary> Initialize and play from URL </summary>
         void OnEnable()
         {
-            videoPlayer = GetComponent<VideoPlayer>();
+            VideoPlayer = GetComponent<VideoPlayer>();
             UpdateURL();
-            if (videoPlayer.length > 0)
-                videoPlayer.Play();
+            if (VideoPlayer.length > 0)
+                VideoPlayer.Play();
         }
 
         /// <summary> Update URL and start playing </summary>
         public void UpdateAndPlay()
         {
             UpdateURL();
-            if (videoPlayer.length > 0)
-                videoPlayer.Play();
+            if (VideoPlayer.length > 0)
+                VideoPlayer.Play();
         }
 
         /// <summary> Set time to zero, resolve, and set URL </summary>
@@ -46,11 +46,11 @@ namespace VRCAudioLink.Editor
             try
             {
                 SetPlaybackTime(0.0f);
-                YtdlpURLResolver.ResolveAndSet(ytdlpURL, 720, videoPlayer);
+                YtdlpURLResolver.ResolveAndSet(ytdlpURL, 720, VideoPlayer);
             }
             catch
             {
-                videoPlayer.Pause();
+                VideoPlayer.Pause();
                 Debug.LogWarning($"[AudioLink] Unable to play url {ytdlpURL}");
             }
         }
@@ -58,8 +58,8 @@ namespace VRCAudioLink.Editor
         /// <summary> Get Video Player Playback Time (as a fraction of playback, 0-1) </summary>
         public float GetPlaybackTime()
         {
-            if(videoPlayer != null && videoPlayer.length > 0)
-                return (float)(videoPlayer.length > 0 ? videoPlayer.time / videoPlayer.length : 0);
+            if(VideoPlayer != null && VideoPlayer.length > 0)
+                return (float)(VideoPlayer.length > 0 ? VideoPlayer.time / VideoPlayer.length : 0);
             else
                 return 0;
         }
@@ -68,13 +68,13 @@ namespace VRCAudioLink.Editor
         /// <param name="time">Fraction of playback (0-1) to seek to</param>
         public float SetPlaybackTime(float time)
         {
-            if(videoPlayer != null && videoPlayer.length > 0)
+            if(VideoPlayer != null && VideoPlayer.length > 0)
             {
-                if (!videoPlayer.canSetTime)
+                if (!VideoPlayer.canSetTime)
                     return GetPlaybackTime();
 
-                videoPlayer.time = videoPlayer.length * (double) Mathf.Clamp(time, 0.0f, 1.0f);
-                return (float)videoPlayer.time;
+                VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
+                return (float)VideoPlayer.time;
             }
             else
                 return 0;
@@ -83,10 +83,10 @@ namespace VRCAudioLink.Editor
         /// <summary> Get Video Player Playback Time formatted as current / length </summary>
         public string PlaybackTimeFormatted()
         {
-            if(videoPlayer != null && videoPlayer.length > 0)
+            if(VideoPlayer != null && VideoPlayer.length > 0)
             {
-                float videoLengthSeconds = (float)videoPlayer.length;
-                float currentVideoTime = (float)videoPlayer.time;
+                float videoLengthSeconds = (float)VideoPlayer.length;
+                float currentVideoTime = (float)VideoPlayer.time;
 
                 if(videoLengthSeconds >= 3600)
                     return $"{TimeSpan.FromSeconds(currentVideoTime).ToString(@"hh\:mm\:ss")} / {TimeSpan.FromSeconds(videoLengthSeconds).ToString(@"hh\:mm\:ss")}";
@@ -101,38 +101,38 @@ namespace VRCAudioLink.Editor
     [CustomEditor(typeof(YtdlpPlayer))]
     public class YtdlpPlayerCleanEditor : UnityEditor.Editor 
     {
-        SerializedProperty ytdlpURL;
-        YtdlpPlayer ytdlpPlayer;
-        bool reloadURL = false;
+        SerializedProperty _ytdlpURL;
+        YtdlpPlayer _ytdlpPlayer;
+        bool _reloadURL = false;
 
         void OnEnable()
         {
-            ytdlpURL = serializedObject.FindProperty(nameof(ytdlpURL));
-            ytdlpPlayer = (YtdlpPlayer) target;
+            _ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpURL));
+            _ytdlpPlayer = (YtdlpPlayer) target;
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
-            reloadURL = EditorGUILayout.Toggle("Reload URL", reloadURL);
-            if(reloadURL)
+            EditorGUILayout.PropertyField(_ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
+            _reloadURL = EditorGUILayout.Toggle("Reload URL", _reloadURL);
+            if(_reloadURL)
             {
-                ytdlpPlayer.UpdateAndPlay();
-                reloadURL = false;
+                _ytdlpPlayer.UpdateAndPlay();
+                _reloadURL = false;
             }
             float playbackTime = 0;
 
-            bool hasPlayer = ytdlpPlayer.videoPlayer != null;
-            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !ytdlpPlayer.videoPlayer.isPlaying);
-            if(hasPlayer && ytdlpPlayer.videoPlayer.length > 0)
-                playbackTime = ytdlpPlayer.GetPlaybackTime();
+            bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
+            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
+            if(hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
+                playbackTime = _ytdlpPlayer.GetPlaybackTime();
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField(new GUIContent(" Seek: " + ytdlpPlayer.PlaybackTimeFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
+            EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimeFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
             playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
             if(EditorGUI.EndChangeCheck())
-                ytdlpPlayer.SetPlaybackTime(playbackTime);
+                _ytdlpPlayer.SetPlaybackTime(playbackTime);
 
             EditorGUI.EndDisabledGroup();
 
@@ -312,21 +312,21 @@ namespace VRCAudioLink.Editor
     [CustomEditor(typeof(YtdlpPlayerClean))]
     public class YtdlpPlayerCleanEditor : Editor 
     {
-        SerializedProperty ytdlpURL;
-        YtdlpPlayerClean ytdlpPlayer;
+        SerializedProperty _ytdlpURL;
+        YtdlpPlayerClean _ytdlpPlayer;
 
         void OnEnable()
         {
             Debug.LogWarning("[AudioLink] Ytdlp Player Component is unsupported on this platform.");
-            ytdlpURL = serializedObject.FindProperty(nameof(ytdlpURL));
-            ytdlpPlayer = (YtdlpPlayerClean) target;
+            _ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpURL));
+            _ytdlpPlayer = (YtdlpPlayerClean) target;
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
             EditorGUILayout.HelpBox("Ytdlp Player Component is unsupported on this platform.", MessageType.Error);
-            EditorGUILayout.PropertyField(ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
+            EditorGUILayout.PropertyField(_ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
             serializedObject.ApplyModifiedProperties();
         }
     }
