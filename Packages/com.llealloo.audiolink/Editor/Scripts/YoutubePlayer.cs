@@ -107,7 +107,7 @@ namespace VRCAudioLink
 
         void OnEnable()
         {
-            youtubeURL = serializedObject.FindProperty("youtubeURL");
+            youtubeURL = serializedObject.FindProperty(nameof(youtubeURL));
             youtubePlayer = (YoutubePlayer) target;
         }
 
@@ -318,7 +318,7 @@ namespace VRCAudioLink
         void OnEnable()
         {
             Debug.LogWarning("[AudioLink] Youtube Player Component is unsupported on this platform.");
-            youtubeURL = serializedObject.FindProperty("youtubeURL");
+            youtubeURL = serializedObject.FindProperty(nameof(youtubeURL));
             youtubePlayer = (YoutubePlayerClean) target;
         }
 
