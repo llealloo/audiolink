@@ -10,17 +10,17 @@ using UnityEditor;
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
-namespace VRCAudioLink
+namespace VRCAudioLink.Editor
 {
 #if UNITY_EDITOR_WIN // Only supports windows for now
-    /// <summary> Downloads and plays Youtube videos via a VideoPlayer component </summary>
+    /// <summary> Downloads and plays videos via a VideoPlayer component </summary>
     [RequireComponent(typeof(VideoPlayer))]
-    public class YoutubePlayer : MonoBehaviour
+    public class YtdlpPlayer : MonoBehaviour
     {
-        /// <summary> Youtube url (e.g. https://www.youtube.com/watch?v=SFTcZ1GXOCQ) </summary>
-        public string youtubeURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
+        /// <summary> Ytdlp url (e.g. https://www.youtube.com/watch?v=SFTcZ1GXOCQ) </summary>
+        public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
 
-        /// <summary> VideoPlayer component associated with the current YoutubePlayer instance </summary>
+        /// <summary> VideoPlayer component associated with the current YtdlpPlayer instance </summary>
         public VideoPlayer videoPlayer { get; private set; }
 
         /// <summary> Initialize and play from URL </summary>
@@ -46,12 +46,12 @@ namespace VRCAudioLink
             try
             {
                 SetPlaybackTime(0.0f);
-                YtdlpURLResolver.ResolveAndSet(youtubeURL, 720, videoPlayer);
+                YtdlpURLResolver.ResolveAndSet(ytdlpURL, 720, videoPlayer);
             }
             catch
             {
                 videoPlayer.Pause();
-                Debug.LogWarning($"[AudioLink] Unable to play url {youtubeURL}");
+                Debug.LogWarning($"[AudioLink] Unable to play url {ytdlpURL}");
             }
         }
 
@@ -98,41 +98,41 @@ namespace VRCAudioLink
         }
     }
 
-    [CustomEditor(typeof(YoutubePlayer))]
-    public class YoutubePlayerCleanEditor : UnityEditor.Editor 
+    [CustomEditor(typeof(YtdlpPlayer))]
+    public class YtdlpPlayerCleanEditor : UnityEditor.Editor 
     {
-        SerializedProperty youtubeURL;
-        YoutubePlayer youtubePlayer;
+        SerializedProperty ytdlpURL;
+        YtdlpPlayer ytdlpPlayer;
         bool reloadURL = false;
 
         void OnEnable()
         {
-            youtubeURL = serializedObject.FindProperty(nameof(youtubeURL));
-            youtubePlayer = (YoutubePlayer) target;
+            ytdlpURL = serializedObject.FindProperty(nameof(ytdlpURL));
+            ytdlpPlayer = (YtdlpPlayer) target;
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(youtubeURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
+            EditorGUILayout.PropertyField(ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
             reloadURL = EditorGUILayout.Toggle("Reload URL", reloadURL);
             if(reloadURL)
             {
-                youtubePlayer.UpdateAndPlay();
+                ytdlpPlayer.UpdateAndPlay();
                 reloadURL = false;
             }
             float playbackTime = 0;
 
-            bool hasPlayer = youtubePlayer.videoPlayer != null;
-            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !youtubePlayer.videoPlayer.isPlaying);
-            if(hasPlayer && youtubePlayer.videoPlayer.length > 0)
-                playbackTime = youtubePlayer.GetPlaybackTime();
+            bool hasPlayer = ytdlpPlayer.videoPlayer != null;
+            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !ytdlpPlayer.videoPlayer.isPlaying);
+            if(hasPlayer && ytdlpPlayer.videoPlayer.length > 0)
+                playbackTime = ytdlpPlayer.GetPlaybackTime();
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField(new GUIContent(" Seek: " + youtubePlayer.PlaybackTimeFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
+            EditorGUILayout.LabelField(new GUIContent(" Seek: " + ytdlpPlayer.PlaybackTimeFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
             playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
             if(EditorGUI.EndChangeCheck())
-                youtubePlayer.SetPlaybackTime(playbackTime);
+                ytdlpPlayer.SetPlaybackTime(playbackTime);
 
             EditorGUI.EndDisabledGroup();
 
@@ -301,32 +301,32 @@ namespace VRCAudioLink
 
 #if UNITY_EDITOR && !UNITY_EDITOR_WIN
     // Stubs to inform mac/linux users that it's unsupported for now
-    /// <summary> Downloads and plays Youtube videos via a VideoPlayer component. </summary>
+    /// <summary> Downloads and plays videos via a VideoPlayer component. </summary>
     [RequireComponent(typeof(VideoPlayer))]
-    public class YoutubePlayerClean : MonoBehaviour
+    public class YtdlpPlayerClean : MonoBehaviour
     {
-        /// <summary> Youtube url (e.g. https://www.youtube.com/watch?v=SFTcZ1GXOCQ) </summary>
-        public string youtubeURL;
+        /// <summary> Ytdlp url (e.g. https://www.youtube.com/watch?v=SFTcZ1GXOCQ) </summary>
+        public string ytdlpURL;
     }
 
-    [CustomEditor(typeof(YoutubePlayerClean))]
-    public class YoutubePlayerCleanEditor : Editor 
+    [CustomEditor(typeof(YtdlpPlayerClean))]
+    public class YtdlpPlayerCleanEditor : Editor 
     {
-        SerializedProperty youtubeURL;
-        YoutubePlayerClean youtubePlayer;
+        SerializedProperty ytdlpURL;
+        YtdlpPlayerClean ytdlpPlayer;
 
         void OnEnable()
         {
-            Debug.LogWarning("[AudioLink] Youtube Player Component is unsupported on this platform.");
-            youtubeURL = serializedObject.FindProperty(nameof(youtubeURL));
-            youtubePlayer = (YoutubePlayerClean) target;
+            Debug.LogWarning("[AudioLink] Ytdlp Player Component is unsupported on this platform.");
+            ytdlpURL = serializedObject.FindProperty(nameof(ytdlpURL));
+            ytdlpPlayer = (YtdlpPlayerClean) target;
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.HelpBox("Youtube Player Component is unsupported on this platform.", MessageType.Error);
-            EditorGUILayout.PropertyField(youtubeURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
+            EditorGUILayout.HelpBox("Ytdlp Player Component is unsupported on this platform.", MessageType.Error);
+            EditorGUILayout.PropertyField(ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
             serializedObject.ApplyModifiedProperties();
         }
     }
