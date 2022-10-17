@@ -93,7 +93,7 @@ namespace VRCAudioLink
                 else
                 {
                     themeColorController.audioLink = audioLink;
-                    themeColorController.SendCustomEvent("UpdateAudioLinkThemeColors");
+                    themeColorController.UpdateAudioLinkThemeColors();
                 }
 
                 GetSettings();
@@ -193,7 +193,7 @@ namespace VRCAudioLink
                 audioLink.threshold2 = threshold2Slider.value;
                 audioLink.threshold3 = threshold3Slider.value;
 
-                audioLink.SendCustomEvent("UpdateSettings");
+                audioLink.UpdateSettings();
             }
 
             public void ResetSettings()
@@ -213,7 +213,7 @@ namespace VRCAudioLink
                 threshold3Slider.value = _initThreshold3;
                 if (themeColorController != null)
                 {
-                    themeColorController.SendCustomEvent("ResetThemeColors");
+                    themeColorController.ResetThemeColors();
                 }
             }
 
