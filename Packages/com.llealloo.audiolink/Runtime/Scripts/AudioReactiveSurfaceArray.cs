@@ -9,7 +9,6 @@ namespace VRCAudioLink
         {
             [Header("Children should have AudioReactiveSurface shader applied")]
             [Header("AudioLink Settings")]
-            public AudioLink audioLink;
             public int band;
 
             [Header("Group Settings (Applied equally to all children)")]
