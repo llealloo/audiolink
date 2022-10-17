@@ -10,6 +10,9 @@ public class PortSizeController : UdonSharpBehaviour
 {
 
     [UdonSynced] public bool state;
+    
+    [UdonSynced] [HideInInspector]
+    public long eventTime = 0;
 
     public GameObject[] toggleInterfacesEnabled;
     public GameObject[] toggleInterfacesDisabled;
@@ -20,11 +23,12 @@ public class PortSizeController : UdonSharpBehaviour
 
     private bool _buttonAvailable;
     private Vector2 _bounds;
+    private VRCPlayerApi _localPlayer;
 
-    public void Start()
+    public void OnEnable()
     {
         _bounds = new Vector2(0, 0);
-        SetButtonAvailable();
+        _localPlayer = Networking.LocalPlayer;
     }
 
     public void Update()
@@ -36,24 +40,72 @@ public class PortSizeController : UdonSharpBehaviour
         }
     }
 
-    public override void OnDeserialization()
-    {
-        ApplyToggle();
-    }
-
     public void Interact()
     {
-        if (_buttonAvailable)
+        //creates a timestamp 5 seconds in the future to check that
+        //the event is not stale
+        eventTime = Networking.GetNetworkDateTime().AddSeconds(5).Ticks;
+
+        //networking events do not occur if you are in an instance alone
+        if (VRCPlayerApi.GetPlayerCount() > 1)
         {
-            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+            //Checks to see the local player is the owner of the gameObject and
+            //if not attempts to take ownership of the gameObject.
+            if (Networking.IsOwner(gameObject))
+            {
+                RequestSerialization();
+            }
+            else
+            {
+                Networking.SetOwner(_localPlayer, gameObject);
+            }
+        }
+        else
+        {
             state = !state;
-            RequestSerialization();
+            PlaySounds();
             ApplyToggle();
-            _buttonAvailable = false;
-            // this one is for the spammers
-            SendCustomEventDelayedSeconds("SetButtonAvailable", 7f);
+        }
+        
+        // this one is for the spammers
+        DisableInteractive = true;
+        SendCustomEventDelayedSeconds("_SetButtonAvailable", 5.0f);
+    }
+
+    //when ownership is transferred checks to see if the local player is the
+    //owner of the gameObject and if so request serialization
+    public override void OnOwnershipTransferred(VRCPlayerApi player)
+    {
+        if (player == _localPlayer)
+        {
+            RequestSerialization();
         }
     }
+
+    //run by the owner of the gameObject before it serializes data
+    //checks that they are the owner of the gameObject just in case
+    //and checks that the event is not stale
+    public override void OnPreSerialization()
+    {
+        if (Networking.GetNetworkDateTime().Ticks < eventTime)
+        {
+            state = !state;
+            PlaySounds();
+            ApplyToggle();
+        }
+    }
+      
+
+    public void OnDeserialization()
+    {
+        if (Networking.GetNetworkDateTime().Ticks < eventTime)
+        {
+            PlaySounds();
+        }
+
+        ApplyToggle();
+    }
+    
 
     private void ApplyToggle()
     {
@@ -67,16 +119,26 @@ public class PortSizeController : UdonSharpBehaviour
         }
         if (state)
         {
-            toggleSoundEnabled.Play();
             toggleAnimator.SetBool("State", true);
         } else {
-            toggleSoundDisabled.Play();
             toggleAnimator.SetBool("State", false);
         }
     }
 
-    public void SetButtonAvailable()
+    // the audio is split into a seperate method so the audio does not play
+    // when serializing on player join
+    private void PlaySounds()
     {
-        _buttonAvailable = true;
+        if (state)
+        {
+            toggleSoundEnabled.Play();
+        } else {
+            toggleSoundDisabled.Play();
+        }
+    }
+
+    public void _SetButtonAvailable()
+    {
+        DisableInteractive = false;
     }
 }
