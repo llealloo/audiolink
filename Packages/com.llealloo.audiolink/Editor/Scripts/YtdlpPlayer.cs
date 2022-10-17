@@ -1,10 +1,13 @@
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Video;
-using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 // This component uses code from the following sources:
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
@@ -66,18 +69,18 @@ namespace VRCAudioLink.Editor
 
         /// <summary> Set Video Player Playback Time (Seek) </summary>
         /// <param name="time">Fraction of playback (0-1) to seek to</param>
-        public float SetPlaybackTime(float time)
+        public void SetPlaybackTime(float time)
         {
             if(VideoPlayer != null && VideoPlayer.length > 0)
             {
                 if (!VideoPlayer.canSetTime)
-                    return GetPlaybackTime();
+                {
+                    GetPlaybackTime();
+                    return;
+                }
 
                 VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
-                return (float)VideoPlayer.time;
             }
-            else
-                return 0;
         }
 
         /// <summary> Get Video Player Playback Time formatted as current / length </summary>
@@ -149,7 +152,7 @@ namespace VRCAudioLink.Editor
         private static string _localYtdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static string _ytdlpPath = "";
-        private static HashSet<System.Diagnostics.Process> _runningYtdlProcesses = new HashSet<System.Diagnostics.Process>();
+        private static HashSet<Process> _runningYtdlProcesses = new HashSet<Process>();
         private static HashSet<MonoBehaviour> _registeredBehaviours = new HashSet<MonoBehaviour>();
         private static bool _ytdlFound = false;
 
@@ -212,9 +215,9 @@ namespace VRCAudioLink.Editor
                 return null;
             }
 
-            var ytdlProcess = new System.Diagnostics.Process();
+            Process ytdlProcess = new Process();
 
-            ytdlProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            ytdlProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             ytdlProcess.StartInfo.CreateNoWindow = true;
             ytdlProcess.StartInfo.UseShellExecute = false;
             ytdlProcess.StartInfo.RedirectStandardOutput = true;
@@ -265,7 +268,7 @@ namespace VRCAudioLink.Editor
         {
             if (change == PlayModeStateChange.ExitingPlayMode)
             {
-                foreach (var process in _runningYtdlProcesses)
+                foreach (Process process in _runningYtdlProcesses)
                 {
                     if (!process.HasExited)
                     {
@@ -280,7 +283,7 @@ namespace VRCAudioLink.Editor
         /// <summary> Download yt-dlp to the AudioLink folder. </summary>
         private static void DownloadYtdlp()
         {
-            var webClient = new System.Net.WebClient();
+            WebClient webClient = new WebClient();
             try
             {
                 webClient.DownloadFile(new Uri(_ytdlpDownloadURL), _localYtdlpPath);
