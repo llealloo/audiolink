@@ -1392,6 +1392,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8824912954219130180}
   state: 0
+  eventTime: 0
   toggleInterfacesEnabled:
   - {fileID: 8824912954479817975}
   - {fileID: 8824912954286296579}
