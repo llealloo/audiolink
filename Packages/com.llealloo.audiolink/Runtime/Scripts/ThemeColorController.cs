@@ -8,7 +8,6 @@ namespace VRCAudioLink
 {
     #if UDON
         using UdonSharp;
-        using VRC.Udon;
 
         [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
         public class ThemeColorController : UdonSharpBehaviour
@@ -22,7 +21,7 @@ namespace VRCAudioLink
                 Color.green
             };
 
-            public UdonBehaviour audioLink;  // Initialized by AudioLinkController.
+            public AudioLink audioLink;  // Initialized by AudioLinkController.
 
 
             // Initialized from prefab.

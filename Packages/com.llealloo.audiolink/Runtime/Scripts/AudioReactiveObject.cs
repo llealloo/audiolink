@@ -9,11 +9,10 @@ namespace VRCAudioLink
 {
     #if UDON
         using UdonSharp;
-        using VRC.Udon;
 
         public class AudioReactiveObject : UdonSharpBehaviour
         {
-            public UdonBehaviour audioLink;
+            public AudioLink audioLink;
             public int band;
             [Range(0, 127)]
             public int delay;
@@ -38,7 +37,7 @@ namespace VRCAudioLink
 
             void Update()
             {
-                Color[] audioData = (Color[])audioLink.GetProgramVariable("audioData");
+                Color[] audioData = audioLink.audioData;
                 if (audioData.Length != 0)      // check for audioLink initialization
                 {
                     float amplitude = audioData[_dataIndex].grayscale;
