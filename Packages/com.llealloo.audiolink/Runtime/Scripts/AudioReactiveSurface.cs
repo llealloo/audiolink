@@ -1,19 +1,14 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
 
 namespace VRCAudioLink
 {
     #if UDON
         using UdonSharp;
-        using VRC.Udon;
 
         public class AudioReactiveSurface : UdonSharpBehaviour
         {
             [Header("To use custom mesh, swap mesh in Mesh Filter component above")]
             [Header("AudioLink Settings")]
-            public UdonBehaviour audioLink;
             public int band;
             [Range(0, 127)]
             public int delay;

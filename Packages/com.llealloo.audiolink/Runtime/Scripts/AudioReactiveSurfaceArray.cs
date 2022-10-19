@@ -1,21 +1,14 @@
-﻿
-using UnityEngine;
-using System.Collections;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
+﻿using UnityEngine;
 
 namespace VRCAudioLink
 {
     #if UDON
         using UdonSharp;
-        using VRC.Udon;
 
         public class AudioReactiveSurfaceArray : UdonSharpBehaviour
         {
             [Header("Children should have AudioReactiveSurface shader applied")]
             [Header("AudioLink Settings")]
-            public UdonBehaviour audioLink;
             public int band;
 
             [Header("Group Settings (Applied equally to all children)")]
