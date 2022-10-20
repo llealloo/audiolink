@@ -68,30 +68,19 @@ public class AntiGravityZoneController : UdonSharpBehaviour
         antiGravityVoxelCRT.SetVector("_Zone3Size", _deck2Size);
         antiGravityVoxelCRT.SetVector("_Zone4Size", _deck3Size);
         antiGravityVoxelCRT.SetVector("_Zone5Size", _deck4Size);
+        /*if (_floatZoneState)
+        {
+            _localPlayer.SetVelocity(_localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).rotation * new Vector3(_floatForceHorizontal, 0, _floatForceVertical) + (_localPlayer.GetVelocity() * floatDrag));
+        }*/
+
+    }
+
+    void FixedUpdate()
+    {
         if (_floatZoneState)
         {
-            /*Vector3 totalHandForce = new Vector3(0, 0, 0);
-            if (_lookVertical + _lookHorizontal == 0)
-            {
-                Vector3 curLeftHandLocalPosition = _localPlayer.GetBonePosition(HumanBodyBones.LeftHand) - _localPlayer.GetPosition();
-                Vector3 curRightHandLocalPosition = _localPlayer.GetBonePosition(HumanBodyBones.RightHand) - _localPlayer.GetPosition();
-
-                Vector3 leftHandLocalPositionDelta = _lastLeftHandLocalPosition - curLeftHandLocalPosition;
-                Vector3 rightHandLocalPositionDelta = _lastRightHandLocalPosition - curRightHandLocalPosition;
-
-                Vector3 leftHandLocalVelocity = leftHandLocalPositionDelta / Time.deltaTime;
-                Vector3 rightHandLocalVelocity = rightHandLocalPositionDelta / Time.deltaTime;
-
-                Vector3 leftHandForce = leftHandLocalVelocity.normalized * Mathf.Max(leftHandLocalVelocity.magnitude * Mathf.Tan(1.57f * terminalHandVelocity) + leftHandLocalVelocity.magnitude + handVelocityCutoff * Mathf.Tan(1.57f * terminalHandVelocity) - Mathf.Tan(1.57f * terminalHandVelocity), 0);
-                Vector3 rightHandForce = rightHandLocalVelocity.normalized * Mathf.Max(rightHandLocalVelocity.magnitude * Mathf.Tan(1.57f * terminalHandVelocity) + rightHandLocalVelocity.magnitude + handVelocityCutoff * Mathf.Tan(1.57f * terminalHandVelocity) - Mathf.Tan(1.57f * terminalHandVelocity), 0);
-
-                totalHandForce = (leftHandForce + rightHandForce) * handForceMagnitude;
-            }
-            totalHandForce = new Vector3(0, 0, 0);*/
-
             _localPlayer.SetVelocity(_localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).rotation * new Vector3(_floatForceHorizontal, 0, _floatForceVertical) + (_localPlayer.GetVelocity() * floatDrag)/* + totalHandForce*/);
         }
-
     }
 
     void PostLateUpdate()

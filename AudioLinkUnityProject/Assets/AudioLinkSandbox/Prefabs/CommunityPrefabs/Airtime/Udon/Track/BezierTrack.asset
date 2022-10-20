@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: BezierTrack
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: ed21add6ffb55764a9584bfc38912903,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: afe7090c7b98e464780b819856bdaa1b,
     type: 2}
   udonAssembly: 
   assemblyError: 
