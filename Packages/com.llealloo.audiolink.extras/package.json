@@ -1,0 +1,12 @@
+{
+	"name" : "com.llealloo.audiolink.extras",
+	"displayName" : "AudioLink Extras",
+	"version" : "0.1.0",
+	"description" : "Extra utilities and tools for the AudioLink system.",
+	"gitDependencies" : {},
+	"vpmDependencies" : {
+		"com.vrchat.udonsharp" : "1.x",
+		"com.llealloo.audiolink": "0.3.x"
+	},
+	"legacyFiles" : {}
+}

@@ -6,6 +6,12 @@
       "source": "local",
       "dependencies": {}
     },
+    "com.llealloo.audiolink.extras": {
+      "version": "file:../../Packages/com.llealloo.audiolink.extras",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.unity.burst": {
       "version": "1.4.11",
       "depth": 1,
