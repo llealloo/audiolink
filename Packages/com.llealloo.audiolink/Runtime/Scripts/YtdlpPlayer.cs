@@ -104,20 +104,17 @@ namespace VRCAudioLink.Editor
     [CustomEditor(typeof(YtdlpPlayer))]
     public class YtdlpPlayerCleanEditor : UnityEditor.Editor 
     {
-        SerializedProperty _ytdlpURL;
         YtdlpPlayer _ytdlpPlayer;
         bool _reloadURL = false;
 
         void OnEnable()
         {
-            _ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpURL));
             _ytdlpPlayer = (YtdlpPlayer) target;
         }
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-            EditorGUILayout.PropertyField(_ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
+            base.OnInspectorGUI();
             _reloadURL = EditorGUILayout.Toggle("Reload URL", _reloadURL);
             if(_reloadURL)
             {
@@ -141,7 +138,6 @@ namespace VRCAudioLink.Editor
 
             if(Application.IsPlaying(target))
                 EditorUtility.SetDirty(target);
-            serializedObject.ApplyModifiedProperties();
         }
     }
 
@@ -315,22 +311,17 @@ namespace VRCAudioLink.Editor
     [CustomEditor(typeof(YtdlpPlayerClean))]
     public class YtdlpPlayerCleanEditor : Editor 
     {
-        SerializedProperty _ytdlpURL;
         YtdlpPlayerClean _ytdlpPlayer;
 
         void OnEnable()
         {
             Debug.LogWarning("[AudioLink] Ytdlp Player Component is unsupported on this platform.");
-            _ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpURL));
             _ytdlpPlayer = (YtdlpPlayerClean) target;
         }
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
             EditorGUILayout.HelpBox("Ytdlp Player Component is unsupported on this platform.", MessageType.Error);
-            EditorGUILayout.PropertyField(_ytdlpURL, new GUIContent(" YouTube URL", EditorGUIUtility.IconContent("d_BuildSettings.Web.Small").image));
-            serializedObject.ApplyModifiedProperties();
         }
     }
 #endif
