@@ -115,18 +115,18 @@ namespace VRCAudioLink.Editor
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+            float playbackTime = 0;
+            bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
+            if(hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
+                playbackTime = _ytdlpPlayer.GetPlaybackTime();
+            
+            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
             _reloadURL = EditorGUILayout.Toggle("Reload URL", _reloadURL);
             if(_reloadURL)
             {
                 _ytdlpPlayer.UpdateAndPlay();
                 _reloadURL = false;
             }
-            float playbackTime = 0;
-
-            bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
-            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
-            if(hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
-                playbackTime = _ytdlpPlayer.GetPlaybackTime();
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimeFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
