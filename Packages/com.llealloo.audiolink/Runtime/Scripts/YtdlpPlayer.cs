@@ -15,7 +15,6 @@ using Debug = UnityEngine.Debug;
 
 namespace VRCAudioLink
 {
-#if UNITY_EDITOR_WIN // Only supports windows for now
     /// <summary> Downloads and plays videos via a VideoPlayer component </summary>
     [RequireComponent(typeof(VideoPlayer))]
     public class YtdlpPlayer : MonoBehaviour
@@ -112,6 +111,7 @@ namespace VRCAudioLink
             _ytdlpPlayer = (YtdlpPlayer) target;
         }
 
+        //TODO: add a warning on Linux that only some filetypes are supported?
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -176,14 +176,18 @@ namespace VRCAudioLink
 
             if (!File.Exists(_ytdlpPath))
             {
+                #if UNITY_EDITOR_WIN
                 // Offer to download yt-dlp to the AudioLink folder
                 bool doDownload = EditorUtility.DisplayDialog("[AudioLink] Download yt-dlp?", "AudioLink could not locate yt-dlp in your VRChat folder.\nDownload to AudioLink folder instead?", "Download", "Cancel");
-
                 if(doDownload)
                     DownloadYtdlp();
 
                 if(!Application.isPlaying)
                     EditorApplication.ExitPlaymode();
+                
+                #elif UNITY_EDITOR_LINUX
+                    EditorUtility.DisplayDialog("[AudioLink] Missing yt-dlp", "try \"sudo pacman -S yt-dlp\"", "ok");
+                #endif
             }
 
             if (!File.Exists(_ytdlpPath)) 
@@ -296,33 +300,4 @@ namespace VRCAudioLink
             LocateYtdlp();
         }
     }
-#endif
-
-#if UNITY_EDITOR && !UNITY_EDITOR_WIN
-    // Stubs to inform mac/linux users that it's unsupported for now
-    /// <summary> Downloads and plays videos via a VideoPlayer component. </summary>
-    [RequireComponent(typeof(VideoPlayer))]
-    public class YtdlpPlayerClean : MonoBehaviour
-    {
-        /// <summary> Ytdlp url (e.g. https://www.youtube.com/watch?v=SFTcZ1GXOCQ) </summary>
-        public string ytdlpURL;
-    }
-
-    [CustomEditor(typeof(YtdlpPlayerClean))]
-    public class YtdlpPlayerCleanEditor : Editor 
-    {
-        YtdlpPlayerClean _ytdlpPlayer;
-
-        void OnEnable()
-        {
-            Debug.LogWarning("[AudioLink] Ytdlp Player Component is unsupported on this platform.");
-            _ytdlpPlayer = (YtdlpPlayerClean) target;
-        }
-
-        public override void OnInspectorGUI()
-        {
-            EditorGUILayout.HelpBox("Ytdlp Player Component is unsupported on this platform.", MessageType.Error);
-        }
-    }
-#endif
 }
