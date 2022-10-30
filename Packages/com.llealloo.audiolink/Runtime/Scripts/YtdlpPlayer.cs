@@ -147,7 +147,6 @@ namespace VRCAudioLink
 
         private static string _ytdlpPath = "";
         private static HashSet<Process> _runningYtdlProcesses = new HashSet<Process>();
-        private static HashSet<MonoBehaviour> _registeredBehaviours = new HashSet<MonoBehaviour>();
         private static bool _ytdlFound = false;
 
         /// <summary> Initialize URL Resolver </summary>
