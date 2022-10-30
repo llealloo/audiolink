@@ -13,7 +13,7 @@ using Debug = UnityEngine.Debug;
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
-namespace VRCAudioLink.Editor
+namespace VRCAudioLink
 {
 #if UNITY_EDITOR_WIN // Only supports windows for now
     /// <summary> Downloads and plays videos via a VideoPlayer component </summary>
@@ -102,7 +102,7 @@ namespace VRCAudioLink.Editor
     }
 
     [CustomEditor(typeof(YtdlpPlayer))]
-    public class YtdlpPlayerCleanEditor : UnityEditor.Editor 
+    public class YtdlpPlayerCleanEditor : Editor 
     {
         YtdlpPlayer _ytdlpPlayer;
         bool _reloadURL = false;
