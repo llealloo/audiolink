@@ -135,9 +135,7 @@ namespace VRCAudioLink.Editor
                 _ytdlpPlayer.SetPlaybackTime(playbackTime);
 
             EditorGUI.EndDisabledGroup();
-
-            if(Application.IsPlaying(target))
-                EditorUtility.SetDirty(target);
+            
         }
     }
 
