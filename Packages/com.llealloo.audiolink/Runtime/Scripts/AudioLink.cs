@@ -146,7 +146,6 @@ public class AudioLink : UdonSharpBehaviour
         private int _SourceVolume;
         private int _SourceSpatialBlend;
         private int _SourceDistance;
-        //private int _SourcePosition;
         
         private int _X0;
         private int _X1;
@@ -197,7 +196,6 @@ public class AudioLink : UdonSharpBehaviour
             _SourceVolume = PropertyToID("_SourceVolume");
             _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
             _SourceDistance = PropertyToID("_SourceDistance");
-            //_SourcePosition = PropertyToID("_SourcePosition");
             
             _X1 = PropertyToID("_X1");
             _X2 = PropertyToID("_X2");
@@ -452,7 +450,6 @@ public class AudioLink : UdonSharpBehaviour
                 // Used to correct for the volume of the audio source component
                 audioMaterial.SetFloat(_SourceVolume, audioSource.volume);
                 audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
-                //audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
                 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     if (Networking.LocalPlayer != null)
                     {
