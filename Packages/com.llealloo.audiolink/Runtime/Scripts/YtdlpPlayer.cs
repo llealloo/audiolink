@@ -166,7 +166,7 @@ namespace VRCAudioLink
             // Check for yt-dlp in VRC application data first
             _ytdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
             #elif UNITY_EDITOR_LINUX
-            _ytdlPath = "/usr/bin/yt-dlp";
+            _ytdlpPath = "/usr/bin/yt-dlp";
             #endif
             if (!File.Exists(_ytdlpPath)) 
             {
