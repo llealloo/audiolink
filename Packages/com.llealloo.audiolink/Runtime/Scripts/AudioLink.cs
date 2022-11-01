@@ -97,7 +97,7 @@ public class AudioLink : UdonSharpBehaviour
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
-        private float _audioLinkInputVolume = 0.01f; // smallify input source volume level
+        private const float _audioLinkInputVolume = 0.01f; // smallify input source volume level
 
         private string masterName;
         // Mechanism to provide sync'd instance time to all avatars.
