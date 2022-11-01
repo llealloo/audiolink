@@ -129,6 +129,7 @@ public class AudioLink : UdonSharpBehaviour
         
         #region PropertyIDs
 
+        // ReSharper disable InconsistentNaming
         private int _AudioTexture;
         
         private int _StringLocalPlayer;
@@ -175,7 +176,8 @@ public class AudioLink : UdonSharpBehaviour
         private int _Samples1R;
         private int _Samples2R;
         private int _Samples3R;
-        
+        // ReSharper restore InconsistentNaming
+
 
         private void InitIDs()
         {
