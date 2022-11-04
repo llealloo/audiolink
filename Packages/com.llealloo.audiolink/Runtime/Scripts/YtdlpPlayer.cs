@@ -174,7 +174,7 @@ namespace VRCAudioLink
                     EditorApplication.ExitPlaymode();
                 
                 #elif UNITY_EDITOR_LINUX
-                    EditorUtility.DisplayDialog("[AudioLink] Missing yt-dlp", "try \"sudo pacman -S yt-dlp\"", "ok");
+                    EditorUtility.DisplayDialog("[AudioLink] Missing yt-dlp", "Ensure yt-dlp is available in your PATH", "Ok");
                 #endif
             }
 
@@ -212,8 +212,6 @@ namespace VRCAudioLink
             ytdlProcess.StartInfo.FileName = _ytdlpPath;
             ytdlProcess.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
 
-            Debug.Log($"[AudioLink] Attempting to resolve URL '{url}'");
-
             try
             {
                 ytdlProcess.Start();
@@ -230,24 +228,6 @@ namespace VRCAudioLink
             {
                 Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : " + e.Message);
                 return null;
-            }
-        }
-
-        /// <summary> Resolves a URL and set a videoplayer's URL to the resolved URL. </summary>
-        /// <param name="url">URL to resolve for playback</param>
-        /// <param name="resolution">Resolution (vertical) to request from yt-dlp</param>
-        /// <param name="player">VideoPlayer component to set URL on</param>
-        public static void ResolveAndSet(string url, int resolution, VideoPlayer player)
-        {
-            try
-            {
-                string resolved = Resolve(url, resolution);
-                if(resolved != null)
-                    player.url = resolved;
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning($"[AudioLink] Unable to play URL '{url}' : " + e.Message);
             }
         }
 
@@ -271,21 +251,22 @@ namespace VRCAudioLink
         /// <summary> Download yt-dlp to the AudioLink folder. </summary>
         private static void DownloadYtdlp()
         {
-            WebClient webClient = new WebClient();
-            try
+            using (var webClient = new WebClient())
             {
-                webClient.DownloadFile(new Uri(_ytdlpDownloadURL), _localYtdlpPath);
-                Debug.Log($"[AudioLink] yt-dlp downloaded to '{_ytdlpPath}'");
-                AssetDatabase.Refresh();
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning($"[AudioLink] Failed to download yt-dlp from '{_ytdlpDownloadURL}' : " + e.Message);
-            }
-            webClient.Dispose();
+                try
+                {
+                    webClient.DownloadFile(new Uri(_ytdlpDownloadURL), _localYtdlpPath);
+                    Debug.Log($"[AudioLink] yt-dlp downloaded to '{_ytdlpPath}'");
+                    AssetDatabase.Refresh();
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning($"[AudioLink] Failed to download yt-dlp from '{_ytdlpDownloadURL}' : " + e.Message);
+                }
 
-            // Check for it again to make sure it was actually downloaded
-            LocateYtdlp();
+                // Check for it again to make sure it was actually downloaded
+                LocateYtdlp();
+            }
         }
     }
 }
