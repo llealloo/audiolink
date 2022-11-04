@@ -45,15 +45,11 @@ namespace VRCAudioLink
         /// <summary> Set time to zero, resolve, and set URL </summary>
         public void UpdateURL()
         {
-            try
+            string resolved = YtdlpURLResolver.Resolve(ytdlpURL, 720);
+            if(resolved != null)
             {
+                VideoPlayer.url = resolved;
                 SetPlaybackTime(0.0f);
-                YtdlpURLResolver.ResolveAndSet(ytdlpURL, 720, VideoPlayer);
-            }
-            catch
-            {
-                VideoPlayer.Pause();
-                Debug.LogWarning($"[AudioLink] Unable to play url {ytdlpURL}");
             }
         }
 
@@ -70,16 +66,8 @@ namespace VRCAudioLink
         /// <param name="time">Fraction of playback (0-1) to seek to</param>
         public void SetPlaybackTime(float time)
         {
-            if(VideoPlayer != null && VideoPlayer.length > 0)
-            {
-                if (!VideoPlayer.canSetTime)
-                {
-                    GetPlaybackTime();
-                    return;
-                }
-
+            if(VideoPlayer != null && VideoPlayer.length > 0 && VideoPlayer.canSetTime)
                 VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
-            }
         }
 
         /// <summary> Get Video Player Playback Time formatted as current / length </summary>
