@@ -348,6 +348,7 @@ public class AudioLink : UdonSharpBehaviour
                 // Used to correct for the volume of the audio source component
                 audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
                 audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
+                audioMaterial.SetVector("_SourcePosition", audioSource.transform.position);
                 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     if (Networking.LocalPlayer != null)
                     {
