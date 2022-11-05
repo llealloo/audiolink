@@ -70,18 +70,20 @@ namespace VRCAudioLink
                 VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
         }
 
+        /// <summary> Format seconds as hh:mm:ss or mm:ss </summary>
+        public string FormattedTimestamp(double seconds, double maxSeconds=0)
+        {
+            double formatValue = maxSeconds > 0 ? maxSeconds : seconds;
+            string formatString = formatValue >= 3600.0 ? @"hh\:mm\:ss" : @"mm\:ss";
+            return TimeSpan.FromSeconds(seconds).ToString(formatString);
+        }
+
         /// <summary> Get Video Player Playback Time formatted as current / length </summary>
-        public string PlaybackTimeFormatted()
+        public string PlaybackTimestampFormatted()
         {
             if(VideoPlayer != null && VideoPlayer.length > 0)
             {
-                float videoLengthSeconds = (float)VideoPlayer.length;
-                float currentVideoTime = (float)VideoPlayer.time;
-
-                if(videoLengthSeconds >= 3600)
-                    return $"{TimeSpan.FromSeconds(currentVideoTime).ToString(@"hh\:mm\:ss")} / {TimeSpan.FromSeconds(videoLengthSeconds).ToString(@"hh\:mm\:ss")}";
-                else
-                    return $"{TimeSpan.FromSeconds(currentVideoTime).ToString(@"mm\:ss")} / {TimeSpan.FromSeconds(videoLengthSeconds).ToString(@"mm\:ss")}";
+                return $"{FormattedTimestamp(VideoPlayer.time, VideoPlayer.length)} / {FormattedTimestamp(VideoPlayer.length)}";
             }
             else
                 return "00:00 / 00:00";
@@ -117,7 +119,7 @@ namespace VRCAudioLink
             }
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimeFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
+            EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
             playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
             if(EditorGUI.EndChangeCheck())
                 _ytdlpPlayer.SetPlaybackTime(playbackTime);
