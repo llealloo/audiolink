@@ -91,14 +91,22 @@ namespace VRCAudioLink
     }
 
     [CustomEditor(typeof(YtdlpPlayer))]
-    public class YtdlpPlayerCleanEditor : Editor 
+    public class YtdlpPlayerEditor : Editor 
     {
         YtdlpPlayer _ytdlpPlayer;
-        bool _reloadURL = false;
 
         void OnEnable()
         {
             _ytdlpPlayer = (YtdlpPlayer) target;
+        }
+
+        // Force constant updates when playing, so playback time is not behind
+        public override bool RequiresConstantRepaint()
+        {
+            if(_ytdlpPlayer.VideoPlayer != null)
+                return _ytdlpPlayer.VideoPlayer.isPlaying;
+            else
+                return false;
         }
 
         //TODO: add a warning on Linux that only some filetypes are supported?
@@ -111,15 +119,16 @@ namespace VRCAudioLink
                 playbackTime = _ytdlpPlayer.GetPlaybackTime();
             
             EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
-            _reloadURL = EditorGUILayout.Toggle("Reload URL", _reloadURL);
-            if(_reloadURL)
+            using (new EditorGUILayout.HorizontalScope())
             {
-                _ytdlpPlayer.UpdateAndPlay();
-                _reloadURL = false;
+                // Timestamp/Reload button
+                EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
+                bool updateURL = GUILayout.Button(new GUIContent(" Reload", EditorGUIUtility.IconContent("TreeEditor.Refresh").image));
+                if(updateURL)
+                    _ytdlpPlayer.UpdateAndPlay();
             }
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
             playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
             if(EditorGUI.EndChangeCheck())
                 _ytdlpPlayer.SetPlaybackTime(playbackTime);
