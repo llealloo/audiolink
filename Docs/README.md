@@ -108,6 +108,7 @@ Shader "MyTestShader"
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 // Added in version 3.0
 #define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
+#define ALPASS_GENERALVU_SOURCE_POS     uint2(7,23)
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
