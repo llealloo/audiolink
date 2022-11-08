@@ -161,14 +161,14 @@ namespace VRCAudioLink
                 _threshold3Rect.anchorMin = anchor3;
                 // threshold3Rect.anchorMax is a constant value. Skip
 
-                audioSpectrumDisplay.SetFloat("_X0", x0Slider.value);
-                audioSpectrumDisplay.SetFloat("_X1", x1Slider.value);
-                audioSpectrumDisplay.SetFloat("_X2", x2Slider.value);
-                audioSpectrumDisplay.SetFloat("_X3", x3Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold0", threshold0Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold1", threshold1Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold2", threshold2Slider.value);
-                audioSpectrumDisplay.SetFloat("_Threshold3", threshold3Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._X0, x0Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._X1, x1Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._X2, x2Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._X3, x3Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._Threshold0, threshold0Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._Threshold1, threshold1Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._Threshold2, threshold2Slider.value);
+                audioSpectrumDisplay.SetFloat(audioLink._Threshold3, threshold3Slider.value);
 
                 if (audioLink == null)
                 {
