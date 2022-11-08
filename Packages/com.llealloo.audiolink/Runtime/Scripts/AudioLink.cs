@@ -295,7 +295,7 @@ public class AudioLink : UdonSharpBehaviour
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
-            Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
+            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
             #else
             VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
             #endif
