@@ -128,8 +128,8 @@ public class AudioLink : UdonSharpBehaviour
         private bool _ignoreRightChannel = false;
         
         #region PropertyIDs
-
         // ReSharper disable InconsistentNaming
+            
         
         private int _AudioTexture;
         
@@ -189,50 +189,50 @@ public class AudioLink : UdonSharpBehaviour
         {
             _AudioTexture = PropertyToID("_AudioTexture");
 
-            _FadeLength = PropertyToID("_FadeLength");
-            _FadeExpFalloff = PropertyToID("_FadeExpFalloff");
-            _Gain = PropertyToID("_Gain");
-            _Bass = PropertyToID("_Bass");
-            _Treble = PropertyToID("_Treble");
-            _X0 = PropertyToID("_X0");
-            _X1 = PropertyToID("_X1");
-            _X2 = PropertyToID("_X2");
-            _X3 = PropertyToID("_X3");
-            _Threshold0 = PropertyToID("_Threshold0");
-            _Threshold1 = PropertyToID("_Threshold1");
-            _Threshold2 = PropertyToID("_Threshold2");
-            _Threshold3 = PropertyToID("_Threshold3");
-            _SourceVolume = PropertyToID("_SourceVolume");
-            _SourceDistance = PropertyToID("_SourceDistance");
-            _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
-            _ThemeColorMode = PropertyToID("_ThemeColorMode");
-            _CustomThemeColor0 = PropertyToID("_CustomThemeColor0");
-            _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
-            _CustomThemeColor2 = PropertyToID("_CustomThemeColor2");
-            _CustomThemeColor3 = PropertyToID("_CustomThemeColor3");
+            _FadeLength = PropertyToID("_UdonFadeLength");
+            _FadeExpFalloff = PropertyToID("_UdonFadeExpFalloff");
+            _Gain = PropertyToID("_UdonGain");
+            _Bass = PropertyToID("_UdonBass");
+            _Treble = PropertyToID("_UdonTreble");
+            _X0 = PropertyToID("_UdonX0");
+            _X1 = PropertyToID("_UdonX1");
+            _X2 = PropertyToID("_UdonX2");
+            _X3 = PropertyToID("_UdonX3");
+            _Threshold0 = PropertyToID("_UdonThreshold0");
+            _Threshold1 = PropertyToID("_UdonThreshold1");
+            _Threshold2 = PropertyToID("_UdonThreshold2");
+            _Threshold3 = PropertyToID("_UdonThreshold3");
+            _SourceVolume = PropertyToID("_UdonSourceVolume");
+            _SourceDistance = PropertyToID("_UdonSourceDistance");
+            _SourceSpatialBlend = PropertyToID("_UdonSourceSpatialBlend");
+            _ThemeColorMode = PropertyToID("_UdonThemeColorMode");
+            _CustomThemeColor0 = PropertyToID("_UdonCustomThemeColor0");
+            _CustomThemeColor1 = PropertyToID("_UdonCustomThemeColor1");
+            _CustomThemeColor2 = PropertyToID("_UdonCustomThemeColor2");
+            _CustomThemeColor3 = PropertyToID("_UdonCustomThemeColor3");
             
-            _StringLocalPlayer = PropertyToID("_StringLocalPlayer");
-            _StringMasterPlayer = PropertyToID("_StringMasterPlayer");
-            _StringCustom1 = PropertyToID("_StringCustom1");
-            _StringCustom2 = PropertyToID("_StringCustom2");
+            _StringLocalPlayer = PropertyToID("_UdonStringLocalPlayer");
+            _StringMasterPlayer = PropertyToID("_UdonStringMasterPlayer");
+            _StringCustom1 = PropertyToID("_UdonStringCustom1");
+            _StringCustom2 = PropertyToID("_UdonStringCustom2");
             
-            // _EnableAutogain = PropertyToID("_EnableAutogain");
-            // _AutogainDerate = PropertyToID("_AutogainDerate");
+            // _EnableAutogain = PropertyToID("_UdonEnableAutogain");
+            // _AutogainDerate = PropertyToID("_UdonAutogainDerate");
             
-            _AdvancedTimeProps0 = PropertyToID("_AdvancedTimeProps0");
-            _AdvancedTimeProps1 = PropertyToID("_AdvancedTimeProps1");
-            _VersionNumberAndFPSProperty = PropertyToID("_VersionNumberAndFPSProperty");
-            _PlayerCountAndData = PropertyToID("_PlayerCountAndData");
+            _AdvancedTimeProps0 = PropertyToID("_UdonAdvancedTimeProps0");
+            _AdvancedTimeProps1 = PropertyToID("_UdonAdvancedTimeProps1");
+            _VersionNumberAndFPSProperty = PropertyToID("_UdonVersionNumberAndFPSProperty");
+            _PlayerCountAndData = PropertyToID("_UdonPlayerCountAndData");
             
-            _Samples0L = PropertyToID("_Samples0L");
-            _Samples1L = PropertyToID("_Samples1L");
-            _Samples2L = PropertyToID("_Samples2L");
-            _Samples3L = PropertyToID("_Samples3L");
+            _Samples0L = PropertyToID("_UdonSamples0L");
+            _Samples1L = PropertyToID("_UdonSamples1L");
+            _Samples2L = PropertyToID("_UdonSamples2L");
+            _Samples3L = PropertyToID("_UdonSamples3L");
             
-            _Samples0R = PropertyToID("_Samples0R");
-            _Samples1R = PropertyToID("_Samples1R");
-            _Samples2R = PropertyToID("_Samples2R");
-            _Samples3R = PropertyToID("_Samples3R");
+            _Samples0R = PropertyToID("_UdonSamples0R");
+            _Samples1R = PropertyToID("_UdonSamples1R");
+            _Samples2R = PropertyToID("_UdonSamples2R");
+            _Samples3R = PropertyToID("_UdonSamples3R");
         }
         #endregion
 

@@ -71,56 +71,56 @@ Shader "AudioLink/Internal/AudioLink"
             uniform half4 _SelfTexture2D_TexelSize;
 
             // AudioLink 4 Band
-            uniform float _FadeLength;
-            uniform float _FadeExpFalloff;
-            uniform float _Gain;
-            uniform float _Bass;
-            uniform float _Treble;
-            uniform float _X0;
-            uniform float _X1;
-            uniform float _X2;
-            uniform float _X3;
-            uniform float _Threshold0;
-            uniform float _Threshold1;
-            uniform float _Threshold2;
-            uniform float _Threshold3;
-            uniform float _SourceVolume;
-            uniform float _SourceDistance;
-            uniform float _SourceSpatialBlend;
-            uniform uint _ThemeColorMode;
-            uniform float4 _CustomThemeColor0;
-            uniform float4 _CustomThemeColor1;
-            uniform float4 _CustomThemeColor2;
-            uniform float4 _CustomThemeColor3;
+            uniform float _UdonFadeLength;
+            uniform float _UdonFadeExpFalloff;
+            uniform float _UdonGain;
+            uniform float _UdonBass;
+            uniform float _UdonTreble;
+            uniform float _UdonX0;
+            uniform float _UdonX1;
+            uniform float _UdonX2;
+            uniform float _UdonX3;
+            uniform float _UdonThreshold0;
+            uniform float _UdonThreshold1;
+            uniform float _UdonThreshold2;
+            uniform float _UdonThreshold3;
+            uniform float _UdonSourceVolume;
+            uniform float _UdonSourceDistance;
+            uniform float _UdonSourceSpatialBlend;
+            uniform uint _UdonThemeColorMode;
+            uniform float4 _UdonCustomThemeColor0;
+            uniform float4 _UdonCustomThemeColor1;
+            uniform float4 _UdonCustomThemeColor2;
+            uniform float4 _UdonCustomThemeColor3;
 
             // Global strings
-            uniform float4 _StringLocalPlayer[8];
-            uniform float4 _StringMasterPlayer[8];
-            uniform float4 _StringCustom1[8];
-            uniform float4 _StringCustom2[8];
+            uniform float4 _UdonStringLocalPlayer[8];
+            uniform float4 _UdonStringMasterPlayer[8];
+            uniform float4 _UdonStringCustom1[8];
+            uniform float4 _UdonStringCustom2[8];
 
             // Extra Properties
-            uniform float _EnableAutogain;
-            uniform float _AutogainDerate;
+            uniform float _UdonEnableAutogain;
+            uniform float _UdonAutogainDerate;
 
             // Set by Udon
-            uniform float4 _AdvancedTimeProps0;
-            uniform float4 _AdvancedTimeProps1;
-            uniform float4 _VersionNumberAndFPSProperty;
-            uniform float4 _PlayerCountAndData;
+            uniform float4 _UdonAdvancedTimeProps0;
+            uniform float4 _UdonAdvancedTimeProps1;
+            uniform float4 _UdonVersionNumberAndFPSProperty;
+            uniform float4 _UdonPlayerCountAndData;
 
             //Raw audio data.
             cbuffer LeftSampleBuffer {
-                float _Samples0L[1023];
-                float _Samples1L[1023];
-                float _Samples2L[1023];
-                float _Samples3L[1023];
+                float _UdonSamples0L[1023];
+                float _UdonSamples1L[1023];
+                float _UdonSamples2L[1023];
+                float _UdonSamples3L[1023];
             };
             cbuffer RightSampleBuffer {
-                float _Samples0R[1023];
-                float _Samples1R[1023];
-                float _Samples2R[1023];
-                float _Samples3R[1023];
+                float _UdonSamples0R[1023];
+                float _UdonSamples1R[1023];
+                float _UdonSamples2R[1023];
+                float _UdonSamples3R[1023];
             };
 
             // These may become uniforms set by the controller, keep them named like this for now
