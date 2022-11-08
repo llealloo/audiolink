@@ -130,23 +130,15 @@ public class AudioLink : UdonSharpBehaviour
         #region PropertyIDs
 
         // ReSharper disable InconsistentNaming
+        
         private int _AudioTexture;
         
-        private int _StringLocalPlayer;
-        private int _StringMasterPlayer;
-        private int _StringCustom1;
-        private int _StringCustom2;
-
-        private int _PlayerCountAndData;
-        private int _VersionNumberAndFPSProperty;
-
-        private int _AdvancedTimeProps;
-        private int _AdvancedTimeProps2;
-
-        private int _SourceVolume;
-        private int _SourceSpatialBlend;
-        private int _SourceDistance;
-        
+        // AudioLink 4 Band
+        private int _FadeLength;
+        private int _FadeExpFalloff;
+        private int _Gain;
+        private int _Bass;
+        private int _Treble;
         private int _X0;
         private int _X1;
         private int _X2;
@@ -155,17 +147,32 @@ public class AudioLink : UdonSharpBehaviour
         private int _Threshold1;
         private int _Threshold2;
         private int _Threshold3;
-        private int _Gain;
-        private int _FadeLength;
-        private int _FadeExpFalloff;
-        private int _Bass;
-        private int _Treble;
+        private int _SourceVolume;
+        private int _SourceDistance;
+        private int _SourceSpatialBlend;
         private int _ThemeColorMode;
         private int _CustomThemeColor0;
         private int _CustomThemeColor1;
         private int _CustomThemeColor2;
         private int _CustomThemeColor3;
+        
+        // Global strings
+        private int _StringLocalPlayer;
+        private int _StringMasterPlayer;
+        private int _StringCustom1;
+        private int _StringCustom2;
+        
+        // Extra Properties
+        // private int _EnableAutogain;
+        // private int _AutogainDerate;
+        
+        // Set by Udon
+        private int _AdvancedTimeProps0;
+        private int _AdvancedTimeProps1;
+        private int _PlayerCountAndData;
+        private int _VersionNumberAndFPSProperty;
 
+        //Raw audio data.
         private int _Samples0L;
         private int _Samples1L;
         private int _Samples2L;
@@ -182,21 +189,12 @@ public class AudioLink : UdonSharpBehaviour
         {
             _AudioTexture = PropertyToID("_AudioTexture");
 
-            _StringLocalPlayer = PropertyToID("_StringLocalPlayer");
-            _StringMasterPlayer = PropertyToID("_StringMasterPlayer");
-            _StringCustom1 = PropertyToID("_StringCustom1");
-            _StringCustom2 = PropertyToID("_StringCustom2");
-
-            _PlayerCountAndData = PropertyToID("_PlayerCountAndData");
-            _VersionNumberAndFPSProperty = PropertyToID("_VersionNumberAndFPSProperty");
-            
-            _AdvancedTimeProps = PropertyToID("_AdvancedTimeProps");
-            _AdvancedTimeProps2 = PropertyToID("_AdvancedTimeProps2");
-            
-            _SourceVolume = PropertyToID("_SourceVolume");
-            _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
-            _SourceDistance = PropertyToID("_SourceDistance");
-            
+            _FadeLength = PropertyToID("_FadeLength");
+            _FadeExpFalloff = PropertyToID("_FadeExpFalloff");
+            _Gain = PropertyToID("_Gain");
+            _Bass = PropertyToID("_Bass");
+            _Treble = PropertyToID("_Treble");
+            _X0 = PropertyToID("_X0");
             _X1 = PropertyToID("_X1");
             _X2 = PropertyToID("_X2");
             _X3 = PropertyToID("_X3");
@@ -204,17 +202,28 @@ public class AudioLink : UdonSharpBehaviour
             _Threshold1 = PropertyToID("_Threshold1");
             _Threshold2 = PropertyToID("_Threshold2");
             _Threshold3 = PropertyToID("_Threshold3");
-            _Gain = PropertyToID("_Gain");
-            _FadeLength = PropertyToID("_FadeLength");
-            _FadeExpFalloff = PropertyToID("_FadeExpFalloff");
-            _Bass = PropertyToID("_Bass");
-            _Treble = PropertyToID("_Treble");
+            _SourceVolume = PropertyToID("_SourceVolume");
+            _SourceDistance = PropertyToID("_SourceDistance");
+            _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
             _ThemeColorMode = PropertyToID("_ThemeColorMode");
             _CustomThemeColor0 = PropertyToID("_CustomThemeColor0");
             _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
             _CustomThemeColor2 = PropertyToID("_CustomThemeColor2");
             _CustomThemeColor3 = PropertyToID("_CustomThemeColor3");
-             
+            
+            _StringLocalPlayer = PropertyToID("_StringLocalPlayer");
+            _StringMasterPlayer = PropertyToID("_StringMasterPlayer");
+            _StringCustom1 = PropertyToID("_StringCustom1");
+            _StringCustom2 = PropertyToID("_StringCustom2");
+            
+            // _EnableAutogain = PropertyToID("_EnableAutogain");
+            // _AutogainDerate = PropertyToID("_AutogainDerate");
+            
+            _AdvancedTimeProps0 = PropertyToID("_AdvancedTimeProps0");
+            _AdvancedTimeProps1 = PropertyToID("_AdvancedTimeProps1");
+            _VersionNumberAndFPSProperty = PropertyToID("_VersionNumberAndFPSProperty");
+            _PlayerCountAndData = PropertyToID("_PlayerCountAndData");
+            
             _Samples0L = PropertyToID("_Samples0L");
             _Samples1L = PropertyToID("_Samples1L");
             _Samples2L = PropertyToID("_Samples2L");
@@ -415,14 +424,14 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             // use _AdvancedTimeProps.w for Debugging
-            audioMaterial.SetVector(_AdvancedTimeProps, new Vector4(
+            audioMaterial.SetVector(_AdvancedTimeProps0, new Vector4(
                 (float)_elapsedTime,
                 (float)_elapsedTimeMSW,
                 (float)DateTime.Now.TimeOfDay.TotalSeconds) );
 
 			// Jan 1, 1970 = 621355968000000000.0 ticks.
             double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
-            audioMaterial.SetVector(_AdvancedTimeProps2, new Vector4(
+            audioMaterial.SetVector(_AdvancedTimeProps1, new Vector4(
                 (float)((_networkTimeMS)&65535),
                 (float)((_networkTimeMS)>>16),
                 (float)(Math.Floor(UTCSecondsUnix/86400)),

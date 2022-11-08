@@ -104,7 +104,8 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _AutogainDerate;
 
             // Set by Udon
-            uniform float4 _AdvancedTimeProps, _AdvancedTimeProps2;
+            uniform float4 _AdvancedTimeProps0;
+            uniform float4 _AdvancedTimeProps1;
             uniform float4 _VersionNumberAndFPSProperty;
             uniform float4 _PlayerCountAndData;
 
@@ -509,8 +510,8 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             // Output of this is daytime, in milliseconds
                             // This is done a little awkwardly as to prevent any overflows.
-                            uint dtms = _AdvancedTimeProps.x * 1000;
-                            uint dtms2 = _AdvancedTimeProps.y * 1000 + (dtms >> 10);
+                            uint dtms = _AdvancedTimeProps0.x * 1000;
+                            uint dtms2 = _AdvancedTimeProps0.y * 1000 + (dtms >> 10);
                             // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(
                                 (float)(dtms & 0x3ff),
@@ -523,15 +524,15 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             // Current time of day, in local time.
                             // Generally this will not exceed 90 million milliseconds. (25 hours)
-                            int ftpa = _AdvancedTimeProps.z * 1000.;
+                            int ftpa = _AdvancedTimeProps0.z * 1000.;
                             // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
                         }
                         else if(coordinateLocal.x == 4)
                         {
                             // Time sync'd off of Networking.GetServerTimeInMilliseconds()
-                            float fractional = _AdvancedTimeProps2.x;
-                            float major = _AdvancedTimeProps2.y;
+                            float fractional = _AdvancedTimeProps1.x;
+                            float major = _AdvancedTimeProps1.y;
                             if( major < 0 )
                                 major = 65536 + major;
                             uint currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
@@ -548,7 +549,7 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             //General Debug Register
                             //Use this for whatever.
-                            return float4( _AdvancedTimeProps.w, unity_DeltaTime.x, markerTimes.y, 1 );
+                            return float4( _AdvancedTimeProps0.w, unity_DeltaTime.x, markerTimes.y, 1 );
                         }
                     }
                 }
@@ -583,11 +584,11 @@ Shader "AudioLink/Internal/AudioLink"
                     else if( coordinateLocal.x == 5 )
                     {
                         // UTC Day number
-                        return AudioLinkEncodeUInt(_AdvancedTimeProps2.z);
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps1.z);
                     }
                     else if( coordinateLocal.x == 6 )
                     {
-                        return AudioLinkEncodeUInt(_AdvancedTimeProps2.w * 1000);
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps1.w * 1000);
                     }
                 }
 
