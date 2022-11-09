@@ -2,30 +2,30 @@ Shader "AudioLink/Internal/AudioLink"
 {
     Properties
     {
-        _UdonGain("Gain", Range(0, 2)) = 1.0
-        _UdonFadeLength("Fade Length", Range(0 , 1)) = 0.8
-        _UdonFadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3
-        _UdonBass("Bass", Range(0 , 4)) = 1.0
-        _UdonTreble("Treble", Range(0 , 4)) = 1.0
-        _UdonX0("X0", Range(0.0, 0.168)) = 0.25
-        _UdonX1("X1", Range(0.242, 0.387)) = 0.25
-        _UdonX2("X2", Range(0.461, 0.628)) = 0.5
-        _UdonX3("X3", Range(0.704, 0.953)) = 0.75
-        _UdonThreshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
-        _UdonThreshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
-        _UdonThreshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
-        _UdonThreshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
-        [ToggleUI] _UdonEnableAutogain("Enable Autogain", float) = 1
-        _UdonAutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
-        _UdonSourceVolume("Audio Source Volume", float) = 1
-        _UdonSourceDistance("Distance to Source", float) = 1
-        _UdonSourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
+        _Gain("Gain", Range(0, 2)) = 1.0
+        _FadeLength("Fade Length", Range(0 , 1)) = 0.8
+        _FadeExpFalloff("Fade Exp Falloff", Range(0 , 1)) = 0.3
+        _Bass("Bass", Range(0 , 4)) = 1.0
+        _Treble("Treble", Range(0 , 4)) = 1.0
+        _X0("X0", Range(0.0, 0.168)) = 0.25
+        _X1("X1", Range(0.242, 0.387)) = 0.25
+        _X2("X2", Range(0.461, 0.628)) = 0.5
+        _X3("X3", Range(0.704, 0.953)) = 0.75
+        _Threshold0("Threshold 0", Range(0.0, 1.0)) = 0.45
+        _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
+        _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
+        _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
+        [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
+        _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
+        _SourceVolume("Audio Source Volume", float) = 1
+        _SourceDistance("Distance to Source", float) = 1
+        _SourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
         
-        _UdonThemeColorMode( "Theme Color Mode", int ) = 0
-        _UdonCustomThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
-        _UdonCustomThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
-        _UdonCustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
-        _UdonCustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+        _ThemeColorMode( "Theme Color Mode", int ) = 0
+        _CustomThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
+        _CustomThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
+        _CustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
+        _CustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
     }
 
     SubShader
@@ -190,17 +190,17 @@ Shader "AudioLink/Internal/AudioLink"
                     totalWindow += window;
                     phase += phaseDelta;
                 }
-                float mag = (length(amplitude) / totalWindow) * AUDIOLINK_BASE_AMPLITUDE * _UdonGain;
+                float mag = (length(amplitude) / totalWindow) * AUDIOLINK_BASE_AMPLITUDE * _Gain;
 
                 // Treble compensation
                 mag *= (lut[min(note, 239)] * AUDIOLINK_TREBLE_CORRECTION + 1);
 
                 // Filtered output, also use FadeLength to lerp delay coefficient min/max for added smoothing effect
-                float magFilt = lerp(mag, last.z, lerp(AUDIOLINK_DELAY_COEFFICIENT_MIN, AUDIOLINK_DELAY_COEFFICIENT_MAX, _UdonFadeLength));
+                float magFilt = lerp(mag, last.z, lerp(AUDIOLINK_DELAY_COEFFICIENT_MIN, AUDIOLINK_DELAY_COEFFICIENT_MAX, _FadeLength));
 
                 // Filtered EQ'd output, used by AudioLink 4 Band
                 float freqNormalized = note / float(AUDIOLINK_EXPOCT * AUDIOLINK_EXPBINS);
-                float magEQ = magFilt * (((1.0 - freqNormalized) * _UdonBass) + (freqNormalized * _UdonTreble));
+                float magEQ = magFilt * (((1.0 - freqNormalized) * _Bass) + (freqNormalized * _Treble));
 
                 // Red:   Spectrum power, served straight up
                 // Green: Filtered power EQ'd, used by AudioLink 4 Band
@@ -218,26 +218,26 @@ Shader "AudioLink/Internal/AudioLink"
             float ReadLeft( int sample )
             {
                 if( sample < 1023 )
-                    return _UdonSamples0L[sample];
+                    return _Samples0L[sample];
                 else if( sample < 2046 )
-                    return _UdonSamples1L[sample-1023];
+                    return _Samples1L[sample-1023];
                 else if( sample < 3069 )
-                    return _UdonSamples2L[sample-2046];
+                    return _Samples2L[sample-2046];
                 else if( sample < 4092 )
-                    return _UdonSamples3L[sample-3069];
+                    return _Samples3L[sample-3069];
                 else
                     return 0.;
             }
             float ReadRight( int sample )
             {
                 if( sample < 1023 )
-                    return _UdonSamples0R[sample];
+                    return _Samples0R[sample];
                 else if( sample < 2046 )
-                    return _UdonSamples1R[sample-1023];
+                    return _Samples1R[sample-1023];
                 else if( sample < 3069 )
-                    return _UdonSamples2R[sample-2046];
+                    return _Samples2R[sample-2046];
                 else if( sample < 4092 )
-                    return _UdonSamples3R[sample-3069];
+                    return _Samples3R[sample-3069];
                 else
                     return 0.;
             }
@@ -250,13 +250,13 @@ Shader "AudioLink/Internal/AudioLink"
                 float incomingGain = 1;
                 // Scales the gain by the audio source component Volume to prevent data changing when changing the volume.
                 // Clamped to 0.001 to prevent division by 0 because that will make it 'splode and we don't want that now do we?
-                incomingGain *= 1/clamp(_UdonSourceVolume, 0.001, 1);
-                if(_UdonEnableAutogain)
+                incomingGain *= 1/clamp(_SourceVolume, 0.001, 1);
+                if(_EnableAutogain)
                 {
                     float4 lastAutoGain = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
                     // Divide by the running volume.
-                    incomingGain *= 1. / (lastAutoGain.x + _UdonAutogainDerate);
+                    incomingGain *= 1. / (lastAutoGain.x + _AutogainDerate);
                 }
 
                 // Downsampled to 24k and 12k samples per second by averaging, limiting frame to prevent overflow
@@ -300,8 +300,8 @@ Shader "AudioLink/Internal/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_AUDIOLINK)
 
-                float audioBands[4] = {_UdonX0, _UdonX1, _UdonX2, _UdonX3};
-                float audioThresholds[4] = {_UdonThreshold0, _UdonThreshold1, _UdonThreshold2, _UdonThreshold3};
+                float audioBands[4] = {_X0, _X1, _X2, _X3};
+                float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
 
                 int band = min(coordinateLocal.y, 3);
                 int delay = coordinateLocal.x;
@@ -329,8 +329,8 @@ Shader "AudioLink/Internal/AudioLink"
 
                     // Fade
                     float lastMagnitude = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, band)).y;
-                    lastMagnitude -= -1.0 * pow(_UdonFadeLength-1.0, 3);                                                                            // Inverse cubic remap
-                    lastMagnitude = saturate(lastMagnitude * (1.0 + (pow(lastMagnitude - 1.0, 4.0) * _UdonFadeExpFalloff) - _UdonFadeExpFalloff));     // Exp falloff
+                    lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);                                                                            // Inverse cubic remap
+                    lastMagnitude = saturate(lastMagnitude * (1.0 + (pow(lastMagnitude - 1.0, 4.0) * _FadeExpFalloff) - _FadeExpFalloff));     // Exp falloff
 
                     magnitude = max(lastMagnitude, magnitude);
 
@@ -453,7 +453,7 @@ Shader "AudioLink/Internal/AudioLink"
                             // Third pixel: Auto Gain / Volume Monitor for ColorChord
 
                             // Compensate for the fact that we've already gain'd our samples.
-                            float deratePeak = peak / (lastAutogain.x + _UdonAutogainDerate);
+                            float deratePeak = peak / (lastAutogain.x + _AutogainDerate);
 
                             if(deratePeak > lastAutogain.x)
                             {
@@ -473,7 +473,7 @@ Shader "AudioLink/Internal/AudioLink"
                         if(coordinateLocal.x == 0)
                         {
                             // Pixel 0 = Version
-                            return _UdonVersionNumberAndFPSProperty;
+                            return _VersionNumberAndFPSProperty;
                         }
                         else if(coordinateLocal.x == 1)
                         {
@@ -510,8 +510,8 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             // Output of this is daytime, in milliseconds
                             // This is done a little awkwardly as to prevent any overflows.
-                            uint dtms = _UdonAdvancedTimeProps0.x * 1000;
-                            uint dtms2 = _UdonAdvancedTimeProps0.y * 1000 + (dtms >> 10);
+                            uint dtms = _AdvancedTimeProps0.x * 1000;
+                            uint dtms2 = _AdvancedTimeProps0.y * 1000 + (dtms >> 10);
                             // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(
                                 (float)(dtms & 0x3ff),
@@ -524,15 +524,15 @@ Shader "AudioLink/Internal/AudioLink"
                         {
                             // Current time of day, in local time.
                             // Generally this will not exceed 90 million milliseconds. (25 hours)
-                            int ftpa = _UdonAdvancedTimeProps0.z * 1000.;
+                            int ftpa = _AdvancedTimeProps0.z * 1000.;
                             // Specialized implementation, similar to AudioLinkEncodeUInt
                             return float4(ftpa & 0x3ff, (ftpa >> 10) & 0x3ff, (ftpa >> 20) & 0x3ff, 0 );
                         }
                         else if(coordinateLocal.x == 4)
                         {
                             // Time sync'd off of Networking.GetServerTimeInMilliseconds()
-                            float fractional = _UdonAdvancedTimeProps1.x;
-                            float major = _UdonAdvancedTimeProps1.y;
+                            float fractional = _AdvancedTimeProps1.x;
+                            float major = _AdvancedTimeProps1.y;
                             if( major < 0 )
                                 major = 65536 + major;
                             uint currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
@@ -543,13 +543,13 @@ Shader "AudioLink/Internal/AudioLink"
                             //.x = Player Count
                             //.y = IsMaster
                             //.z = IsInstanceOwner
-                            return float4( _UdonPlayerCountAndData );
+                            return float4( _PlayerCountAndData );
                         }
                         else if(coordinateLocal.x == 7)
                         {
                             //General Debug Register
                             //Use this for whatever.
-                            return float4( _UdonAdvancedTimeProps0.w, unity_DeltaTime.x, markerTimes.y, 1 );
+                            return float4( _AdvancedTimeProps0.w, unity_DeltaTime.x, markerTimes.y, 1 );
                         }
                     }
                 }
@@ -558,12 +558,12 @@ Shader "AudioLink/Internal/AudioLink"
                     //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
-                        if( _UdonThemeColorMode == 1 )
+                        if( _ThemeColorMode == 1 )
                         {
-                            if( coordinateLocal.x == 0 ) return _UdonCustomThemeColor0;
-                            if( coordinateLocal.x == 1 ) return _UdonCustomThemeColor1;
-                            if( coordinateLocal.x == 2 ) return _UdonCustomThemeColor2;
-                            if( coordinateLocal.x == 3 ) return _UdonCustomThemeColor3;
+                            if( coordinateLocal.x == 0 ) return _CustomThemeColor0;
+                            if( coordinateLocal.x == 1 ) return _CustomThemeColor1;
+                            if( coordinateLocal.x == 2 ) return _CustomThemeColor2;
+                            if( coordinateLocal.x == 3 ) return _CustomThemeColor3;
                         }
                         else
                         {
@@ -584,11 +584,11 @@ Shader "AudioLink/Internal/AudioLink"
                     else if( coordinateLocal.x == 5 )
                     {
                         // UTC Day number
-                        return AudioLinkEncodeUInt(_UdonAdvancedTimeProps1.z);
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps1.z);
                     }
                     else if( coordinateLocal.x == 6 )
                     {
-                        return AudioLinkEncodeUInt(_UdonAdvancedTimeProps1.w * 1000);
+                        return AudioLinkEncodeUInt(_AdvancedTimeProps1.w * 1000);
                     }
                 }
 
@@ -617,7 +617,7 @@ Shader "AudioLink/Internal/AudioLink"
             {
                 AUDIO_LINK_ALPHA_START(ALPASS_CCINTERNAL)
 
-                float vuAmplitude = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(8, 0)).y * _UdonGain;
+                float vuAmplitude = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(8, 0)).y * _Gain;
                 float noteMinimum = 0.00 + 0.1 * vuAmplitude;
 
                 //Note structure:
@@ -1256,16 +1256,16 @@ Shader "AudioLink/Internal/AudioLink"
                 AUDIO_LINK_ALPHA_START(ALPASS_GLOBAL_STRINGS)
                 float4 char4 = 0;
                 if (coordinateLocal.y == 0) {
-                    char4 = _UdonStringLocalPlayer[coordinateLocal.x];
+                    char4 = _StringLocalPlayer[coordinateLocal.x];
                 }
                 else if (coordinateLocal.y == 1) {
-                    char4 = _UdonStringMasterPlayer[coordinateLocal.x];
+                    char4 = _StringMasterPlayer[coordinateLocal.x];
                 }
                 else if (coordinateLocal.y == 2) {
-                    char4 = _UdonStringCustom1[coordinateLocal.x];
+                    char4 = _StringCustom1[coordinateLocal.x];
                 } 
                 else {
-                    char4 = _UdonStringCustom2[coordinateLocal.x];
+                    char4 = _StringCustom2[coordinateLocal.x];
                 }
                 return char4;
             }
