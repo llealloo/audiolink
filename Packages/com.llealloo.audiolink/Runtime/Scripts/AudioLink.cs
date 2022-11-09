@@ -131,14 +131,14 @@ public class AudioLink : UdonSharpBehaviour
 
         // ReSharper disable InconsistentNaming
         
-        private int _AudioTexture;
+        internal int _AudioTexture;
         
         // AudioLink 4 Band
-        private int _FadeLength;
-        private int _FadeExpFalloff;
-        private int _Gain;
-        private int _Bass;
-        private int _Treble;
+        internal int _FadeLength;
+        internal int _FadeExpFalloff;
+        internal int _Gain;
+        internal int _Bass;
+        internal int _Treble;
         internal int _X0;
         internal int _X1;
         internal int _X2;
@@ -147,41 +147,41 @@ public class AudioLink : UdonSharpBehaviour
         internal int _Threshold1;
         internal int _Threshold2;
         internal int _Threshold3;
-        private int _SourceVolume;
-        private int _SourceDistance;
-        private int _SourceSpatialBlend;
-        private int _ThemeColorMode;
-        private int _CustomThemeColor0;
-        private int _CustomThemeColor1;
-        private int _CustomThemeColor2;
-        private int _CustomThemeColor3;
+        internal int _SourceVolume;
+        internal int _SourceDistance;
+        internal int _SourceSpatialBlend;
+        internal int _ThemeColorMode;
+        internal int _CustomThemeColor0;
+        internal int _CustomThemeColor1;
+        internal int _CustomThemeColor2;
+        internal int _CustomThemeColor3;
         
         // Global strings
-        private int _StringLocalPlayer;
-        private int _StringMasterPlayer;
-        private int _StringCustom1;
-        private int _StringCustom2;
+        internal int _StringLocalPlayer;
+        internal int _StringMasterPlayer;
+        internal int _StringCustom1;
+        internal int _StringCustom2;
         
         // Extra Properties
-        // private int _EnableAutogain;
-        // private int _AutogainDerate;
+        // internal int _EnableAutogain;
+        // internal int _AutogainDerate;
         
         // Set by Udon
-        private int _AdvancedTimeProps0;
-        private int _AdvancedTimeProps1;
-        private int _PlayerCountAndData;
-        private int _VersionNumberAndFPSProperty;
+        internal int _AdvancedTimeProps0;
+        internal int _AdvancedTimeProps1;
+        internal int _PlayerCountAndData;
+        internal int _VersionNumberAndFPSProperty;
 
         //Raw audio data.
-        private int _Samples0L;
-        private int _Samples1L;
-        private int _Samples2L;
-        private int _Samples3L;
+        internal int _Samples0L;
+        internal int _Samples1L;
+        internal int _Samples2L;
+        internal int _Samples3L;
         
-        private int _Samples0R;
-        private int _Samples1R;
-        private int _Samples2R;
-        private int _Samples3R;
+        internal int _Samples0R;
+        internal int _Samples1R;
+        internal int _Samples2R;
+        internal int _Samples3R;
         // ReSharper restore InconsistentNaming
 
 
