@@ -311,7 +311,7 @@ uint AudioLinkGetCustomString2Char(uint charIndex)
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM2, charIndex);
 }
 
-// Returns the position of the AudioLink AudioSource.
+// Returns the position of the AudioLink AudioSource in world space.
 float4 AudioLinkGetAudioSourcePosition()
 {
     return float4(AudioLinkData(ALPASS_GENERALVU_SOURCE_POS).xyz,1);
