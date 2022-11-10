@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
 
         public class AudioReactiveObject : UdonSharpBehaviour

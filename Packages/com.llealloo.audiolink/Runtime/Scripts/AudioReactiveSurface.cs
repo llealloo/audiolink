@@ -2,10 +2,13 @@
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
 
         public class AudioReactiveSurface : UdonSharpBehaviour
+    #else
+        public class AudioReactiveSurface : MonoBehaviour
+    #endif
         {
             [Header("To use custom mesh, swap mesh in Mesh Filter component above")]
             [Header("AudioLink Settings")]
@@ -45,9 +48,4 @@ namespace VRCAudioLink
                 mesh.SetPropertyBlock(block);
             }
         }
-    #else
-        public class AudioReactiveSurface : MonoBehaviour
-        {
-        }
-    #endif
 }

@@ -2,10 +2,12 @@
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
-
         public class AudioReactiveSurfaceArray : UdonSharpBehaviour
+    #else
+        public class AudioReactiveSurfaceArray : MonoBehaviour
+    #endif
         {
             [Header("Children should have AudioReactiveSurface shader applied")]
             [Header("AudioLink Settings")]
@@ -82,10 +84,4 @@ namespace VRCAudioLink
                 return Color.HSVToRGB(h, s, v);
             }
         }
-
-    #else
-        public class AudioReactiveSurfaceArray : MonoBehaviour
-        {
-        }
-    #endif
 }

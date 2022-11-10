@@ -6,7 +6,7 @@ using static VRC.SDKBase.VRCShader;
 using static UnityEngine.Shader;
 using UnityEngine.Rendering;
 #endif
-#if UDON
+#if UDONSHARP
 using UdonSharp;
 #endif
 using System;
@@ -14,7 +14,7 @@ using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
-#if UDON
+#if UDONSHARP
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class AudioLink : UdonSharpBehaviour
 #else
@@ -74,11 +74,11 @@ public class AudioLink : UdonSharpBehaviour
         public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Custom Global Strings")]
-        #if UDON
+        #if UDONSHARP
         [UdonSynced]
         #endif
         public string customString1;
-        #if UDON
+        #if UDONSHARP
         [UdonSynced]
         #endif
         public string customString2;
@@ -101,7 +101,7 @@ public class AudioLink : UdonSharpBehaviour
 
         private string masterName;
         // Mechanism to provide sync'd instance time to all avatars.
-#if UDON
+#if UDONSHARP
     [UdonSynced]
 #endif
         private double _masterInstanceJoinTime;
@@ -239,7 +239,7 @@ public class AudioLink : UdonSharpBehaviour
         void Start()
         {
             InitIDs();
-            #if UDON
+            #if UDONSHARP
             {
                 // Handle sync'd time stuff.
                 // OLD NOTES
@@ -310,7 +310,7 @@ public class AudioLink : UdonSharpBehaviour
         // Only happens once per second.
         private void FPSUpdate()
         {
-            #if UDON
+            #if UDONSHARP
             if( !_hasInitializedTime )
             {
                 if( _masterInstanceJoinTime > 0.00001 )
@@ -523,7 +523,7 @@ public class AudioLink : UdonSharpBehaviour
             return (frac / 8388608F) * 1.1754944e-38F;
         }
         
-        #if UDON
+        #if UDONSHARP
         public override void OnPlayerJoined(VRCPlayerApi player)
         {
             if (player != null)
@@ -568,7 +568,7 @@ public class AudioLink : UdonSharpBehaviour
 
         public void UpdateCustomStrings()
         {
-            #if UDON
+            #if UDONSHARP
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
             #endif
@@ -576,12 +576,12 @@ public class AudioLink : UdonSharpBehaviour
             UpdateGlobalString(_StringCustom1, customString1);
             UpdateGlobalString(_StringCustom2, customString2);
 
-            #if UDON
+            #if UDONSHARP
             RequestSerialization();
             #endif
         }
 
-        #if UDON
+        #if UDONSHARP
         public override void OnDeserialization()
         {
             if (!Networking.IsOwner(gameObject))
