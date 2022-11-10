@@ -91,7 +91,7 @@ namespace VRCAudioLink
     }
 
     [CustomEditor(typeof(YtdlpPlayer))]
-    public class YtdlpPlayerEditor : Editor 
+    public class YtdlpPlayerEditor : UnityEditor.Editor 
     {
         YtdlpPlayer _ytdlpPlayer;
 
