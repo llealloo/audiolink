@@ -469,10 +469,10 @@ public class AudioLink : UdonSharpBehaviour
             }
          
 
-        // As an optimization: when in-game, require others to call these after
-        // setting values on this object.
-        // Since we expect changes to values on this object in editor through the GUI,
-        // we do not have explicit events to when things change.
+            // As an optimization: when in-game, require others to call these after
+            // setting values on this object.
+            // Since we expect changes to values on this object in editor through the GUI,
+            // we do not have explicit events to when things change.
         #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
