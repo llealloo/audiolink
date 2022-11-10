@@ -423,7 +423,7 @@ public class AudioLink : UdonSharpBehaviour
                 FPSUpdate();
             }
 
-            // use _AdvancedTimeProps.w for Debugging
+            // use _AdvancedTimeProps0.w for Debugging
             audioMaterial.SetVector(_AdvancedTimeProps0, new Vector4(
                 (float)_elapsedTime,
                 (float)_elapsedTimeMSW,
