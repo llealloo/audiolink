@@ -20,6 +20,7 @@ Shader "AudioLink/Internal/AudioLink"
         _SourceVolume("Audio Source Volume", float) = 1
         _SourceDistance("Distance to Source", float) = 1
         _SourceSpatialBlend("Spatial Blend", float) = 0 //0-1 = 2D -> 3D curve
+        _SourcePosition ("Source Position", Vector) = (0,0,0,0)
         
         _ThemeColorMode( "Theme Color Mode", int ) = 0
         _CustomThemeColor0 ("Theme Color 0", Color ) = (1.0,1.0,0.0,1.0)
@@ -87,6 +88,7 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float _SourceVolume;
             uniform float _SourceDistance;
             uniform float _SourceSpatialBlend;
+            uniform float4 _SourcePosition;
             uniform uint _ThemeColorMode;
             uniform float4 _CustomThemeColor0;
             uniform float4 _CustomThemeColor1;
@@ -588,6 +590,11 @@ Shader "AudioLink/Internal/AudioLink"
                     else if( coordinateLocal.x == 6 )
                     {
                         return AudioLinkEncodeUInt(_AdvancedTimeProps2.w * 1000);
+                    }
+                    else if( coordinateLocal.x == 7)
+                    {
+                        // Audio Source Position
+                        return _SourcePosition;
                     }
                 }
 

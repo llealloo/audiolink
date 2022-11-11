@@ -108,6 +108,7 @@ Shader "MyTestShader"
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 // Added in version 3.0
 #define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
+#define ALPASS_GENERALVU_SOURCE_POS     uint2(7,23)
 ```
 
 These are the base coordinates for the different data blocks in AudioLink.  For data groups that are multiline, all data is represented as left-to-right (increasing X) then incrementing Y and scanning X from left to right on the next line.  They are the following groups that contain the following data:
@@ -219,6 +220,7 @@ It contains the following dedicated pixels:
 <tr><td>4, 1</td><td>4, 23</td><td>(Internal)</td><td colspan=4>Internal Timing Tracking</td></tr>
 <tr><td>5, 1</td><td>5, 23</td><td>UTC Days since Unix Epoch</td><td colspan=4><pre>AudioLinkDecodeDataAsUInt( ALPASS_GENERALVU_UNIX_DAYS )</pre></td></tr>
 <tr><td>6, 1</td><td>6, 23</td><td>Milliseconds Since 12:00 AM of UTC Unix Time Day Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_UNIX_SECONDS )</pre></td></tr>
+<tr><td>7, 1</td><td>7, 23</td><td>Position of the Audiolink AudioSource in worldspace</td><td colspan=4><pre>AudioLinkGetAudioSourcePosition()</pre></td></tr>
 </table>
 
 Note: For milliseconds since instance start, and milliseconds since 12:00 AM local time, you may use `ALPASS_GENERALVU_UNIX_SECONDS`, `ALPASS_GENERALVU_INSTANCE_TIME` and `ALPASS_GENERALVU_LOCAL_TIME` with `AudioLinkDecodeDataAsUInt(...)` and `AudioLinkDecodeDataAsSeconds(...)`. 
