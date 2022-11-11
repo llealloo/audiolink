@@ -89,7 +89,7 @@ Material:
     - _DstBlend: 0
     - _EnableAutogain: 0
     - _FadeExpFalloff: 0.75
-    - _FadeLength: 0.25
+    - _FadeLength: 0.8
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
     - _Gain: 1
@@ -109,7 +109,7 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 61.92423
+    - _SourceDistance: 3.0202346
     - _SourceSpatialBlend: 0
     - _SourceVolume: 1
     - _SpecularHighlights: 1
