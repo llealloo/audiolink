@@ -38,8 +38,35 @@ namespace VRCAudioLink
 
             private Renderer[] _childRenderers;
 
+            #region PropertyIDs
+
+            // ReSharper disable InconsistentNaming
+
+            private int _Delay;
+            private int _Band;
+            private int _HueShift;
+            private int _EmissionColor;
+            private int _Emission;
+            private int _Pulse;
+            private int _PulseRotation;
+            // ReSharper restore InconsistentNaming
+            
+            private void InitIDs()
+            {
+                _Delay = Shader.PropertyToID("_Delay");
+                _Band = Shader.PropertyToID("_Band");
+                _HueShift = Shader.PropertyToID("_HueShift");
+                _EmissionColor = Shader.PropertyToID("_EmissionColor");
+                _Emission = Shader.PropertyToID("_Emission");
+                _Pulse = Shader.PropertyToID("_Pulse");
+                _PulseRotation = Shader.PropertyToID("_PulseRotation");
+            }
+
+            #endregion
+
             void Start()
             {
+                InitIDs();
                 _childRenderers = transform.GetComponentsInChildren<Renderer>(true);
                 UpdateChildren();
             }
@@ -65,13 +92,13 @@ namespace VRCAudioLink
                         if (!child.parent.Equals(transform)) continue;
                     }
                     var block = new MaterialPropertyBlock();
-                    block.SetFloat("_Delay", (delayStep/128f) * (float)index);
-                    block.SetFloat("_Band", (float)band);
-                    block.SetFloat("_HueShift", hueShift);
-                    block.SetColor("_EmissionColor", HueShift(color, hueStep * (float)index));
-                    block.SetFloat("_Emission", intensity);
-                    block.SetFloat("_Pulse", pulse);
-                    block.SetFloat("_PulseRotation", pulseRotation + (pulseRotationStep * (float)index));
+                    block.SetFloat(_Delay, (delayStep/128f) * (float)index);
+                    block.SetFloat(_Band, (float)band);
+                    block.SetFloat(_HueShift, hueShift);
+                    block.SetColor(_EmissionColor, HueShift(color, hueStep * (float)index));
+                    block.SetFloat(_Emission, intensity);
+                    block.SetFloat(_Pulse, pulse);
+                    block.SetFloat(_PulseRotationy, pulseRotation + (pulseRotationStep * (float)index));
                     renderer.SetPropertyBlock(block);
                 }
             }

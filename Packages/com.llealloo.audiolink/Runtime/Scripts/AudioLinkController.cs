@@ -54,6 +54,33 @@ namespace VRCAudioLink
             private RectTransform _threshold2Rect;
             private RectTransform _threshold3Rect;
 
+            #region PropertyIDs
+            
+            // ReSharper disable InconsistentNaming
+            private int _X0;
+            private int _X1;
+            private int _X2;
+            private int _X3;
+            private int _Threshold0;
+            private int _Threshold1;
+            private int _Threshold2;
+            private int _Threshold3;
+            // ReSharper restore InconsistentNaming
+
+            private void InitIDs()
+            {
+                _X0 = Shader.PropertyToID("_X0");
+                _X1 = Shader.PropertyToID("_X1");
+                _X2 = Shader.PropertyToID("_X2");
+                _X3 = Shader.PropertyToID("_X3");
+                _Threshold0 = Shader.PropertyToID("_Threshold0");
+                _Threshold1 = Shader.PropertyToID("_Threshold1");
+                _Threshold2 = Shader.PropertyToID("_Threshold2");
+                _Threshold3 = Shader.PropertyToID("_Threshold3");
+            }
+
+            #endregion
+
             #if UNITY_EDITOR
             void Update()
             {
@@ -70,6 +97,7 @@ namespace VRCAudioLink
 
             void Start()
             {
+                InitIDs();
                 if (audioLink == null)
                 {
                     Debug.LogError("Controller not connected to AudioLink");
@@ -161,14 +189,14 @@ namespace VRCAudioLink
                 if (_threshold3Rect != null) _threshold3Rect.anchorMin = anchor3;
                 // threshold3Rect.anchorMax is a constant value. Skip
 
-                audioSpectrumDisplay.SetFloat(audioLink._X0, x0Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._X1, x1Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._X2, x2Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._X3, x3Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._Threshold0, threshold0Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._Threshold1, threshold1Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._Threshold2, threshold2Slider.value);
-                audioSpectrumDisplay.SetFloat(audioLink._Threshold3, threshold3Slider.value);
+                audioSpectrumDisplay.SetFloat(_X0, x0Slider.value);
+                audioSpectrumDisplay.SetFloat(_X1, x1Slider.value);
+                audioSpectrumDisplay.SetFloat(_X2, x2Slider.value);
+                audioSpectrumDisplay.SetFloat(_X3, x3Slider.value);
+                audioSpectrumDisplay.SetFloat(_Threshold0, threshold0Slider.value);
+                audioSpectrumDisplay.SetFloat(_Threshold1, threshold1Slider.value);
+                audioSpectrumDisplay.SetFloat(_Threshold2, threshold2Slider.value);
+                audioSpectrumDisplay.SetFloat(_Threshold3, threshold3Slider.value);
 
                 if (audioLink == null)
                 {
