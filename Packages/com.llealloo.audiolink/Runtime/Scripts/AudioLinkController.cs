@@ -152,13 +152,13 @@ namespace VRCAudioLink
                 var anchor1 = new Vector2(x1Slider.value, 1f);
                 var anchor2 = new Vector2(x2Slider.value, 1f);
                 var anchor3 = new Vector2(x3Slider.value, 1f);
-                _threshold0Rect.anchorMin = anchor0;
-                _threshold0Rect.anchorMax = anchor1;
-                _threshold1Rect.anchorMin = anchor1;
-                _threshold1Rect.anchorMax = anchor2;
-                _threshold2Rect.anchorMin = anchor2;
-                _threshold2Rect.anchorMax = anchor3;
-                _threshold3Rect.anchorMin = anchor3;
+                if (_threshold0Rect != null) _threshold0Rect.anchorMin = anchor0;
+                if (_threshold0Rect != null) _threshold0Rect.anchorMax = anchor1;
+                if (_threshold1Rect != null) _threshold1Rect.anchorMin = anchor1;
+                if (_threshold1Rect != null) _threshold1Rect.anchorMax = anchor2;
+                if (_threshold2Rect != null) _threshold2Rect.anchorMin = anchor2;
+                if (_threshold2Rect != null) _threshold2Rect.anchorMax = anchor3;
+                if (_threshold3Rect != null) _threshold3Rect.anchorMin = anchor3;
                 // threshold3Rect.anchorMax is a constant value. Skip
 
                 audioSpectrumDisplay.SetFloat(audioLink._X0, x0Slider.value);

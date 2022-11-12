@@ -150,6 +150,7 @@ public class AudioLink : UdonSharpBehaviour
         internal int _SourceVolume;
         internal int _SourceDistance;
         internal int _SourceSpatialBlend;
+        internal int _SourcePosition;
         internal int _ThemeColorMode;
         internal int _CustomThemeColor0;
         internal int _CustomThemeColor1;
@@ -205,6 +206,7 @@ public class AudioLink : UdonSharpBehaviour
             _SourceVolume = PropertyToID("_SourceVolume");
             _SourceDistance = PropertyToID("_SourceDistance");
             _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
+            _SourcePosition = PropertyToID("_SourcePosition");
             _ThemeColorMode = PropertyToID("_ThemeColorMode");
             _CustomThemeColor0 = PropertyToID("_CustomThemeColor0");
             _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
@@ -457,8 +459,11 @@ public class AudioLink : UdonSharpBehaviour
                 SendAudioOutputData();
 
                 // Used to correct for the volume of the audio source component
+
                 audioMaterial.SetFloat(_SourceVolume, audioSource.volume);
                 audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
+                audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
+
                 #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
                     if (Networking.LocalPlayer != null)
                     {

@@ -89,7 +89,7 @@ Material:
     - _DstBlend: 0
     - _EnableAutogain: 0
     - _FadeExpFalloff: 0.75
-    - _FadeLength: 0.25
+    - _FadeLength: 0.8
     - _FreqCeiling: 1
     - _FreqFloor: 0.123
     - _Gain: 1
@@ -109,7 +109,7 @@ Material:
     - _PhiDeltaCorrection: 4
     - _SmoothnessTextureChannel: 0
     - _SortNotes: 0
-    - _SourceDistance: 61.92423
+    - _SourceDistance: 3.02023
     - _SourceSpatialBlend: 0
     - _SourceVolume: 1
     - _SpecularHighlights: 1
@@ -144,6 +144,7 @@ Material:
     - _DayTimeProp: {r: 376, g: 779, b: 67, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FrameTimeProp: {r: 590, g: 8, b: 0, a: 0}
+    - _SourcePosition: {r: 0, g: 0, b: 0, a: 0}
     - _ThemeColor0: {r: 1, g: 1, b: 0, a: 1}
     - _ThemeColor1: {r: 0, g: 0, b: 1, a: 1}
     - _ThemeColor2: {r: 1, g: 0, b: 0, a: 1}
