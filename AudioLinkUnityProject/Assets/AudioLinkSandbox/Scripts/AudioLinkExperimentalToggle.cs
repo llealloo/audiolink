@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿#if UDONSHARP
+using UdonSharp;
 
 namespace VRCAudioLink
 {
@@ -26,3 +27,4 @@ namespace VRCAudioLink
         }
     }
 }
+#endif
