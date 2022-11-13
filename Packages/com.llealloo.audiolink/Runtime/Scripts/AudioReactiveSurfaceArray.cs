@@ -98,7 +98,7 @@ namespace VRCAudioLink
                     block.SetColor(_EmissionColor, HueShift(color, hueStep * (float)index));
                     block.SetFloat(_Emission, intensity);
                     block.SetFloat(_Pulse, pulse);
-                    block.SetFloat(_PulseRotationy, pulseRotation + (pulseRotationStep * (float)index));
+                    block.SetFloat(_PulseRotation, pulseRotation + (pulseRotationStep * (float)index));
                     renderer.SetPropertyBlock(block);
                 }
             }
