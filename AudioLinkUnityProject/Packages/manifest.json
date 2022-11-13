@@ -3,7 +3,7 @@
     "com.llealloo.audiolink": "file:../../Packages/com.llealloo.audiolink",
     "com.llealloo.audiolink.extras": "file:../../Packages/com.llealloo.audiolink.extras",
     "com.unity.collab-proxy": "1.10.2",
-    "com.unity.ide.rider": "1.2.1",
+    "com.unity.ide.rider": "3.0.16",
     "com.unity.ide.visualstudio": "2.0.11",
     "com.unity.ide.vscode": "1.2.4",
     "com.unity.test-framework": "1.1.29",
