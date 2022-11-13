@@ -1,5 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+#if UDONSHARP
+using static VRC.SDKBase.VRCShader;
+#else
+using static UnityEngine.Shader;
+#endif
 
 namespace VRCAudioLink
 {
@@ -69,14 +74,14 @@ namespace VRCAudioLink
 
             private void InitIDs()
             {
-                _X0 = Shader.PropertyToID("_X0");
-                _X1 = Shader.PropertyToID("_X1");
-                _X2 = Shader.PropertyToID("_X2");
-                _X3 = Shader.PropertyToID("_X3");
-                _Threshold0 = Shader.PropertyToID("_Threshold0");
-                _Threshold1 = Shader.PropertyToID("_Threshold1");
-                _Threshold2 = Shader.PropertyToID("_Threshold2");
-                _Threshold3 = Shader.PropertyToID("_Threshold3");
+                _X0 = PropertyToID("_X0");
+                _X1 = PropertyToID("_X1");
+                _X2 = PropertyToID("_X2");
+                _X3 = PropertyToID("_X3");
+                _Threshold0 = PropertyToID("_Threshold0");
+                _Threshold1 = PropertyToID("_Threshold1");
+                _Threshold2 = PropertyToID("_Threshold2");
+                _Threshold3 = PropertyToID("_Threshold3");
             }
 
             #endregion

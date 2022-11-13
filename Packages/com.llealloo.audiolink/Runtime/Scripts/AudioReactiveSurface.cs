@@ -1,4 +1,9 @@
 using UnityEngine;
+#if UDONSHARP
+using static VRC.SDKBase.VRCShader;
+#else
+using static UnityEngine.Shader;
+#endif
 
 namespace VRCAudioLink
 {
@@ -43,13 +48,13 @@ namespace VRCAudioLink
             
             private void InitIDs()
             {
-                _Delay = Shader.PropertyToID("_Delay");
-                _Band = Shader.PropertyToID("_Band");
-                _HueShift = Shader.PropertyToID("_HueShift");
-                _EmissionColor = Shader.PropertyToID("_EmissionColor");
-                _Emission = Shader.PropertyToID("_Emission");
-                _Pulse = Shader.PropertyToID("_Pulse");
-                _PulseRotation = Shader.PropertyToID("_PulseRotation");
+                _Delay = PropertyToID("_Delay");
+                _Band = PropertyToID("_Band");
+                _HueShift = PropertyToID("_HueShift");
+                _EmissionColor = PropertyToID("_EmissionColor");
+                _Emission = PropertyToID("_Emission");
+                _Pulse = PropertyToID("_Pulse");
+                _PulseRotation = PropertyToID("_PulseRotation");
             }
 
             #endregion
