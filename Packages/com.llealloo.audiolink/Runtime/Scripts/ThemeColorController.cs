@@ -77,11 +77,13 @@ namespace VRCAudioLink
                 #endif
             }
 
+            #if UDONSHARP
             public override void OnDeserialization()
             {
                 UpdateGUI();
                 UpdateAudioLinkThemeColors();
             }
+            #endif
 
             public void SelectCustomColor0() { SelectCustomColorN(0); }
             public void SelectCustomColor1() { SelectCustomColorN(1); }
