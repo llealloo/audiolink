@@ -25,20 +25,39 @@ namespace VRCAudioLink.Editor
                 {
                     ReimportPackage();
                     File.WriteAllText(canaryFilePath, audioLinkReimportedKey);
-                    AudioLinkShaderCompatabilityUtility.UpgradeShaders();
+                    if (IsUsingPackageSetup())
+                    {
+                        AudioLinkShaderCompatabilityUtility.UpgradeShaders();
+                    }
                 }
             }
         }
 
+        // Are we using AudioLink as a package, or the old Assets setup?
+        public static bool IsUsingPackageSetup()
+        {
+            return AssetDatabase.IsValidFolder(Path.Combine("Packages", "com.llealloo.audiolink"));
+        }
+
         private static void ReimportPackage()
         {
-            AssetDatabase.ImportAsset(Path.Combine("Packages", "com.llealloo.audiolink"), ImportAssetOptions.ImportRecursive);
+            if (IsUsingPackageSetup())
+            {
+                AssetDatabase.ImportAsset(Path.Combine("Packages", "com.llealloo.audiolink"), ImportAssetOptions.ImportRecursive);
+            }
+
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
+            if (!IsUsingPackageSetup())
+            {
+                Debug.LogWarning("Couldn't not open AudioLink example scene. It is not included in your distribution of AudioLink.");
+                return;
+            }
+            
             string baseAssetsPath = "Samples/AudioLink/0.3.0";
             string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
             string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
