@@ -17,6 +17,7 @@
 - When using an AudioLinkController, the values selected in the AudioLink inspector are now respected, instead of the controller overriding them on initialization. (Thanks, 3)
 - Be consistent with swizzling in AudioLink shaders, use 'xyzw' everywhere.
 - Removed uses of SetProgramVariable and SendCustomEvent throughout AudioLink code. (Thanks, 3)
+- Use VRCShader.PropertyToID instead of strings for better performance. (Thanks, 3)
 ### Bugfixes
 - Issue [191](https://github.com/llealloo/vrc-udon-audio-link/issues/191) and [186](https://github.com/llealloo/vrc-udon-audio-link/issues/186) have been fixed. (Thanks, 3)
 - Remove some old profiling code that could have a very slight impact on performance. (Thanks, 3)
