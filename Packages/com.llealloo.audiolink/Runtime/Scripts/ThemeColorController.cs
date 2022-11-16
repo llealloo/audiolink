@@ -18,13 +18,11 @@ namespace VRCAudioLink
             #if UDONSHARP
             [UdonSynced] 
             #endif
-            
             private int themeColorMode;
 
             #if UDONSHARP
             [UdonSynced] 
             #endif
-            
             public Color[] customThemeColors = new Color[4]{
                 Color.yellow,
                 Color.blue,
