@@ -83,7 +83,7 @@ public class AudioLink : UdonSharpBehaviour
         #endif
         public string customString2;
 
-        [Header("private (Do not modify)")] public Material audioMaterial;
+        [Header("Internal (Do not modify)")] public Material audioMaterial;
         public RenderTexture audioRenderTexture;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
