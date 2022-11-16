@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: LTCGI_UdonAdapter
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 6949104b5d68f6c47a7305785f2e06aa,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ed9da00f2cbce884bbbdf4fa12e644ec,
     type: 2}
   udonAssembly: 
   assemblyError: 
