@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using VRCAudioLink;
 
-#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
+#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDONSHARP
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : Editor
     {
@@ -36,4 +36,4 @@ using VRCAudioLink;
             }
         }
     }
-    #endif
+#endif

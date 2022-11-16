@@ -6,15 +6,24 @@ using UnityEngine.UI;
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
 
         [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
         public class ThemeColorController : UdonSharpBehaviour
+    #else
+        public class ThemeColorController : MonoBehaviour
+    #endif
         {
-            [UdonSynced] private int themeColorMode;
+            #if UDONSHARP
+            [UdonSynced] 
+            #endif
+            private int themeColorMode;
 
-            [UdonSynced] public Color[] customThemeColors = new Color[4]{
+            #if UDONSHARP
+            [UdonSynced] 
+            #endif
+            public Color[] customThemeColors = new Color[4]{
                 Color.yellow,
                 Color.blue,
                 Color.red,
@@ -31,8 +40,11 @@ namespace VRCAudioLink
             private int _initThemeColorMode; // Initialized from themeColorDropdown.
 
             private bool processGUIevents = true;
+            
+            #if UDONSHARP
             private VRCPlayerApi localPlayer;
-
+            #endif
+            
             // A view-controller for customThemeColors
             public Transform extensionCanvas;
             public Slider slider_Hue;
@@ -43,7 +55,10 @@ namespace VRCAudioLink
 
             private void Start()
             {
+                #if UDONSHARP
                 localPlayer = Networking.LocalPlayer;
+                #endif
+                
                 _initCustomThemeColors = new Color[4] {
                     customThemeColors[0],
                     customThemeColors[1],
@@ -56,8 +71,10 @@ namespace VRCAudioLink
 
                 UpdateGUI();
                 UpdateAudioLinkThemeColors();
+                #if UDONSHARP
                 if (Networking.IsOwner(gameObject))
                     RequestSerialization();
+                #endif
             }
 
             public override void OnDeserialization()
@@ -82,9 +99,10 @@ namespace VRCAudioLink
                 {
                     return;
                 }
+                #if UDONSHARP
                 if (!Networking.IsOwner(gameObject))
                     Networking.SetOwner(localPlayer, gameObject);
-
+                #endif
                 bool modeChanged = (themeColorMode != themeColorDropdown.value);
                 themeColorMode = themeColorDropdown.value;
                 customThemeColors[customColorIndex] = Color.HSVToRGB(
@@ -95,7 +113,9 @@ namespace VRCAudioLink
 
                 if (modeChanged) UpdateGUI();
                 UpdateAudioLinkThemeColors();
+                #if UDONSHARP
                 RequestSerialization();
+                #endif
             }
 
             public void ResetThemeColors()
@@ -107,7 +127,9 @@ namespace VRCAudioLink
                 }
                 UpdateGUI();
                 UpdateAudioLinkThemeColors();
+                #if UDONSHARP
                 RequestSerialization();
+                #endif
             }
 
             public void UpdateGUI()
@@ -137,17 +159,12 @@ namespace VRCAudioLink
             public void UpdateAudioLinkThemeColors()
             {
                 if (audioLink == null) return;
-                audioLink.SetProgramVariable("themeColorMode", themeColorMode);
-                audioLink.SetProgramVariable("customThemeColor0", customThemeColors[0]);
-                audioLink.SetProgramVariable("customThemeColor1", customThemeColors[1]);
-                audioLink.SetProgramVariable("customThemeColor2", customThemeColors[2]);
-                audioLink.SetProgramVariable("customThemeColor3", customThemeColors[3]);
-                audioLink.SendCustomEvent("UpdateThemeColors");
+                audioLink.themeColorMode = themeColorMode;
+                audioLink.customThemeColor0 = customThemeColors[0];
+                audioLink.customThemeColor1 = customThemeColors[1];
+                audioLink.customThemeColor2 = customThemeColors[2];
+                audioLink.customThemeColor3 = customThemeColors[3];
+                audioLink.UpdateThemeColors();
             }
         }
-    #else
-        public class ThemeColorController : MonoBehaviour
-        {
-        }
-    #endif
 }

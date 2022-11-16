@@ -2,7 +2,7 @@
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
 
         public class AudioReactiveLight : UdonSharpBehaviour

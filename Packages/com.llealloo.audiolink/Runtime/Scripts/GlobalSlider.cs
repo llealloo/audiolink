@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
         using VRC.Udon;
 

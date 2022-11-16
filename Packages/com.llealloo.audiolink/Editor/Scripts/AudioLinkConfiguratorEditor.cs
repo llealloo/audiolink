@@ -8,7 +8,7 @@
 #else
   using UnityEditor.Experimental.SceneManagement;
 #endif
-#if UDON
+#if UDONSHARP
   using UdonSharp;
   using UdonSharpEditor;
   using VRC.SDK3.Components;
@@ -39,7 +39,7 @@
       }
 
       // if we are in PREFAB EDIT mode - we keep the configurator
-      #if UDON
+      #if UDONSHARP
           if (PrefabStageUtility.GetCurrentPrefabStage() != null) {
             // if you somehow end up with an udon behaviour and other world-speicifc scripts inside the prefab
             // this button can clean it up before the publish
