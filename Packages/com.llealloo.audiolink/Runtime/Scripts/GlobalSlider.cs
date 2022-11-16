@@ -39,6 +39,8 @@ namespace VRCAudioLink
 
             public void SlideUpdate()
             {
+                if (slider == null)
+                    return;
                 if (deserializing)
                     return;
                 if (!Networking.IsOwner(gameObject))
