@@ -52,15 +52,12 @@ jobs:
         with:
           package-path: ${{ env.unityPackage }}
           include-files: metaList
-      
-      - name: debug
-        run: ls StandaloneMetadata
-
+        
       - name: Make minimal meta list
         run: |
-          cp "StandaloneMetadata/package.json" "Packages/com.llealloo.audiolink/package.json"
-          cp "StandaloneMetadata/AudioLink.asmdef" "Packages/com.llealloo.audiolink/Runtime/AudioLink.asmdef"
-          cp "StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/com.llealloo.audiolink/Editor/AudioLink.Editor.asmdef"
+          cp ".github/workflows/StandaloneMetadata/package.json" "Packages/com.llealloo.audiolink/package.json"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/com.llealloo.audiolink/Runtime/AudioLink.asmdef"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/com.llealloo.audiolink/Editor/AudioLink.Editor.asmdef"
 
           echo "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab.meta" >> minimalMetaList
           echo "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab.meta" >> minimalMetaList
