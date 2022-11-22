@@ -1,10 +1,10 @@
-﻿using UdonSharp;
+﻿#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDONSHARP
+using UdonSharp;
 using UdonSharpEditor;
 using UnityEditor;
 using UnityEngine;
 using VRCAudioLink;
 
-#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDONSHARP
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : Editor
     {
