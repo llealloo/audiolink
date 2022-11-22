@@ -29,6 +29,7 @@ namespace VRCAudioLink.Editor
             if (!AudioLinkImportFix.IsUsingPackageSetup())
             {
                 Debug.LogWarning("Could not open the AudioLink shader compatability utility. You seem to be using the non-package version of AudioLink.");
+                return;
             }
 
             if (EditorUtility.DisplayDialog(DialogTitle, DialogText, DialogOkButton, DialogCancelButton))

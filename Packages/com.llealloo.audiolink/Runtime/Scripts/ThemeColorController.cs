@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
 using UnityEngine.UI;
 
 namespace VRCAudioLink
 {
     #if UDONSHARP
         using UdonSharp;
+        using VRC.SDKBase;
 
         [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
         public class ThemeColorController : UdonSharpBehaviour

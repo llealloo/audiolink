@@ -1,23 +1,20 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-using static VRC.SDKBase.VRCShader;
-#else
-using static UnityEngine.Shader;
-using UnityEngine.Rendering;
-#endif
-#if UDONSHARP
-using UdonSharp;
-#endif
 using System;
 using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
 #if UDONSHARP
+    using UdonSharp;
+    using VRC.SDKBase;
+    using static VRC.SDKBase.VRCShader;
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-public class AudioLink : UdonSharpBehaviour
+    public class AudioLink : UdonSharpBehaviour
 #else
+    using static UnityEngine.Shader;
+    using UnityEngine.Rendering;
+
     public class AudioLink : MonoBehaviour
 #endif
     {
@@ -115,11 +112,11 @@ public class AudioLink : UdonSharpBehaviour
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
 
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if UDONSHARP
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
 #else
-        private double GetElapsedSecondsSince2019() { return 0; }
+        private double GetElapsedSecondsSince2019() { return (DateTime.UtcNow - new DateTime(2020, 1, 1) ).TotalSeconds; }
 #endif
 
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
@@ -296,10 +293,10 @@ public class AudioLink : UdonSharpBehaviour
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
-            #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
-            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
-            #else
+            #if UDONSHARP
             VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
+            #else
+            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
             #endif
 
             // Disable camera on start if user didn't ask for it
@@ -338,7 +335,7 @@ public class AudioLink : UdonSharpBehaviour
             #endif
 
             audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
-            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+            #if UDONSHARP
             audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
@@ -375,7 +372,7 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             // Finely adjust our network time estimate if needed.
-            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+            #if UDONSHARP
             int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
             #else
             int networkTimeMSNow = (int)(Time.time*1000.0f);
@@ -464,7 +461,7 @@ public class AudioLink : UdonSharpBehaviour
                 audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
                 audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
 
-                #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+                #if UDONSHARP
                     if (Networking.LocalPlayer != null)
                     {
                         float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
