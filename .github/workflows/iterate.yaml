@@ -54,7 +54,7 @@ jobs:
           include-files: metaList
       
       - name: debug
-        run: ls
+        run: ls StandaloneMetadata
 
       - name: Make minimal meta list
         run: |
