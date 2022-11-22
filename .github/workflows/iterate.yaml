@@ -57,11 +57,11 @@ jobs:
         run: |
           cp ".github/workflows/StandaloneMetadata/package.json" "Packages/${{env.packageName}}/package.json"
           cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/${{env.packageName}}/Runtime/AudioLink.asmdef"
-          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/${{env.packageName}}/Editor/AudioLink.Editor.asmdef"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/${{env.packageName}}/Editor/Audiolink.Editor.asmdef"
 
           echo "Packages/${{env.packageName}}/package.json.meta" >> minimalMetaList
           echo "Packages/${{env.packageName}}/Runtime/AudioLink.asmdef.meta" >> minimalMetaList
-          echo "Packages/${{env.packageName}}/Editor/AudioLink.Editor.asmdef.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Editor/Audiolink.Editor.asmdef.meta" >> minimalMetaList
 
           echo "Packages/${{env.packageName}}/LICENSE.meta" >> minimalMetaList
           echo "Packages/${{env.packageName}}/README.md.meta" >> minimalMetaList
