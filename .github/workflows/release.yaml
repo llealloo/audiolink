@@ -56,31 +56,32 @@ jobs:
         
       - name: Make minimal meta list
         run: |
-          cp ".github/workflows/StandaloneMetadata/package.json" "Packages/com.llealloo.audiolink/package.json"
-          cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/com.llealloo.audiolink/Runtime/AudioLink.asmdef"
-          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/com.llealloo.audiolink/Editor/AudioLink.Editor.asmdef"
+          cp ".github/workflows/StandaloneMetadata/package.json" "Packages/${{env.packageName}}/package.json"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/${{env.packageName}}/Runtime/AudioLink.asmdef"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/${{env.packageName}}/Editor/AudioLink.Editor.asmdef"
 
-          echo "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab.meta" >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab.meta" >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab.meta" >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/LICENSE.meta" >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/README.md.meta" >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/VERSION.txt.meta" >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/CHANGELOG.md.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/LICENSE.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/README.md.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/CHANGELOG.md.meta" >> minimalMetaList
 
-          echo "Packages/com.llealloo.audiolink/Runtime/Scripts.meta" >> minimalMetaList
-          find "Packages/com.llealloo.audiolink/Runtime/Scripts/" -name \*.meta >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/RenderTextures.meta" >> minimalMetaList
-          find "Packages/com.llealloo.audiolink/Runtime/RenderTextures/" -name \*.meta >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/Shaders.meta" >> minimalMetaList
-          find "Packages/com.llealloo.audiolink/Runtime/Shaders/" -name \*.meta >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/Materials.meta" >> minimalMetaList
-          find "Packages/com.llealloo.audiolink/Runtime/Materials/" -name \*.meta >> minimalMetaList
-          echo "Packages/com.llealloo.audiolink/Runtime/Resources.meta" >> minimalMetaList
-          find "Packages/com.llealloo.audiolink/Runtime/Resources/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLink.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLinkAvatar.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLinkController.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/VERSION.txt.meta" >> minimalMetaList
 
-          echo "Packages/com.llealloo.audiolink/Editor/Scripts.meta" >> minimalMetaList
-          find "Packages/com.llealloo.audiolink/Editor/Scripts/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Scripts.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Scripts/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/RenderTextures.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/RenderTextures/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Shaders.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Shaders/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Materials.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Materials/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Resources.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Resources/" -name \*.meta >> minimalMetaList
+
+          echo "Packages/${{env.packageName}}/Editor/Scripts.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Editor/Scripts/" -name \*.meta >> minimalMetaList
 
       - name: Create minimal UnityPackage
         uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
