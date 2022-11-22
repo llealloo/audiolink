@@ -52,7 +52,10 @@ jobs:
         with:
           package-path: ${{ env.unityPackage }}
           include-files: metaList
-        
+      
+      - name: debug
+        run: ls
+
       - name: Make minimal meta list
         run: |
           cp "StandaloneMetadata/package.json" "Packages/com.llealloo.audiolink/package.json"
