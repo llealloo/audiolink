@@ -1,9 +1,4 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
-using System;
-using System.Collections;
 
 namespace VRCAudioLink
 {
@@ -11,6 +6,9 @@ namespace VRCAudioLink
         using UdonSharp;
 
         public class AudioReactiveObject : UdonSharpBehaviour
+    #else
+        public class AudioReactiveObject : MonoBehaviour
+    #endif
         {
             public AudioLink audioLink;
             public int band;
@@ -54,9 +52,4 @@ namespace VRCAudioLink
                 _dataIndex = (band * 128) + delay;
             }
         }
-    #else
-        public class AudioReactiveObject : MonoBehaviour
-        {
-        }
-    #endif
 }

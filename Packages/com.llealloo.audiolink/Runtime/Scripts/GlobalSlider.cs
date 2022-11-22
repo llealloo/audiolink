@@ -1,14 +1,10 @@
-﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+﻿#if UDONSHARP
 using VRC.SDKBase;
-#endif
 using UnityEngine.UI;
 
 namespace VRCAudioLink
 {
-    #if UDONSHARP
         using UdonSharp;
-        using VRC.Udon;
 
         [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
         public class GlobalSlider : UdonSharpBehaviour
@@ -50,9 +46,5 @@ namespace VRCAudioLink
                 RequestSerialization();
             }
         }
-    #else
-        public class GlobalSlider : MonoBehaviour
-        {
-        }
-    #endif
 }
+#endif
