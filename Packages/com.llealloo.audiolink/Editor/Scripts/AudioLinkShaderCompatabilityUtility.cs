@@ -26,11 +26,6 @@ namespace VRCAudioLink.Editor
         [MenuItem(MenuItemPath)]
         public static void UpgradeShaders()
         {
-            if (!AudioLinkImportFix.IsUsingPackageSetup())
-            {
-                Debug.LogWarning("Could not open the AudioLink shader compatability utility. You seem to be using the non-package version of AudioLink.");
-            }
-
             if (EditorUtility.DisplayDialog(DialogTitle, DialogText, DialogOkButton, DialogCancelButton))
             {
                 UpgradeShaderFiles();
