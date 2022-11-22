@@ -55,37 +55,31 @@ jobs:
         
       - name: Make minimal meta list
         run: |
-          mkdir -p Assets/AudioLink/Editor/Scripts
- 
-          cp -R Packages/com.llealloo.audiolink/Runtime/* Assets/AudioLink/
+          cp ".github/workflows/StandaloneMetadata/package.json" "Packages/com.llealloo.audiolink/package.json"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/com.llealloo.audiolink/Runtime/AudioLink.asmdef"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/com.llealloo.audiolink/Editor/AudioLink.Editor.asmdef"
 
-          cp LICENSE* Assets/AudioLink/
-          cp README.md* Assets/AudioLink/
-          cp CHANGELOG.md* Assets/AudioLink/
+          echo "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab.meta" >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab.meta" >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab.meta" >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/LICENSE.meta" >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/README.md.meta" >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/VERSION.txt.meta" >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/CHANGELOG.md.meta" >> minimalMetaList
 
-          rm Assets/AudioLink/AudioLink.asmdef
-          rm Assets/AudioLink/AudioLink.asmdef.meta
+          echo "Packages/com.llealloo.audiolink/Runtime/Scripts.meta" >> minimalMetaList
+          find "Packages/com.llealloo.audiolink/Runtime/Scripts/" -name \*.meta >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/RenderTextures.meta" >> minimalMetaList
+          find "Packages/com.llealloo.audiolink/Runtime/RenderTextures/" -name \*.meta >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/Shaders.meta" >> minimalMetaList
+          find "Packages/com.llealloo.audiolink/Runtime/Shaders/" -name \*.meta >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/Materials.meta" >> minimalMetaList
+          find "Packages/com.llealloo.audiolink/Runtime/Materials/" -name \*.meta >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Runtime/Resources.meta" >> minimalMetaList
+          find "Packages/com.llealloo.audiolink/Runtime/Resources/" -name \*.meta >> minimalMetaList
 
-          find Assets/AudioLink/Shaders/ -type f -exec sed -i 's/#include "Packages\/com\.llealloo\.audiolink\/Runtime/#include "Assets\/AudioLink/g' {} +
-
-          echo "Assets/AudioLink/AudioLink.prefab.meta" >> minimalMetaList
-          echo "Assets/AudioLink/AudioLinkAvatar.prefab.meta" >> minimalMetaList
-          echo "Assets/AudioLink/AudioLinkController.prefab.meta" >> minimalMetaList
-          echo "Assets/AudioLink/LICENSE.meta" >> minimalMetaList
-          echo "Assets/AudioLink/README.md.meta" >> minimalMetaList
-          echo "Assets/AudioLink/VERSION.txt.meta" >> minimalMetaList
-          echo "Assets/AudioLink/CHANGELOG.md.meta" >> minimalMetaList
-
-          echo "Assets/AudioLink/Scripts.meta" >> minimalMetaList
-          find "Assets/AudioLink/Scripts/" -name \*.meta >> minimalMetaList
-          echo "Assets/AudioLink/RenderTextures.meta" >> minimalMetaList
-          find "Assets/AudioLink/RenderTextures/" -name \*.meta >> minimalMetaList
-          echo "Assets/AudioLink/Shaders.meta" >> minimalMetaList
-          find "Assets/AudioLink/Shaders/" -name \*.meta >> minimalMetaList
-          echo "Assets/AudioLink/Materials.meta" >> minimalMetaList
-          find "Assets/AudioLink/Materials/" -name \*.meta >> minimalMetaList
-          echo "Assets/AudioLink/Resources.meta" >> minimalMetaList
-          find "Assets/AudioLink/Resources/" -name \*.meta >> minimalMetaList
+          echo "Packages/com.llealloo.audiolink/Editor/Scripts.meta" >> minimalMetaList
+          find "Packages/com.llealloo.audiolink/Editor/Scripts/" -name \*.meta >> minimalMetaList
 
       - name: Create minimal UnityPackage
         uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
