@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: matCalcPrimaryA
+  m_Shader: {fileID: 4800000, guid: fd43a14aed9dcdf4db6f2409a8ee45cf, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Adjacency:
+        m_Texture: {fileID: 8400000, guid: 987b7f17d43fec947b885e6fe80cc3b3, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Adjacency0:
+        m_Texture: {fileID: 8400000, guid: 09cac7b7a64ce0443bfd7b7028941b95, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Adjacency1:
+        m_Texture: {fileID: 8400000, guid: 987b7f17d43fec947b885e6fe80cc3b3, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Adjacency2:
+        m_Texture: {fileID: 8400000, guid: e550220f35a74914685a45b8ae9962bd, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Adjacency3:
+        m_Texture: {fileID: 8400000, guid: 6fb2633108f66d94d925821e0f31a748, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AdjacencyMapIn:
+        m_Texture: {fileID: 8400000, guid: 09cac7b7a64ce0443bfd7b7028941b95, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _AdjacencyMapInSecond:
+        m_Texture: {fileID: 8400000, guid: 987b7f17d43fec947b885e6fe80cc3b3, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DepthMapAbove:
+        m_Texture: {fileID: 8400000, guid: 9e0861c848a697d488a039eea7a66f38, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DepthMapBelow:
+        m_Texture: {fileID: 8400000, guid: ca45e4deaf1d9bb449c496b9f6bfd356, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DepthMapComposite:
+        m_Texture: {fileID: 8400000, guid: 71a39c9f2aad4cc4a94f45b86ba13023, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _PositionsIn:
+        m_Texture: {fileID: 8400000, guid: 59407aa8138df2947bc5eb1fbab87e2d, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _VelocitiesIn:
+        m_Texture: {fileID: 8400000, guid: 1a790733f3a8a544ca9f0773bd8cab8a, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BallForceRating: 1
+    - _BallRadius: 0.08
+    - _BallpitBoundaryMode: 3
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DebugFloat: -6.49
+    - _DetailNormalMapScale: 1
+    - _DontPerformStep: 0
+    - _DstBlend: 0
+    - _Friction: 0.008
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _GravityValue: 9.8
+    - _HeightmapCFM: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _ResetBalls: 0
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _TargetFPS: 155
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - WorldSize: {r: 16, g: 16, b: 1, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DragDropPos: {r: -1.59, g: 1.836, b: 4.156, a: 0}
+    - _DragDropPos0: {r: -3.5, g: 0.03999999, b: 84.3, a: 0}
+    - _DragDropPos1: {r: 88.48, g: 1.151, b: 43.33, a: 0}
+    - _DragDropPos2: {r: -85.4, g: 0.365, b: -23.3, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FanPosition: {r: -4.13, g: -0.002, b: 1.46, a: 0}
+    - _FanPosition0: {r: 0, g: -1, b: 0, a: 1}
+    - _FanPosition1: {r: -9.83, g: 0.8, b: 2.37, a: 1}
+    - _FanPosition2: {r: -3.151, g: 0.67, b: 7.86, a: 1}
+    - _FanRotation: {r: 0, g: 0, b: 0, a: 1}
+    - _FanRotation0: {r: -0, g: -0, b: -0, a: 1}
+    - _FanRotation1: {r: 0.26363128, g: -0.07654698, b: 0.26812735, a: 0.92344296}
+    - _FanRotation2: {r: -0.2551032, g: -0.057544693, b: -0.21238767, a: 0.9415426}
+    - _Magnet0: {r: -1000, g: 0, b: 0, a: 1}
+    - _Magnet1: {r: -1000, g: 0, b: 0, a: 1}
+    - _Magnet2: {r: -1000, g: 0, b: 0, a: 1}
+    - _MagnetPos0: {r: -3.9899998, g: 0.03999999, b: 84.340004, a: 0.99999994}
+    - _MagnetPos1: {r: 87.990005, g: 1.151, b: 43.370003, a: 1}
+    - _MagnetPos2: {r: -85.89, g: 0.365, b: -23.259998, a: 1}
+    - _ShroomPos0: {r: -47.22, g: 0.35000002, b: -88.28001, a: 1}
+    - _ShroomPos1: {r: 97.08, g: 0.96000004, b: -0.80000114, a: 1}
+    - _ShroomPos2: {r: 36.96, g: 0.15, b: -81.88, a: 1}
+    - _ShroomPos3: {r: -84.76, g: 0.86399996, b: -21.65, a: 1}
+    - _ShroomPos4: {r: 42.149002, g: 0.98, b: 74.123, a: 1}
+    - _ShroomPos5: {r: -48.809998, g: 0.70000005, b: 70.770004, a: 1}
+    - _TopCenter: {r: 0, g: 99.58, b: 0, a: 0}
+    - _TopSize: {r: 5.92, g: 100, b: 5.92, a: 0}
+    - _TubCenter: {r: 0, g: 0.08, b: 0, a: 0}
+    - _TubSize: {r: 3.92, g: 1, b: 3.92, a: 0}

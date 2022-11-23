@@ -1,0 +1,109 @@
+name: Build Release
+
+on: 
+  workflow_dispatch:
+  push:
+    branches: master
+
+env:
+  packageName: "com.llealloo.audiolink"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+      - name: Checkout
+        uses: actions/checkout@v3
+    
+      - name: Get version
+        id: version
+        uses: notiz-dev/github-action-json-property@7c8cf5cc36eb85d8d287a8086a39dac59628eb31
+        with: 
+            path: "Packages/${{env.packageName}}/package.json"
+            prop_path: "version"
+            
+      - run: echo ${{steps.version.outputs.prop}} 
+    
+      - name: Set Environment Variables
+        run: |
+          echo "zipFile=${{ env.packageName }}-${{ steps.version.outputs.prop }}".zip >> $GITHUB_ENV
+          echo "unityPackage=${{ env.packageName }}-${{ steps.version.outputs.prop }}.unitypackage" >> $GITHUB_ENV
+          echo "minimalUnityPackage=AudioLink_${{ steps.version.outputs.prop }}_minimal.unitypackage" >> $GITHUB_ENV
+      
+      - name: Copy root files
+        run: |
+          cp LICENSE* Packages/${{ env.packageName }}/
+          cp README.md* Packages/${{ env.packageName }}/
+          cp CHANGELOG.md* Packages/${{ env.packageName }}/
+          mkdir -p Packages/${{ env.packageName }}/Documentation~/
+          cp -R Docs/* Packages/${{ env.packageName }}/Documentation~/
+      
+      - name: Create zip
+        uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
+        with:
+          type: "zip"
+          directory: "Packages/${{env.packageName}}/"
+          filename: "../../${{env.zipFile}}"
+          
+      - run: find "Packages/${{env.packageName}}/" -name \*.meta >> metaList
+          
+      - name: Create full UnityPackage
+        uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
+        with:
+          package-path: ${{ env.unityPackage }}
+          include-files: metaList
+        
+      - name: Make minimal meta list
+        run: |
+          cp ".github/workflows/StandaloneMetadata/package.json" "Packages/${{env.packageName}}/package.json"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/${{env.packageName}}/Runtime/AudioLink.asmdef"
+          cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/${{env.packageName}}/Editor/Audiolink.Editor.asmdef"
+
+          echo "Packages/${{env.packageName}}/package.json.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLink.asmdef.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Editor/Audiolink.Editor.asmdef.meta" >> minimalMetaList
+
+          echo "Packages/${{env.packageName}}/LICENSE.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/README.md.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/CHANGELOG.md.meta" >> minimalMetaList
+
+          echo "Packages/${{env.packageName}}/Runtime/AudioLink.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLinkAvatar.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLinkController.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/VERSION.txt.meta" >> minimalMetaList
+
+          echo "Packages/${{env.packageName}}/Runtime/Scripts.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Scripts/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/RenderTextures.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/RenderTextures/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Shaders.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Shaders/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Materials.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Materials/" -name \*.meta >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/Resources.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Runtime/Resources/" -name \*.meta >> minimalMetaList
+
+          echo "Packages/${{env.packageName}}/Editor/Scripts.meta" >> minimalMetaList
+          find "Packages/${{env.packageName}}/Editor/Scripts/" -name \*.meta >> minimalMetaList
+
+      - name: Create minimal UnityPackage
+        uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
+        with:
+          package-path: ${{ env.minimalUnityPackage }}
+          include-files: minimalMetaList
+
+      - name: Extract release notes
+        run: cat CHANGELOG.md | sed -n '/^## ${{ steps.version.outputs.prop }}.*$/,/^## .*$/p' | sed '$d' > releaseNotes
+
+      - name: Make release
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        with:
+          name: AudioLink ${{ steps.version.outputs.prop }}
+          body_path: releaseNotes
+          tag_name: ${{ steps.version.outputs.prop }}
+          files: |
+            ${{ env.zipFile }}
+            ${{ env.unityPackage }}
+            ${{ env.minimalUnityPackage }}
+            Packages/${{ env.packageName }}/package.json

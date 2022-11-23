@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: aadd210b69bfb4f498744d6b42931e98
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - rtPosition: {fileID: 8400000, guid: a52e3e217ea402e4685cc489f30bd81e, type: 2}
+  - rtVelocity: {fileID: 8400000, guid: 8ecdf2f535d2b524bac7d893d494df87, type: 2}
+  - selCamera: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

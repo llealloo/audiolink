@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.0 - November 11th, 2022
+### New features
+- AudioLink is now a curated package! As such, it can be installed with [VRChat Creator Companion](https://vcc.docs.vrchat.com/). This is new the recommended way to install AudioLink. For avatar projects and non-VRChat use cases, there is a regular old UnityPackage you can use. Please see the readme for a guide on how to update your projects. We recommend you follow this guide, as the update is a breaking change.
+- Since the folder structure has changed, custom shaders may need to be upgraded. A tool has been included to automatically upgrade shaders where needed. This tool is accessible from "AudioLink -> Update AudioLink compatible shaders" in the top menu of the editor. (Thanks, 3)
+- Added Global Strings - text which can be read from AudioLink compatible shaders. Use this to retrieve the name of the local player and master in a shader, or to feed custom string data through. Info on usage is in Documentation. See `AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)` in AudioLink.cginc for details.
+- Included Amplify nodes for using AudioLink have been overhauled. They are now in their own "AudioLink" category, and handle including the relevant files automatically. Also, links to documentation are added. (Thanks, Nestorboy)
+- Added a function, `AudioLinkGetAudioSourcePosition()`, for getting the worldspace position of the audio source being used to feed AudioLink. (Thanks, 3)
+- Various shaders have been updated to supported Single Pass Stereo Instanced rendering, for future compatability. (Thanks, 3)
+- The included video player, AudioLinkMiniPlayer, has been updated to support LTCGI. (Thanks, Texelsaur)
+- The example AudioLink scene can now be quickly accessed using the "AudioLink -> Open AudioLink Example Scene" button in the top menu of the editor.
+- The live AudioLink demo world has gotten an overhaul, and has a bunch of new cool things to play with.
+### Changes
+- The GrabPass utilized by AudioLink has been removed! We use the new `VRCShader.SetGlobalTexture` to expose a globally available texture now. This is an improvement to stability and performance. Existing shaders should still be compatible with new versions of AudioLink.
+- The camera used by AudioLink to provide audio data to udon (using the Experimental Audio Readback feature) will now be disabled when it isn't needed, which should improve performance a bit.
+- When using an AudioLinkController, the values selected in the AudioLink inspector are now respected, instead of the controller overriding them on initialization. (Thanks, 3)
+- Be consistent with swizzling in AudioLink shaders, use 'xyzw' everywhere.
+- Removed uses of SetProgramVariable and SendCustomEvent throughout AudioLink code. (Thanks, 3)
+- Use VRCShader.PropertyToID instead of strings for better performance. (Thanks, 3)
+### Bugfixes
+- Issue [191](https://github.com/llealloo/vrc-udon-audio-link/issues/191) and [186](https://github.com/llealloo/vrc-udon-audio-link/issues/186) have been fixed. (Thanks, 3)
+- Remove some old profiling code that could have a very slight impact on performance. (Thanks, 3)
+- Fix the "Link all sound reactive objects to this AudioLink" button, which was broken when using UdonSharp 1.x. (Thanks, 3)
+- Fix some minor inconsistencies in documentation.
+
 ## 0.2.8 - May 14th, 2022
 ### New features
 - AudioLink theme colors are now configurable via the AudioLink controller with a slick color-picker GUI. (Thanks, DomNomNom)

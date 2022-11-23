@@ -37,8 +37,8 @@ crashlytics-build.properties
 /TurboRename.meta
 /Udon/
 /Udon.meta
-/UdonSharp/
-/UdonSharp.meta
+/AudioLinkUnityProject/Assets/UdonSharp/
+/AudioLinkUnityProject/Assets/UdonSharp.meta
 /VRCSDK/
 /VRCSDK.meta
 /VRChat Examples/
@@ -50,8 +50,8 @@ crashlytics-build.properties
 
 /CyanEmu/
 /CyanEmu.meta
-/AmplifyShaderEditor/
-/AmplifyShaderEditor.meta
+/AudioLinkUnityProject/Assets/AmplifyShaderEditor/
+/AudioLinkUnityProject/Assets/AmplifyShaderEditor.meta
 /Plugins/
 /Plugins.meta
 /TurboRename/
@@ -68,4 +68,4 @@ crashlytics-build.properties
 /VideoTXL/
 /VideoTXL.meta
 
-Compiled/
+/AudioLinkUnityProject/Assets/Samples*

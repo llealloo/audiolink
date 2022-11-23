@@ -1,0 +1,39 @@
+{
+  "dependencies": {
+    "com.vrchat.udonsharp": {
+      "version": "1.1.1"
+    },
+    "com.vrchat.clientsim": {
+      "version": "1.2.0"
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "0.1.13"
+    }
+  },
+  "locked": {
+    "com.vrchat.udonsharp": {
+      "version": "1.1.5",
+      "dependencies": {
+        "com.vrchat.worlds": "3.1.x"
+      }
+    },
+    "com.vrchat.worlds": {
+      "version": "3.1.10",
+      "dependencies": {
+        "com.vrchat.base": "3.1.x"
+      }
+    },
+    "com.vrchat.base": {
+      "version": "3.1.10"
+    },
+    "com.vrchat.clientsim": {
+      "version": "1.2.2",
+      "dependencies": {
+        "com.vrchat.worlds": "3.1.x"
+      }
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "0.1.17"
+    }
+  }
+}
