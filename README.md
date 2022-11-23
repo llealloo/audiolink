@@ -77,7 +77,7 @@ Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, 
 
 ### For Avatar Testing
 1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
-2. Open the AudioLink folder and drag AudioLinkAvatar into your scene's hierarchy.
+2. Open the "Packages/com.llealloo.audiolink/Runtime" folder and drag AudioLinkAvatar into your scene's hierarchy.
 3. Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource.
    - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01.
 4. Enter playmode to test your avatar.
@@ -88,7 +88,7 @@ Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, 
 
 ## Getting started
 After installation, to use AudioLink:
-1. Drag AudioLink prefab into scene. For worlds, it is in "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab". For avatars and non-VRChat uses, it is under "Assets/AudioLink/AudioLink.prefab".
+1. Drag AudioLink prefab into scene. It is in "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab".
 2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter.
 3. Drag AudioLinkController prefab into scene and drag AudioLink into the controller's "Audio Link" parameter.
 4. Click the "Link all sound reactive objects..." button to link everything up.

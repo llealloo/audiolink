@@ -1,9 +1,9 @@
-﻿using UdonSharpEditor;
+﻿#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDONSHARP
+using UdonSharpEditor;
 using UnityEditor;
 
 namespace VRCAudioLink.Editor
 {
-    #if !COMPILER_UDONSHARP
     [CustomEditor(typeof(AudioLinkMiniPlayerController))]
     internal class AudioLinkMiniPlayerControllerInspector : UnityEditor.Editor
     {
@@ -78,6 +78,5 @@ namespace VRCAudioLink.Editor
                 serializedObject.ApplyModifiedProperties();
         }
     }
-#endif
-
 }
+#endif
