@@ -1,5 +1,4 @@
-﻿#if !COMPILER_UDONSHARP
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -87,4 +86,3 @@ namespace VRCAudioLink.Editor
         }
     }
 }
-#endif
