@@ -3,6 +3,8 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
+// This define is inserted into the file in CI.
+// We can't rely on regular scripting defines so early in the import process.
 #if !STANDALONE_AUDIOLINK
 using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
