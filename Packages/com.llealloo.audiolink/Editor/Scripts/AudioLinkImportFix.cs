@@ -79,7 +79,7 @@ namespace VRCAudioLink.Editor
         {
             var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
             var project = new UnityProject(path);
-            return project.HasPackage(VRCPackageNames.WORLDS) && !project.HasPackage(VRCAddonPackageNames.UDONSHARP);
+            return project.VPMProvider.HasPackage(VRCPackageNames.WORLDS) && !project.VPMProvider.HasPackage(VRCAddonPackageNames.UDONSHARP);
         }
 
         [MenuItem("AudioLink/Install UdonSharp dependency")]
