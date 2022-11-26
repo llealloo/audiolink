@@ -1,10 +1,11 @@
-﻿#if !COMPILER_UDONSHARP
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-#if VRC_SDK_VRCSDK3
+// This define is inserted into the file in CI.
+// We can't rely on regular scripting defines so early in the import process.
+#if !STANDALONE_AUDIOLINK
 using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
 #endif
@@ -29,7 +30,7 @@ namespace VRCAudioLink.Editor
                 }
                 else
                 {
-                    #if VRC_SDK_VRCSDK3
+                    #if !STANDALONE_AUDIOLINK
                     if (IsWorldProjectWithoutUdonSharp())
                     {
                         if (EditorUtility.DisplayDialog(
@@ -58,6 +59,7 @@ namespace VRCAudioLink.Editor
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
+        #if !STANDALONE_AUDIOLINK
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
@@ -73,7 +75,6 @@ namespace VRCAudioLink.Editor
             EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
         }
 
-        #if VRC_SDK_VRCSDK3
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
         public static bool IsWorldProjectWithoutUdonSharp()
         {
@@ -93,4 +94,3 @@ namespace VRCAudioLink.Editor
         #endif
     }
 }
-#endif
