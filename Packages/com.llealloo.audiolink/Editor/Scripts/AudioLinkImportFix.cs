@@ -4,10 +4,8 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-#if VRC_SDK_VRCSDK3
 using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
-#endif
 
 namespace VRCAudioLink.Editor
 {
@@ -29,7 +27,6 @@ namespace VRCAudioLink.Editor
                 }
                 else
                 {
-                    #if VRC_SDK_VRCSDK3
                     if (IsWorldProjectWithoutUdonSharp())
                     {
                         if (EditorUtility.DisplayDialog(
@@ -42,7 +39,6 @@ namespace VRCAudioLink.Editor
                         }
                     }
                     else
-                    #endif
                     {
                         ReimportPackage();
                     }
@@ -73,7 +69,6 @@ namespace VRCAudioLink.Editor
             EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
         }
 
-        #if VRC_SDK_VRCSDK3
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
         public static bool IsWorldProjectWithoutUdonSharp()
         {
@@ -90,7 +85,6 @@ namespace VRCAudioLink.Editor
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
-        #endif
     }
 }
 #endif
