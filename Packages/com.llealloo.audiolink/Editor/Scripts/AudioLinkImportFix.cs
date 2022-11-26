@@ -3,8 +3,10 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
+#if !STANDALONE_AUDIOLINK
 using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
+#endif
 
 namespace VRCAudioLink.Editor
 {
@@ -26,6 +28,7 @@ namespace VRCAudioLink.Editor
                 }
                 else
                 {
+                    #if !STANDALONE_AUDIOLINK
                     if (IsWorldProjectWithoutUdonSharp())
                     {
                         if (EditorUtility.DisplayDialog(
@@ -38,6 +41,7 @@ namespace VRCAudioLink.Editor
                         }
                     }
                     else
+                    #endif
                     {
                         ReimportPackage();
                     }
@@ -53,6 +57,7 @@ namespace VRCAudioLink.Editor
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
+        #if !STANDALONE_AUDIOLINK
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
@@ -84,5 +89,6 @@ namespace VRCAudioLink.Editor
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
+        #endif
     }
 }

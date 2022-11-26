@@ -56,6 +56,8 @@ jobs:
         
       - name: Make minimal meta list
         run: |
+          sed -i '1s/^/#define STANDALONE_AUDIOLINK\n/' "Packages/${{env.packageName}}/Editor/Scripts/AudioLinkImportFix.cs"
+
           cp ".github/workflows/StandaloneMetadata/package.json" "Packages/${{env.packageName}}/package.json"
           cp ".github/workflows/StandaloneMetadata/AudioLink.asmdef" "Packages/${{env.packageName}}/Runtime/AudioLink.asmdef"
           cp ".github/workflows/StandaloneMetadata/AudioLink.Editor.asmdef" "Packages/${{env.packageName}}/Editor/Audiolink.Editor.asmdef"
