@@ -1,7 +1,13 @@
-﻿using System.IO;
+﻿#if !COMPILER_UDONSHARP
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+
+#if VRC_SDK_VRCSDK3
+using VRC.PackageManagement.Core.Types;
+using VRC.PackageManagement.Core.Types.Packages;
+#endif
 
 namespace VRCAudioLink.Editor
 {
@@ -23,7 +29,23 @@ namespace VRCAudioLink.Editor
                 }
                 else
                 {
-                    ReimportPackage();
+                    #if VRC_SDK_VRCSDK3
+                    if (IsWorldProjectWithoutUdonSharp())
+                    {
+                        if (EditorUtility.DisplayDialog(
+                            "Install missing UdonSharp dependency",
+                            "It looks like you are trying to use AudioLink in a world project, but don't have UdonSharp 1.x installed.\n" +
+                            "AudioLink will not function correctly without UdonSharp 1.x. Would you like to install it now?",
+                            "Yes", "No"))
+                        {
+                            InstallUdonSharp();
+                        }
+                    }
+                    else
+                    #endif
+                    {
+                        ReimportPackage();
+                    }
                     File.WriteAllText(canaryFilePath, audioLinkReimportedKey);
                     AudioLinkShaderCompatabilityUtility.UpgradeShaders();
                 }
@@ -50,5 +72,25 @@ namespace VRCAudioLink.Editor
             }
             EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
         }
+
+        #if VRC_SDK_VRCSDK3
+        [MenuItem("AudioLink/Install UdonSharp dependency", true)]
+        public static bool IsWorldProjectWithoutUdonSharp()
+        {
+            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            var project = new UnityProject(path);
+            return project.HasPackage(VRCPackageNames.WORLDS) && !project.HasPackage(VRCAddonPackageNames.UDONSHARP);
+        }
+
+        [MenuItem("AudioLink/Install UdonSharp dependency")]
+        public static void InstallUdonSharp()
+        {
+            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            var project = new UnityProject(path);
+            project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
+            ReimportPackage();
+        }
+        #endif
     }
 }
+#endif
