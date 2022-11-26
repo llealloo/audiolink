@@ -61,7 +61,7 @@ namespace VRCAudioLink.Editor
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
-            string baseAssetsPath = "Samples/AudioLink/0.3.0";
+            string baseAssetsPath = "Samples/AudioLink/0.3.1";
             string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
             string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
             if (!Directory.Exists(Path.Combine(Application.dataPath, baseAssetsPath, "AudioLinkExampleScene")))
