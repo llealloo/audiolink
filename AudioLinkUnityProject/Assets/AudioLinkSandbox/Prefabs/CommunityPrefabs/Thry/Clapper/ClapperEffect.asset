@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ClapperEffect
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: a0054ea69d029c94c93ed395970e6a77,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 9c016c33db4aa2340956dd651b729243,
     type: 2}
   udonAssembly: 
   assemblyError: 

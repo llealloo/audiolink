@@ -13,8 +13,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "UDONSHARP",
-        "VRC_WORLDS_READY"
     ],
     "versionDefines": [
         {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: YeetResetButton
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 03fea7dcf65f62647b2370f854820cdb,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: c5411d942081e32479e59a1d06c0781b,
     type: 2}
   udonAssembly: 
   assemblyError: 

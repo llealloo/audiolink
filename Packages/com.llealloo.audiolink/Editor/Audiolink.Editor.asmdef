@@ -4,7 +4,8 @@
         "AudioLink",
         "UdonSharp.Editor",
         "UdonSharp.Runtime",
-        "VRC.Udon"
+        "VRC.Udon",
+        "com.vrchat.core.vpm-resolver.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -15,8 +16,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "UDONSHARP",
-        "VRC_WORLDS_READY"
     ],
     "versionDefines": [
         {
