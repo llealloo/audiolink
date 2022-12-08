@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿#if UDONSHARP
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 
@@ -25,3 +26,4 @@ namespace VRCAudioLink.Extras
         }
     }
 }
+#endif
