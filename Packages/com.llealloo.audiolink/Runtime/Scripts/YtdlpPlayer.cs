@@ -176,14 +176,14 @@ namespace VRCAudioLink
 
             if (!File.Exists(_ytdlpPath))
             {
+                if(Application.isPlaying)
+                    EditorApplication.ExitPlaymode();
+
                 #if UNITY_EDITOR_WIN
                 // Offer to download yt-dlp to the AudioLink folder
                 bool doDownload = EditorUtility.DisplayDialog("[AudioLink] Download yt-dlp?", "AudioLink could not locate yt-dlp in your VRChat folder.\nDownload to AudioLink folder instead?", "Download", "Cancel");
                 if(doDownload)
                     DownloadYtdlp();
-
-                if(!Application.isPlaying)
-                    EditorApplication.ExitPlaymode();
                 
                 #elif UNITY_EDITOR_LINUX
                     EditorUtility.DisplayDialog("[AudioLink] Missing yt-dlp", "Ensure yt-dlp is available in your PATH", "Ok");
