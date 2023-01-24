@@ -139,27 +139,18 @@ namespace VRCAudioLink
         }
     }
 
-    [InitializeOnLoad]
     public static class YtdlpURLResolver
     {
         private static string _ytdlpDownloadURL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
         private static string _localYtdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static string _ytdlpPath = "";
-        private static HashSet<Process> _runningYtdlProcesses = new HashSet<Process>();
-        private static bool _ytdlFound = false;
-
-        /// <summary> Initialize URL Resolver </summary>
-        static YtdlpURLResolver()
-        {
-            EditorApplication.playModeStateChanged += PlayModeChanged;
-            LocateYtdlp();
-        }
+        private static bool _ytdlpFound = false;
 
         /// <summary> Locate yt-dlp executible, either in VRC application data or locally (offer to download) </summary>
         public static void LocateYtdlp()
         {
-            _ytdlFound = false;
+            _ytdlpFound = false;
             #if UNITY_EDITOR_WIN
             string[] splitPath = Application.persistentDataPath.Split('/', '\\');
             
@@ -199,7 +190,7 @@ namespace VRCAudioLink
             else
             {
                 // Found it
-                _ytdlFound = true;
+                _ytdlpFound = true;
                 Debug.Log($"[AudioLink] Found yt-dlp at path '{_ytdlpPath}'");
             }
         }
@@ -209,54 +200,39 @@ namespace VRCAudioLink
         /// <param name="resolution">Resolution (vertical) to request from yt-dlp</param>
         public static string Resolve(string url, int resolution)
         {
-            if(!_ytdlFound)
+            // If we haven't yet found ytdlp, try to locate it
+            if (!_ytdlpFound)
+            {
+                LocateYtdlp();
+            }
+
+            // If that didn't work, we can't resolve the URL
+            if(!_ytdlpFound)
             {
                 Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : yt-dlp not found");
                 return null;
             }
 
-            Process ytdlProcess = new Process();
-
-            ytdlProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            ytdlProcess.StartInfo.CreateNoWindow = true;
-            ytdlProcess.StartInfo.UseShellExecute = false;
-            ytdlProcess.StartInfo.RedirectStandardOutput = true;
-            ytdlProcess.StartInfo.FileName = _ytdlpPath;
-            ytdlProcess.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
-
-            try
+            using (var proc = new Process())
             {
-                ytdlProcess.Start();
-                _runningYtdlProcesses.Add(ytdlProcess);
+                proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.FileName = _ytdlpPath;
+                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
 
-                while (!ytdlProcess.HasExited)
-                    new WaitForSeconds(0.1f);
-
-                _runningYtdlProcesses.Remove(ytdlProcess);
-
-                return ytdlProcess.StandardOutput.ReadLine();
-            }
-            catch(Exception e)
-            {
-                Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : " + e.Message);
-                return null;
-            }
-        }
-
-        /// <summary> Cleans up any remaining YTDL processes from this play, in case they don't clean up after themselves. </summary>
-        private static void PlayModeChanged(PlayModeStateChange change)
-        {
-            if (change == PlayModeStateChange.ExitingPlayMode)
-            {
-                foreach (Process process in _runningYtdlProcesses)
+                try
                 {
-                    if (!process.HasExited)
-                    {
-                        process.Close();
-                    }
+                    proc.Start();
+                    proc.WaitForExit(5000);
+                    return proc.StandardOutput.ReadLine();
                 }
-
-                _runningYtdlProcesses.Clear();
+                catch(Exception e)
+                {
+                    Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : " + e.Message);
+                    return null;
+                }
             }
         }
 
