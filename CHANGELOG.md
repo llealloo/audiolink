@@ -4,7 +4,7 @@
 ### New features
 - A global shader keyword, "AUDIOLINK_IMPORTED" will now be set when AudioLink is first imported.
 ### Changes
-- Foo
+- Add FAQ.md
 ### Bugfixes
 - Foo
 
