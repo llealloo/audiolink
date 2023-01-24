@@ -1,21 +1,21 @@
-﻿
-using UnityEngine;
-using System.Collections;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
+﻿using UnityEngine;
+#if UDONSHARP
+using static VRC.SDKBase.VRCShader;
+#else
+using static UnityEngine.Shader;
 #endif
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
-        using VRC.Udon;
-
         public class AudioReactiveSurfaceArray : UdonSharpBehaviour
+    #else
+        public class AudioReactiveSurfaceArray : MonoBehaviour
+    #endif
         {
             [Header("Children should have AudioReactiveSurface shader applied")]
             [Header("AudioLink Settings")]
-            public UdonBehaviour audioLink;
             public int band;
 
             [Header("Group Settings (Applied equally to all children)")]
@@ -43,8 +43,35 @@ namespace VRCAudioLink
 
             private Renderer[] _childRenderers;
 
+            #region PropertyIDs
+
+            // ReSharper disable InconsistentNaming
+
+            private int _Delay;
+            private int _Band;
+            private int _HueShift;
+            private int _EmissionColor;
+            private int _Emission;
+            private int _Pulse;
+            private int _PulseRotation;
+            // ReSharper restore InconsistentNaming
+            
+            private void InitIDs()
+            {
+                _Delay = PropertyToID("_Delay");
+                _Band = PropertyToID("_Band");
+                _HueShift = PropertyToID("_HueShift");
+                _EmissionColor = PropertyToID("_EmissionColor");
+                _Emission = PropertyToID("_Emission");
+                _Pulse = PropertyToID("_Pulse");
+                _PulseRotation = PropertyToID("_PulseRotation");
+            }
+
+            #endregion
+
             void Start()
             {
+                InitIDs();
                 _childRenderers = transform.GetComponentsInChildren<Renderer>(true);
                 UpdateChildren();
             }
@@ -70,13 +97,13 @@ namespace VRCAudioLink
                         if (!child.parent.Equals(transform)) continue;
                     }
                     var block = new MaterialPropertyBlock();
-                    block.SetFloat("_Delay", (delayStep/128f) * (float)index);
-                    block.SetFloat("_Band", (float)band);
-                    block.SetFloat("_HueShift", hueShift);
-                    block.SetColor("_EmissionColor", HueShift(color, hueStep * (float)index));
-                    block.SetFloat("_Emission", intensity);
-                    block.SetFloat("_Pulse", pulse);
-                    block.SetFloat("_PulseRotation", pulseRotation + (pulseRotationStep * (float)index));
+                    block.SetFloat(_Delay, (delayStep/128f) * (float)index);
+                    block.SetFloat(_Band, (float)band);
+                    block.SetFloat(_HueShift, hueShift);
+                    block.SetColor(_EmissionColor, HueShift(color, hueStep * (float)index));
+                    block.SetFloat(_Emission, intensity);
+                    block.SetFloat(_Pulse, pulse);
+                    block.SetFloat(_PulseRotation, pulseRotation + (pulseRotationStep * (float)index));
                     renderer.SetPropertyBlock(block);
                 }
             }
@@ -89,10 +116,4 @@ namespace VRCAudioLink
                 return Color.HSVToRGB(h, s, v);
             }
         }
-
-    #else
-        public class AudioReactiveSurfaceArray : MonoBehaviour
-        {
-        }
-    #endif
 }

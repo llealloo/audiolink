@@ -1,0 +1,28 @@
+{
+    "name": "AudioLink.Extras.Editor",
+    "references": [
+        "UdonSharp.Editor",
+        "UdonSharp.Runtime",
+        "VRC.Udon",
+        "AudioLink",
+        "AudioLink.Extras"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+    ],
+    "versionDefines": [
+        {
+            "name": "com.vrchat.worlds",
+            "expression": "3.1.0",
+            "define": "VRC_WORLDS_READY"
+        }
+    ],
+    "noEngineReferences": false
+}

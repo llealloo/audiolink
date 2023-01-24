@@ -1,4 +1,4 @@
-[![Discord - AudioLink Discord](https://img.shields.io/badge/Discord-AudioLink_Discord-7289da?logo=discord&logoColor=7289da)](https://discord.gg/d5wjNwZBR3) [![AudioLink - VRChat World](https://img.shields.io/badge/AudioLink-VRChat_World-4489d7?logo=steam)](vrchat://launch?ref=vrchat.com&id=wrld_8554f998-d256-44b2-b16f-74aa32aac214:AudioLink~region(eu)&shortName=6kbyjrsy)
+[![Discord - AudioLink Discord](https://img.shields.io/badge/Discord-AudioLink_Discord-7289da?logo=discord&logoColor=7289da)](https://discord.gg/d5wjNwZBR3) [![AudioLink - VRChat World](https://img.shields.io/badge/AudioLink-VRChat_World-4489d7?logo=steam)](vrchat://launch?ref=vrchat.com&id=wrld_8554f998-d256-44b2-b16f-74aa32aac214:AudioLink~region(eu)&shortName=6kbyjrsy) [![Website - AudioLink Website](https://img.shields.io/badge/Website-AudioLink_Website-7289da)](https://audiolink.dev/)
 
 # Udon AudioLink
 
@@ -12,12 +12,17 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 ### [If you are looking to use AudioLink for ChilloutVR, check out this fork instead](https://github.com/DomNomNomVR/cvr-audio-link)
 
-## 0.3.0 - September 18th, 2022
+## 0.3.1 - November 26th, 2022
+### Changes
+- Updated the AudioLink package to work in both world and avatar projects, by removing the dependency on UdonSharp. The first time you attempt to import AudioLink into a world project, a popup will appear prompting you to install UdonSharp.
+
+## 0.3.0 - November 11th, 2022
 ### New features
 - AudioLink is now a curated package! As such, it can be installed with [VRChat Creator Companion](https://vcc.docs.vrchat.com/). This is new the recommended way to install AudioLink. For avatar projects and non-VRChat use cases, there is a regular old UnityPackage you can use. Please see the readme for [a guide on how to update your projects](#updating-world-projects-from-version-28-or-lower-first-time-setup-please-see-next-section). We recommend you follow this guide, as the update is a breaking change.
 - Since the folder structure has changed, custom shaders may need to be upgraded. A tool has been included to automatically upgrade shaders where needed. This tool is accessible from "AudioLink -> Update AudioLink compatible shaders" in the top menu of the editor. (Thanks, 3)
 - Added Global Strings - text which can be read from AudioLink compatible shaders. Use this to retrieve the name of the local player and master in a shader, or to feed custom string data through. Info on usage is in Documentation. See `AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)` in AudioLink.cginc for details.
 - Included Amplify nodes for using AudioLink have been overhauled. They are now in their own "AudioLink" category, and handle including the relevant files automatically. Also, links to documentation are added. (Thanks, Nestorboy)
+- Added a function, `AudioLinkGetAudioSourcePosition()`, for getting the worldspace position of the audio source being used to feed AudioLink. (Thanks, 3)
 - Various shaders have been updated to supported Single Pass Stereo Instanced rendering, for future compatability. (Thanks, 3)
 - The included video player, AudioLinkMiniPlayer, has been updated to support LTCGI. (Thanks, Texelsaur)
 - The example AudioLink scene can now be quickly accessed using the "AudioLink -> Open AudioLink Example Scene" button in the top menu of the editor.
@@ -25,10 +30,15 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### Changes
 - The GrabPass utilized by AudioLink has been removed! We use the new `VRCShader.SetGlobalTexture` to expose a globally available texture now. This is an improvement to stability and performance. Existing shaders should still be compatible with new versions of AudioLink.
 - The camera used by AudioLink to provide audio data to udon (using the Experimental Audio Readback feature) will now be disabled when it isn't needed, which should improve performance a bit.
+- When using an AudioLinkController, the values selected in the AudioLink inspector are now respected, instead of the controller overriding them on initialization. (Thanks, 3)
 - Be consistent with swizzling in AudioLink shaders, use 'xyzw' everywhere.
+- Removed uses of SetProgramVariable and SendCustomEvent throughout AudioLink code. (Thanks, 3)
+- Use VRCShader.PropertyToID instead of strings for better performance. (Thanks, 3)
 ### Bugfixes
 - Issue [191](https://github.com/llealloo/vrc-udon-audio-link/issues/191) and [186](https://github.com/llealloo/vrc-udon-audio-link/issues/186) have been fixed. (Thanks, 3)
 - Remove some old profiling code that could have a very slight impact on performance. (Thanks, 3)
+- Fix the "Link all sound reactive objects to this AudioLink" button, which was broken when using UdonSharp 1.x. (Thanks, 3)
+- Fix some minor inconsistencies in documentation.
 
 ## Updating world projects from version 2.8 or lower? (...first time setup? please see next section)
 0. If you are trying to upgrade an avatar project, **DO NOT** follow the steps below. Instead, see the next section.
@@ -71,7 +81,7 @@ Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, 
 
 ### For Avatar Testing
 1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
-2. Open the AudioLink folder and drag AudioLinkAvatar into your scene's hierarchy.
+2. Open the "Packages/com.llealloo.audiolink/Runtime" folder and drag AudioLinkAvatar into your scene's hierarchy.
 3. Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource.
    - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01.
 4. Enter playmode to test your avatar.
@@ -82,7 +92,7 @@ Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, 
 
 ## Getting started
 After installation, to use AudioLink:
-1. Drag AudioLink prefab into scene. For worlds, it is in "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab". For avatars and non-VRChat uses, it is under "Assets/AudioLink/AudioLink.prefab".
+1. Drag AudioLink prefab into scene. It is in "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab".
 2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter.
 3. Drag AudioLinkController prefab into scene and drag AudioLink into the controller's "Audio Link" parameter.
 4. Click the "Link all sound reactive objects..." button to link everything up.
@@ -98,6 +108,7 @@ If you want to see an example of a scene with AudioLink set up, press the "Audio
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
 - [VRC Things](https://github.com/PiMaker/VRChatUnityThings) by \_pi\_
 - [June Screen FX](https://luka.moe/june.html) by luka
+- [ShaderForge-AudioLink](https://github.com/lethanan/ShaderForge-AudioLink) by lethanan
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!

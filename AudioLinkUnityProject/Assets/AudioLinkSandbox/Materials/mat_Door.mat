@@ -1,0 +1,155 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: mat_Door
+  m_Shader: {fileID: 4800000, guid: e22ce003f0811184db65a0eaa50c0751, type: 3}
+  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _EMISSION
+  m_LightmapFlags: 1
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Albedo:
+        m_Texture: {fileID: 2800000, guid: bd0f2f27f37dbe94eaf1b451fd397562, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 2800000, guid: a7164fc426094f741aaac6f9d96c7cc3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FarTex:
+        m_Texture: {fileID: 2800000, guid: 317bc7484d91d2b4dbe7535afe5a62f4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 8fe5b06623f1650489928d0cf75b1eda, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmallCubes:
+        m_Texture: {fileID: 2800000, guid: fcdbb1a38ee1c5346a724ada747594e1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TextureSample0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AddViewPosition: 0
+    - _AlbedoCubeScale: 4
+    - _AudioLinkPower: 0.319
+    - _AutoCorrBassBand: 1
+    - _BackBrightness: 0
+    - _BumpScale: 1
+    - _CloseStep: 1.275
+    - _ColorRadius: 2.2
+    - _ColorRaidus: 1
+    - _CubifyColorGradient: 0.086
+    - _CubifyEmissionGradient: 0
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 10
+    - _EmissionAudioLinkIntensity: 0.8
+    - _EmissionMaxDistance: 2
+    - _EmissionMinDistance: 0.3
+    - _EmissiveCubeScale: 0.125
+    - _FadeDistance: 2.5
+    - _Float0: 0.17
+    - _Float4: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _HandProxSmoothAmount: 1
+    - _HandProximity: 1
+    - _HandProximityAmount: 1
+    - _HandProximityRadius: 0
+    - _HandRadius: 1
+    - _Metallic: 0
+    - _MixCameraObjectPosition: 0.407
+    - _MixViewObjectPosition: 0
+    - _Mode: 3
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _PulseWidth: 0.308
+    - _ScaleDistance: 1.5
+    - _ScaleRadius: 1.39
+    - _SmallCubeScale: 1
+    - _Smoothness: 0.5
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _TextureScale: 0.125
+    - _UVSec: 0
+    - _VertAudioLinkIntensity: 0.1
+    - _VertMaxDistance: 0.9
+    - _VertMinDistance: 0.2
+    - _VertexAmount: 0.551
+    - _ViewProxSmoothAmount: 1
+    - _ViewProximityAmount: 1
+    - _ViewProximityMultiplier: 1.25
+    - _ViewProximityRadius: 1.2
+    - _ZWrite: 0
+    - __dirty: 0
+    m_Colors:
+    - _AlbedoCubeOffset: {r: 0.5, g: 0, b: 0.5, a: 0}
+    - _CloseColorOverlay: {r: 0.40659082, g: 1, b: 0, a: 0}
+    - _Color: {r: 0.75471693, g: 0.75471693, b: 0.75471693, a: 0.45490196}
+    - _ColorBright: {r: 1, g: 0, b: 0.61930466, a: 0}
+    - _ColorClose: {r: 0, g: 0.2780037, b: 1, a: 0}
+    - _ColorDark: {r: 0, g: 0, b: 0, a: 0}
+    - _ColorFar: {r: 0.2627451, g: 0, b: 0.04881368, a: 0}
+    - _CubeOffset: {r: 0.0625, g: 0.0625, b: 0.0625, a: 0}
+    - _CubeSize: {r: 0.125, g: 0.125, b: 0.125, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissiveCubeOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _SmallCubeScale: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _TextureOffset: {r: 0, g: 0, b: 0, a: 0}

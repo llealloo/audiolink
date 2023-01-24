@@ -78,4 +78,4 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _InputBasisQuaternion: {r: -0, g: 0.0000005215405, b: -0, a: 1}
-    - _InputBasisVertex: {r: -44.75001, g: 1.75, b: -5.999998, a: 0}
+    - _InputBasisVertex: {r: 12.999999, g: -12, b: -6.000001, a: 0}

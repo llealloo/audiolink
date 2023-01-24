@@ -1,19 +1,16 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#endif
-using System;
-using System.Collections;
 
 namespace VRCAudioLink
 {
-    #if UDON
+    #if UDONSHARP
         using UdonSharp;
-        using VRC.Udon;
 
         public class AudioReactiveObject : UdonSharpBehaviour
+    #else
+        public class AudioReactiveObject : MonoBehaviour
+    #endif
         {
-            public UdonBehaviour audioLink;
+            public AudioLink audioLink;
             public int band;
             [Range(0, 127)]
             public int delay;
@@ -38,7 +35,7 @@ namespace VRCAudioLink
 
             void Update()
             {
-                Color[] audioData = (Color[])audioLink.GetProgramVariable("audioData");
+                Color[] audioData = audioLink.audioData;
                 if (audioData.Length != 0)      // check for audioLink initialization
                 {
                     float amplitude = audioData[_dataIndex].grayscale;
@@ -55,9 +52,4 @@ namespace VRCAudioLink
                 _dataIndex = (band * 128) + delay;
             }
         }
-    #else
-        public class AudioReactiveObject : MonoBehaviour
-        {
-        }
-    #endif
 }

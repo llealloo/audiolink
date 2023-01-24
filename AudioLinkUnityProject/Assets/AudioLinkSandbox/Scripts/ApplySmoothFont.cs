@@ -79,7 +79,7 @@ namespace AudioLink
 		public void UpdateProps()
 		{
 
-			transform.localScale = new Vector3(Columns, 1f, Rows) * ScaleMultiplier;
+			transform.localScale = new Vector3(Columns, Rows, 1f) * ScaleMultiplier;
 
 			if( uuidStr.Length == 0 )
 			{

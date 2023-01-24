@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDONSHARP
 using UdonSharp;
 using UdonSharpEditor;
 using UnityEditor;
 using UnityEngine;
-using VRC.Udon;
-using VRC.Udon.Common;
-using VRC.Udon.Common.Interfaces;
 using VRCAudioLink;
 
-#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDON
     [CustomEditor(typeof(AudioLink))]
-    public class AudioLinkEditor : UnityEditor.Editor
+    public class AudioLinkEditor : Editor
     {
         public override void OnInspectorGUI()
         {
@@ -24,40 +19,21 @@ using VRCAudioLink;
 
         void LinkAll()
         {
-            UdonBehaviour[] allBehaviours = UnityEngine.Object.FindObjectsOfType<UdonBehaviour>();
-            foreach (UdonBehaviour behaviour in allBehaviours)
+            UdonSharpBehaviour[] allUdonSharpBehaviours = FindObjectsOfType<UdonSharpBehaviour>();
+            foreach (var behaviour in allUdonSharpBehaviours)
             {
-                if (!behaviour.programSource) continue;
-                var program = behaviour.programSource.SerializedProgramAsset.RetrieveProgram();
-                ImmutableArray<string> exportedSymbolNames = program.SymbolTable.GetExportedSymbols();
-                foreach (string exportedSymbolName in exportedSymbolNames)
+                if (behaviour.GetType().GetField("audioLink") != null)
                 {
-                    if (exportedSymbolName.Equals("audioLink"))
+                    behaviour.GetType().GetField("audioLink").SetValue(behaviour,target);
+                    EditorUtility.SetDirty(behaviour);
+                    
+                    if(PrefabUtility.IsPartOfPrefabInstance(behaviour))
                     {
-                        var variableValue = UdonSharpEditorUtility.GetBackingUdonBehaviour((UdonSharpBehaviour)target);
-                        System.Type symbolType = program.SymbolTable.GetSymbolType(exportedSymbolName);
-                        if (!behaviour.publicVariables.TrySetVariableValue("audioLink", variableValue))
-                        {
-                            if (!behaviour.publicVariables.TryAddVariable(CreateUdonVariable(exportedSymbolName, variableValue, symbolType)))
-                            {
-                                Debug.LogError($"Failed to set public variable '{exportedSymbolName}' value.");
-                            }
-
-                            if(PrefabUtility.IsPartOfPrefabInstance(behaviour))
-                            {
-                                PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
-                            }
-                        }
+                        PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
                     }
+                    
                 }
             }
         }
-
-        IUdonVariable CreateUdonVariable(string symbolName, object value, System.Type type)
-        {
-            System.Type udonVariableType = typeof(UdonVariable<>).MakeGenericType(type);
-            return (IUdonVariable)Activator.CreateInstance(udonVariableType, symbolName, value);
-        }
-
     }
-    #endif
+#endif

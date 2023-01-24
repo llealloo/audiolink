@@ -21,6 +21,7 @@
 #define ALPASS_THEME_COLOR3             uint2(3,23)
 #define ALPASS_GENERALVU_UNIX_DAYS      uint2(5,23)
 #define ALPASS_GENERALVU_UNIX_SECONDS   uint2(6,23)
+#define ALPASS_GENERALVU_SOURCE_POS     uint2(7,23)
 
 #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
 #define ALPASS_CCCOLORS                 uint2(25,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)
@@ -310,4 +311,9 @@ uint AudioLinkGetCustomString2Char(uint charIndex)
     return AudioLinkGetGlobalStringChar(AUDIOLINK_STRING_CUSTOM2, charIndex);
 }
 
+// Returns the position of the AudioLink AudioSource in world space.
+float4 AudioLinkGetAudioSourcePosition()
+{
+    return float4(AudioLinkData(ALPASS_GENERALVU_SOURCE_POS).xyz,1);
+}
 #endif

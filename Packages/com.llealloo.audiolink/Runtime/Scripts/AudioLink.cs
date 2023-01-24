@@ -1,25 +1,24 @@
 ﻿using UnityEngine;
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-using VRC.SDKBase;
-#else
-using UnityEngine.Rendering;
-#endif
-#if UDON
-using UdonSharp;
-#endif
 using System;
 using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
-#if UDON
+#if UDONSHARP
+    using UdonSharp;
+    using VRC.SDKBase;
+    using static VRC.SDKBase.VRCShader;
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-public class AudioLink : UdonSharpBehaviour
+    public class AudioLink : UdonSharpBehaviour
 #else
+    using static UnityEngine.Shader;
+    using UnityEngine.Rendering;
+
     public class AudioLink : MonoBehaviour
 #endif
     {
-        const float AUDIOLINK_VERSION_NUMBER = 3.00f;
+        const float AUDIOLINK_VERSION_NUMBER = 3.01f;
 
         [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
@@ -72,11 +71,11 @@ public class AudioLink : UdonSharpBehaviour
         public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Custom Global Strings")]
-        #if UDON
+        #if UDONSHARP
         [UdonSynced]
         #endif
         public string customString1;
-        #if UDON
+        #if UDONSHARP
         [UdonSynced]
         #endif
         public string customString2;
@@ -95,11 +94,11 @@ public class AudioLink : UdonSharpBehaviour
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
-        private float _audioLinkInputVolume = 0.01f; // smallify input source volume level
+        private const float _audioLinkInputVolume = 0.01f; // smallify input source volume level
 
         private string masterName;
         // Mechanism to provide sync'd instance time to all avatars.
-#if UDON
+#if UDONSHARP
     [UdonSynced]
 #endif
         private double _masterInstanceJoinTime;
@@ -113,21 +112,133 @@ public class AudioLink : UdonSharpBehaviour
         private double _FPSTime = 0;
         private int    _FPSCount = 0;
 
-#if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+#if UDONSHARP
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
 #else
-        private double GetElapsedSecondsSince2019() { return 0; }
+        private double GetElapsedSecondsSince2019() { return (DateTime.UtcNow - new DateTime(2020, 1, 1) ).TotalSeconds; }
 #endif
 
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
         private int _rightChannelTestDelay = 300;
         private int _rightChannelTestCounter;
         private bool _ignoreRightChannel = false;
+        
+        #region PropertyIDs
+
+        // ReSharper disable InconsistentNaming
+        
+        private int _AudioTexture;
+        
+        // AudioLink 4 Band
+        private int _FadeLength;
+        private int _FadeExpFalloff;
+        private int _Gain;
+        private int _Bass;
+        private int _Treble;
+        private int _X0;
+        private int _X1;
+        private int _X2;
+        private int _X3;
+        private int _Threshold0;
+        private int _Threshold1;
+        private int _Threshold2;
+        private int _Threshold3;
+        private int _SourceVolume;
+        private int _SourceDistance;
+        private int _SourceSpatialBlend;
+        private int _SourcePosition;
+        private int _ThemeColorMode;
+        private int _CustomThemeColor0;
+        private int _CustomThemeColor1;
+        private int _CustomThemeColor2;
+        private int _CustomThemeColor3;
+        
+        // Global strings
+        private int _StringLocalPlayer;
+        private int _StringMasterPlayer;
+        private int _StringCustom1;
+        private int _StringCustom2;
+        
+        // Extra Properties
+        // private int _EnableAutogain;
+        // private int _AutogainDerate;
+        
+        // Set by Udon
+        private int _AdvancedTimeProps0;
+        private int _AdvancedTimeProps1;
+        private int _PlayerCountAndData;
+        private int _VersionNumberAndFPSProperty;
+
+        //Raw audio data.
+        private int _Samples0L;
+        private int _Samples1L;
+        private int _Samples2L;
+        private int _Samples3L;
+        
+        private int _Samples0R;
+        private int _Samples1R;
+        private int _Samples2R;
+        private int _Samples3R;
+        // ReSharper restore InconsistentNaming
+
+
+        private void InitIDs()
+        {
+            _AudioTexture = PropertyToID("_AudioTexture");
+
+            _FadeLength = PropertyToID("_FadeLength");
+            _FadeExpFalloff = PropertyToID("_FadeExpFalloff");
+            _Gain = PropertyToID("_Gain");
+            _Bass = PropertyToID("_Bass");
+            _Treble = PropertyToID("_Treble");
+            _X0 = PropertyToID("_X0");
+            _X1 = PropertyToID("_X1");
+            _X2 = PropertyToID("_X2");
+            _X3 = PropertyToID("_X3");
+            _Threshold0 = PropertyToID("_Threshold0");
+            _Threshold1 = PropertyToID("_Threshold1");
+            _Threshold2 = PropertyToID("_Threshold2");
+            _Threshold3 = PropertyToID("_Threshold3");
+            _SourceVolume = PropertyToID("_SourceVolume");
+            _SourceDistance = PropertyToID("_SourceDistance");
+            _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
+            _SourcePosition = PropertyToID("_SourcePosition");
+            _ThemeColorMode = PropertyToID("_ThemeColorMode");
+            _CustomThemeColor0 = PropertyToID("_CustomThemeColor0");
+            _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
+            _CustomThemeColor2 = PropertyToID("_CustomThemeColor2");
+            _CustomThemeColor3 = PropertyToID("_CustomThemeColor3");
+            
+            _StringLocalPlayer = PropertyToID("_StringLocalPlayer");
+            _StringMasterPlayer = PropertyToID("_StringMasterPlayer");
+            _StringCustom1 = PropertyToID("_StringCustom1");
+            _StringCustom2 = PropertyToID("_StringCustom2");
+            
+            // _EnableAutogain = PropertyToID("_EnableAutogain");
+            // _AutogainDerate = PropertyToID("_AutogainDerate");
+            
+            _AdvancedTimeProps0 = PropertyToID("_AdvancedTimeProps0");
+            _AdvancedTimeProps1 = PropertyToID("_AdvancedTimeProps1");
+            _VersionNumberAndFPSProperty = PropertyToID("_VersionNumberAndFPSProperty");
+            _PlayerCountAndData = PropertyToID("_PlayerCountAndData");
+            
+            _Samples0L = PropertyToID("_Samples0L");
+            _Samples1L = PropertyToID("_Samples1L");
+            _Samples2L = PropertyToID("_Samples2L");
+            _Samples3L = PropertyToID("_Samples3L");
+            
+            _Samples0R = PropertyToID("_Samples0R");
+            _Samples1R = PropertyToID("_Samples1R");
+            _Samples2R = PropertyToID("_Samples2R");
+            _Samples3R = PropertyToID("_Samples3R");
+        }
+        #endregion
 
         void Start()
         {
-            #if UDON
+            InitIDs();
+            #if UDONSHARP
             {
                 // Handle sync'd time stuff.
                 // OLD NOTES
@@ -159,7 +270,7 @@ public class AudioLink : UdonSharpBehaviour
                 {
                     if (VRC.SDKBase.Utilities.IsValid(Networking.LocalPlayer))
                     {
-                        UpdateGlobalString("_StringLocalPlayer", Networking.LocalPlayer.displayName);
+                        UpdateGlobalString(_StringLocalPlayer, Networking.LocalPlayer.displayName);
                     }
                 }
 
@@ -182,11 +293,10 @@ public class AudioLink : UdonSharpBehaviour
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
-            #if !VRC_SDK_VRCSDK2 && !VRC_SDK_VRCSDK3
-            Shader.SetGlobalTexture("_AudioTexture", audioRenderTexture, RenderTextureSubElement.Default);
+            #if UDONSHARP
+            VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
             #else
-            VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_AudioTexture"), audioRenderTexture);
-            VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_UdonAudioTexture"), audioRenderTexture);
+            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
             #endif
 
             // Disable camera on start if user didn't ask for it
@@ -199,7 +309,7 @@ public class AudioLink : UdonSharpBehaviour
         // Only happens once per second.
         private void FPSUpdate()
         {
-            #if UDON
+            #if UDONSHARP
             if( !_hasInitializedTime )
             {
                 if( _masterInstanceJoinTime > 0.00001 )
@@ -224,9 +334,9 @@ public class AudioLink : UdonSharpBehaviour
             }
             #endif
 
-            audioMaterial.SetVector("_VersionNumberAndFPSProperty", new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
-            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
-            audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
+            audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
+            #if UDONSHARP
+            audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
                 Networking.IsMaster?1.0f:0.0f,
                 #if UNITY_EDITOR
@@ -237,7 +347,7 @@ public class AudioLink : UdonSharpBehaviour
                 0 ) );
 
             #else
-                audioMaterial.SetVector("_PlayerCountAndData", new Vector4(
+                audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 0,
                 0,
                 0,
@@ -262,7 +372,7 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             // Finely adjust our network time estimate if needed.
-            #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+            #if UDONSHARP
             int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
             #else
             int networkTimeMSNow = (int)(Time.time*1000.0f);
@@ -312,15 +422,15 @@ public class AudioLink : UdonSharpBehaviour
                 FPSUpdate();
             }
 
-            // use _AdvancedTimeProps.w for Debugging
-            audioMaterial.SetVector("_AdvancedTimeProps", new Vector4(
+            // use _AdvancedTimeProps0.w for Debugging
+            audioMaterial.SetVector(_AdvancedTimeProps0, new Vector4(
                 (float)_elapsedTime,
                 (float)_elapsedTimeMSW,
                 (float)DateTime.Now.TimeOfDay.TotalSeconds) );
 
 			// Jan 1, 1970 = 621355968000000000.0 ticks.
             double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
-            audioMaterial.SetVector("_AdvancedTimeProps2", new Vector4(
+            audioMaterial.SetVector(_AdvancedTimeProps1, new Vector4(
                 (float)((_networkTimeMS)&65535),
                 (float)((_networkTimeMS)>>16),
                 (float)(Math.Floor(UTCSecondsUnix/86400)),
@@ -346,22 +456,25 @@ public class AudioLink : UdonSharpBehaviour
                 SendAudioOutputData();
 
                 // Used to correct for the volume of the audio source component
-                audioMaterial.SetFloat("_SourceVolume", audioSource.volume);
-                audioMaterial.SetFloat("_SourceSpatialBlend", audioSource.spatialBlend);
-                #if VRC_SDK_VRCSDK2 || VRC_SDK_VRCSDK3
+
+                audioMaterial.SetFloat(_SourceVolume, audioSource.volume);
+                audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
+                audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
+
+                #if UDONSHARP
                     if (Networking.LocalPlayer != null)
                     {
                         float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-                        audioMaterial.SetFloat("_SourceDistance", distanceToSource);
+                        audioMaterial.SetFloat(_SourceDistance, distanceToSource);
                     }
                 #endif
             }
          
 
-        // As an optimization: when in-game, require others to call these after
-        // setting values on this object.
-        // Since we expect changes to values on this object in editor through the GUI,
-        // we do not have explicit events to when things change.
+            // As an optimization: when in-game, require others to call these after
+            // setting values on this object.
+            // Since we expect changes to values on this object in editor through the GUI,
+            // we do not have explicit events to when things change.
         #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
@@ -380,30 +493,30 @@ public class AudioLink : UdonSharpBehaviour
 
         public void UpdateSettings()
         {
-            audioMaterial.SetFloat("_X0", x0);
-            audioMaterial.SetFloat("_X1", x1);
-            audioMaterial.SetFloat("_X2", x2);
-            audioMaterial.SetFloat("_X3", x3);
-            audioMaterial.SetFloat("_Threshold0", threshold0);
-            audioMaterial.SetFloat("_Threshold1", threshold1);
-            audioMaterial.SetFloat("_Threshold2", threshold2);
-            audioMaterial.SetFloat("_Threshold3", threshold3);
-            audioMaterial.SetFloat("_Gain", gain);
-            audioMaterial.SetFloat("_FadeLength", fadeLength);
-            audioMaterial.SetFloat("_FadeExpFalloff", fadeExpFalloff);
-            audioMaterial.SetFloat("_Bass", bass);
-            audioMaterial.SetFloat("_Treble", treble);
+            audioMaterial.SetFloat(_X0, x0);
+            audioMaterial.SetFloat(_X1, x1);
+            audioMaterial.SetFloat(_X2, x2);
+            audioMaterial.SetFloat(_X3, x3);
+            audioMaterial.SetFloat(_Threshold0, threshold0);
+            audioMaterial.SetFloat(_Threshold1, threshold1);
+            audioMaterial.SetFloat(_Threshold2, threshold2);
+            audioMaterial.SetFloat(_Threshold3, threshold3);
+            audioMaterial.SetFloat(_Gain, gain);
+            audioMaterial.SetFloat(_FadeLength, fadeLength);
+            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
+            audioMaterial.SetFloat(_Bass, bass);
+            audioMaterial.SetFloat(_Treble, treble);
         }
 
         // Note: These might be changed frequently so as an optimization, they're in a different function
         // rather than bundled in with the other things in UpdateSettings().
         public void UpdateThemeColors()
         {
-            audioMaterial.SetInt("_ThemeColorMode", themeColorMode);
-            audioMaterial.SetColor("_CustomThemeColor0", customThemeColor0);
-            audioMaterial.SetColor("_CustomThemeColor1", customThemeColor1);
-            audioMaterial.SetColor("_CustomThemeColor2", customThemeColor2);
-            audioMaterial.SetColor("_CustomThemeColor3", customThemeColor3);
+            audioMaterial.SetInt(_ThemeColorMode, themeColorMode);
+            audioMaterial.SetColor(_CustomThemeColor0, customThemeColor0);
+            audioMaterial.SetColor(_CustomThemeColor1, customThemeColor1);
+            audioMaterial.SetColor(_CustomThemeColor2, customThemeColor2);
+            audioMaterial.SetColor(_CustomThemeColor3, customThemeColor3);
         }
 
         private static float IntToFloatBits24Bit(uint value)
@@ -412,7 +525,7 @@ public class AudioLink : UdonSharpBehaviour
             return (frac / 8388608F) * 1.1754944e-38F;
         }
         
-        #if UDON
+        #if UDONSHARP
         public override void OnPlayerJoined(VRCPlayerApi player)
         {
             if (player != null)
@@ -420,7 +533,7 @@ public class AudioLink : UdonSharpBehaviour
                 if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
                 {
                     masterName = player.displayName;
-                    UpdateGlobalString("_StringMasterPlayer", player.displayName);
+                    UpdateGlobalString(_StringMasterPlayer, player.displayName);
                 }
             }
         }
@@ -447,7 +560,7 @@ public class AudioLink : UdonSharpBehaviour
                     if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
                     {
                         masterName = player.displayName;
-                        UpdateGlobalString("_StringMasterPlayer", player.displayName);
+                        UpdateGlobalString(_StringMasterPlayer, player.displayName);
                         break;
                     }
                 }
@@ -457,31 +570,31 @@ public class AudioLink : UdonSharpBehaviour
 
         public void UpdateCustomStrings()
         {
-            #if UDON
+            #if UDONSHARP
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
             #endif
 
-            UpdateGlobalString("_StringCustom1", customString1);
-            UpdateGlobalString("_StringCustom2", customString2);
+            UpdateGlobalString(_StringCustom1, customString1);
+            UpdateGlobalString(_StringCustom2, customString2);
 
-            #if UDON
+            #if UDONSHARP
             RequestSerialization();
             #endif
         }
 
-        #if UDON
+        #if UDONSHARP
         public override void OnDeserialization()
         {
             if (!Networking.IsOwner(gameObject))
             {
-                UpdateGlobalString("_StringCustom1", customString1);
-                UpdateGlobalString("_StringCustom2", customString2);
+                UpdateGlobalString(_StringCustom1, customString1);
+                UpdateGlobalString(_StringCustom2, customString2);
             }
         }
         #endif
 
-        private void UpdateGlobalString(string name, string input)
+        private void UpdateGlobalString(int nameID, string input)
         {
             const int maxLength = 32;
             if (input.Length > maxLength)
@@ -511,7 +624,7 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             // Expose the vectors to shader
-            audioMaterial.SetVectorArray(name, vecs);
+            audioMaterial.SetVectorArray(nameID, vecs);
         }
 
         public void EnableReadback()
@@ -546,22 +659,22 @@ public class AudioLink : UdonSharpBehaviour
             }
 
             System.Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
-            audioMaterial.SetFloatArray("_Samples0L", _samples);
+            audioMaterial.SetFloatArray(_Samples0L, _samples);
             System.Array.Copy(_audioFramesL, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
-            audioMaterial.SetFloatArray("_Samples1L", _samples);
+            audioMaterial.SetFloatArray(_Samples1L, _samples);
             System.Array.Copy(_audioFramesL, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
-            audioMaterial.SetFloatArray("_Samples2L", _samples);
+            audioMaterial.SetFloatArray(_Samples2L, _samples);
             System.Array.Copy(_audioFramesL, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
-            audioMaterial.SetFloatArray("_Samples3L", _samples);
+            audioMaterial.SetFloatArray(_Samples3L, _samples);
 
             System.Array.Copy(_audioFramesR, 0, _samples, 0, 1023); // 4092 - 1023 * 4
-            audioMaterial.SetFloatArray("_Samples0R", _samples);
+            audioMaterial.SetFloatArray(_Samples0R, _samples);
             System.Array.Copy(_audioFramesR, 1023, _samples, 0, 1023); // 4092 - 1023 * 3
-            audioMaterial.SetFloatArray("_Samples1R", _samples);
+            audioMaterial.SetFloatArray(_Samples1R, _samples);
             System.Array.Copy(_audioFramesR, 2046, _samples, 0, 1023); // 4092 - 1023 * 2
-            audioMaterial.SetFloatArray("_Samples2R", _samples);
+            audioMaterial.SetFloatArray(_Samples2R, _samples);
             System.Array.Copy(_audioFramesR, 3069, _samples, 0, 1023); // 4092 - 1023 * 1
-            audioMaterial.SetFloatArray("_Samples3R", _samples);
+            audioMaterial.SetFloatArray(_Samples3R, _samples);
         }
 
         private float Remap(float t, float a, float b, float u, float v)
