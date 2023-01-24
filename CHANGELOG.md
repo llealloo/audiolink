@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2 - January 24th, 2023
+### New features
+- A global shader keyword, "AUDIOLINK_IMPORTED" will now be set when AudioLink is first imported.
+### Changes
+- Foo
+### Bugfixes
+- Foo
+
 ## 0.3.1 - November 26th, 2022
 ### Changes
 - Updated the AudioLink package to work in both world and avatar projects, by removing the dependency on UdonSharp. The first time you attempt to import AudioLink into a world project, a popup will appear prompting you to install UdonSharp.
