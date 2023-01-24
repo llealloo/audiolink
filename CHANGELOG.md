@@ -2,9 +2,9 @@
 
 ## 0.3.2 - January 24th, 2023
 ### New features
-- A global shader keyword, "AUDIOLINK_IMPORTED" will now be set when AudioLink is first imported.
+- A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
 ### Changes
-- Add FAQ.md
+- Add FAQ.md containing frequently asked questions and answers.
 ### Bugfixes
 - Foo
 
