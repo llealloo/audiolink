@@ -35,5 +35,14 @@ namespace VRCAudioLink.Editor
             }
         }
     }
+
+    [InitializeOnLoad]
+    public class ShaderDefineManager
+    {
+        static ShaderDefineManager()
+        {
+            Shader.EnableKeyword("AUDIOLINK_IMPORTED");
+        }
+    }
 }
 #endif
