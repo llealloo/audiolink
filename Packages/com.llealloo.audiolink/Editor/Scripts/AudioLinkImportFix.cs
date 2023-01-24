@@ -5,7 +5,7 @@ using UnityEngine;
 
 // This define is inserted into the file in CI.
 // We can't rely on regular scripting defines so early in the import process.
-#if !STANDALONE_AUDIOLINK
+#if !AUDIOLINK_STANDALONE
 using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
 #endif
@@ -30,7 +30,7 @@ namespace VRCAudioLink.Editor
                 }
                 else
                 {
-                    #if !STANDALONE_AUDIOLINK
+                    #if !AUDIOLINK_STANDALONE
                     if (IsWorldProjectWithoutUdonSharp())
                     {
                         if (EditorUtility.DisplayDialog(
@@ -59,7 +59,7 @@ namespace VRCAudioLink.Editor
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
-        #if !STANDALONE_AUDIOLINK
+        #if !AUDIOLINK_STANDALONE
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
