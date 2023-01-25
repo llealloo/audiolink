@@ -339,7 +339,7 @@ The red value is the acutal autocorrelator value, centered around the 0th bin. T
 
 This is the most recent 4 Band AudioLink value, but heavily smoothed. This allows you to avoid potentially unwanted jerkiness/strobing when the 4 Band values are changing quickly.
 
-There are 16 smoothing levels offered, starting with the most smoothed at `Y: 0`.  The least smoothed is at `Y: 15`.
+There are 16 smoothing levels offered, starting with the most smoothed at `X: 0`.  The least smoothed is at `X: 15`.
 
 You can get a level 10 smoothed Bass value like this:
 
