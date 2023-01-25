@@ -337,7 +337,15 @@ The red value is the acutal autocorrelator value, centered around the 0th bin. T
 
 ### `ALPASS_FILTEREDAUDIOLINK`
 
-This is just the initial audiolink values, but very heavily filtered, so they move very smoothly.  This feature was added in version 2.5.
+This is the most recent 4 Band AudioLink value, but heavily smoothed.  This feature was added in version 2.5.
+
+There are 16 smoothing levels offered, starting with the most smoothed at `Y: 0`.  The least smoothed is at `Y: 15`.
+
+You can get a level 10 smoothed Bass value like this:
+
+```hlsl
+    return AudioLinkData( ALPASS_FILTEREDAUDIOLINK + int2(10, 0) ).rrrr;
+```
 
 ### `ALPASS_CHRONOTENSITY`
 
