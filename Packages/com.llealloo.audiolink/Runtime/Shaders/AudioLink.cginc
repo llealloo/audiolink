@@ -35,6 +35,8 @@
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
 #define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
 
+#define ALPASS_VUHISTORY                uint2(0,32)  //Size: 128, 5
+
 // Some basic constants to use (Note, these should be compatible with
 // future version of AudioLink, but may change.
 #define AUDIOLINK_SAMPHIST              3069        // Internal use for algos, do not change.

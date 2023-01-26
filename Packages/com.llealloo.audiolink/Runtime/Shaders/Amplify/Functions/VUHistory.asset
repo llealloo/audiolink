@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
+  m_Name: VUHistory
+  m_EditorClassIdentifier: 
+  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
+    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n3099.2;21.6;2621;1479;1490.5;750.5;1;True;False\nNode;AmplifyShaderEditor.FunctionInput;1;-395.5,-44;Inherit;False;Delay;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-123.5,-22;Inherit;False;uint
+    rowWidth = AUDIOLINK_WIDTH * 4@$uint row = uint(Delay) / rowWidth@$uint column
+    = uint(Delay) % AUDIOLINK_WIDTH@$/*$uint channel = ((uint(Delay) % AUDIOLINK_WIDTH)
+    - (row * rowWidth)) / AUDIOLINK_WIDTH@$$float4 pixel = AudioLinkData(ALPASS_VUHISTORY
+    + uint2( row, column ))@$$uint result = $\t(channel == 0) ? pixel.r : 0 +$\t(channel
+    == 1) ? pixel.g : 0 +$\t(channel == 2) ? pixel.b : 0 +$\t(channel == 3) ? pixel.a
+    : 0@$*/$$uint channel = uint(uint(Delay) / AUDIOLINK_WIDTH) % 4@$float4 pixel
+    = AudioLinkData(ALPASS_VUHISTORY + uint2( column, row ))@$float result = $\t(channel
+    == 0) ? pixel.r : 0 +$\t(channel == 1) ? pixel.g : 0 +$\t(channel == 2) ? pixel.b
+    : 0 +$\t(channel == 3) ? pixel.a : 0@$$return result@;1;Create;1;True;Delay;INT;0;In;;Inherit;False;Get
+    VU History;True;False;0;;False;1;0;INT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;255,-36;Inherit;False;True;-1;Output;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;2;0;1;0\nWireConnection;0;0;2;0\nASEEND*/\n//CHKSM=9EE8A82F16DEF32020C4E5FCDB3CE55940C54811"
+  m_functionName: 
+  m_description: Samples from VU History (delay from 0 to 2559)
+  m_additionalIncludes:
+    m_additionalIncludes: []
+    m_outsideIncludes: []
+  m_additionalPragmas:
+    m_additionalPragmas: []
+    m_outsidePragmas: []
+  m_additionalDirectives:
+    m_validData: 0
+    m_isDirty: 1
+    m_moduleName: ' Additional Directives'
+    m_independentModule: 1
+    m_customEdited: 0
+    m_additionalDirectives:
+    - {fileID: 0}
+    m_shaderFunctionDirectives: []
+    m_nativeDirectives: []
+    m_nativeDirectivesIndex: -1
+    m_nativeDirectivesFoldout: 0
+    m_directivesSaveItems:
+    - LineType: 0
+      LineValue: Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc
+      GUIDToggle: 0
+      GUIDValue: 
+      Origin: 2
+  m_nodeCategory: 3
+  m_customNodeCategory: 
+  m_previewPosition: 0
+  m_hidden: 0
+  m_url: 

@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "com.llealloo.audiolink": {
-      "version": "file:../../Packages/com.llealloo.audiolink",
+      "version": "file:com.llealloo.audiolink",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {}
     },
     "com.llealloo.audiolink.extras": {
@@ -196,6 +196,12 @@
         "com.unity.postprocessing": "3.1.1",
         "com.unity.textmeshpro": "2.1.6"
       }
+    },
+    "dev.onevr.vrworldtoolkit": {
+      "version": "file:dev.onevr.vrworldtoolkit",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

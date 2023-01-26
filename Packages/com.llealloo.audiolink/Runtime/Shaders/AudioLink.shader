@@ -1281,6 +1281,123 @@ Shader "AudioLink/Internal/AudioLink"
 
         Pass
         {
+            Name "Pass13-VU-Histogram"
+            CGPROGRAM
+
+            float4 frag (v2f_customrendertexture IN) : SV_Target
+            {
+                AUDIO_LINK_ALPHA_START(ALPASS_AUDIOLINK)
+
+                uint row = coordinateLocal.y - ALPASS_VUHISTORY.y;
+                float4 currentIntensity = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(8, 0));
+                float currentRMS = (currentIntensity.r + currentIntensity.b) / 2.;       // take the average of left & right channels
+
+                float4 rowEndPixel = AudioLinkGetSelfPixelData(ALPASS_VUHISTORY + int2(AUDIOLINK_WIDTH - 1, row));
+                float4 prevRowEndPixel = AudioLinkGetSelfPixelData(ALPASS_VUHISTORY + int2(AUDIOLINK_WIDTH - 1, row - 1));
+
+                // if we are on the first pixel column of the VU history zone
+                if (coordinateLocal.x == 0)
+                {
+                    // if we are on the first row and column of VU history
+                    if (row == 0)
+                    {
+                        return float4(currentRMS, rowEndPixel.r, rowEndPixel.g, rowEndPixel.b);
+                    }
+                    // if we are on the first column but not the first row (wrapping/connecting data from the previous and current line)
+                    {
+                        return float4(prevRowEndPixel.a, rowEndPixel.r, rowEndPixel.g, rowEndPixel.b);
+                    }
+                }
+                // if we are somewhere other than the first pixel column of VU history
+                else
+                {
+                    return AudioLinkGetSelfPixelData(ALPASS_VUHISTORY + int2(coordinateLocal.x - 1, row));
+                }
+            }
+            ENDCG
+
+
+
+
+                // if we are on the first pixel of vu history
+                /*if (coordinateLocal.x == 0 && coordinateLocal.y == 32)
+                {
+                    float4 rowEndPixel = AudioLinkGetSelfPixelData(ALPASS_VUHISTORY + int2(AUDIOLINK_WIDTH - 1, 0));
+                    return float4(currentRMS, rowEndPixel.r, rowEndPixel.g, rowEndPixel.b);
+                }*/
+
+
+                /*float audioBands[4] = {_X0, _X1, _X2, _X3};
+                float audioThresholds[4] = {_Threshold0, _Threshold1, _Threshold2, _Threshold3};
+
+                int band = min(coordinateLocal.y, 3);
+                int delay = coordinateLocal.x;
+                if (delay == 0)
+                {
+                    // Get average of samples in the band
+                    float total = 0.;
+                    uint totalBins = AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT;
+                    uint binStart = AudioLinkRemap(audioBands[band], 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins);
+                    uint binEnd = (band != 3) ? AudioLinkRemap(audioBands[band + 1], 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins) : AUDIOLINK_4BAND_FREQCEILING * totalBins;
+                    float threshold = audioThresholds[band];
+                    for (uint i=binStart; i<binEnd; i++)
+                    {
+                        int2 spectrumCoord = int2(i % AUDIOLINK_WIDTH, i / AUDIOLINK_WIDTH);
+                        float rawMagnitude = AudioLinkGetSelfPixelData(ALPASS_DFT + spectrumCoord).y;
+                        total += rawMagnitude;
+                    }
+                    float magnitude = total / (binEnd - binStart);
+
+                    // Log attenuation
+                    magnitude = saturate(magnitude * (log(1.1) / (log(1.1 + pow(_LogAttenuation, 4) * (1.0 - magnitude))))) / pow(threshold, 2);
+
+                    // Contrast
+                    magnitude = saturate(magnitude * tan(1.57 * _ContrastSlope) + magnitude + _ContrastOffset * tan(1.57 * _ContrastSlope) - tan(1.57 * _ContrastSlope));
+
+                    // Fade
+                    float lastMagnitude = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, band)).y;
+                    lastMagnitude -= -1.0 * pow(_FadeLength-1.0, 3);                                                                            // Inverse cubic remap
+                    lastMagnitude = saturate(lastMagnitude * (1.0 + (pow(lastMagnitude - 1.0, 4.0) * _FadeExpFalloff) - _FadeExpFalloff));     // Exp falloff
+
+                    magnitude = max(lastMagnitude, magnitude);
+
+                    return float4(magnitude, magnitude, magnitude, 1.);
+
+                // If part of the delay
+                } else {
+                    // Slide pixels (coordinateLocal.x > 0)
+                    float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
+                    lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
+                    uint framesToRoll = floor( lastvalTiming.x );
+
+                    if( framesToRoll == 0 )
+                    {
+                        return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
+                    }
+                    else // 1 or more.
+                    {
+                        if( coordinateLocal.x > framesToRoll )
+                        {
+                            // For the rest of the line, move by the appropriate speed
+                            return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x - framesToRoll, coordinateLocal.y));
+                        }
+                        else
+                        {
+                            // For the first part, extrapolate the cells.
+                            float last = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(0, coordinateLocal.y));
+                            float next = AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(1, coordinateLocal.y));
+                            float lprev = (coordinateLocal.x - 1) / (float)framesToRoll;
+                            return lerp( last, next, lprev );
+                        }
+                    }
+                }*/
+
+                //return float4(1., 0., 0., 1.);
+            
+        }
+
+        Pass
+        {
             Name "No-op"
             ColorMask 0
             ZWrite Off
