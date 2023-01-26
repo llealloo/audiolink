@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "com.llealloo.audiolink": {
-      "version": "file:com.llealloo.audiolink",
+      "version": "file:../../Packages/com.llealloo.audiolink",
       "depth": 0,
-      "source": "embedded",
+      "source": "local",
       "dependencies": {}
     },
     "com.llealloo.audiolink.extras": {
