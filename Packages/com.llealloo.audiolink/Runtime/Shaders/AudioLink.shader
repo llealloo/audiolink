@@ -17,7 +17,7 @@ Shader "AudioLink/Internal/AudioLink"
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
         [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
 
-        [ToggleUI] _EnableAutoLevel("Enable Autolevel", float) = 1
+        [ToggleUI] _EnableAutoLevel("Enable Autolevel", float) = 0
 
         _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
         _SourceVolume("Audio Source Volume", float) = 1
@@ -1291,17 +1291,16 @@ Shader "AudioLink/Internal/AudioLink"
                         // Compare the current value to "Magnitude" if it's very low, need to boost it.
                         if( magnitude < 0.5 )
                         {
-                            confidence = ( confidence - 0.00003 );
-                            amt = lerp( amt + 0.02, amt, saturate( confidence ) );
-                            if( amt > 0.4 ) amt = 0.4;
+                            confidence = ( confidence - 0.05 * unity_DeltaTime.x );
+                            amt = lerp( amt + 0.1 * unity_DeltaTime.x, amt, saturate( confidence ) );
                         }
                         else
                         {
                             // When we are above the threshold.
-                            confidence = 1.0;
-                            amt -= 0.01;
-                            if( amt < 0 ) amt = 0;
+                            confidence = 1.1;  // Make sure it can't slop down for a few seconds.
+                            amt -= 0.5 * unity_DeltaTime.x;
                         }
+						amt = clamp( amt, 0, 0.4 );
 
                         return float4( magnitude, para, amt, confidence );
                     }
