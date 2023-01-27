@@ -152,10 +152,15 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
                 {
                     band += (iuv.x > audioBands[j]);
                 }
-                for (int k=0; k<4; k++)
+
+                float tHoldLevel = audioThresholds[band];
+
+                //ALPASS_FILTEREDVU_LEVELTIMING
+                if( AudioLinkData( ALPASS_FILTEREDVU_LEVELTIMING ).y )
                 {
-                    threshold += (band == k) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[k]))) * 1000.;
+                    tHoldLevel -= AudioLinkData( ALPASS_FILTEREDVU_LEVELTIMING + uint2( 0, band ) ).z;
                 }
+                threshold += saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, tHoldLevel))) * 1000.;
                 threshold = saturate(threshold) * (1. - round((iuv.x % _ThresholdDottedLine) / _ThresholdDottedLine));
                 threshold *= (iuv.x > _X0);
 
