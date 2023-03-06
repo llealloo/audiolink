@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: proximity
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: a6fbc11156337a34896841917c388428,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 372a91f1471dd6d40aeadcbede8dd636,
     type: 2}
   udonAssembly: 
   assemblyError: 

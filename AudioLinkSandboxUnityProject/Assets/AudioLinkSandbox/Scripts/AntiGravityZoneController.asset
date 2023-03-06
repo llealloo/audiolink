@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AntiGravityZoneController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: a992749a99f852c45b047a1b297846c5,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 48276d8332dc2504c840eb05b1e1135f,
     type: 2}
   udonAssembly: 
   assemblyError: 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AnitGravityZoneTrigger
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 873f1fca7c89b5b4e86d2755c6cb4ac1,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 64ce66bfb8c23e14d8e69daf2f7505de,
     type: 2}
   udonAssembly: 
   assemblyError: 

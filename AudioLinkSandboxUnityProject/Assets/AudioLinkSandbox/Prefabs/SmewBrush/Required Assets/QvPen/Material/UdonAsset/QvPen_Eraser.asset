@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: QvPen_Eraser
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: f0271606e4f2a884bb7c64bdea2fdaa6,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d73ccc66d2811ef4bb8e483a25a05f3b,
     type: 2}
   udonAssembly: 
   assemblyError: 

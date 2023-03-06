@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: Clapper
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b415c5bf9cd2e034180b908aeac92836,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 9c2a4895a42325545ab05d728c56e4cd,
     type: 2}
   udonAssembly: 
   assemblyError: 

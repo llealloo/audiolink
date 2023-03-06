@@ -14,8 +14,8 @@ Texture2D:
   m_DownscaleFallback: 0
   serializedVersion: 2
   m_Width: 9
-  m_Height: 1
-  m_CompleteImageSize: 72
+  m_Height: 2
+  m_CompleteImageSize: 144
   m_TextureFormat: 17
   m_MipCount: 1
   m_IsReadable: 1
@@ -36,8 +36,8 @@ Texture2D:
     m_WrapW: 0
   m_LightmapFormat: 0
   m_ColorSpace: 0
-  image data: 72
-  _typelessdata: 0733d538003c82400733d538003caa400733d538003c88400733d538003c92400733d538003c9e401d398736463a98401d398736463a92401d398736463a9c401d398736463a9640
+  image data: 144
+  _typelessdata: 0733d538003c82400733d538003cea400733d538003cc8400733d538003cd2400733d538003cde400733d538003c98400733d538003cd2400733d538003cdc400733d538003cd640003c003c003c4040003c003c003c4040003c45390733a640003c45390733a840003c453907338240003c453907338e40003c453907338a40cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd
   m_StreamData:
     offset: 0
     size: 0
