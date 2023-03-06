@@ -1,13 +1,13 @@
 {
   "dependencies": {
     "com.llealloo.audiolink": {
-      "version": "file:C:/Users/user/Projects/vrc-udon-audio-link/Packages/com.llealloo.audiolink",
+      "version": "file:../../Packages/com.llealloo.audiolink",
       "depth": 0,
       "source": "local",
       "dependencies": {}
     },
     "com.llealloo.audiolink.extras": {
-      "version": "file:C:/Users/user/Projects/vrc-udon-audio-link/Packages/com.llealloo.audiolink.extras",
+      "version": "file:../../Packages/com.llealloo.audiolink.extras",
       "depth": 0,
       "source": "local",
       "dependencies": {}
