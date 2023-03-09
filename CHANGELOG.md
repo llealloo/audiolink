@@ -8,7 +8,7 @@
 - Add FAQ.md containing frequently asked questions and answers.
 - Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
 ### Bugfixes
-- Foo
+- Ask User to save current scenes before opening the example scene
 
 ## 0.3.1 - November 26th, 2022
 ### Changes
