@@ -16,7 +16,7 @@ namespace VRCAudioLink.Editor
     public class AudioLinkImportFix
     {
         private const string audioLinkReimportedKey = "AUDIOLINK_REIMPORTED";
-        
+
         static AudioLinkImportFix()
         {
             // Skip if we've already checked for the canary file during this Editor Session
@@ -63,16 +63,19 @@ namespace VRCAudioLink.Editor
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
-            string baseAssetsPath = "Samples/AudioLink/0.3.1";
-            string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
-            string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
-            if (!Directory.Exists(Path.Combine(Application.dataPath, baseAssetsPath, "AudioLinkExampleScene")))
+            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             {
-                Directory.CreateDirectory(Path.Combine(Application.dataPath, baseAssetsPath));
-                FileUtil.CopyFileOrDirectory(packagePath, assetsPath);
-                AssetDatabase.Refresh();
+                string baseAssetsPath = "Samples/AudioLink/0.3.1";
+                string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
+                string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
+                if (!Directory.Exists(Path.Combine(Application.dataPath, baseAssetsPath, "AudioLinkExampleScene")))
+                {
+                    Directory.CreateDirectory(Path.Combine(Application.dataPath, baseAssetsPath));
+                    FileUtil.CopyFileOrDirectory(packagePath, assetsPath);
+                    AssetDatabase.Refresh();
+                }
+                EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
             }
-            EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
         }
 
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
