@@ -81,6 +81,8 @@ namespace VRCAudioLink
         public string customString2;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
+        public GameObject audioTextureExport;
+        private Shader _shaderAudioLinkExport;
         public RenderTexture audioRenderTexture;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
@@ -294,7 +296,7 @@ namespace VRCAudioLink
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
             #if UDONSHARP
-            VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
+            //VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
             #else
             Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
             #endif
