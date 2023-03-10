@@ -298,7 +298,7 @@ namespace VRCAudioLink
             #if UDONSHARP
             //VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
             #else
-            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
+            //Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
             #endif
 
             // Disable camera on start if user didn't ask for it
