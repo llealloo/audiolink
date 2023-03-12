@@ -6,7 +6,7 @@ labels: 'bug'
 assignees: ''
 
 ---
-<!-- Please make sure to read our [faq)[FAQ.md] before you open a bug report -->
+<!-- Please make sure to read our faq https://github.com/llealloo/vrc-udon-audio-link/blob/master/FAQ.md before you open a bug report -->
 **Describe the bug in detail:**
 A clear description of what the bug is.
 
