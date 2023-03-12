@@ -65,7 +65,7 @@ namespace VRCAudioLink.Editor
         {
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             {
-                string baseAssetsPath = "Samples/AudioLink/0.3.1";
+                string baseAssetsPath = "Samples/AudioLink/0.3.2";
                 string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
                 string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
                 if (!Directory.Exists(Path.Combine(Application.dataPath, baseAssetsPath, "AudioLinkExampleScene")))
