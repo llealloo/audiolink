@@ -13,6 +13,18 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 ### [If you are looking to use AudioLink for ChilloutVR, check out this fork instead](https://github.com/DomNomNomVR/cvr-audio-link)
 
+## 0.3.2 - March 12th, 2023
+### New features
+- Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)
+- A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
+### Changes
+- Add FAQ.md containing frequently asked questions and answers.
+- Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
+- Improved Docs (Thanks, orels1)
+- Separated repo into 2 Unity projects 
+### Bugfixes
+- Ask User to save current scenes before opening the example scene
+
 ## 0.3.1 - November 26th, 2022
 ### Changes
 - Updated the AudioLink package to work in both world and avatar projects, by removing the dependency on UdonSharp. The first time you attempt to import AudioLink into a world project, a popup will appear prompting you to install UdonSharp.

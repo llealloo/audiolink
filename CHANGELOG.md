@@ -1,12 +1,14 @@
 # Changelog
 
-## 0.3.2 - January 24th, 2023
+## 0.3.2 - March 12th, 2023
 ### New features
 - Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)
 - A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
 ### Changes
 - Add FAQ.md containing frequently asked questions and answers.
 - Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
+- Improved Docs (Thanks, orels1)
+- Separated repo into 2 Unity projects 
 ### Bugfixes
 - Ask User to save current scenes before opening the example scene
 
