@@ -18,7 +18,9 @@ namespace VRCAudioLink.Editor
 #else  //VRC WORLD or STANDALONE
             string[] paths = new string[]
             {
+#if UDONSHARP
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
+#endif
                 "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
             };
 #endif
