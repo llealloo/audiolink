@@ -7,7 +7,7 @@ namespace VRCAudioLink.Editor
     public static class SceneManager
     {
         [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
-        [MenuItem("GameObject/Add AudioLink Prefab to Scene", false, 49)]
+        [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         static void AddAudioLinkToScene()
         {
 #if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
