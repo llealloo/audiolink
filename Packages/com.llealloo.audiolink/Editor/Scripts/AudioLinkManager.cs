@@ -13,11 +13,11 @@ using VRC.PackageManagement.Core.Types.Packages;
 namespace VRCAudioLink.Editor
 {
     [InitializeOnLoad]
-    public class AudioLinkImportFix
+    public class AudioLinkManager
     {
         private const string audioLinkReimportedKey = "AUDIOLINK_REIMPORTED";
 
-        static AudioLinkImportFix()
+        static AudioLinkManager()
         {
             // Skip if we've already checked for the canary file during this Editor Session
             if (!SessionState.GetBool(audioLinkReimportedKey, false))
@@ -95,28 +95,25 @@ namespace VRCAudioLink.Editor
             ReimportPackage();
         }
         #endif
-    }
 
-    public static class SceneManager
-    {
         [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         static void AddAudioLinkToScene()
         {
-#if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
+            #if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
             string[] paths = new string[]
             {
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab"
             };
-#else  //VRC WORLD or STANDALONE
+            #else  //VRC WORLD or STANDALONE
             string[] paths = new string[]
             {
-#if UDONSHARP
+                #if UDONSHARP
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
-#endif
+                #endif
                 "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
             };
-#endif
+            #endif
             foreach (string path in paths)
             {
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
