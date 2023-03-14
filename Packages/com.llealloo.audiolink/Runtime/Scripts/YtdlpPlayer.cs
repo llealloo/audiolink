@@ -236,6 +236,23 @@ namespace VRCAudioLink
             }
         }
 
+        private static string LocateExecutable(string name)
+        {
+            if (!File.Exists(name))
+            {
+                if (Path.GetDirectoryName(name) == string.Empty)
+                {
+                    string[] PATH = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
+                    foreach (string dir in PATH)
+                    {
+                        string trimmed = dir.Trim();
+                        if (!string.IsNullOrEmpty(trimmed) && File.Exists(Path.Combine(trimmed, name)))
+                            return Path.GetFullPath(Path.Combine(trimmed, name));
+                    }
+                }
+            }
+            return Path.GetFullPath(name);
+        }
 
         #if !VRC_SDK_VRCSDK3
         /// <summary> Download yt-dlp to the AudioLink folder. </summary>
