@@ -167,7 +167,7 @@ namespace VRCAudioLink
 
             // Offer to download yt-dlp to the AudioLink folder ONLY when we are not in VRC usecase,
             // since VRC's security team doesn't like us downloading executables.
-            #if !VRC_SDK_VRCSDK3
+            #if !VRC_SDK_VRCSDK3 && UNITY_EDITOR_WIN
             if (!File.Exists(_ytdlpPath))
             {
                 bool doDownload = EditorUtility.DisplayDialog("[AudioLink] Download yt-dlp?", "AudioLink could not locate yt-dlp in your VRChat folder.\nDownload to AudioLink folder instead?", "Download", "Cancel");
