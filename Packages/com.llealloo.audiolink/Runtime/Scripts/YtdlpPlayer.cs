@@ -236,6 +236,8 @@ namespace VRCAudioLink
             }
         }
 
+
+        #if !VRC_SDK_VRCSDK3
         /// <summary> Download yt-dlp to the AudioLink folder. </summary>
         private static void DownloadYtdlp()
         {
@@ -256,6 +258,7 @@ namespace VRCAudioLink
                 LocateYtdlp();
             }
         }
+        #endif
     }
 }
 #endif
