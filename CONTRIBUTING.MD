@@ -22,7 +22,7 @@ Update the version number in all places. These are:
 - Number at the top of the changelog (just make sure the latest version number in the changelog is correct)
 - Version number in .github/workflows/StandaloneMetadata/package.json
 - Version number in Packages/com.llealloo.audiolink/package.json
-- A string in AudioLinkImportFix.OpenExampleScene in AudioLinkImportFix.cs, at the top of the function
+- A string in AudioLinkManager.OpenExampleScene in AudioLinkManager.cs, at the top of the function
 - Version number in Packages/com.llealloo.audiolink/Runtime/VERSION.txt
 - The AUDIOLINK_VERSION_NUMBER float in AudioLink.cs.
     - We use convention 0.3.x == 3.x where x is padded to 2 digits,
