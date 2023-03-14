@@ -7,9 +7,9 @@ using UnityEngine;
 namespace VRCAudioLink.Editor
 {
     [InitializeOnLoad]
-    public class DefineManager
+    public class AudioLinkDefineManager
     {
-        static DefineManager()
+        static AudioLinkDefineManager()
         {
             AddDefineIfMissing(EditorUserBuildSettings.selectedBuildTargetGroup, "AUDIOLINK");
             Shader.EnableKeyword("AUDIOLINK_IMPORTED");
