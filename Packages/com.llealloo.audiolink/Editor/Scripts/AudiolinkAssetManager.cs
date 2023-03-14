@@ -13,11 +13,11 @@ using VRC.PackageManagement.Core.Types.Packages;
 namespace VRCAudioLink.Editor
 {
     [InitializeOnLoad]
-    public class AudioLinkManager
+    public class AudiolinkAssetManager
     {
         private const string audioLinkReimportedKey = "AUDIOLINK_REIMPORTED";
 
-        static AudioLinkManager()
+        static AudiolinkAssetManager()
         {
             // Skip if we've already checked for the canary file during this Editor Session
             if (!SessionState.GetBool(audioLinkReimportedKey, false))
