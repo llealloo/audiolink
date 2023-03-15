@@ -21,8 +21,6 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### Changes
 - Add FAQ.md containing frequently asked questions and answers.
 - Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
-- Improved Docs (Thanks, orels1)
-- Separated repo into 2 Unity projects 
 ### Bugfixes
 - Ask User to save current scenes before opening the example scene
 
