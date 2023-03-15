@@ -78,7 +78,6 @@ namespace VRCAudioLink.Editor
             }
         }
 
-        #if !UDONSHARP
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
         public static bool IsWorldProjectWithoutUdonSharp()
         {
@@ -95,7 +94,6 @@ namespace VRCAudioLink.Editor
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
-        #endif
         #endif
 
         [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
