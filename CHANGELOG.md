@@ -4,6 +4,7 @@
 ### New features
 - Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)
 - A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
+- Added a button for quickly adding AudioLink prefabs to the current scene. Available under "AudioLink -> Add AudioLink Prefab to Scene".
 ### Changes
 - Add FAQ.md containing frequently asked questions and answers.
 - Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
