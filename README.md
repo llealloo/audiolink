@@ -97,6 +97,7 @@ If you want to see an example of a scene with AudioLink set up, press the "Audio
 - [VRC Things](https://github.com/PiMaker/VRChatUnityThings) by \_pi\_
 - [June Screen FX](https://luka.moe/june.html) by luka
 - [ShaderForge-AudioLink](https://github.com/lethanan/ShaderForge-AudioLink) by lethanan
+- [AudioLink-USharpVideo-Adapter](https://github.com/Blabzillaweasel/AudioLink-USharpVideo-Adapter/) by Blabz
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
