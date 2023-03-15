@@ -117,7 +117,7 @@ If you want to see an example of a scene with AudioLink set up, press the "Audio
 - fuopy for being awesome and reflecting great vibes back into this project
 - Colonel Cthulu for incepting the idea to make the audio data visible to avatars
 - jackiepi for math wizardry, emotional support and inspiration
-- Barry, OM3, GRIMECRAFT for stoking my fire!
+- Barry and OM3 for stoking my fire!
 - Lamp for the awesome example music and inspiration. Follow them!! https://soundcloud.com/lampdx
 - Shelter, Loner, Rizumu, and all of the other dance communities in VRChat for making this
 - rrazgriz for coming up with and implementing yt-dlp support for editor testing
