@@ -7,11 +7,12 @@ using UnityEngine;
 namespace VRCAudioLink.Editor
 {
     [InitializeOnLoad]
-    public class ScriptingDefineManager
+    public class AudioLinkDefineManager
     {
-        static ScriptingDefineManager()
+        static AudioLinkDefineManager()
         {
             AddDefineIfMissing(EditorUserBuildSettings.selectedBuildTargetGroup, "AUDIOLINK");
+            Shader.EnableKeyword("AUDIOLINK_IMPORTED");
         }
 
         private static void AddDefineIfMissing(BuildTargetGroup buildTarget, string newDefine)
@@ -33,15 +34,6 @@ namespace VRCAudioLink.Editor
                 Debug.LogFormat("Set Scripting Define Symbols for selected build target ({0}) to: {1}",
                     buildTarget.ToString(), finalDefineString);
             }
-        }
-    }
-
-    [InitializeOnLoad]
-    public class ShaderDefineManager
-    {
-        static ShaderDefineManager()
-        {
-            Shader.EnableKeyword("AUDIOLINK_IMPORTED");
         }
     }
 }

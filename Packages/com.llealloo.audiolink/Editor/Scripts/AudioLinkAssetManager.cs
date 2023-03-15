@@ -13,11 +13,11 @@ using VRC.PackageManagement.Core.Types.Packages;
 namespace VRCAudioLink.Editor
 {
     [InitializeOnLoad]
-    public class AudioLinkImportFix
+    public class AudioLinkAssetManager
     {
         private const string audioLinkReimportedKey = "AUDIOLINK_REIMPORTED";
 
-        static AudioLinkImportFix()
+        static AudioLinkAssetManager()
         {
             // Skip if we've already checked for the canary file during this Editor Session
             if (!SessionState.GetBool(audioLinkReimportedKey, false))
@@ -95,5 +95,34 @@ namespace VRCAudioLink.Editor
             ReimportPackage();
         }
         #endif
+
+        [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
+        [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
+        public static void AddAudioLinkToScene()
+        {
+            #if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
+            string[] paths = new string[]
+            {
+                "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab"
+            };
+            #else  //VRC WORLD or STANDALONE
+            string[] paths = new string[]
+            {
+                #if UDONSHARP
+                "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
+                #endif
+                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
+            };
+            #endif
+            foreach (string path in paths)
+            {
+                GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (asset != null)
+                {
+                    GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(asset);
+                    EditorGUIUtility.PingObject(instance);
+                }
+            }
+        }
     }
 }
