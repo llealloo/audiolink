@@ -156,7 +156,7 @@ namespace VRCAudioLink
             
             // Check for yt-dlp in VRC application data first
             _ytdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
-            #elif UNITY_EDITOR_LINUX
+            #else
             _ytdlpPath = "/usr/bin/yt-dlp";
             #endif
             if (!File.Exists(_ytdlpPath)) 
@@ -165,19 +165,24 @@ namespace VRCAudioLink
                 _ytdlpPath = _localYtdlpPath;
             }
 
+            // Offer to download yt-dlp to the AudioLink folder ONLY when we are not in VRC usecase,
+            // since VRC's security team doesn't like us downloading executables.
+            #if !VRC_SDK_VRCSDK3 && UNITY_EDITOR_WIN
             if (!File.Exists(_ytdlpPath))
             {
-                if(Application.isPlaying)
-                    EditorApplication.ExitPlaymode();
-
-                #if UNITY_EDITOR_WIN
-                // Offer to download yt-dlp to the AudioLink folder
                 bool doDownload = EditorUtility.DisplayDialog("[AudioLink] Download yt-dlp?", "AudioLink could not locate yt-dlp in your VRChat folder.\nDownload to AudioLink folder instead?", "Download", "Cancel");
                 if(doDownload)
                     DownloadYtdlp();
-                
-                #elif UNITY_EDITOR_LINUX
-                    EditorUtility.DisplayDialog("[AudioLink] Missing yt-dlp", "Ensure yt-dlp is available in your PATH", "Ok");
+            }
+            #endif
+
+            if (!File.Exists(_ytdlpPath))
+            {
+                // Check if we can find it on users PATH
+                #if UNITY_EDITOR_WIN
+                _ytdlpPath = LocateExecutable("yt-dlp.exe");
+                #else
+                _ytdlpPath = LocateExecutable("yt-dlp");
                 #endif
             }
 
@@ -236,6 +241,25 @@ namespace VRCAudioLink
             }
         }
 
+        private static string LocateExecutable(string name)
+        {
+            if (!File.Exists(name))
+            {
+                if (Path.GetDirectoryName(name) == string.Empty)
+                {
+                    string[] PATH = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
+                    foreach (string dir in PATH)
+                    {
+                        string trimmed = dir.Trim();
+                        if (!string.IsNullOrEmpty(trimmed) && File.Exists(Path.Combine(trimmed, name)))
+                            return Path.GetFullPath(Path.Combine(trimmed, name));
+                    }
+                }
+            }
+            return Path.GetFullPath(name);
+        }
+
+        #if !VRC_SDK_VRCSDK3
         /// <summary> Download yt-dlp to the AudioLink folder. </summary>
         private static void DownloadYtdlp()
         {
@@ -256,6 +280,7 @@ namespace VRCAudioLink
                 LocateYtdlp();
             }
         }
+        #endif
     }
 }
 #endif
