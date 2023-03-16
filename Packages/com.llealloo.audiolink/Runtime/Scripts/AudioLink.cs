@@ -128,6 +128,8 @@ namespace VRCAudioLink
         // ReSharper disable InconsistentNaming
         
         private int _AudioTexture;
+
+        private bool _idsInitialized;
         
         // AudioLink 4 Band
         private int _FadeLength;
@@ -231,12 +233,13 @@ namespace VRCAudioLink
             _Samples1R = PropertyToID("_Samples1R");
             _Samples2R = PropertyToID("_Samples2R");
             _Samples3R = PropertyToID("_Samples3R");
+
+            _idsInitialized = true;
         }
         #endregion
 
         void Start()
         {
-            InitIDs();
             #if UDONSHARP
             {
                 // Handle sync'd time stuff.
@@ -480,6 +483,21 @@ namespace VRCAudioLink
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
             }
+        }
+
+        private void OnEnable()
+        {
+            if (!_idsInitialized)
+            {
+                InitIDs();
+            }
+            
+            EnableAudioLink();
+        }
+
+        private void OnDisable()
+        {
+            DisableAudioLink();
         }
 
         public void UpdateSettings()
