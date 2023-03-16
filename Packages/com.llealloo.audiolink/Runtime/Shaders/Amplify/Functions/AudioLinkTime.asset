@@ -12,15 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: AudioLinkTime
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n802;73;1117;926;756;236;1;True;True\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-385.5,-50.5;Inherit;False;ALDecodeDataAsfloat(
-    ALPASS_GENERALVU_INSTANCE_TIME );1;Create;0;ALDecodeDataAsfloat;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-383.5,142.5;Inherit;False;ALDecodeDataAsUInt(
-    ALPASS_GENERALVU_LOCAL_TIME );1;Create;0;ALDecodeDataAsUInt;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;9,-13;Inherit;False;True;-1;Instance
-    Time;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;3;5.5,129.5;Inherit;False;False;-1;Local
-    Time;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;0;0;1;0\nWireConnection;3;0;2;0\nASEEND*/\n//CHKSM=3056274C6BC195FE514EA68F899B874C361159D1"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.1.5\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19105\nNode;AmplifyShaderEditor.FunctionOutput;0;-64,0;Inherit;False;True;-1;Instance
+    Time;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;3;-64,128;Inherit;False;False;-1;Local
+    Time;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-384,-1;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_INSTANCE_TIME );1;Create;0;GetInstanceTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-384,128;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_LOCAL_TIME );1;Create;0;GetLocalTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;5;-64,256;Inherit;False;False;-1;Network
+    Time;2;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;4;-384,256;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_NETWORK_TIME );1;Create;0;GetNetworkTime;True;False;0;;False;0;1;FLOAT;0\nWireConnection;0;0;1;0\nWireConnection;3;0;2;0\nWireConnection;5;0;4;0\nASEEND*/\n//CHKSM=3657028DF5DA2D35AB8E3F945975521EB04DBDC4"
   m_functionName: 
-  m_description: Returns time since instance start and local time since 12am (in
-    milliseconds)
+  m_description: Returns time since instance start, local time since 12am and network
+    time which is synced across all of the users (in seconds).
   m_additionalIncludes:
     m_additionalIncludes: []
     m_outsideIncludes: []
@@ -44,8 +46,14 @@ MonoBehaviour:
       LineValue: Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc
       GUIDToggle: 0
       GUIDValue: 
+      ShowConditionals: 0
+      VersionMin: 0
+      VersionMax: 0
+      Passes: 
       Origin: 2
   m_nodeCategory: 0
+  m_headerStyle: 0
+  m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
   m_customNodeCategory: AudioLink
   m_previewPosition: 0
   m_hidden: 0
