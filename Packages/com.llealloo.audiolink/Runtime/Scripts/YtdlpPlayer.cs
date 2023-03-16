@@ -113,6 +113,13 @@ namespace VRCAudioLink
         //TODO: add a warning on Linux that only some filetypes are supported?
         public override void OnInspectorGUI()
         {
+            #if UNITY_EDITOR_LINUX
+            bool available = false;
+            #else
+            bool available = YtdlpURLResolver.IsYtdlpAvailable();
+            #endif
+
+            EditorGUI.BeginDisabledGroup(!available);
             base.OnInspectorGUI();
             float playbackTime = 0;
             bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
@@ -135,7 +142,18 @@ namespace VRCAudioLink
                 _ytdlpPlayer.SetPlaybackTime(playbackTime);
 
             EditorGUI.EndDisabledGroup();
+            EditorGUI.EndDisabledGroup();
             
+            if (!available)
+            {
+                #if UNITY_EDITOR_LINUX
+                EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux.", MessageType.Warning);
+                #elif UNITY_EDITOR_WIN
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+                #else
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+                #endif
+            }
         }
     }
 
@@ -146,6 +164,15 @@ namespace VRCAudioLink
 
         private static string _ytdlpPath = "";
         private static bool _ytdlpFound = false;
+
+        public static bool IsYtdlpAvailable()
+        {
+            if (_ytdlpFound)
+                return true;
+            
+            LocateYtdlp();
+            return _ytdlpFound;
+        }
 
         /// <summary> Locate yt-dlp executible, either in VRC application data or locally (offer to download) </summary>
         public static void LocateYtdlp()
@@ -189,7 +216,6 @@ namespace VRCAudioLink
             if (!File.Exists(_ytdlpPath)) 
             {
                 // Still don't have it, no dice
-                Debug.LogWarning("[AudioLink] Unable to find yt-dlp");
                 return;
             }
             else
