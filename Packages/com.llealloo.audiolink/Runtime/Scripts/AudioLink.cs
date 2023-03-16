@@ -81,7 +81,7 @@ namespace VRCAudioLink
         public string customString2;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
-        public RenderTexture audioRenderTexture;
+        public CustomRenderTexture audioRenderTexture;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
@@ -622,6 +622,26 @@ namespace VRCAudioLink
             audioMaterial.SetVectorArray(nameID, vecs);
         }
 
+        public void EnableAudioLink()
+        {
+            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+            #if UDONSHARP
+            VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
+            #else
+            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
+            #endif
+        }
+
+        public void DisableAudioLink()
+        {
+            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+            #if UDONSHARP
+            VRCShader.SetGlobalTexture(_AudioTexture, null);
+            #else
+            Shader.SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
+            #endif
+        }
+        
         public void EnableReadback()
         {
             audioDataToggle = true;
