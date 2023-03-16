@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: AudioLinkTime
   m_EditorClassIdentifier: 
   m_functionInfo: "// Made with Amplify Shader Editor v1.9.1.5\n// Available at the
-    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19105\nNode;AmplifyShaderEditor.FunctionOutput;3;-64,128;Inherit;False;False;-1;Local
-    Time;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;-64,0;Inherit;False;True;-1;Instance
-    Time;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-384,128;Inherit;False;ALDecodeDataAsUInt(
-    ALPASS_GENERALVU_LOCAL_TIME );1;Create;0;ALDecodeDataAsUInt;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-384,-1;Inherit;False;AudioLinkDecodeDataAsSeconds(
-    ALPASS_GENERALVU_INSTANCE_TIME );1;Create;0;AudioLinkDecodeDataAsSeconds;True;False;0;;False;0;1;FLOAT;0\nWireConnection;3;0;2;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=B91C856BD54B5452B8C4AA99D974CE4165146197"
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19105\nNode;AmplifyShaderEditor.FunctionOutput;0;-64,0;Inherit;False;True;-1;Instance
+    Time;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;3;-64,128;Inherit;False;False;-1;Local
+    Time;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-384,128;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_LOCAL_TIME );1;Create;0;GetLocalTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-384,-1;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_INSTANCE_TIME );1;Create;0;GetInstanceTime;True;False;0;;False;0;1;FLOAT;0\nWireConnection;0;0;1;0\nWireConnection;3;0;2;0\nASEEND*/\n//CHKSM=BF100AAA56FAE24CDF1BE953494C21094EB5182C"
   m_functionName: 
   m_description: Returns time since instance start and local time since 12am (in
-    milliseconds)
+    seconds).
   m_additionalIncludes:
     m_additionalIncludes: []
     m_outsideIncludes: []
