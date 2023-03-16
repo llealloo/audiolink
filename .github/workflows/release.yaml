@@ -103,6 +103,7 @@ jobs:
         with:
           name: AudioLink ${{ steps.version.outputs.prop }}
           body_path: releaseNotes
+          prerelease: yes
           tag_name: ${{ steps.version.outputs.prop }}
           files: |
             ${{ env.zipFile }}
