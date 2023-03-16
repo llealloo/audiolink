@@ -18,7 +18,7 @@ namespace VRCAudioLink
     public class AudioLink : MonoBehaviour
 #endif
     {
-        const float AUDIOLINK_VERSION_NUMBER = 3.01f;
+        const float AUDIOLINK_VERSION_NUMBER = 3.02f;
 
         [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
@@ -94,7 +94,6 @@ namespace VRCAudioLink
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
-        private const float _audioLinkInputVolume = 0.01f; // smallify input source volume level
 
         private string masterName;
         // Mechanism to provide sync'd instance time to all avatars.
@@ -285,10 +284,6 @@ namespace VRCAudioLink
             if (audioSource == null)
             {
                 Debug.LogWarning("No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
-            }
-            else if (audioSource.name.Equals("AudioLinkInput"))
-            {
-                audioSource.volume = _audioLinkInputVolume;
             }
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true

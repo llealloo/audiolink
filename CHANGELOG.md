@@ -1,12 +1,23 @@
 # Changelog
 
+## 0.3.2 - March 12th, 2023
+### New features
+- Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)
+- A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
+- Added a button for quickly adding AudioLink prefabs to the current scene. Available under "AudioLink -> Add AudioLink Prefab to Scene".
+### Changes
+- Add FAQ.md containing frequently asked questions and answers.
+- Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
+### Bugfixes
+- Ask User to save current scenes before opening the example scene
+
 ## 0.3.1 - November 26th, 2022
 ### Changes
 - Updated the AudioLink package to work in both world and avatar projects, by removing the dependency on UdonSharp. The first time you attempt to import AudioLink into a world project, a popup will appear prompting you to install UdonSharp.
 
 ## 0.3.0 - November 11th, 2022
 ### New features
-- AudioLink is now a curated package! As such, it can be installed with [VRChat Creator Companion](https://vcc.docs.vrchat.com/). This is new the recommended way to install AudioLink. For avatar projects and non-VRChat use cases, there is a regular old UnityPackage you can use. Please see the readme for a guide on how to update your projects. We recommend you follow this guide, as the update is a breaking change.
+- AudioLink is now a curated package! As such, it can be installed with [VRChat Creator Companion](https://vcc.docs.vrchat.com/). This is new the recommended way to install AudioLink. ~~For avatar projects and non-VRChat use cases, there is a regular old UnityPackage you can use.~~ Please see the readme for [a guide on how to update your projects](/README.md#updating-projects-from-version-28-or-lower-first-time-setup-please-see-next-section). We recommend you follow this guide, as the update is a breaking change.
 - Since the folder structure has changed, custom shaders may need to be upgraded. A tool has been included to automatically upgrade shaders where needed. This tool is accessible from "AudioLink -> Update AudioLink compatible shaders" in the top menu of the editor. (Thanks, 3)
 - Added Global Strings - text which can be read from AudioLink compatible shaders. Use this to retrieve the name of the local player and master in a shader, or to feed custom string data through. Info on usage is in Documentation. See `AudioLinkGetGlobalStringChar(uint stringIndex, uint charIndex)` in AudioLink.cginc for details.
 - Included Amplify nodes for using AudioLink have been overhauled. They are now in their own "AudioLink" category, and handle including the relevant files automatically. Also, links to documentation are added. (Thanks, Nestorboy)
