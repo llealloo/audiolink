@@ -1,5 +1,8 @@
 name: Build Release
 
+permissions:
+  content: write
+
 on: 
   workflow_dispatch:
   push:
