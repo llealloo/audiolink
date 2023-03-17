@@ -129,7 +129,7 @@ namespace VRCAudioLink
         
         private int _AudioTexture;
 
-        private bool _idsInitialized;
+        private bool _idsInitialized = false;
         
         // AudioLink 4 Band
         private int _FadeLength;
