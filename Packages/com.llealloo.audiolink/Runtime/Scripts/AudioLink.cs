@@ -81,7 +81,7 @@ namespace VRCAudioLink
         public string customString2;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
-        public RenderTexture audioRenderTexture;
+        public CustomRenderTexture audioRenderTexture;
 
         [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
@@ -128,6 +128,8 @@ namespace VRCAudioLink
         // ReSharper disable InconsistentNaming
         
         private int _AudioTexture;
+
+        private bool _idsInitialized = false;
         
         // AudioLink 4 Band
         private int _FadeLength;
@@ -231,12 +233,13 @@ namespace VRCAudioLink
             _Samples1R = PropertyToID("_Samples1R");
             _Samples2R = PropertyToID("_Samples2R");
             _Samples3R = PropertyToID("_Samples3R");
+
+            _idsInitialized = true;
         }
         #endregion
 
         void Start()
         {
-            InitIDs();
             #if UDONSHARP
             {
                 // Handle sync'd time stuff.
@@ -288,11 +291,6 @@ namespace VRCAudioLink
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
-            #if UDONSHARP
-            VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
-            #else
-            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
-            #endif
 
             // Disable camera on start if user didn't ask for it
             if (!audioDataToggle)
@@ -486,6 +484,21 @@ namespace VRCAudioLink
             }
         }
 
+        private void OnEnable()
+        {
+            if (!_idsInitialized)
+            {
+                InitIDs();
+            }
+            
+            EnableAudioLink();
+        }
+
+        private void OnDisable()
+        {
+            DisableAudioLink();
+        }
+
         public void UpdateSettings()
         {
             audioMaterial.SetFloat(_X0, x0);
@@ -622,6 +635,26 @@ namespace VRCAudioLink
             audioMaterial.SetVectorArray(nameID, vecs);
         }
 
+        public void EnableAudioLink()
+        {
+            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+            #if UDONSHARP
+            VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
+            #else
+            Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
+            #endif
+        }
+
+        public void DisableAudioLink()
+        {
+            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+            #if UDONSHARP
+            VRCShader.SetGlobalTexture(_AudioTexture, null);
+            #else
+            Shader.SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
+            #endif
+        }
+        
         public void EnableReadback()
         {
             audioDataToggle = true;
