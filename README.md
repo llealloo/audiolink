@@ -18,11 +18,14 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)
 - A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
 - Added a button for quickly adding AudioLink prefabs to the current scene. Available under "AudioLink -> Add AudioLink Prefab to Scene".
+- Added the ability to get network time from the AudioLinkTime node
+- Added methods to enable/disable the AL texture through the AL behaviour and also made it do that when you enable/disable the GO itself
 ### Changes
 - Add FAQ.md containing frequently asked questions and answers.
 - Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
 ### Bugfixes
 - Ask User to save current scenes before opening the example scene
+- Fix some broken amplify nodes
 
 ## Updating projects from version 2.8 or lower? (...first time setup? please see next section)
 1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
