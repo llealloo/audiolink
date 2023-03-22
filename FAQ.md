@@ -52,3 +52,8 @@ AudioLink 0.3.0 requires use of the VRChat Creator Companion (https://vcc.docs.v
 I'm having trouble using VR Stage Lighting (VRSL) with AudioLink. Where should I ask for help?
 ### **Answer**:
 https://vrsl.dev/
+
+## **Question**:
+I've installed AudioLink in an avatar (or standalone) project, but I'm seeing missing script references on some of the prefabs. How do I fix this?
+### **Answer**:
+These are hidden components added by U# automatically. The missing script references are harmless, you can just ignore them, or remove them if you want. They occur since the prefabs are shared between different distributions of AudioLink. 
