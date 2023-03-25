@@ -147,7 +147,7 @@ namespace VRCAudioLink
             if (!available)
             {
                 #if UNITY_EDITOR_LINUX
-                EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux.", MessageType.Warning);
+                EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux, as Unity on Linux cannot play the required file formats.", MessageType.Warning);
                 #elif UNITY_EDITOR_WIN
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
                 #else
@@ -191,17 +191,6 @@ namespace VRCAudioLink
                 // Check the local path (in the Assets folder)
                 _ytdlpPath = _localYtdlpPath;
             }
-
-            // Offer to download yt-dlp to the AudioLink folder ONLY when we are not in VRC usecase,
-            // since VRC's security team doesn't like us downloading executables.
-            #if !VRC_SDK_VRCSDK3 && UNITY_EDITOR_WIN
-            if (!File.Exists(_ytdlpPath))
-            {
-                bool doDownload = EditorUtility.DisplayDialog("[AudioLink] Download yt-dlp?", "AudioLink could not locate yt-dlp in your VRChat folder.\nDownload to AudioLink folder instead?", "Download", "Cancel");
-                if(doDownload)
-                    DownloadYtdlp();
-            }
-            #endif
 
             if (!File.Exists(_ytdlpPath))
             {
@@ -284,29 +273,6 @@ namespace VRCAudioLink
             }
             return Path.GetFullPath(name);
         }
-
-        #if !VRC_SDK_VRCSDK3
-        /// <summary> Download yt-dlp to the AudioLink folder. </summary>
-        private static void DownloadYtdlp()
-        {
-            using (var webClient = new WebClient())
-            {
-                try
-                {
-                    webClient.DownloadFile(new Uri(_ytdlpDownloadURL), _localYtdlpPath);
-                    Debug.Log($"[AudioLink] yt-dlp downloaded to '{_ytdlpPath}'");
-                    AssetDatabase.Refresh();
-                }
-                catch(Exception e)
-                {
-                    Debug.LogWarning($"[AudioLink] Failed to download yt-dlp from '{_ytdlpDownloadURL}' : " + e.Message);
-                }
-
-                // Check for it again to make sure it was actually downloaded
-                LocateYtdlp();
-            }
-        }
-        #endif
     }
 }
 #endif
