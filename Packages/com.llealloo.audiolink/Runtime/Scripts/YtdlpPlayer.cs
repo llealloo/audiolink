@@ -159,7 +159,6 @@ namespace VRCAudioLink
 
     public static class YtdlpURLResolver
     {
-        private static string _ytdlpDownloadURL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
         private static string _localYtdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static string _ytdlpPath = "";
