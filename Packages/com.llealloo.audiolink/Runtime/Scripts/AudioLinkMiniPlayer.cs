@@ -566,7 +566,7 @@ namespace VRCAudioLink
         {
             localPlayerState = state;
 
-            if (Utilities.IsValid(videoRenderTexture))
+            if (VRC.SDKBase.Utilities.IsValid(videoRenderTexture))
             {
                 if (state == PLAYER_STATE_PLAYING)
                     videoRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
