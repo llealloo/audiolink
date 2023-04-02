@@ -1,11 +1,13 @@
 ﻿#if UDONSHARP
 using UdonSharp;
+
 using UnityEngine;
 using UnityEngine.UI;
-using VRC.SDKBase;
-using VRC.Udon;
+
 using VRC.SDK3.Components;
 using VRC.SDK3.Components.Video;
+using VRC.SDKBase;
+using VRC.Udon;
 
 // #if UNITY_EDITOR && !COMPILER_UDONSHARP
 // using UnityEditor;
@@ -289,7 +291,8 @@ namespace VRCAudioLink
                         stopIcon.color = disabledColor;
                         loadIcon.color = disabledColor;
                         syncIcon.color = disabledColor;
-                    } else
+                    }
+                    else
                     {
                         stopIcon.color = normalColor;
                         loadIcon.color = activeColor;
@@ -301,7 +304,8 @@ namespace VRCAudioLink
                     {
                         SetPlaceholderText("Enter Video URL...");
                         SetStatusText("");
-                    } else
+                    }
+                    else
                     {
                         SetPlaceholderText("");
                         SetStatusText(MakeOwnerMessage());
