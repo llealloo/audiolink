@@ -36,9 +36,7 @@ public class AudioLinkEditor : Editor
                     {
                         PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
                     }
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
                 }
-
             }
         }
     }
