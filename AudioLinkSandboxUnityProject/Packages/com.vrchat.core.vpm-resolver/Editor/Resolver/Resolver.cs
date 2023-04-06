@@ -11,6 +11,7 @@ using UnityEngine;
 using VRC.PackageManagement.Core;
 using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
+using Version = VRC.PackageManagement.Core.Types.VPMVersion.Version;
 
 namespace VRC.PackageManagement.Resolver
 {

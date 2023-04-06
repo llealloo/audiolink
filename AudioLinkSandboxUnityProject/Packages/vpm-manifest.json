@@ -18,17 +18,17 @@
   },
   "locked": {
     "com.vrchat.base": {
-      "version": "3.1.11",
+      "version": "3.1.13",
       "dependencies": {}
     },
     "com.vrchat.core.vpm-resolver": {
-      "version": "0.1.17",
+      "version": "0.1.18",
       "dependencies": {}
     },
     "com.vrchat.worlds": {
-      "version": "3.1.11",
+      "version": "3.1.13",
       "dependencies": {
-        "com.vrchat.base": "3.1.11"
+        "com.vrchat.base": "3.1.13"
       }
     },
     "com.vrchat.clientsim": {
