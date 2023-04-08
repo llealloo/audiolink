@@ -29,13 +29,7 @@ public class AudioLinkEditor : Editor
 
                 if (PrefabUtility.IsPartOfPrefabInstance(behaviour))
                 {
-                    behaviour.GetType().GetField("audioLink").SetValue(behaviour, target);
-                    EditorUtility.SetDirty(behaviour);
-
-                    if (PrefabUtility.IsPartOfPrefabInstance(behaviour))
-                    {
-                        PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
-                    }
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
                 }
             }
         }
