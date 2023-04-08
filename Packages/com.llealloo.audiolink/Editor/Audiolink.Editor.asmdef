@@ -19,9 +19,9 @@
     ],
     "versionDefines": [
         {
-            "name": "com.vrchat.worlds",
-            "expression": "3.1.0",
-            "define": "VRC_WORLDS_READY"
+            "name": "com.vrchat.core.vpm-resolver",
+            "expression": "",
+            "define": "VPM_RESOLVER"
         }
     ],
     "noEngineReferences": false

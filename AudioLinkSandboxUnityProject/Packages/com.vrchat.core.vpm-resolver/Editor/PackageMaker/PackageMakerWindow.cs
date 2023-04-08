@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -53,27 +54,30 @@ namespace VRC.PackageManagement.PackageMaker
         [MenuItem("Assets/Export VPM as UnityPackage")]
         private static void ExportAsUnityPackage ()
         {
-            if (Selection.assetGUIDs.Length != 1)
+
+            var foldersToExport = new List<string>();
+            StringBuilder exportFilename = new StringBuilder("exported");
+            foreach (string guid in Selection.assetGUIDs)
             {
-                Debug.LogWarning($"Cannot export selection, must be a single Folder.");
-                return;
+                string selectedFolder = AssetDatabase.GUIDToAssetPath(guid);
+                var manifestPath = Path.Combine(selectedFolder, VRCPackageManifest.Filename);
+                var manifest = VRCPackageManifest.GetManifestAtPath(manifestPath);
+                if (manifest == null)
+                {
+                    Debug.LogWarning($"Could not read valid Package Manifest at {manifestPath}. You need to create this first to export a VPM Package.");
+                    continue;
+                }
+                exportFilename.Append($"-{manifest.Id}-{manifest.Version}");
+                foldersToExport.Add(selectedFolder);
             }
 
-            string selectedFolder = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]);
-            var manifestPath = Path.Combine(selectedFolder, VRCPackageManifest.Filename);
-            var manifest = VRCPackageManifest.GetManifestAtPath(manifestPath);
-            if (manifest == null)
-            {
-                Debug.LogWarning($"Could not read valid Package Manifest at {manifestPath}. You need to create this first.");
-                return;
-            }
-
+            exportFilename.Append(".unitypackage");
             var exportDir = Path.Combine(Directory.GetCurrentDirectory(), "Exports");
             Directory.CreateDirectory(exportDir);
             AssetDatabase.ExportPackage
             (
-                selectedFolder, 
-                Path.Combine(exportDir, $"{manifest.Id}-{manifest.Version}.unitypackage"),
+                foldersToExport.ToArray(), 
+                Path.Combine(exportDir, exportFilename.ToString()),
                 ExportPackageOptions.Recurse | ExportPackageOptions.Interactive
             );
         }
