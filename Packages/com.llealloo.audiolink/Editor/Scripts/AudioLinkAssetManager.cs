@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -109,9 +109,9 @@ namespace VRCAudioLink.Editor
 #else  //VRC WORLD or STANDALONE
             string[] paths = new string[]
             {
-                #if UDONSHARP
+#if UDONSHARP
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
-                #endif
+#endif
                 "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
             };
 #endif
