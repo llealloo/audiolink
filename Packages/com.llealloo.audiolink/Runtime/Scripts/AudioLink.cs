@@ -1,18 +1,23 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+
+using UnityEngine;
+
 using VRCAudioLink.Editor;
 
 namespace VRCAudioLink
 {
 #if UDONSHARP
-    using UdonSharp;
-    using VRC.SDKBase;
     using static VRC.SDKBase.VRCShader;
+
+    using UdonSharp;
+
+    using VRC.SDKBase;
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLink : UdonSharpBehaviour
 #else
     using static UnityEngine.Shader;
+
     using UnityEngine.Rendering;
 
     public class AudioLink : MonoBehaviour
@@ -20,49 +25,68 @@ namespace VRCAudioLink
     {
         const float AUDIOLINK_VERSION_NUMBER = 3.02f;
 
-        [Header("Main Settings")] [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
+        [Header("Main Settings")]
+        [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
 
-        [Header("Basic EQ")] [Range(0.0f, 2.0f)] [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
+        [Header("Basic EQ")]
+        [Range(0.0f, 2.0f)]
+        [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
         public float gain = 1f;
 
-        [Range(0.0f, 2.0f)] [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
+        [Range(0.0f, 2.0f)]
+        [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
         public float bass = 1f;
 
-        [Range(0.0f, 2.0f)] [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
+        [Range(0.0f, 2.0f)]
+        [Tooltip("Warning: this setting might be taken over by AudioLinkController")]
         public float treble = 1f;
 
-        [Header("4 Band Crossover")] [Range(0.0f, 0.168f)] [Tooltip("Bass / low mid crossover")]
+        [Header("4 Band Crossover")]
+        [Range(0.0f, 0.168f)]
+        [Tooltip("Bass / low mid crossover")]
         public float x0 = 0.0f;
 
-        [Range(0.242f, 0.387f)] [Tooltip("Bass / low mid crossover")]
+        [Range(0.242f, 0.387f)]
+        [Tooltip("Bass / low mid crossover")]
         public float x1 = 0.25f;
 
-        [Range(0.461f, 0.628f)] [Tooltip("Low mid / high mid crossover")]
+        [Range(0.461f, 0.628f)]
+        [Tooltip("Low mid / high mid crossover")]
         public float x2 = 0.5f;
 
-        [Range(0.704f, 0.953f)] [Tooltip("High mid / treble crossover")]
+        [Range(0.704f, 0.953f)]
+        [Tooltip("High mid / treble crossover")]
         public float x3 = 0.75f;
 
-        [Header("4 Band Threshold Points (Sensitivity)")] [Range(0.0f, 1.0f)] [Tooltip("Bass threshold level (lower is more sensitive)")]
+        [Header("4 Band Threshold Points (Sensitivity)")]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("Bass threshold level (lower is more sensitive)")]
         public float threshold0 = 0.45f;
 
-        [Range(0.0f, 1.0f)] [Tooltip("Low mid threshold level (lower is more sensitive)")]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("Low mid threshold level (lower is more sensitive)")]
         public float threshold1 = 0.45f;
 
-        [Range(0.0f, 1.0f)] [Tooltip("High mid threshold level (lower is more sensitive)")]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("High mid threshold level (lower is more sensitive)")]
         public float threshold2 = 0.45f;
 
-        [Range(0.0f, 1.0f)] [Tooltip("Treble threshold level (lower is more sensitive)")]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("Treble threshold level (lower is more sensitive)")]
         public float threshold3 = 0.45f;
 
-        [Header("Fade Controls")] [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
+        [Header("Fade Controls")]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("Amplitude fade amount. This creates a linear fade-off / trails effect. Warning: this setting might be taken over by AudioLinkController")]
         public float fadeLength = 0.25f;
 
-        [Range(0.0f, 1.0f)] [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
         public float fadeExpFalloff = 0.75f;
 
-        [Header("Theme Colors")] [Tooltip("Enable for custom theme colors for Avatars to use.")]
+        [Header("Theme Colors")]
+        [Tooltip("Enable for custom theme colors for Avatars to use.")]
         [StringInList("ColorChord Colors", "Custom")]
         public int themeColorMode;
         public Color customThemeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
@@ -71,19 +95,20 @@ namespace VRCAudioLink
         public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Custom Global Strings")]
-        #if UDONSHARP
+#if UDONSHARP
         [UdonSynced]
-        #endif
+#endif
         public string customString1;
-        #if UDONSHARP
+#if UDONSHARP
         [UdonSynced]
-        #endif
+#endif
         public string customString2;
 
         [Header("Internal (Do not modify)")] public Material audioMaterial;
         public CustomRenderTexture audioRenderTexture;
 
-        [Header("Experimental (Limits performance)")] [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
+        [Header("Experimental (Limits performance)")]
+        [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         public bool audioDataToggle = false;
 
         public Color[] audioData;
@@ -98,35 +123,33 @@ namespace VRCAudioLink
         private string masterName;
         // Mechanism to provide sync'd instance time to all avatars.
 #if UDONSHARP
-    [UdonSynced]
+        [UdonSynced]
 #endif
         private double _masterInstanceJoinTime;
         private double _elapsedTime = 0;
         private double _elapsedTimeMSW = 0;
-        private int    _networkTimeMS;
+        private int _networkTimeMS;
         private double _networkTimeMSAccumulatedError;
-#pragma warning disable 414 ///The private field is assigned but its value is never used
-        private bool   _hasInitializedTime = false;
-#pragma warning restore 414
+        private bool _hasInitializedTime = false;
         private double _FPSTime = 0;
-        private int    _FPSCount = 0;
+        private int _FPSCount = 0;
 
 #if UDONSHARP
-        private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1) ).TotalSeconds; }
+        private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1)).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
 #else
-        private double GetElapsedSecondsSince2019() { return (DateTime.UtcNow - new DateTime(2020, 1, 1) ).TotalSeconds; }
+        private double GetElapsedSecondsSince2019() { return (DateTime.UtcNow - new DateTime(2020, 1, 1)).TotalSeconds; }
 #endif
 
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
         private int _rightChannelTestDelay = 300;
         private int _rightChannelTestCounter;
         private bool _ignoreRightChannel = false;
-        
+
         #region PropertyIDs
 
         // ReSharper disable InconsistentNaming
-        
+
         private int _AudioTexture;
 
         // AudioLink 4 Band
@@ -152,17 +175,17 @@ namespace VRCAudioLink
         private int _CustomThemeColor1;
         private int _CustomThemeColor2;
         private int _CustomThemeColor3;
-        
+
         // Global strings
         private int _StringLocalPlayer;
         private int _StringMasterPlayer;
         private int _StringCustom1;
         private int _StringCustom2;
-        
+
         // Extra Properties
         // private int _EnableAutogain;
         // private int _AutogainDerate;
-        
+
         // Set by Udon
         private int _AdvancedTimeProps0;
         private int _AdvancedTimeProps1;
@@ -174,7 +197,7 @@ namespace VRCAudioLink
         private int _Samples1L;
         private int _Samples2L;
         private int _Samples3L;
-        
+
         private int _Samples0R;
         private int _Samples1R;
         private int _Samples2R;
@@ -208,25 +231,25 @@ namespace VRCAudioLink
             _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
             _CustomThemeColor2 = PropertyToID("_CustomThemeColor2");
             _CustomThemeColor3 = PropertyToID("_CustomThemeColor3");
-            
+
             _StringLocalPlayer = PropertyToID("_StringLocalPlayer");
             _StringMasterPlayer = PropertyToID("_StringMasterPlayer");
             _StringCustom1 = PropertyToID("_StringCustom1");
             _StringCustom2 = PropertyToID("_StringCustom2");
-            
+
             // _EnableAutogain = PropertyToID("_EnableAutogain");
             // _AutogainDerate = PropertyToID("_AutogainDerate");
-            
+
             _AdvancedTimeProps0 = PropertyToID("_AdvancedTimeProps0");
             _AdvancedTimeProps1 = PropertyToID("_AdvancedTimeProps1");
             _VersionNumberAndFPSProperty = PropertyToID("_VersionNumberAndFPSProperty");
             _PlayerCountAndData = PropertyToID("_PlayerCountAndData");
-            
+
             _Samples0L = PropertyToID("_Samples0L");
             _Samples1L = PropertyToID("_Samples1L");
             _Samples2L = PropertyToID("_Samples2L");
             _Samples3L = PropertyToID("_Samples3L");
-            
+
             _Samples0R = PropertyToID("_Samples0R");
             _Samples1R = PropertyToID("_Samples1R");
             _Samples2R = PropertyToID("_Samples2R");
@@ -236,7 +259,7 @@ namespace VRCAudioLink
 
         void Start()
         {
-            #if UDONSHARP
+#if UDONSHARP
             {
                 // Handle sync'd time stuff.
                 // OLD NOTES
@@ -258,10 +281,10 @@ namespace VRCAudioLink
 
                 //_networkTimeOfDayUTC = GetElapsedSecondsSinceMidnightUTC();
                 //Debug.Log($"AudioLink _networkTimeOfDayUTC = {_networkTimeOfDayUTC}" );
-                Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}" );
+                Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}");
                 Debug.Log($"AudioLink Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
 
-                _rightChannelTestCounter = _rightChannelTestDelay; 
+                _rightChannelTestCounter = _rightChannelTestDelay;
 
                 // Set localplayer name on start
                 if (Networking.LocalPlayer != null)
@@ -275,7 +298,7 @@ namespace VRCAudioLink
                 // Set master name once on start
                 FindAndUpdateMasterName();
             }
-            #endif
+#endif
 
             UpdateSettings();
             UpdateThemeColors();
@@ -298,22 +321,22 @@ namespace VRCAudioLink
         // Only happens once per second.
         private void FPSUpdate()
         {
-            #if UDONSHARP
-            if( !_hasInitializedTime )
+#if UDONSHARP
+            if (!_hasInitializedTime)
             {
-                if( _masterInstanceJoinTime > 0.00001 )
+                if (_masterInstanceJoinTime > 0.00001)
                 {
                     //We can now do our time setup.
                     double Now = GetElapsedSecondsSince2019();
                     _elapsedTime = Now - _masterInstanceJoinTime;
-                    Debug.Log( $"AudioLink Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}" );
+                    Debug.Log($"AudioLink Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}");
                     _hasInitializedTime = true;
                     _FPSTime = _elapsedTime;
                 }
-                else if( _elapsedTime > 10 && Networking.IsMaster )
+                else if (_elapsedTime > 10 && Networking.IsMaster)
                 {
                     //Have we gone more than 10 seconds and we're master?
-                    Debug.Log( "AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time." );
+                    Debug.Log("AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time.");
                     _masterInstanceJoinTime = GetElapsedSecondsSince2019();
                     RequestSerialization();
                     _hasInitializedTime = true;
@@ -321,27 +344,27 @@ namespace VRCAudioLink
                     _FPSTime = _elapsedTime;
                 }
             }
-            #endif
+#endif
 
             audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(AUDIOLINK_VERSION_NUMBER, 0, _FPSCount, 1));
-            #if UDONSHARP
+#if UDONSHARP
             audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
-                Networking.IsMaster?1.0f:0.0f,
-                #if UNITY_EDITOR
+                Networking.IsMaster ? 1.0f : 0.0f,
+#if UNITY_EDITOR
                     0.0f,
-                #else
+#else
                     Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
-                #endif
-                0 ) );
+#endif
+                0));
 
-            #else
-                audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
-                0,
-                0,
-                0,
-                0 ) );
-            #endif
+#else
+            audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
+            0,
+            0,
+            0,
+            0));
+#endif
             _FPSCount = 0;
             _FPSTime++;
 
@@ -350,7 +373,7 @@ namespace VRCAudioLink
             // This handles wrapping of the ElapsedTime so we don't lose precision
             // onthe floating point.
             const double ElapsedTimeMSWBoundary = 1024;
-            if( _elapsedTime >= ElapsedTimeMSWBoundary )
+            if (_elapsedTime >= ElapsedTimeMSWBoundary)
             {
                 //For particularly long running instances, i.e. several days, the first
                 //few frames will be spent federating _elapsedTime into _elapsedTimeMSW.
@@ -361,18 +384,18 @@ namespace VRCAudioLink
             }
 
             // Finely adjust our network time estimate if needed.
-            #if UDONSHARP
+#if UDONSHARP
             int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
-            #else
-            int networkTimeMSNow = (int)(Time.time*1000.0f);
-            #endif
+#else
+            int networkTimeMSNow = (int)(Time.time * 1000.0f);
+#endif
             int networkTimeDelta = networkTimeMSNow - _networkTimeMS;
-            if( networkTimeDelta > 3000 )
+            if (networkTimeDelta > 3000)
             {
                 //Major upset, reset.
                 _networkTimeMS = networkTimeMSNow;
             }
-            else if( networkTimeDelta < -3000 )
+            else if (networkTimeDelta < -3000)
             {
                 //Major upset, reset.
                 _networkTimeMS = networkTimeMSNow;
@@ -380,7 +403,7 @@ namespace VRCAudioLink
             else
             {
                 //Slowly correct the timebase.
-                _networkTimeMS += networkTimeDelta/20;
+                _networkTimeMS += networkTimeDelta / 20;
             }
             //Debug.Log( $"Refinement: ${networkTimeDelta}" );
         }
@@ -393,10 +416,10 @@ namespace VRCAudioLink
             // Advance the current network time by a little.
             // this algorithm also takes into account sub-millisecond jitter.
             {
-                double deltaTimeMS = Time.deltaTime*1000.0;
+                double deltaTimeMS = Time.deltaTime * 1000.0;
                 int advanceTimeMS = (int)(deltaTimeMS);
                 _networkTimeMSAccumulatedError += deltaTimeMS - advanceTimeMS;
-                if( _networkTimeMSAccumulatedError > 1 )
+                if (_networkTimeMSAccumulatedError > 1)
                 {
                     _networkTimeMSAccumulatedError--;
                     advanceTimeMS++;
@@ -415,16 +438,16 @@ namespace VRCAudioLink
             audioMaterial.SetVector(_AdvancedTimeProps0, new Vector4(
                 (float)_elapsedTime,
                 (float)_elapsedTimeMSW,
-                (float)DateTime.Now.TimeOfDay.TotalSeconds) );
+                (float)DateTime.Now.TimeOfDay.TotalSeconds));
 
-			// Jan 1, 1970 = 621355968000000000.0 ticks.
-            double UTCSecondsUnix = DateTime.UtcNow.Ticks/10000000.0-62135596800.0;
+            // Jan 1, 1970 = 621355968000000000.0 ticks.
+            double UTCSecondsUnix = DateTime.UtcNow.Ticks / 10000000.0 - 62135596800.0;
             audioMaterial.SetVector(_AdvancedTimeProps1, new Vector4(
-                (float)((_networkTimeMS)&65535),
-                (float)((_networkTimeMS)>>16),
-                (float)(Math.Floor(UTCSecondsUnix/86400)),
-                (float)(UTCSecondsUnix%86400)
-            ) );
+                (float)((_networkTimeMS) & 65535),
+                (float)((_networkTimeMS) >> 16),
+                (float)(Math.Floor(UTCSecondsUnix / 86400)),
+                (float)(UTCSecondsUnix % 86400)
+            ));
 
             // General Profiling Notes:
             //    Profiling done on 2021-05-26 on an Intel Intel Core i7-8750H CPU @ 2.20GHz
@@ -450,25 +473,25 @@ namespace VRCAudioLink
                 audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
                 audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
 
-                #if UDONSHARP
-                    if (Networking.LocalPlayer != null)
-                    {
-                        float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
-                        audioMaterial.SetFloat(_SourceDistance, distanceToSource);
-                    }
-                #endif
+#if UDONSHARP
+                if (Networking.LocalPlayer != null)
+                {
+                    float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                    audioMaterial.SetFloat(_SourceDistance, distanceToSource);
+                }
+#endif
             }
-         
+
 
             // As an optimization: when in-game, require others to call these after
             // setting values on this object.
             // Since we expect changes to values on this object in editor through the GUI,
             // we do not have explicit events to when things change.
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
             UpdateCustomStrings();
-        #endif
+#endif
         }
 
         void OnPostRender()
@@ -526,8 +549,8 @@ namespace VRCAudioLink
             uint frac = value & 0x007FFFFF;
             return (frac / 8388608F) * 1.1754944e-38F;
         }
-        
-        #if UDONSHARP
+
+#if UDONSHARP
         public override void OnPlayerJoined(VRCPlayerApi player)
         {
             if (player != null)
@@ -568,24 +591,24 @@ namespace VRCAudioLink
                 }
             }
         }
-        #endif
+#endif
 
         public void UpdateCustomStrings()
         {
-            #if UDONSHARP
+#if UDONSHARP
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(Networking.LocalPlayer, gameObject);
-            #endif
+#endif
 
             UpdateGlobalString(_StringCustom1, customString1);
             UpdateGlobalString(_StringCustom2, customString2);
 
-            #if UDONSHARP
+#if UDONSHARP
             RequestSerialization();
-            #endif
+#endif
         }
 
-        #if UDONSHARP
+#if UDONSHARP
         public override void OnDeserialization()
         {
             if (!Networking.IsOwner(gameObject))
@@ -594,7 +617,7 @@ namespace VRCAudioLink
                 UpdateGlobalString(_StringCustom2, customString2);
             }
         }
-        #endif
+#endif
 
         private void UpdateGlobalString(int nameID, string input)
         {
@@ -632,23 +655,23 @@ namespace VRCAudioLink
         public void EnableAudioLink()
         {
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
-            #if UDONSHARP
+#if UDONSHARP
             VRCShader.SetGlobalTexture(_AudioTexture, audioRenderTexture);
-            #else
+#else
             Shader.SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
-            #endif
+#endif
         }
 
         public void DisableAudioLink()
         {
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
-            #if UDONSHARP
+#if UDONSHARP
             VRCShader.SetGlobalTexture(_AudioTexture, null);
-            #else
+#else
             Shader.SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
-            #endif
+#endif
         }
-        
+
         public void EnableReadback()
         {
             audioDataToggle = true;
@@ -667,13 +690,18 @@ namespace VRCAudioLink
 
             if (_rightChannelTestCounter > 0)
             {
-                if (_ignoreRightChannel) {
+                if (_ignoreRightChannel)
+                {
                     System.Array.Copy(_audioFramesL, 0, _audioFramesR, 0, 4092);
-                } else {
+                }
+                else
+                {
                     audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
-            } else {
+            }
+            else
+            {
                 _rightChannelTestCounter = _rightChannelTestDelay;      // reset test countdown
                 _audioFramesR[0] = 0f;                                  // reset tested array element to zero just in case
                 audioSource.GetOutputData(_audioFramesR, 1);            // right channel test

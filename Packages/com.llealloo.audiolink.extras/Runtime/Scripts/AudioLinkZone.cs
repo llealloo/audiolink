@@ -17,7 +17,7 @@ namespace VRCAudioLink.Extras
 
         void Start()
         {
-            _localPlayer = Networking.LocalPlayer;        
+            _localPlayer = Networking.LocalPlayer;
         }
 
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)

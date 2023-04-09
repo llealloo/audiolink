@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioLink
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 3636bf42e14e6334588b5c676891f4dc,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ccb8360dc646ff84aa364ffcb8e7f983,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -1534,7 +1534,7 @@ MonoBehaviour:
       Data: 91|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UnityEngine.RenderTexture, UnityEngine.CoreModule
+      Data: UnityEngine.CustomRenderTexture, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 

@@ -30,7 +30,8 @@ namespace VRCAudioLink.Editor
                 }
                 else
                 {
-                    #if !AUDIOLINK_STANDALONE && VPM_RESOLVER
+#if !AUDIOLINK_STANDALONE && VPM_RESOLVER
+
                     if (IsWorldProjectWithoutUdonSharp())
                     {
                         if (EditorUtility.DisplayDialog(
@@ -43,7 +44,7 @@ namespace VRCAudioLink.Editor
                         }
                     }
                     else
-                    #endif
+#endif
                     {
                         ReimportPackage();
                     }
@@ -59,7 +60,7 @@ namespace VRCAudioLink.Editor
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
-        #if !AUDIOLINK_STANDALONE && VPM_RESOLVER
+#if !AUDIOLINK_STANDALONE && VPM_RESOLVER
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
@@ -94,26 +95,26 @@ namespace VRCAudioLink.Editor
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
-        #endif
+#endif
 
         [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
-            #if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
+#if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
             string[] paths = new string[]
             {
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab"
             };
-            #else  //VRC WORLD or STANDALONE
+#else  //VRC WORLD or STANDALONE
             string[] paths = new string[]
             {
-                #if UDONSHARP
+#if UDONSHARP
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
-                #endif
+#endif
                 "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
             };
-            #endif
+#endif
             foreach (string path in paths)
             {
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);

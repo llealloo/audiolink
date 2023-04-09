@@ -5,9 +5,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+
 using UnityEditor;
+
 using UnityEngine;
 using UnityEngine.Video;
+
 using Debug = UnityEngine.Debug;
 
 // This component uses code from the following sources:
@@ -47,7 +50,7 @@ namespace VRCAudioLink
         public void UpdateURL()
         {
             string resolved = YtdlpURLResolver.Resolve(ytdlpURL, 720);
-            if(resolved != null)
+            if (resolved != null)
             {
                 VideoPlayer.url = resolved;
                 SetPlaybackTime(0.0f);
@@ -57,7 +60,7 @@ namespace VRCAudioLink
         /// <summary> Get Video Player Playback Time (as a fraction of playback, 0-1) </summary>
         public float GetPlaybackTime()
         {
-            if(VideoPlayer != null && VideoPlayer.length > 0)
+            if (VideoPlayer != null && VideoPlayer.length > 0)
                 return (float)(VideoPlayer.length > 0 ? VideoPlayer.time / VideoPlayer.length : 0);
             else
                 return 0;
@@ -67,12 +70,12 @@ namespace VRCAudioLink
         /// <param name="time">Fraction of playback (0-1) to seek to</param>
         public void SetPlaybackTime(float time)
         {
-            if(VideoPlayer != null && VideoPlayer.length > 0 && VideoPlayer.canSetTime)
+            if (VideoPlayer != null && VideoPlayer.length > 0 && VideoPlayer.canSetTime)
                 VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
         }
 
         /// <summary> Format seconds as hh:mm:ss or mm:ss </summary>
-        public string FormattedTimestamp(double seconds, double maxSeconds=0)
+        public string FormattedTimestamp(double seconds, double maxSeconds = 0)
         {
             double formatValue = maxSeconds > 0 ? maxSeconds : seconds;
             string formatString = formatValue >= 3600.0 ? @"hh\:mm\:ss" : @"mm\:ss";
@@ -82,7 +85,7 @@ namespace VRCAudioLink
         /// <summary> Get Video Player Playback Time formatted as current / length </summary>
         public string PlaybackTimestampFormatted()
         {
-            if(VideoPlayer != null && VideoPlayer.length > 0)
+            if (VideoPlayer != null && VideoPlayer.length > 0)
             {
                 return $"{FormattedTimestamp(VideoPlayer.time, VideoPlayer.length)} / {FormattedTimestamp(VideoPlayer.length)}";
             }
@@ -92,19 +95,19 @@ namespace VRCAudioLink
     }
 
     [CustomEditor(typeof(YtdlpPlayer))]
-    public class YtdlpPlayerEditor : UnityEditor.Editor 
+    public class YtdlpPlayerEditor : UnityEditor.Editor
     {
         YtdlpPlayer _ytdlpPlayer;
 
         void OnEnable()
         {
-            _ytdlpPlayer = (YtdlpPlayer) target;
+            _ytdlpPlayer = (YtdlpPlayer)target;
         }
 
         // Force constant updates when playing, so playback time is not behind
         public override bool RequiresConstantRepaint()
         {
-            if(_ytdlpPlayer.VideoPlayer != null)
+            if (_ytdlpPlayer.VideoPlayer != null)
                 return _ytdlpPlayer.VideoPlayer.isPlaying;
             else
                 return false;
@@ -113,46 +116,46 @@ namespace VRCAudioLink
         //TODO: add a warning on Linux that only some filetypes are supported?
         public override void OnInspectorGUI()
         {
-            #if UNITY_EDITOR_LINUX
+#if UNITY_EDITOR_LINUX
             bool available = false;
-            #else
+#else
             bool available = YtdlpURLResolver.IsYtdlpAvailable();
-            #endif
+#endif
 
             EditorGUI.BeginDisabledGroup(!available);
             base.OnInspectorGUI();
             float playbackTime = 0;
             bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
-            if(hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
+            if (hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
                 playbackTime = _ytdlpPlayer.GetPlaybackTime();
-            
+
             EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
             using (new EditorGUILayout.HorizontalScope())
             {
                 // Timestamp/Reload button
                 EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
                 bool updateURL = GUILayout.Button(new GUIContent(" Reload", EditorGUIUtility.IconContent("TreeEditor.Refresh").image));
-                if(updateURL)
+                if (updateURL)
                     _ytdlpPlayer.UpdateAndPlay();
             }
 
             EditorGUI.BeginChangeCheck();
             playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
-            if(EditorGUI.EndChangeCheck())
+            if (EditorGUI.EndChangeCheck())
                 _ytdlpPlayer.SetPlaybackTime(playbackTime);
 
             EditorGUI.EndDisabledGroup();
             EditorGUI.EndDisabledGroup();
-            
+
             if (!available)
             {
-                #if UNITY_EDITOR_LINUX
+#if UNITY_EDITOR_LINUX
                 EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux, as Unity on Linux cannot play the required file formats.", MessageType.Warning);
-                #elif UNITY_EDITOR_WIN
+#elif UNITY_EDITOR_WIN
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
-                #else
+#else
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
-                #endif
+#endif
             }
         }
     }
@@ -168,7 +171,7 @@ namespace VRCAudioLink
         {
             if (_ytdlpFound)
                 return true;
-            
+
             LocateYtdlp();
             return _ytdlpFound;
         }
@@ -177,15 +180,15 @@ namespace VRCAudioLink
         public static void LocateYtdlp()
         {
             _ytdlpFound = false;
-            #if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
             string[] splitPath = Application.persistentDataPath.Split('/', '\\');
-            
+
             // Check for yt-dlp in VRC application data first
             _ytdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
-            #else
+#else
             _ytdlpPath = "/usr/bin/yt-dlp";
-            #endif
-            if (!File.Exists(_ytdlpPath)) 
+#endif
+            if (!File.Exists(_ytdlpPath))
             {
                 // Check the local path (in the Assets folder)
                 _ytdlpPath = _localYtdlpPath;
@@ -194,14 +197,14 @@ namespace VRCAudioLink
             if (!File.Exists(_ytdlpPath))
             {
                 // Check if we can find it on users PATH
-                #if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
                 _ytdlpPath = LocateExecutable("yt-dlp.exe");
-                #else
+#else
                 _ytdlpPath = LocateExecutable("yt-dlp");
-                #endif
+#endif
             }
 
-            if (!File.Exists(_ytdlpPath)) 
+            if (!File.Exists(_ytdlpPath))
             {
                 // Still don't have it, no dice
                 return;
@@ -226,7 +229,7 @@ namespace VRCAudioLink
             }
 
             // If that didn't work, we can't resolve the URL
-            if(!_ytdlpFound)
+            if (!_ytdlpFound)
             {
                 Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : yt-dlp not found");
                 return null;
@@ -247,7 +250,7 @@ namespace VRCAudioLink
                     proc.WaitForExit(5000);
                     return proc.StandardOutput.ReadLine();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : " + e.Message);
                     return null;
