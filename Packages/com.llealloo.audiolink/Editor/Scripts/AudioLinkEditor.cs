@@ -19,6 +19,17 @@ namespace VRCAudioLink.Editor
 #if UDONSHARP
             if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
 #endif
+            // don't use Camera.main here because the main camera might not have the main camera tag?
+            if (FindObjectsOfType<Camera>().Length <= 1)
+            {
+                EditorGUILayout.HelpBox("You're missing a main camera, this could cause issues with the AudioLink camera", MessageType.Warning);
+            }
+
+            if (((AudioLink)target).audioSource == null)
+            {
+                EditorGUILayout.HelpBox("No audio source assigned. AudioLink will not work.", MessageType.Warning);
+            }
+                
             EditorGUILayout.Space();
             if (GUILayout.Button(new GUIContent("Link all sound reactive objects to this AudioLink instance",
                     "Links all scripts with 'audioLink' parameter to this object.")))
