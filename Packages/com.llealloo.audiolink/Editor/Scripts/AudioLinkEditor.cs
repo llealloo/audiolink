@@ -29,7 +29,7 @@ namespace VRCAudioLink.Editor
             {
                 EditorGUILayout.HelpBox("No audio source assigned. AudioLink will not work.", MessageType.Warning);
             }
-                
+
             EditorGUILayout.Space();
             if (GUILayout.Button(new GUIContent("Link all sound reactive objects to this AudioLink instance",
                     "Links all scripts with 'audioLink' parameter to this object.")))
