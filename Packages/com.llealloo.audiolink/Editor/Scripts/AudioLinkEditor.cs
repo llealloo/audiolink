@@ -1,35 +1,55 @@
-﻿#if !COMPILER_UDONSHARP && UNITY_EDITOR && UDONSHARP
+﻿#if !COMPILER_UDONSHARP && UNITY_EDITOR
+using System.Reflection;
+
+#if UDONSHARP
 using UdonSharp;
 using UdonSharpEditor;
+#endif
+
 using UnityEditor;
 using UnityEngine;
-using VRCAudioLink;
 
-[CustomEditor(typeof(AudioLink))]
-public class AudioLinkEditor : Editor
+namespace VRCAudioLink.Editor
 {
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(AudioLink))]
+    public class AudioLinkEditor : UnityEditor.Editor
     {
-        if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
-        EditorGUILayout.Space();
-        if (GUILayout.Button(new GUIContent("Link all sound reactive objects to this AudioLink", "Links all UdonBehaviours with 'audioLink' parameter to this object."))) { LinkAll(); }
-        EditorGUILayout.Space();
-        base.OnInspectorGUI();
-    }
-
-    void LinkAll()
-    {
-        UdonSharpBehaviour[] allUdonSharpBehaviours = FindObjectsOfType<UdonSharpBehaviour>();
-        foreach (var behaviour in allUdonSharpBehaviours)
+        public override void OnInspectorGUI()
         {
-            if (behaviour.GetType().GetField("audioLink") != null)
+#if UDONSHARP
+            if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
+#endif
+            EditorGUILayout.Space();
+            if (GUILayout.Button(new GUIContent("Link all sound reactive objects to this AudioLink instance",
+                    "Links all scripts with 'audioLink' parameter to this object.")))
             {
-                behaviour.GetType().GetField("audioLink").SetValue(behaviour, target);
-                EditorUtility.SetDirty(behaviour);
+                LinkAll();
+            }
 
-                if (PrefabUtility.IsPartOfPrefabInstance(behaviour))
+            EditorGUILayout.Space();
+            base.OnInspectorGUI();
+        }
+
+        // TODO(float3): Test this
+        void LinkAll()
+        {
+#if UDONSHARP
+            UdonSharpBehaviour[] allBehaviours = FindObjectsOfType<UdonSharpBehaviour>();
+#else
+            MonoBehaviour[] allBehaviours = FindObjectsOfType<MonoBehaviour>();
+#endif
+            foreach (var behaviour in allBehaviours)
+            {
+                FieldInfo fieldInfo = behaviour.GetType().GetField("audioLink");
+                if (fieldInfo != null)
                 {
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
+                    fieldInfo.SetValue(behaviour, target);
+                    EditorUtility.SetDirty(behaviour);
+
+                    if (PrefabUtility.IsPartOfPrefabInstance(behaviour))
+                    {
+                        PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
+                    }
                 }
             }
         }
