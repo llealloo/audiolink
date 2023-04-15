@@ -105,8 +105,8 @@ namespace AudioLink
         public Color[] audioData;
         public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
-        private float[] _spectrumValues = new float[1024];
-        private float[] _spectrumValuesTrim = new float[1023];
+        // private float[] _spectrumValues = new float[1024];
+        // private float[] _spectrumValuesTrim = new float[1023];
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
@@ -118,7 +118,9 @@ namespace AudioLink
         private double _elapsedTimeMSW = 0;
         private int _networkTimeMS;
         private double _networkTimeMSAccumulatedError;
+#if UDONSHARP
         private bool _hasInitializedTime = false;
+#endif
         private double _fpsTime = 0;
         private int _fpsCount = 0;
 
