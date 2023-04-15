@@ -15,7 +15,7 @@ namespace VRCAudioLink
 #else
     using static Shader;
 
-    public class AUdioLinkController : MonoBehaviour
+    public class AudioLinkController : MonoBehaviour
 #endif
     {
         [Space(10)]
