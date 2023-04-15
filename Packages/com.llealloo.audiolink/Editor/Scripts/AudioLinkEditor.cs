@@ -42,7 +42,6 @@ namespace VRCAudioLink.Editor
             base.OnInspectorGUI();
         }
 
-        // TODO(float3): Test this
         void LinkAll()
         {
 #if UDONSHARP
