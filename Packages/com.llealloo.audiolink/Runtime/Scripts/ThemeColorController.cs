@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
 #if UDONSHARP
     using UdonSharp;
@@ -24,11 +24,9 @@ namespace VRCAudioLink
                 Color.green
             };
 
-        public AudioLink audioLink;  // Initialized by AudioLinkController.
+        public AudioLink audioLink; // Initialized by AudioLinkController.
 
-
-        // Initialized from prefab.
-        public Dropdown themeColorDropdown;
+        public Dropdown themeColorDropdown; // Initialized from prefab.
 
         private Color[] _initCustomThemeColors;
         private int _initThemeColorMode; // Initialized from themeColorDropdown.

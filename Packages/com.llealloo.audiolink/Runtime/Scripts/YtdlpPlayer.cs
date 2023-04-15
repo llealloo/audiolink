@@ -17,7 +17,7 @@ using Debug = UnityEngine.Debug;
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
-namespace VRCAudioLink
+namespace AudioLink
 {
     /// <summary> Downloads and plays videos via a VideoPlayer component </summary>
     [RequireComponent(typeof(VideoPlayer))]

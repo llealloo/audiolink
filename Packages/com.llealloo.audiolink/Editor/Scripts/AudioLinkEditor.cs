@@ -9,7 +9,7 @@ using UdonSharpEditor;
 using UnityEditor;
 using UnityEngine;
 
-namespace VRCAudioLink.Editor
+namespace AudioLink.Editor
 {
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : UnityEditor.Editor

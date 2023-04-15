@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
 #if UDONSHARP
     using static VRC.SDKBase.VRCShader;

@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace VRCAudioLink.Editor
+namespace AudioLink.Editor
 {
     public class AudioLinkShaderCompatabilityUtility
     {

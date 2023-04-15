@@ -15,7 +15,7 @@ using VRC.Udon;
 // using UdonSharpEditor;
 // #endif
 
-namespace VRCAudioLink
+namespace AudioLink
 {
     [AddComponentMenu("AudioLink/UI/AudioLink Mini Player Controller")]
     public class AudioLinkMiniPlayerController : UdonSharpBehaviour
