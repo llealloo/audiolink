@@ -52,6 +52,18 @@ namespace VRCAudioLink.Editor
             foreach (var behaviour in allBehaviours)
             {
                 FieldInfo fieldInfo = behaviour.GetType().GetField("audioLink");
+                // in case the field isn't called "audioLink"
+                if (fieldInfo == null)
+                {
+                    foreach (FieldInfo field in behaviour.GetType().GetFields())
+                    {
+                        if (field.FieldType == typeof(AudioLink))
+                        {
+                            fieldInfo = field;
+                            break;
+                        }
+                    }
+                }
                 if (fieldInfo != null)
                 {
                     fieldInfo.SetValue(behaviour, target);
