@@ -264,8 +264,8 @@ namespace VRCAudioLink
             {
                 if (Path.GetDirectoryName(name) == string.Empty)
                 {
-                    string[] PATH = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
-                    foreach (string dir in PATH)
+                    string[] path = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
+                    foreach (string dir in path)
                     {
                         string trimmed = dir.Trim();
                         if (!string.IsNullOrEmpty(trimmed) && File.Exists(Path.Combine(trimmed, name)))

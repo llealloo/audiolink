@@ -19,7 +19,6 @@ namespace VRCAudioLink.Editor
 #if UDONSHARP
             if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
 #endif
-
             // don't use Camera.main here because the main camera might not have the main camera tag?
             if (FindObjectsOfType<Camera>().Length <= 1)
             {

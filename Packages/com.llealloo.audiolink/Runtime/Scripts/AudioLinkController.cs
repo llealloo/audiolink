@@ -1,18 +1,24 @@
-﻿#if UDONSHARP
-using UdonSharp;
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-
-using VRC.SDKBase;
-using VRC.Udon;
 
 namespace VRCAudioLink
 {
+#if UDONSHARP
+    using static VRC.SDKBase.VRCShader;
+
+    using UdonSharp;
+
+    using VRC.SDKBase;
+    using VRC.Udon;
+
     public class AudioLinkController : UdonSharpBehaviour
+#else
+    using static Shader;
+
+    public class AUdioLinkController : MonoBehaviour
+#endif
     {
         [Space(10)]
-
         public AudioLink audioLink;
         [Space(10)]
         [Header("Internal (Do not modify)")]
@@ -71,14 +77,14 @@ namespace VRCAudioLink
 
         private void InitIDs()
         {
-            _X0 = VRCShader.PropertyToID("_X0");
-            _X1 = VRCShader.PropertyToID("_X1");
-            _X2 = VRCShader.PropertyToID("_X2");
-            _X3 = VRCShader.PropertyToID("_X3");
-            _Threshold0 = VRCShader.PropertyToID("_Threshold0");
-            _Threshold1 = VRCShader.PropertyToID("_Threshold1");
-            _Threshold2 = VRCShader.PropertyToID("_Threshold2");
-            _Threshold3 = VRCShader.PropertyToID("_Threshold3");
+            _X0 = PropertyToID("_X0");
+            _X1 = PropertyToID("_X1");
+            _X2 = PropertyToID("_X2");
+            _X3 = PropertyToID("_X3");
+            _Threshold0 = PropertyToID("_Threshold0");
+            _Threshold1 = PropertyToID("_Threshold1");
+            _Threshold2 = PropertyToID("_Threshold2");
+            _Threshold3 = PropertyToID("_Threshold3");
         }
 
         #endregion
@@ -254,4 +260,3 @@ namespace VRCAudioLink
         }
     }
 }
-#endif
