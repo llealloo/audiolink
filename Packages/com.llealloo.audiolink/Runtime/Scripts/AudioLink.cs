@@ -86,10 +86,10 @@ namespace AudioLink
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
         [Editor.StringInList("ColorChord Colors", "Custom")]
         public int themeColorMode;
-        public Color customThemeColor0 = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
-        public Color customThemeColor1 = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-        public Color customThemeColor2 = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-        public Color customThemeColor3 = new Vector4(0.0f, 1.0f, 0.0f, 1.0f);
+        public Color customThemeColor0 = new Color(1.0f, 1.0f, 0.0f, 1.0f);
+        public Color customThemeColor1 = new Color(0.0f, 0.0f, 1.0f, 1.0f);
+        public Color customThemeColor2 = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+        public Color customThemeColor3 = new Color(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Custom Global Strings")]
         [UdonSynced] public string customString1;
