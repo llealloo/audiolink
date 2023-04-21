@@ -100,6 +100,7 @@ namespace AudioLink
 
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
+        [Obsolete("Do not reference this field directly, use AudioLink.EnableReadback and AudioLink.DisableReadback instead")]
         public bool audioDataToggle = false;
 
         public Color[] audioData;
@@ -470,6 +471,17 @@ namespace AudioLink
                 {
                     float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
                     audioMaterial.SetFloat(_SourceDistance, distanceToSource);
+                }
+#endif
+#if UNITY_EDITOR
+                // fixing a bug where if you 
+                if (audioDataToggle = true)
+                {
+                    GetComponent<Camera>().enabled = true;
+                }
+                else if (audioDataToggle = false)
+                {
+                    GetComponent<Camera>().enabled = false;
                 }
 #endif
             }
