@@ -103,6 +103,7 @@ namespace AudioLink
         [Obsolete("Do not reference this field directly, use AudioLink.EnableReadback and AudioLink.DisableReadback instead")]
         public bool audioDataToggle = false;
 
+        [NonSerialized]
         public Color[] audioData;
         public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
@@ -471,17 +472,6 @@ namespace AudioLink
                 {
                     float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
                     audioMaterial.SetFloat(_SourceDistance, distanceToSource);
-                }
-#endif
-#if UNITY_EDITOR
-                // fixing a bug where if you 
-                if (audioDataToggle = true)
-                {
-                    GetComponent<Camera>().enabled = true;
-                }
-                else if (audioDataToggle = false)
-                {
-                    GetComponent<Camera>().enabled = false;
                 }
 #endif
             }

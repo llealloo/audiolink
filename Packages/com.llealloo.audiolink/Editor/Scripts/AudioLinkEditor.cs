@@ -16,15 +16,28 @@ namespace AudioLink.Editor
     {
         public override void OnInspectorGUI()
         {
+            AudioLink audioLink = (AudioLink)target;
 #if UDONSHARP
             if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
 #endif
+            if (Application.isPlaying)
+            {
+                if (GUILayout.Button("Enable readback"))
+                {
+                        audioLink.EnableReadback();
+                }
+                if (GUILayout.Button("Disable readback"))
+                {
+                        audioLink.DisableReadback();
+                }
+            }
+            
             if (Camera.main == null)
             {
                 EditorGUILayout.HelpBox("The current scene might be missing a main camera, this could cause issues with the AudioLink camera.", MessageType.Warning);
             }
 
-            if (((AudioLink)target).audioSource == null)
+            if (audioLink.audioSource == null)
             {
                 EditorGUILayout.HelpBox("No audio source assigned. AudioLink will not work.", MessageType.Warning);
             }
