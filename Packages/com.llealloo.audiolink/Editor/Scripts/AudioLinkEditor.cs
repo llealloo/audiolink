@@ -24,14 +24,14 @@ namespace AudioLink.Editor
             {
                 if (GUILayout.Button("Enable readback"))
                 {
-                        audioLink.EnableReadback();
+                    audioLink.EnableReadback();
                 }
                 if (GUILayout.Button("Disable readback"))
                 {
-                        audioLink.DisableReadback();
+                    audioLink.DisableReadback();
                 }
             }
-            
+
             if (Camera.main == null)
             {
                 EditorGUILayout.HelpBox("The current scene might be missing a main camera, this could cause issues with the AudioLink camera.", MessageType.Warning);
