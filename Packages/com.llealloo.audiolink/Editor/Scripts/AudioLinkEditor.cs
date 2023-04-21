@@ -14,6 +14,18 @@ namespace AudioLink.Editor
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : UnityEditor.Editor
     {
+        public void OnEnable()
+        {
+            AudioLink audioLink = (AudioLink)target;
+            if (audioLink.audioData2D == null)
+            {
+                audioLink.audioData2D =
+                    AssetDatabase.LoadAssetAtPath<Texture2D>(
+                        AssetDatabase.GUIDToAssetPath("b07c8466531ac5e4e852f3e276e4baca"));
+                Debug.Log(nameof(AudioLink) + ": restored audioData2D reference");
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             AudioLink audioLink = (AudioLink)target;
