@@ -9,6 +9,8 @@ namespace AudioLink
     using UdonSharp;
 
     using VRC.SDKBase;
+    using VRC.SDK3.Rendering;
+    using VRC.Udon.Common.Interfaces;
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLink : UdonSharpBehaviour
@@ -494,10 +496,25 @@ namespace AudioLink
         {
             if (audioDataToggle)
             {
+// only do this on android
+#if !UNITY_ANDROID
+                VRCAsyncGPUReadback.Request(audioData2D, 0, TextureFormat.RGBAFloat,(IUdonEventReceiver)this);         
+#else 
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
+#endif
             }
         }
+        // ReSharper disable once UnusedMember.Global
+        public void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
+        {
+            if (!request.hasError)
+            {
+                audioData = new Color[audioData2D.width * audioData2D.height];
+                request.TryGetData(audioData);
+            }
+        }
+
         private void Awake()
         {
             InitIDs();
