@@ -498,8 +498,33 @@ namespace AudioLink
         {
             if (audioDataToggle)
             {
+#if !UNITY_ANDROID && UDONSHARP
+                VRCAsyncGPUReadback.Request(audioData2D, 0, TextureFormat.RGBAFloat, (IUdonEventReceiver)this);
+#elif !UNITY_ANDROID
+                AsyncGPUReadback.Request(audioData2D, 0, TextureFormat.RGBAFloat, OnAsyncGpuReadbackComplete);
+#else
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
+#endif
+            }
+        }
+#if UDONSHARP
+        public void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
+#else
+        public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
+#endif
+        {
+            if (!request.hasError)
+            {
+#if UDONSHARP
+                request.TryGetData(audioData);
+#else
+                NativeArray<Color> data = request.GetData<Color>();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    audioData[i] = data[i];
+                }
+#endif
             }
         }
         private void Awake()
