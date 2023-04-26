@@ -304,11 +304,13 @@ namespace AudioLink
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
 
+#if !UNITY_EDITOR
             // Disable camera on start if user didn't ask for it
             if (!audioDataToggle)
             {
                 DisableReadback();
             }
+#endif
         }
 
         // TODO(3): try to port this to standalone
