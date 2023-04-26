@@ -14,6 +14,9 @@ namespace AudioLink.Editor
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : UnityEditor.Editor
     {
+        private readonly static GUIContent DisableButtonContent = EditorGUIUtility.TrTextContent("Disable readback", "Disables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
+        private readonly static GUIContent EnableButtonContent = EditorGUIUtility.TrTextContent("Enable readback", "Enables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
+
         public void OnEnable()
         {
             AudioLink audioLink = (AudioLink)target;
@@ -32,17 +35,6 @@ namespace AudioLink.Editor
 #if UDONSHARP
             if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
 #endif
-            if (Application.isPlaying)
-            {
-                if (GUILayout.Button("Enable readback"))
-                {
-                    audioLink.EnableReadback();
-                }
-                if (GUILayout.Button("Disable readback"))
-                {
-                    audioLink.DisableReadback();
-                }
-            }
 
             if (Camera.main == null)
             {
@@ -63,6 +55,22 @@ namespace AudioLink.Editor
 
             EditorGUILayout.Space();
             base.OnInspectorGUI();
+            EditorGUILayout.Space();
+
+            if (audioLink.audioDataToggle)
+            {
+                if (GUILayout.Button(DisableButtonContent))
+                {
+                    audioLink.DisableReadback();
+                }
+            }
+            else
+            {
+                if (GUILayout.Button(EnableButtonContent))
+                {
+                    audioLink.EnableReadback();
+                }
+            }
         }
 
         void LinkAll()

@@ -100,17 +100,16 @@ namespace AudioLink
         [UdonSynced] public string customString1;
         [UdonSynced] public string customString2;
 
-        [Header("Internal (Do not modify)")] public Material audioMaterial;
-        public CustomRenderTexture audioRenderTexture;
+        [HideInInspector] public Material audioMaterial;
+        [HideInInspector] public CustomRenderTexture audioRenderTexture;
 
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         [Obsolete("Do not reference this field directly, use AudioLink.EnableReadback and AudioLink.DisableReadback instead")]
-        [HideInInspector]
-        public bool audioDataToggle = false;
+        [HideInInspector] public bool audioDataToggle = false;
 
         [NonSerialized] public Color[] audioData = new Color[128 * 64];
-        public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
+        [HideInInspector] public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
