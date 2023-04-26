@@ -13,12 +13,12 @@
       "version": "1.2.2"
     },
     "com.vrchat.udonsharp": {
-      "version": "1.1.6"
+      "version": "1.1.7"
     }
   },
   "locked": {
     "com.vrchat.base": {
-      "version": "3.1.13",
+      "version": "3.2.0-beta.1",
       "dependencies": {}
     },
     "com.vrchat.core.vpm-resolver": {
@@ -26,9 +26,9 @@
       "dependencies": {}
     },
     "com.vrchat.worlds": {
-      "version": "3.1.13",
+      "version": "3.2.0-beta.1",
       "dependencies": {
-        "com.vrchat.base": "3.1.13"
+        "com.vrchat.base": "3.2.0-beta.1"
       }
     },
     "com.vrchat.clientsim": {
