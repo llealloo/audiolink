@@ -106,13 +106,12 @@ namespace AudioLink
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         [Obsolete("Do not reference this field directly, use AudioLink.EnableReadback and AudioLink.DisableReadback instead")]
+        [HideInInspector]
         public bool audioDataToggle = false;
 
         [NonSerialized] public Color[] audioData = new Color[128 * 64];
         public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
-        // private float[] _spectrumValues = new float[1024];
-        // private float[] _spectrumValuesTrim = new float[1023];
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
@@ -178,10 +177,6 @@ namespace AudioLink
         private int _StringCustom1;
         private int _StringCustom2;
 
-        // Extra Properties
-        // private int _EnableAutogain;
-        // private int _AutogainDerate;
-
         // Set by Udon
         private int _AdvancedTimeProps0;
         private int _AdvancedTimeProps1;
@@ -232,9 +227,6 @@ namespace AudioLink
             _StringMasterPlayer = PropertyToID("_StringMasterPlayer");
             _StringCustom1 = PropertyToID("_StringCustom1");
             _StringCustom2 = PropertyToID("_StringCustom2");
-
-            // _EnableAutogain = PropertyToID("_EnableAutogain");
-            // _AutogainDerate = PropertyToID("_AutogainDerate");
 
             _AdvancedTimeProps0 = PropertyToID("_AdvancedTimeProps0");
             _AdvancedTimeProps1 = PropertyToID("_AdvancedTimeProps1");
@@ -309,13 +301,11 @@ namespace AudioLink
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
 
 
-#if !UNITY_EDITOR
             // Disable camera on start if user didn't ask for it
             if (!audioDataToggle)
             {
                 DisableReadback();
             }
-#endif
         }
 
         // TODO(3): try to port this to standalone
