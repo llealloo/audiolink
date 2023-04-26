@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: -1978084960896325861
+  scriptID: 5138252601818708111
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCAudioLink.AudioLink, AudioLink
+      Data: AudioLink.AudioLink, AudioLink
     - Name: 
       Entry: 8
       Data: 
@@ -131,7 +131,7 @@ MonoBehaviour:
       Data: 8|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCAudioLink.ThemeColorController, AudioLink
+      Data: AudioLink.ThemeColorController, AudioLink
     - Name: 
       Entry: 8
       Data: 

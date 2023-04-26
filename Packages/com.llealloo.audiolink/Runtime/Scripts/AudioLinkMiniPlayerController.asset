@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: -5791038792513968403
+  scriptID: -2660842296623568951
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCAudioLink.AudioLinkMiniPlayer, AudioLink
+      Data: AudioLink.AudioLinkMiniPlayer, AudioLink
     - Name: 
       Entry: 8
       Data: 

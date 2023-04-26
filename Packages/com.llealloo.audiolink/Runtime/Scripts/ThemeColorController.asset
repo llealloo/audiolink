@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 4
   hasInteractEvent: 0
-  scriptID: -4915544173709331519
+  scriptID: -7760492530286458752
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -50,13 +50,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: themeColorMode
+      Data: _themeColorMode
     - Name: $v
       Entry: 7
       Data: 2|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: themeColorMode
+      Data: _themeColorMode
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 3|System.RuntimeType, mscorlib
@@ -182,7 +182,7 @@ MonoBehaviour:
       Data: 11|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCAudioLink.AudioLink, AudioLink
+      Data: AudioLink.AudioLink, AudioLink
     - Name: 
       Entry: 8
       Data: 
@@ -380,13 +380,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: processGUIevents
+      Data: _processGUIEvents
     - Name: $v
       Entry: 7
       Data: 21|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: processGUIevents
+      Data: _processGUIEvents
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 22|System.RuntimeType, mscorlib
@@ -542,13 +542,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: slider_Hue
+      Data: sliderHue
     - Name: $v
       Entry: 7
       Data: 30|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: slider_Hue
+      Data: sliderHue
     - Name: <UserType>k__BackingField
       Entry: 7
       Data: 31|System.RuntimeType, mscorlib
@@ -596,13 +596,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: slider_Saturation
+      Data: sliderSaturation
     - Name: $v
       Entry: 7
       Data: 33|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: slider_Saturation
+      Data: sliderSaturation
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 31
@@ -644,13 +644,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: slider_Value
+      Data: sliderValue
     - Name: $v
       Entry: 7
       Data: 35|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: slider_Value
+      Data: sliderValue
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 31
