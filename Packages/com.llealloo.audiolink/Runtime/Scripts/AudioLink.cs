@@ -104,7 +104,6 @@ namespace AudioLink
 
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
-        [Obsolete("Do not reference this field directly, use AudioLink.EnableReadback and AudioLink.DisableReadback instead")]
         [HideInInspector] public bool audioDataToggle = false;
 
         [NonSerialized] public Color[] audioData = new Color[128 * 64];
