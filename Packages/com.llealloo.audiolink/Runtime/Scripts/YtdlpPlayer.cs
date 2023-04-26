@@ -1,11 +1,8 @@
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-
 using UnityEditor;
 
 using UnityEngine;
@@ -17,7 +14,11 @@ using Debug = UnityEngine.Debug;
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
-namespace VRCAudioLink
+// TODO(float3): make the resolve async
+// TODO(float3): add this to the AudioLinkMiniPlayer
+// TODO(float3): use SessionState to cache the resolved URL
+
+namespace AudioLink
 {
     /// <summary> Downloads and plays videos via a VideoPlayer component </summary>
     [RequireComponent(typeof(VideoPlayer))]
@@ -264,8 +265,8 @@ namespace VRCAudioLink
             {
                 if (Path.GetDirectoryName(name) == string.Empty)
                 {
-                    string[] PATH = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
-                    foreach (string dir in PATH)
+                    string[] path = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
+                    foreach (string dir in path)
                     {
                         string trimmed = dir.Trim();
                         if (!string.IsNullOrEmpty(trimmed) && File.Exists(Path.Combine(trimmed, name)))

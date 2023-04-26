@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace VRCAudioLink.Editor
+namespace AudioLink.Editor
 {
     [InitializeOnLoad]
     public class AudioLinkDefineManager

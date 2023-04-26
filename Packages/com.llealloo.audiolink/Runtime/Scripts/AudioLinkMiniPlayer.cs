@@ -11,7 +11,7 @@ using VRC.SDK3.Video.Components.Base;
 using VRC.SDKBase;
 using VRC.Udon.Common;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
     [AddComponentMenu("AudioLink/AudioLink Mini Player")]
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]

@@ -2,7 +2,7 @@
 using UdonSharpEditor;
 using UnityEditor;
 
-namespace VRCAudioLink.Editor
+namespace AudioLink.Editor
 {
     [CustomEditor(typeof(AudioLinkMiniPlayerController))]
     internal class AudioLinkMiniPlayerControllerInspector : UnityEditor.Editor
