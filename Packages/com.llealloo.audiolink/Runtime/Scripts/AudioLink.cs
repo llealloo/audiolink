@@ -195,9 +195,12 @@ namespace AudioLink
         private int _Samples3R;
         // ReSharper restore InconsistentNaming
 
-
+        private bool _IsInitialized = false;
         private void InitIDs()
         {
+            if (_IsInitialized)
+                return;
+                
             _AudioTexture = PropertyToID("_AudioTexture");
 
             _FadeLength = PropertyToID("_FadeLength");
@@ -492,12 +495,10 @@ namespace AudioLink
                 audioData = audioData2D.GetPixels();
             }
         }
-        private void Awake()
-        {
-            InitIDs();
-        }
+
         private void OnEnable()
         {
+            InitIDs();
             EnableAudioLink();
         }
 
