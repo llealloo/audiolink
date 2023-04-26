@@ -4,12 +4,12 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
+  - _udonSharpBackingUdonBehaviour: {instanceID: 0}
   - audioSource: {instanceID: 0}
-  - audioMaterial: {instanceID: 0}
-  - audioTextureExport: {instanceID: 0}
-  - audioData2D: {instanceID: 0}
-  - _shaderAudioLinkExport: {fileID: 4800000, guid: 0846078b20d9d014abbb3344a9e5749b,
-      type: 3}
+  - audioMaterial: {fileID: 2100000, guid: 5189d837989b9144e8e43d3ce618e450, type: 2}
+  - audioRenderTexture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef,
+      type: 2}
+  - audioData2D: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

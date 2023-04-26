@@ -161,7 +161,7 @@ MonoBehaviour:
   audioRenderTexture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
   audioDataToggle: 0
   audioData: []
-  audioData2D: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 3}
+  audioData2D: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 2}
 --- !u!20 &8800328339556915022
 Camera:
   m_ObjectHideFlags: 0
