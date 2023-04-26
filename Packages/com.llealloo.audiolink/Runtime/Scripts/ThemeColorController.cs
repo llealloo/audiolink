@@ -51,7 +51,7 @@ namespace AudioLink
             localPlayer = Networking.LocalPlayer;
 #endif
 
-            _initCustomThemeColors = new Color[4] {
+            _initCustomThemeColors = new[] {
                     customThemeColors[0],
                     customThemeColors[1],
                     customThemeColors[2],
@@ -97,7 +97,7 @@ namespace AudioLink
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(localPlayer, gameObject);
 #endif
-            bool modeChanged = (_themeColorMode != themeColorDropdown.value);
+            bool modeChanged = _themeColorMode != themeColorDropdown.value;
             _themeColorMode = themeColorDropdown.value;
             customThemeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
