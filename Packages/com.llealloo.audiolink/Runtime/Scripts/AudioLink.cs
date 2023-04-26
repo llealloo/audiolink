@@ -197,7 +197,7 @@ namespace AudioLink
         {
             if (_IsInitialized)
                 return;
-                
+
             _AudioTexture = PropertyToID("_AudioTexture");
 
             _FadeLength = PropertyToID("_FadeLength");
@@ -401,6 +401,15 @@ namespace AudioLink
 
         private void Update()
         {
+            if (audioDataToggle)
+            {
+#if !UNITY_ANDROID && UDONSHARP
+                VRCAsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, (VRC.Udon.Common.Interfaces.IUdonEventReceiver)(Component)this);
+#elif !UNITY_ANDROID
+                AsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, OnAsyncGpuReadbackComplete);
+#endif
+            }
+
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
 
@@ -488,11 +497,7 @@ namespace AudioLink
         {
             if (audioDataToggle)
             {
-#if !UNITY_ANDROID && UDONSHARP
-                VRCAsyncGPUReadback.Request(audioData2D, 0, TextureFormat.RGBAFloat, (VRC.Udon.Common.Interfaces.IUdonEventReceiver)(Component)this);
-#elif !UNITY_ANDROID
-                AsyncGPUReadback.Request(audioData2D, 0, TextureFormat.RGBAFloat, OnAsyncGpuReadbackComplete);
-#else
+#if UNITY_ANDROID
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
 #endif
@@ -504,18 +509,17 @@ namespace AudioLink
         public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
 #endif
         {
-            if (!request.hasError)
-            {
+            if (request.hasError || !request.done) return;
 #if UDONSHARP
-                request.TryGetData(audioData);
+            request.TryGetData(audioData);
+
 #else
-                NativeArray<Color> data = request.GetData<Color>();
-                for (int i = 0; i < data.Length; i++)
-                {
-                    audioData[i] = data[i];
-                }
-#endif
+            NativeArray<Color> data = request.GetData<Color>();
+            for (int i = 0; i < data.Length; i++)
+            {
+                audioData[i] = data[i];
             }
+#endif
         }
 
         private void OnEnable()
