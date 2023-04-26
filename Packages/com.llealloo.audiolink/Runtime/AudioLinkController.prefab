@@ -570,9 +570,9 @@ MonoBehaviour:
   audioLink: {fileID: 0}
   themeColorDropdown: {fileID: 1639542986103041964}
   extensionCanvas: {fileID: 762612180212010080}
-  slider_Hue: {fileID: 7386246410403625297}
-  slider_Saturation: {fileID: 1095319226741963940}
-  slider_Value: {fileID: 8549547647417548180}
+  sliderHue: {fileID: 7386246410403625297}
+  sliderSaturation: {fileID: 1095319226741963940}
+  sliderValue: {fileID: 8549547647417548180}
   customColorLassos:
   - {fileID: 762612180212010092}
   - {fileID: 762612180212010083}
