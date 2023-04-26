@@ -8,7 +8,7 @@ using VRC.SDKBase;
 using UdonSharp;
 using VRC.Udon;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
     public class MirrorToggle : UdonSharpBehaviour
     {
@@ -31,7 +31,7 @@ namespace VRCAudioLink
 }
 
 #else
-namespace VRCAudioLink
+namespace AudioLink
 {
     public class MirrorToggle : MonoBehaviour { }
 }

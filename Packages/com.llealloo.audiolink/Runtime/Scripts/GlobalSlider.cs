@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 using VRC.SDKBase;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class GlobalSlider : UdonSharpBehaviour

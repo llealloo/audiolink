@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
 #if UDONSHARP
     using UdonSharp;
@@ -14,31 +14,24 @@ namespace VRCAudioLink
     public class ThemeColorController : MonoBehaviour
 #endif
     {
-#if UDONSHARP
-        [UdonSynced]
-#endif
-        private int themeColorMode;
+        [UdonSynced] private int _themeColorMode;
 
-#if UDONSHARP
         [UdonSynced]
-#endif
-        public Color[] customThemeColors = new Color[4]{
+        public Color[] customThemeColors = {
                 Color.yellow,
                 Color.blue,
                 Color.red,
                 Color.green
             };
 
-        public AudioLink audioLink;  // Initialized by AudioLinkController.
+        public AudioLink audioLink; // Initialized by AudioLinkController.
 
-
-        // Initialized from prefab.
-        public Dropdown themeColorDropdown;
+        public Dropdown themeColorDropdown; // Initialized from prefab.
 
         private Color[] _initCustomThemeColors;
         private int _initThemeColorMode; // Initialized from themeColorDropdown.
 
-        private bool processGUIevents = true;
+        private bool _processGUIEvents = true;
 
 #if UDONSHARP
         private VRCPlayerApi localPlayer;
@@ -46,9 +39,9 @@ namespace VRCAudioLink
 
         // A view-controller for customThemeColors
         public Transform extensionCanvas;
-        public Slider slider_Hue;
-        public Slider slider_Saturation;
-        public Slider slider_Value;
+        public Slider sliderHue;
+        public Slider sliderSaturation;
+        public Slider sliderValue;
         public Transform[] customColorLassos;
         public int customColorIndex = 0;
 
@@ -66,7 +59,7 @@ namespace VRCAudioLink
                 };
 
             _initThemeColorMode = themeColorDropdown.value;
-            themeColorMode = _initThemeColorMode;
+            _themeColorMode = _initThemeColorMode;
 
             UpdateGUI();
             UpdateAudioLinkThemeColors();
@@ -96,7 +89,7 @@ namespace VRCAudioLink
 
         public void OnGUIchange()
         {
-            if (!processGUIevents)
+            if (!_processGUIEvents)
             {
                 return;
             }
@@ -104,12 +97,12 @@ namespace VRCAudioLink
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(localPlayer, gameObject);
 #endif
-            bool modeChanged = (themeColorMode != themeColorDropdown.value);
-            themeColorMode = themeColorDropdown.value;
+            bool modeChanged = (_themeColorMode != themeColorDropdown.value);
+            _themeColorMode = themeColorDropdown.value;
             customThemeColors[customColorIndex] = Color.HSVToRGB(
-                slider_Hue.value,
-                slider_Saturation.value,
-                slider_Value.value
+                sliderHue.value,
+                sliderSaturation.value,
+                sliderValue.value
             );
 
             if (modeChanged) UpdateGUI();
@@ -121,7 +114,7 @@ namespace VRCAudioLink
 
         public void ResetThemeColors()
         {
-            themeColorMode = _initThemeColorMode;
+            _themeColorMode = _initThemeColorMode;
             for (int i = 0; i < 4; ++i)
             {
                 customThemeColors[i] = _initCustomThemeColors[i];
@@ -135,10 +128,10 @@ namespace VRCAudioLink
 
         public void UpdateGUI()
         {
-            processGUIevents = false;
-            themeColorDropdown.value = themeColorMode;
+            _processGUIEvents = false;
+            themeColorDropdown.value = _themeColorMode;
 
-            bool isCustom = themeColorMode == 1;
+            bool isCustom = _themeColorMode == 1;
             extensionCanvas.gameObject.SetActive(isCustom);
             for (int i = 0; i < 4; ++i)
             {
@@ -148,19 +141,19 @@ namespace VRCAudioLink
             }
 
             // update HSV sliders
-            float H, S, V;
-            Color.RGBToHSV(customThemeColors[customColorIndex], out H, out S, out V);
-            slider_Hue.value = H;
-            slider_Saturation.value = S;
-            slider_Value.value = V;
+            float h, s, v;
+            Color.RGBToHSV(customThemeColors[customColorIndex], out h, out s, out v);
+            sliderHue.value = h;
+            sliderSaturation.value = s;
+            sliderValue.value = v;
 
-            processGUIevents = true;
+            _processGUIEvents = true;
         }
 
         public void UpdateAudioLinkThemeColors()
         {
             if (audioLink == null) return;
-            audioLink.themeColorMode = themeColorMode;
+            audioLink.themeColorMode = _themeColorMode;
             audioLink.customThemeColor0 = customThemeColors[0];
             audioLink.customThemeColor1 = customThemeColors[1];
             audioLink.customThemeColor2 = customThemeColors[2];

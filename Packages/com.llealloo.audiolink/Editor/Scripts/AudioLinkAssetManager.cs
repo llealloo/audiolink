@@ -10,7 +10,7 @@ using VRC.PackageManagement.Core.Types;
 using VRC.PackageManagement.Core.Types.Packages;
 #endif
 
-namespace VRCAudioLink.Editor
+namespace AudioLink.Editor
 {
     [InitializeOnLoad]
     public class AudioLinkAssetManager

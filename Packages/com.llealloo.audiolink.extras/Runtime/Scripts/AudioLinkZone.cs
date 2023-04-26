@@ -3,7 +3,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 
-namespace VRCAudioLink.Extras
+namespace AudioLink.Extras
 {
     [RequireComponent(typeof(Collider))]
     public class AudioLinkZone : UdonSharpBehaviour
