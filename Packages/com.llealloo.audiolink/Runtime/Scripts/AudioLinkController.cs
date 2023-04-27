@@ -108,7 +108,7 @@ namespace AudioLink
             InitIDs();
             if (audioLink == null)
             {
-                Debug.LogError("Controller not connected to AudioLink");
+                Debug.LogError("[AudioLink] Controller not connected to AudioLink");
                 return;
             }
 
@@ -117,14 +117,14 @@ namespace AudioLink
                 // This is here in case someone upgraded AudioLink, which updates
                 // everything in the prefab, but not the outermost properties of the prefab.
                 // TODO: Double check that this is how upgrading ends up working.
-                Debug.Log("AudioLinkController using fallback method for finding themeColorController");
+                Debug.Log("[AudioLink] AudioLinkController using fallback method for finding themeColorController");
                 themeColorController = FindThemeColorController();
             }
             if (themeColorController == null)
             {
                 // Something really weird has gone on. maybe using updated script
                 // on un-updated prefab?
-                Debug.LogError("AudioLinkController could not find themeColorController");
+                Debug.LogError("[AudioLink] AudioLinkController could not find themeColorController");
             }
             else
             {
@@ -208,7 +208,7 @@ namespace AudioLink
 
             if (audioLink == null)
             {
-                Debug.LogError("Controller not connected to AudioLink");
+                Debug.LogError("[AudioLink] Controller not connected to AudioLink");
                 return;
             }
             // General settings
