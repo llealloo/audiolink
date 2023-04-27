@@ -200,7 +200,7 @@ namespace AudioLink
         {
             if (_IsInitialized)
                 return;
-                
+
             _AudioTexture = PropertyToID("_AudioTexture");
 
             _FadeLength = PropertyToID("_FadeLength");
