@@ -1,26 +1,22 @@
 ﻿#if UDONSHARP
 using UdonSharp;
 
-namespace VRCAudioLink
+namespace AudioLink
 {
     public class AudioLinkExperimentalToggle : UdonSharpBehaviour
     {
         public AudioLink audioLink;
-
-        void Start()
-        {
-        }
 
         public override void Interact()
         {
             bool toggle = !audioLink.audioDataToggle;
             if (toggle)
             {
-                audioLink.SendCustomEvent("EnableReadback");
+                audioLink.EnableReadback();
             }
             else
             {
-                audioLink.SendCustomEvent("DisableReadback");
+                audioLink.DisableReadback();
             }
 
             InteractionText = "Experimental Readback is " + (toggle ? "ON" : "OFF") + " (local)";
