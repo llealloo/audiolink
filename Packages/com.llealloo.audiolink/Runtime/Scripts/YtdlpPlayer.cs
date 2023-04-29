@@ -16,16 +16,16 @@ using UnityEngine.Video;
 
 namespace AudioLink
 {
-    [RequireComponent(typeof(VideoPlayer))]
     public class YtdlpPlayer : MonoBehaviour
     {
         public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
-        public VideoPlayer VideoPlayer { get; private set; }
         Request _currentRequest = null;
+
+        [SerializeReference]
+        public VideoPlayer VideoPlayer = null;
 
         void OnEnable()
         {
-            VideoPlayer = GetComponent<VideoPlayer>();
             RequestPlay();
         }
 
@@ -45,6 +45,9 @@ namespace AudioLink
 
         public void UpdateUrl(string resolved)
         {
+            if (VideoPlayer == null)
+                return;
+
             VideoPlayer.url = resolved;
             SetPlaybackTime(0.0f);
             if (VideoPlayer.length > 0)
@@ -84,6 +87,30 @@ namespace AudioLink
             {
                 return "00:00 / 00:00";
             }
+        }
+
+        public bool GetAudioSourceVolume(out float volume)
+        {
+            volume = 0;
+
+            if (VideoPlayer != null)
+            {
+                AudioSource AudioSourceOutput = VideoPlayer?.GetTargetAudioSource(0);
+                if (AudioSourceOutput != null)
+                {
+                    volume = AudioSourceOutput.volume;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void SetAudioSourceVolume(float volume)
+        {
+            AudioSource AudioSourceOutput = VideoPlayer?.GetTargetAudioSource(0);
+            if (AudioSourceOutput != null)
+                AudioSourceOutput.volume = Mathf.Clamp01(volume);
         }
     }
 
@@ -224,6 +251,9 @@ namespace AudioLink
         void OnEnable()
         {
             _ytdlpPlayer = (YtdlpPlayer)target;
+            // If video player is on the same gameobject, assign it automatically
+            if(_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
+                _ytdlpPlayer.VideoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
         }
 
         public override bool RequiresConstantRepaint()
@@ -242,29 +272,94 @@ namespace AudioLink
             bool available = YtdlpURLResolver.IsYtdlpAvailable();
 #endif
 
-            EditorGUI.BeginDisabledGroup(!available);
-            base.OnInspectorGUI();
-            float playbackTime = 0;
-            bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
-            if (hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
-                playbackTime = _ytdlpPlayer.GetPlaybackTime();
+            bool hasVideoPlayer = _ytdlpPlayer.VideoPlayer != null;
+            float playbackTime = hasVideoPlayer ? _ytdlpPlayer.GetPlaybackTime() : 0;
+            double videoLength = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.length : 0;
 
-            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
-            using (new EditorGUILayout.HorizontalScope())
+            using (new EditorGUI.DisabledScope(!available))
             {
-                EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
-                bool updateURL = GUILayout.Button(new GUIContent(" Reload", EditorGUIUtility.IconContent("TreeEditor.Refresh").image));
-                if (updateURL)
-                    _ytdlpPlayer.RequestPlay();
+                _ytdlpPlayer.ytdlpURL = EditorGUILayout.DelayedTextField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), _ytdlpPlayer.ytdlpURL);
+
+                using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
+                {
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        // Timestamp/Reload button
+                        EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
+
+                        GUIContent reloadButtonContent = new GUIContent(" Reload URL", EditorGUIUtility.IconContent("TreeEditor.Refresh").image);
+
+                        bool updateURL = GUILayout.Button(reloadButtonContent);
+                        if (updateURL)
+                            _ytdlpPlayer.RequestPlay();
+                    }
+
+                    // Seekbar/Time input
+                    using (new EditorGUI.DisabledScope(!hasVideoPlayer || videoLength == 0))
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        // Seekbar input
+                        EditorGUI.BeginChangeCheck();
+                        playbackTime = GUILayout.HorizontalSlider(playbackTime, 0, 1);
+                        if (EditorGUI.EndChangeCheck())
+                            _ytdlpPlayer.SetPlaybackTime(playbackTime);
+
+                        // Timestamp input
+                        EditorGUI.BeginChangeCheck();
+                        double time = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.time : 0;
+                        string currentTimestamp = " " + _ytdlpPlayer.FormattedTimestamp(time);
+                        string seekTimestamp = EditorGUILayout.DelayedTextField(currentTimestamp, GUILayout.MaxWidth(8 * currentTimestamp.Length));
+                        if (EditorGUI.EndChangeCheck() && videoLength > 0)
+                        {
+                            TimeSpan inputTimestamp;
+                            // Add an extra 00: to force TimeSpan to interpret 12:34 as 00:12:34 for proper mm:ss input
+                            if (TimeSpan.TryParse($"00:{seekTimestamp}", out inputTimestamp))
+                            {
+                                playbackTime = (float)(inputTimestamp.TotalSeconds / videoLength);
+                                _ytdlpPlayer.SetPlaybackTime(playbackTime);
+                            }
+                        }
+                    }
+
+                    // Media Controls
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        bool isPlaying = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.isPlaying : false;
+                        bool isPaused = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.isPaused : false;
+                        bool isStopped = !isPlaying && !isPaused;
+
+                        bool play = GUILayout.Toggle(isPlaying, new GUIContent(" Play", EditorGUIUtility.IconContent("d_PlayButton On").image), "Button") != isPlaying;
+                        bool pause = GUILayout.Toggle(isPaused, new GUIContent(" Pause", EditorGUIUtility.IconContent("d_PauseButton On").image), "Button") != isPaused;
+                        bool stop = GUILayout.Toggle(isStopped, new GUIContent(" Stop", EditorGUIUtility.IconContent("d_Record Off").image), "Button") != isStopped;
+
+                        if (hasVideoPlayer)
+                        {
+                            if (play)
+                                _ytdlpPlayer.VideoPlayer.Play();
+                            else if (pause)
+                                _ytdlpPlayer.VideoPlayer.Pause();
+                            else if (stop)
+                                _ytdlpPlayer.VideoPlayer.Stop();
+                        }
+                    }
+                }
+
+                float volume;
+                using (new EditorGUI.DisabledScope(!_ytdlpPlayer.GetAudioSourceVolume(out volume)))
+                {
+                    EditorGUI.BeginChangeCheck();
+                    volume = EditorGUILayout.Slider(new GUIContent("  AudioSource Gain", EditorGUIUtility.IconContent("d_Profiler.Audio").image), volume, 0.0f, 1.0f);
+                    if (EditorGUI.EndChangeCheck())
+                        _ytdlpPlayer.SetAudioSourceVolume(volume);
+                }
             }
 
-            EditorGUI.BeginChangeCheck();
-            playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
-            if (EditorGUI.EndChangeCheck())
-                _ytdlpPlayer.SetPlaybackTime(playbackTime);
+            bool videoPlayerOnThisObject = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null;
 
-            EditorGUI.EndDisabledGroup();
-            EditorGUI.EndDisabledGroup();
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || videoPlayerOnThisObject))
+            {
+                _ytdlpPlayer.VideoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _ytdlpPlayer.VideoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
+            }
 
             if (!available)
             {
