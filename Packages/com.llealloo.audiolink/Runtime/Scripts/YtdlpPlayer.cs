@@ -278,7 +278,7 @@ namespace AudioLink
 
             using (new EditorGUI.DisabledScope(!available))
             {
-                _ytdlpPlayer.ytdlpURL = EditorGUILayout.DelayedTextField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), _ytdlpPlayer.ytdlpURL);
+                _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), _ytdlpPlayer.ytdlpURL);
 
                 using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
                 {
