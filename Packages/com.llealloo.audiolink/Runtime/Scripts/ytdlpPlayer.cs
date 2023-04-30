@@ -12,7 +12,6 @@ using UnityEngine.Video;
 
 // TODO(float3): add this to the AudioLinkMiniPlayer
 // TODO(float3): use SessionState to cache the resolved URL
-// TODO(float3): add volume bar
 
 namespace AudioLink
 {
