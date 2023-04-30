@@ -184,7 +184,7 @@ namespace AudioLink
             }
             else
             {
-                _ytdlpFound = true; 
+                _ytdlpFound = true;
                 Debug.Log($"[AudioLink] Found yt-dlp at path '{_ytdlpPath}'");
             }
         }
