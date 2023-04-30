@@ -252,7 +252,7 @@ namespace AudioLink
         {
             _ytdlpPlayer = (YtdlpPlayer)target;
             // If video player is on the same gameobject, assign it automatically
-            if(_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
+            if (_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
                 _ytdlpPlayer.VideoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
         }
 
