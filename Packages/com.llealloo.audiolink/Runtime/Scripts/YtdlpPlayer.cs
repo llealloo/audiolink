@@ -27,6 +27,21 @@ namespace AudioLink
         [SerializeReference]
         public VideoPlayer VideoPlayer = null;
 
+        [SerializeField]
+        public Resolution resolution = Resolution._720p;
+
+        public enum Resolution
+        {
+            [InspectorName("144p")] _144p = 144,
+            [InspectorName("240p")] _240p = 240,
+            [InspectorName("360p")] _360p = 360,
+            [InspectorName("480p")] _480p = 480,
+            [InspectorName("720p")] _720p = 720,
+            [InspectorName("1080p")] _1080p = 1080,
+            [InspectorName("1440p")] _1440p = 1440,
+            [InspectorName("2160p")] _2160p = 2160,
+        }
+
         void OnEnable()
         {
             RequestPlay();
@@ -34,7 +49,7 @@ namespace AudioLink
 
         public void RequestPlay()
         {
-            _currentRequest = YtdlpURLResolver.Resolve(ytdlpURL);
+            _currentRequest = YtdlpURLResolver.Resolve(ytdlpURL, (int)resolution);
         }
 
         void Update()
@@ -174,9 +189,8 @@ namespace AudioLink
             }
         }
 
-        public static Request Resolve(string url)
+        public static Request Resolve(string url, int resolution = 720)
         {
-            const int resolution = 720;
             if (!_ytdlpFound)
             {
                 LocateYtdlp();
@@ -281,7 +295,11 @@ namespace AudioLink
 
             using (new EditorGUI.DisabledScope(!available))
             {
-                _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), _ytdlpPlayer.ytdlpURL);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), _ytdlpPlayer.ytdlpURL);
+                    _ytdlpPlayer.resolution = (YtdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(70));
+                }
 
                 using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
                 {
