@@ -327,12 +327,15 @@ namespace AudioLink
                         // Timestamp input
                         EditorGUI.BeginChangeCheck();
                         double time = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.time : 0;
-                        string currentTimestamp = " " + _ytdlpPlayer.FormattedTimestamp(time);
+                        string currentTimestamp = _ytdlpPlayer.FormattedTimestamp(time, videoLength);
                         string seekTimestamp = EditorGUILayout.DelayedTextField(currentTimestamp, GUILayout.MaxWidth(8 * currentTimestamp.Length));
                         if (EditorGUI.EndChangeCheck() && videoLength > 0)
                         {
                             TimeSpan inputTimestamp;
-                            // Add an extra 00: to force TimeSpan to interpret 12:34 as 00:12:34 for proper mm:ss input
+                            // Add extra 00:'s to force TimeSpan.TryParse to interpret times properly
+                            // 22 -> 00:00:22, 2:22 -> 00:02:22, 2:22:22 -> 00:2:22:22
+                            if (seekTimestamp.Length < 5)
+                                seekTimestamp = "00:" + seekTimestamp;
                             if (TimeSpan.TryParse($"00:{seekTimestamp}", out inputTimestamp))
                             {
                                 playbackTime = (float)(inputTimestamp.TotalSeconds / videoLength);
