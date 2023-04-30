@@ -32,8 +32,6 @@ namespace AudioLink
 
         public enum Resolution
         {
-            [InspectorName("144p")] _144p = 144,
-            [InspectorName("240p")] _240p = 240,
             [InspectorName("360p")] _360p = 360,
             [InspectorName("480p")] _480p = 480,
             [InspectorName("720p")] _720p = 720,
@@ -297,8 +295,9 @@ namespace AudioLink
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), _ytdlpPlayer.ytdlpURL);
-                    _ytdlpPlayer.resolution = (YtdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(70));
+                    EditorGUILayout.LabelField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), GUILayout.Width(100));
+                    _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(_ytdlpPlayer.ytdlpURL);
+                    _ytdlpPlayer.resolution = (YtdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
                 }
 
                 using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
