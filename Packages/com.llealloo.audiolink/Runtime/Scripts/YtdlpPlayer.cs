@@ -21,6 +21,9 @@ namespace AudioLink
         public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
         Request _currentRequest = null;
 
+        [SerializeField]
+        public bool showVideoPreviewInComponent = false;
+
         [SerializeReference]
         public VideoPlayer VideoPlayer = null;
 
@@ -359,6 +362,20 @@ namespace AudioLink
             using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || videoPlayerOnThisObject))
             {
                 _ytdlpPlayer.VideoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _ytdlpPlayer.VideoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
+            }
+
+            // Video preview
+            using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
+            {
+                _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _ytdlpPlayer.showVideoPreviewInComponent);
+
+                if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.VideoPlayer.texture != null)
+                {
+                    // Draw video preview with the same aspect ratio as the video
+                    float aspectRatio = (float)_ytdlpPlayer.VideoPlayer.texture.width / _ytdlpPlayer.VideoPlayer.texture.height;
+                    Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio, GUILayout.MaxHeight(100));
+                    EditorGUI.DrawPreviewTexture(previewRect, _ytdlpPlayer.VideoPlayer.texture, null, ScaleMode.StretchToFill);
+                }
             }
 
             if (!available)
