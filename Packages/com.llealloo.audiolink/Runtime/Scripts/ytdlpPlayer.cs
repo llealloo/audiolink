@@ -396,7 +396,7 @@ namespace AudioLink
                     Texture texture = _ytdlpPlayer.videoPlayer.texture;
                     float aspectRatio = (float)texture.width / texture.height;
                     Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
-                    EditorGUI.DrawPreviewTexture(previewRect, _ytdlpPlayer.videoPlayer.texture, null, ScaleMode.ScaleToFit);
+                    EditorGUI.DrawPreviewTexture(previewRect, texture, null, ScaleMode.ScaleToFit);
                 }
             }
 
