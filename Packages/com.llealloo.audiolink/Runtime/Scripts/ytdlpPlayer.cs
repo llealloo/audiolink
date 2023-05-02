@@ -110,7 +110,7 @@ namespace AudioLink
 
             if (videoPlayer != null)
             {
-                AudioSource audioSourceOutput = videoPlayer?.GetTargetAudioSource(0);
+                AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
                 if (audioSourceOutput != null)
                 {
                     volume = audioSourceOutput.volume;
@@ -123,9 +123,12 @@ namespace AudioLink
 
         public void SetAudioSourceVolume(float volume)
         {
-            AudioSource audioSourceOutput = videoPlayer?.GetTargetAudioSource(0);
-            if (audioSourceOutput != null)
-                audioSourceOutput.volume = Mathf.Clamp01(volume);
+            if (videoPlayer != null)
+            {
+                AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
+                if (audioSourceOutput != null)
+                    audioSourceOutput.volume = Mathf.Clamp01(volume);
+            }
         }
     }
 
