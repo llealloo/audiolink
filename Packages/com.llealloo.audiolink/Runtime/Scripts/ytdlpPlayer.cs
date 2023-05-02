@@ -373,7 +373,7 @@ namespace AudioLink
                 using (new EditorGUI.DisabledScope(!_ytdlpPlayer.GetAudioSourceVolume(out volume)))
                 {
                     EditorGUI.BeginChangeCheck();
-                    volume = EditorGUILayout.Slider(new GUIContent("  AudioSource Gain", EditorGUIUtility.IconContent("d_Profiler.Audio").image), volume, 0.0f, 1.0f);
+                    volume = EditorGUILayout.Slider(new GUIContent("  AudioSource Volume", EditorGUIUtility.IconContent("d_Profiler.Audio").image), volume, 0.0f, 1.0f);
                     if (EditorGUI.EndChangeCheck())
                         _ytdlpPlayer.SetAudioSourceVolume(volume);
                 }
