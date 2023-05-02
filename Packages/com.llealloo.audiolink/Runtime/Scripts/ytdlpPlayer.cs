@@ -16,7 +16,7 @@ using UnityEngine.Video;
 
 namespace AudioLink
 {
-    public class YtdlpPlayer : MonoBehaviour
+    public class ytdlpPlayer : MonoBehaviour
     {
         public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
         Request _currentRequest = null;
@@ -24,8 +24,7 @@ namespace AudioLink
         [SerializeField]
         public bool showVideoPreviewInComponent = false;
 
-        [SerializeReference]
-        public VideoPlayer VideoPlayer = null;
+        public VideoPlayer videoPlayer = null;
 
         [SerializeField]
         public Resolution resolution = Resolution._720p;
@@ -61,29 +60,29 @@ namespace AudioLink
 
         public void UpdateUrl(string resolved)
         {
-            if (VideoPlayer == null)
+            if (videoPlayer == null)
                 return;
 
-            VideoPlayer.url = resolved;
+            videoPlayer.url = resolved;
             SetPlaybackTime(0.0f);
-            if (VideoPlayer.length > 0)
+            if (videoPlayer.length > 0)
             {
-                VideoPlayer.Play();
+                videoPlayer.Play();
             }
         }
 
         public float GetPlaybackTime()
         {
-            if (VideoPlayer != null && VideoPlayer.length > 0)
-                return (float)(VideoPlayer.length > 0 ? VideoPlayer.time / VideoPlayer.length : 0);
+            if (videoPlayer != null && videoPlayer.length > 0)
+                return (float)(videoPlayer.length > 0 ? videoPlayer.time / videoPlayer.length : 0);
             else
                 return 0;
         }
 
         public void SetPlaybackTime(float time)
         {
-            if (VideoPlayer != null && VideoPlayer.length > 0 && VideoPlayer.canSetTime)
-                VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
+            if (videoPlayer != null && videoPlayer.length > 0 && videoPlayer.canSetTime)
+                videoPlayer.time = videoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
         }
 
         public string FormattedTimestamp(double seconds, double maxSeconds = 0)
@@ -95,9 +94,9 @@ namespace AudioLink
 
         public string PlaybackTimestampFormatted()
         {
-            if (VideoPlayer != null && VideoPlayer.length > 0)
+            if (videoPlayer != null && videoPlayer.length > 0)
             {
-                return $"{FormattedTimestamp(VideoPlayer.time, VideoPlayer.length)} / {FormattedTimestamp(VideoPlayer.length)}";
+                return $"{FormattedTimestamp(videoPlayer.time, videoPlayer.length)} / {FormattedTimestamp(videoPlayer.length)}";
             }
             else
             {
@@ -109,12 +108,12 @@ namespace AudioLink
         {
             volume = 0;
 
-            if (VideoPlayer != null)
+            if (videoPlayer != null)
             {
-                AudioSource AudioSourceOutput = VideoPlayer?.GetTargetAudioSource(0);
-                if (AudioSourceOutput != null)
+                AudioSource audioSourceOutput = videoPlayer?.GetTargetAudioSource(0);
+                if (audioSourceOutput != null)
                 {
-                    volume = AudioSourceOutput.volume;
+                    volume = audioSourceOutput.volume;
                     return true;
                 }
             }
@@ -124,9 +123,9 @@ namespace AudioLink
 
         public void SetAudioSourceVolume(float volume)
         {
-            AudioSource AudioSourceOutput = VideoPlayer?.GetTargetAudioSource(0);
-            if (AudioSourceOutput != null)
-                AudioSourceOutput.volume = Mathf.Clamp01(volume);
+            AudioSource audioSourceOutput = videoPlayer?.GetTargetAudioSource(0);
+            if (audioSourceOutput != null)
+                audioSourceOutput.volume = Mathf.Clamp01(volume);
         }
     }
 
@@ -182,7 +181,7 @@ namespace AudioLink
             }
             else
             {
-                _ytdlpFound = true;
+                _ytdlpFound = true; 
                 Debug.Log($"[AudioLink] Found yt-dlp at path '{_ytdlpPath}'");
             }
         }
@@ -258,23 +257,23 @@ namespace AudioLink
         }
     }
 
-    [CustomEditor(typeof(YtdlpPlayer))]
+    [CustomEditor(typeof(ytdlpPlayer))]
     public class ytdlpPlayerEditor : UnityEditor.Editor
     {
-        YtdlpPlayer _ytdlpPlayer;
+        ytdlpPlayer _ytdlpPlayer;
 
         void OnEnable()
         {
-            _ytdlpPlayer = (YtdlpPlayer)target;
+            _ytdlpPlayer = (ytdlpPlayer)target;
             // If video player is on the same gameobject, assign it automatically
             if (_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
-                _ytdlpPlayer.VideoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
+                _ytdlpPlayer.videoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
         }
 
         public override bool RequiresConstantRepaint()
         {
-            if (_ytdlpPlayer.VideoPlayer != null)
-                return _ytdlpPlayer.VideoPlayer.isPlaying;
+            if (_ytdlpPlayer.videoPlayer != null)
+                return _ytdlpPlayer.videoPlayer.isPlaying;
             else
                 return false;
         }
@@ -287,9 +286,9 @@ namespace AudioLink
             bool available = YtdlpURLResolver.IsYtdlpAvailable();
 #endif
 
-            bool hasVideoPlayer = _ytdlpPlayer.VideoPlayer != null;
+            bool hasVideoPlayer = _ytdlpPlayer.videoPlayer != null;
             float playbackTime = hasVideoPlayer ? _ytdlpPlayer.GetPlaybackTime() : 0;
-            double videoLength = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.length : 0;
+            double videoLength = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.length : 0;
 
             using (new EditorGUI.DisabledScope(!available))
             {
@@ -297,7 +296,7 @@ namespace AudioLink
                 {
                     EditorGUILayout.LabelField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), GUILayout.Width(100));
                     _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(_ytdlpPlayer.ytdlpURL);
-                    _ytdlpPlayer.resolution = (YtdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
+                    _ytdlpPlayer.resolution = (ytdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
                 }
 
                 using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
@@ -326,7 +325,7 @@ namespace AudioLink
 
                         // Timestamp input
                         EditorGUI.BeginChangeCheck();
-                        double time = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.time : 0;
+                        double time = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.time : 0;
                         string currentTimestamp = _ytdlpPlayer.FormattedTimestamp(time, videoLength);
                         string seekTimestamp = EditorGUILayout.DelayedTextField(currentTimestamp, GUILayout.MaxWidth(8 * currentTimestamp.Length));
                         if (EditorGUI.EndChangeCheck() && videoLength > 0)
@@ -347,8 +346,8 @@ namespace AudioLink
                     // Media Controls
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        bool isPlaying = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.isPlaying : false;
-                        bool isPaused = hasVideoPlayer ? _ytdlpPlayer.VideoPlayer.isPaused : false;
+                        bool isPlaying = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.isPlaying : false;
+                        bool isPaused = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.isPaused : false;
                         bool isStopped = !isPlaying && !isPaused;
 
                         bool play = GUILayout.Toggle(isPlaying, new GUIContent(" Play", EditorGUIUtility.IconContent("d_PlayButton On").image), "Button") != isPlaying;
@@ -358,11 +357,11 @@ namespace AudioLink
                         if (hasVideoPlayer)
                         {
                             if (play)
-                                _ytdlpPlayer.VideoPlayer.Play();
+                                _ytdlpPlayer.videoPlayer.Play();
                             else if (pause)
-                                _ytdlpPlayer.VideoPlayer.Pause();
+                                _ytdlpPlayer.videoPlayer.Pause();
                             else if (stop)
-                                _ytdlpPlayer.VideoPlayer.Stop();
+                                _ytdlpPlayer.videoPlayer.Stop();
                         }
                     }
                 }
@@ -381,7 +380,7 @@ namespace AudioLink
 
             using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || videoPlayerOnThisObject))
             {
-                _ytdlpPlayer.VideoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _ytdlpPlayer.VideoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
+                _ytdlpPlayer.videoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _ytdlpPlayer.videoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
             }
 
             // Video preview
@@ -389,12 +388,12 @@ namespace AudioLink
             {
                 _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _ytdlpPlayer.showVideoPreviewInComponent);
 
-                if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.VideoPlayer.texture != null)
+                if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.videoPlayer.texture != null)
                 {
                     // Draw video preview with the same aspect ratio as the video
-                    float aspectRatio = (float)_ytdlpPlayer.VideoPlayer.texture.width / _ytdlpPlayer.VideoPlayer.texture.height;
+                    float aspectRatio = (float)_ytdlpPlayer.videoPlayer.texture.width / _ytdlpPlayer.videoPlayer.texture.height;
                     Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
-                    EditorGUI.DrawPreviewTexture(previewRect, _ytdlpPlayer.VideoPlayer.texture, null, ScaleMode.ScaleToFit);
+                    EditorGUI.DrawPreviewTexture(previewRect, _ytdlpPlayer.videoPlayer.texture, null, ScaleMode.ScaleToFit);
                 }
             }
 
