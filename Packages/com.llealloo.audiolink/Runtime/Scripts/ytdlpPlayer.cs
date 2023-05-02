@@ -394,7 +394,8 @@ namespace AudioLink
                 if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.videoPlayer.texture != null)
                 {
                     // Draw video preview with the same aspect ratio as the video
-                    float aspectRatio = (float)_ytdlpPlayer.videoPlayer.texture.width / _ytdlpPlayer.videoPlayer.texture.height;
+                    Texture texture = _ytdlpPlayer.videoPlayer.texture;
+                    float aspectRatio = (float)texture.width / texture.height;
                     Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
                     EditorGUI.DrawPreviewTexture(previewRect, _ytdlpPlayer.videoPlayer.texture, null, ScaleMode.ScaleToFit);
                 }
