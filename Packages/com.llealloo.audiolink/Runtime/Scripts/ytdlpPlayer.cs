@@ -46,7 +46,7 @@ namespace AudioLink
 
         public void RequestPlay()
         {
-            _currentRequest = YtdlpURLResolver.Resolve(ytdlpURL, (int)resolution);
+            _currentRequest = ytdlpURLResolver.Resolve(ytdlpURL, (int)resolution);
         }
 
         void Update()
@@ -138,23 +138,23 @@ namespace AudioLink
         public string ResolvedURL;
     }
 
-    public static class YtdlpURLResolver
+    public static class ytdlpURLResolver
     {
-        private static string _localYtdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
+        private static string _localytdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static string _ytdlpPath = "";
         private static bool _ytdlpFound = false;
 
-        public static bool IsYtdlpAvailable()
+        public static bool IsytdlpAvailable()
         {
             if (_ytdlpFound)
                 return true;
 
-            LocateYtdlp();
+            Locateytdlp();
             return _ytdlpFound;
         }
 
-        public static void LocateYtdlp()
+        public static void Locateytdlp()
         {
             _ytdlpFound = false;
 #if UNITY_EDITOR_WIN
@@ -166,7 +166,7 @@ namespace AudioLink
 #endif
             if (!File.Exists(_ytdlpPath))
             {
-                _ytdlpPath = _localYtdlpPath;
+                _ytdlpPath = _localytdlpPath;
             }
 
             if (!File.Exists(_ytdlpPath))
@@ -184,7 +184,7 @@ namespace AudioLink
             }
             else
             {
-                _ytdlpFound = true; 
+                _ytdlpFound = true;
                 Debug.Log($"[AudioLink] Found yt-dlp at path '{_ytdlpPath}'");
             }
         }
@@ -193,7 +193,7 @@ namespace AudioLink
         {
             if (!_ytdlpFound)
             {
-                LocateYtdlp();
+                Locateytdlp();
             }
 
             if (!_ytdlpFound)
@@ -286,7 +286,7 @@ namespace AudioLink
 #if UNITY_EDITOR_LINUX
             bool available = false;
 #else
-            bool available = YtdlpURLResolver.IsYtdlpAvailable();
+            bool available = ytdlpURLResolver.IsytdlpAvailable();
 #endif
 
             bool hasVideoPlayer = _ytdlpPlayer.videoPlayer != null;
