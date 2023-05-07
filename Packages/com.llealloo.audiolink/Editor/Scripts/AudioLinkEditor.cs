@@ -58,7 +58,8 @@ namespace AudioLink.Editor
             EditorGUILayout.Space();
 
             if (audioLink.audioDataToggle)
-            {
+            {                    
+                GUI.backgroundColor = Color.red;
                 if (GUILayout.Button(DisableButtonContent))
                 {
                     audioLink.DisableReadback();
@@ -67,6 +68,7 @@ namespace AudioLink.Editor
             }
             else
             {
+                GUI.backgroundColor = Color.green;
                 if (GUILayout.Button(EnableButtonContent))
                 {
                     audioLink.EnableReadback();
