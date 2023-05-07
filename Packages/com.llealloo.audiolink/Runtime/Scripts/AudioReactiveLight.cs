@@ -32,10 +32,9 @@ namespace AudioLink
 
         void Update()
         {
-            Color[] audioData = audioLink.audioData;
-            if (audioData.Length != 0)       // check for audioLink initialization
+            if (audioLink.AudioDataIsAvailable())
             {
-                float amplitude = audioData[_dataIndex].grayscale;
+                float amplitude = audioLink.GetAudioDataAtPixel(delay, band).grayscale;
                 if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
                 _light.color = HueShift(_initialColor, amplitude * hueShift);
             }

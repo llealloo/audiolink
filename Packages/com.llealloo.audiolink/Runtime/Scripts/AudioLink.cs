@@ -108,7 +108,9 @@ namespace AudioLink
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         [HideInInspector] public bool audioDataToggle = false;
 
-        [NonSerialized] public Color[] audioData = new Color[128 * 64];
+        private const int AudioDataWidth = 128;
+        private const int AudioDataHeight = 64;
+        [NonSerialized] public Color[] audioData = new Color[AudioDataWidth * AudioDataHeight];
         [HideInInspector] public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
         private float[] _audioFramesL = new float[1023 * 4];
@@ -702,6 +704,21 @@ namespace AudioLink
         {
             audioDataToggle = false;
             GetComponent<Camera>().enabled = false;
+        }
+
+        public bool AudioDataIsAvailable()
+        {
+            return audioDataToggle && audioData != null && audioData.Length > 0;
+        }
+
+        public Color GetAudioDataAtPixel(int x, int y)
+        {
+            return audioData[y * AudioDataWidth + x];
+        }
+
+        public Color LerpAudioDataAtPixel(float x, float y)
+        {
+            return Color.Lerp(GetAudioDataAtPixel((int)x, (int)y), GetAudioDataAtPixel((int)x+1, (int)y), x % 1.0f);
         }
 
         public void SendAudioOutputData()
