@@ -406,7 +406,7 @@ namespace AudioLink
             {
 #if UDONSHARP
                 VRCAsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, (VRC.Udon.Common.Interfaces.IUdonEventReceiver)(Component)this);
-#elif
+#else
                 AsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, OnAsyncGpuReadbackComplete);
 #endif
             }

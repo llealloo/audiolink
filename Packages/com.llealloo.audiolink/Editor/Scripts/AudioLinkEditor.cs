@@ -62,6 +62,7 @@ namespace AudioLink.Editor
                 if (GUILayout.Button(DisableButtonContent))
                 {
                     audioLink.DisableReadback();
+                    EditorUtility.SetDirty(audioLink);
                 }
             }
             else
@@ -69,6 +70,7 @@ namespace AudioLink.Editor
                 if (GUILayout.Button(EnableButtonContent))
                 {
                     audioLink.EnableReadback();
+                    EditorUtility.SetDirty(audioLink);
                 }
             }
         }
