@@ -88,9 +88,9 @@ namespace AudioLink
 
         [Header("Theme Colors")]
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         [Editor.StringInList("ColorChord Colors", "Custom")]
-        #endif
+#endif
         public int themeColorMode;
         public Color customThemeColor0 = new Color(1.0f, 1.0f, 0.0f, 1.0f);
         public Color customThemeColor1 = new Color(0.0f, 0.0f, 1.0f, 1.0f);
@@ -719,7 +719,7 @@ namespace AudioLink
 
         public Color LerpAudioDataAtPixel(float x, float y)
         {
-            return Color.Lerp(GetAudioDataAtPixel((int)x, (int)y), GetAudioDataAtPixel((int)x+1, (int)y), x % 1.0f);
+            return Color.Lerp(GetAudioDataAtPixel((int)x, (int)y), GetAudioDataAtPixel((int)x + 1, (int)y), x % 1.0f);
         }
 
         public void SendAudioOutputData()
