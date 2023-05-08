@@ -508,7 +508,7 @@ namespace AudioLink
                 audioData = audioData2D.GetPixels();
             }
         }
-#endif
+#else
 #if UDONSHARP
         public void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
 #else
@@ -526,6 +526,7 @@ namespace AudioLink
             }
 #endif
         }
+#endif
 
         private void OnEnable()
         {
