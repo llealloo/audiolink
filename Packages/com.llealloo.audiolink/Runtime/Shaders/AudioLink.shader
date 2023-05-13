@@ -457,7 +457,7 @@ Shader "AudioLink/Internal/AudioLink"
                             // Third pixel: Auto Gain / Volume Monitor for ColorChord
 
                             // Compensate for the fact that we've already gain'd our samples.
-                            float deratePeak = peak / (lastAutogain.x + _AutogainDerate);
+                            float deratePeak = peak * (lastAutogain.x + _AutogainDerate);
 
                             if(deratePeak > lastAutogain.x)
                             {
