@@ -78,7 +78,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9b9b5c52a71184bb2fad4c01f0bc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ytdlpURL: https://www.youtube.com/watch?v=SFTcZ1GXOCQ
+  YtdlpURL: https://www.youtube.com/watch?v=SFTcZ1GXOCQ
+  showVideoPreviewInComponent: 0
+  videoPlayer: {fileID: 5208934818770322006}
+  resolution: 720
 --- !u!1 &8800328339556915021
 GameObject:
   m_ObjectHideFlags: 0
@@ -160,7 +163,6 @@ MonoBehaviour:
   audioMaterial: {fileID: 2100000, guid: 5189d837989b9144e8e43d3ce618e450, type: 2}
   audioRenderTexture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
   audioDataToggle: 0
-  audioData: []
   audioData2D: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 2}
 --- !u!20 &8800328339556915022
 Camera:

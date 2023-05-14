@@ -1,81 +1,89 @@
 #if UNITY_EDITOR && !COMPILER_UDONSHARP
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-
 using UnityEngine;
 using UnityEngine.Video;
-
-using Debug = UnityEngine.Debug;
 
 // This component uses code from the following sources:
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
-// TODO(float3): make the resolve async
 // TODO(float3): add this to the AudioLinkMiniPlayer
 // TODO(float3): use SessionState to cache the resolved URL
 
 namespace AudioLink
 {
-    /// <summary> Downloads and plays videos via a VideoPlayer component </summary>
-    [RequireComponent(typeof(VideoPlayer))]
     public class YtdlpPlayer : MonoBehaviour
     {
-        /// <summary> Ytdlp url (e.g. https://www.youtube.com/watch?v=SFTcZ1GXOCQ) </summary>
-        public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
+        public string YtdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
+        YtdlpRequest _currentRequest = null;
 
-        /// <summary> VideoPlayer component associated with the current YtdlpPlayer instance </summary>
-        public VideoPlayer VideoPlayer { get; private set; }
+        [SerializeField]
+        public bool showVideoPreviewInComponent = false;
 
-        /// <summary> Initialize and play from URL </summary>
+        public VideoPlayer videoPlayer = null;
+
+        [SerializeField]
+        public Resolution resolution = Resolution._720p;
+
+        public enum Resolution
+        {
+            [InspectorName("360p")] _360p = 360,
+            [InspectorName("480p")] _480p = 480,
+            [InspectorName("720p")] _720p = 720,
+            [InspectorName("1080p")] _1080p = 1080,
+            [InspectorName("1440p")] _1440p = 1440,
+            [InspectorName("2160p")] _2160p = 2160,
+        }
+
         void OnEnable()
         {
-            VideoPlayer = GetComponent<VideoPlayer>();
-            UpdateURL();
-            if (VideoPlayer.length > 0)
-                VideoPlayer.Play();
+            RequestPlay();
         }
 
-        /// <summary> Update URL and start playing </summary>
-        public void UpdateAndPlay()
+        public void RequestPlay()
         {
-            UpdateURL();
-            if (VideoPlayer.length > 0)
-                VideoPlayer.Play();
+            _currentRequest = YtdlpURLResolver.Resolve(YtdlpURL, (int)resolution);
         }
 
-        /// <summary> Set time to zero, resolve, and set URL </summary>
-        public void UpdateURL()
+        void Update()
         {
-            string resolved = YtdlpURLResolver.Resolve(ytdlpURL, 720);
-            if (resolved != null)
+            if (_currentRequest != null && _currentRequest.isDone)
             {
-                VideoPlayer.url = resolved;
-                SetPlaybackTime(0.0f);
+                UpdateUrl(_currentRequest.resolvedURL);
+                _currentRequest = null;
             }
         }
 
-        /// <summary> Get Video Player Playback Time (as a fraction of playback, 0-1) </summary>
+        public void UpdateUrl(string resolved)
+        {
+            if (videoPlayer == null)
+                return;
+
+            videoPlayer.url = resolved;
+            SetPlaybackTime(0.0f);
+            if (videoPlayer.length > 0)
+            {
+                videoPlayer.Play();
+            }
+        }
+
         public float GetPlaybackTime()
         {
-            if (VideoPlayer != null && VideoPlayer.length > 0)
-                return (float)(VideoPlayer.length > 0 ? VideoPlayer.time / VideoPlayer.length : 0);
+            if (videoPlayer != null && videoPlayer.length > 0)
+                return (float)(videoPlayer.length > 0 ? videoPlayer.time / videoPlayer.length : 0);
             else
                 return 0;
         }
 
-        /// <summary> Set Video Player Playback Time (Seek) </summary>
-        /// <param name="time">Fraction of playback (0-1) to seek to</param>
         public void SetPlaybackTime(float time)
         {
-            if (VideoPlayer != null && VideoPlayer.length > 0 && VideoPlayer.canSetTime)
-                VideoPlayer.time = VideoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
+            if (videoPlayer != null && videoPlayer.length > 0 && videoPlayer.canSetTime)
+                videoPlayer.time = videoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
         }
 
-        /// <summary> Format seconds as hh:mm:ss or mm:ss </summary>
         public string FormattedTimestamp(double seconds, double maxSeconds = 0)
         {
             double formatValue = maxSeconds > 0 ? maxSeconds : seconds;
@@ -83,179 +91,152 @@ namespace AudioLink
             return TimeSpan.FromSeconds(seconds).ToString(formatString);
         }
 
-        /// <summary> Get Video Player Playback Time formatted as current / length </summary>
         public string PlaybackTimestampFormatted()
         {
-            if (VideoPlayer != null && VideoPlayer.length > 0)
+            if (videoPlayer != null && videoPlayer.length > 0)
             {
-                return $"{FormattedTimestamp(VideoPlayer.time, VideoPlayer.length)} / {FormattedTimestamp(VideoPlayer.length)}";
+                return $"{FormattedTimestamp(videoPlayer.time, videoPlayer.length)} / {FormattedTimestamp(videoPlayer.length)}";
             }
             else
+            {
                 return "00:00 / 00:00";
+            }
+        }
+
+        public bool GetAudioSourceVolume(out float volume)
+        {
+            volume = 0;
+
+            if (videoPlayer != null)
+            {
+                AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
+                if (audioSourceOutput != null)
+                {
+                    volume = audioSourceOutput.volume;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void SetAudioSourceVolume(float volume)
+        {
+            if (videoPlayer != null)
+            {
+                AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
+                if (audioSourceOutput != null)
+                    audioSourceOutput.volume = Mathf.Clamp01(volume);
+            }
         }
     }
 
-    [CustomEditor(typeof(YtdlpPlayer))]
-    public class YtdlpPlayerEditor : UnityEditor.Editor
+    public class YtdlpRequest
     {
-        YtdlpPlayer _ytdlpPlayer;
-
-        void OnEnable()
-        {
-            _ytdlpPlayer = (YtdlpPlayer)target;
-        }
-
-        // Force constant updates when playing, so playback time is not behind
-        public override bool RequiresConstantRepaint()
-        {
-            if (_ytdlpPlayer.VideoPlayer != null)
-                return _ytdlpPlayer.VideoPlayer.isPlaying;
-            else
-                return false;
-        }
-
-        //TODO: add a warning on Linux that only some filetypes are supported?
-        public override void OnInspectorGUI()
-        {
-#if UNITY_EDITOR_LINUX
-            bool available = false;
-#else
-            bool available = YtdlpURLResolver.IsYtdlpAvailable();
-#endif
-
-            EditorGUI.BeginDisabledGroup(!available);
-            base.OnInspectorGUI();
-            float playbackTime = 0;
-            bool hasPlayer = _ytdlpPlayer.VideoPlayer != null;
-            if (hasPlayer && _ytdlpPlayer.VideoPlayer.length > 0)
-                playbackTime = _ytdlpPlayer.GetPlaybackTime();
-
-            EditorGUI.BeginDisabledGroup(!hasPlayer || !Application.IsPlaying(target) || !_ytdlpPlayer.VideoPlayer.isPlaying);
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                // Timestamp/Reload button
-                EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
-                bool updateURL = GUILayout.Button(new GUIContent(" Reload", EditorGUIUtility.IconContent("TreeEditor.Refresh").image));
-                if (updateURL)
-                    _ytdlpPlayer.UpdateAndPlay();
-            }
-
-            EditorGUI.BeginChangeCheck();
-            playbackTime = EditorGUILayout.Slider(playbackTime, 0, 1);
-            if (EditorGUI.EndChangeCheck())
-                _ytdlpPlayer.SetPlaybackTime(playbackTime);
-
-            EditorGUI.EndDisabledGroup();
-            EditorGUI.EndDisabledGroup();
-
-            if (!available)
-            {
-#if UNITY_EDITOR_LINUX
-                EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux, as Unity on Linux cannot play the required file formats.", MessageType.Warning);
-#elif UNITY_EDITOR_WIN
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
-#else
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
-#endif
-            }
-        }
+        public bool isDone;
+        public string resolvedURL;
     }
 
     public static class YtdlpURLResolver
     {
         private static string _localYtdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
-        private static string _ytdlpPath = "";
-        private static bool _ytdlpFound = false;
+        private static string _YtdlpPath = "";
+        private static bool _YtdlpFound = false;
 
         public static bool IsYtdlpAvailable()
         {
-            if (_ytdlpFound)
+            if (_YtdlpFound)
                 return true;
 
             LocateYtdlp();
-            return _ytdlpFound;
+            return _YtdlpFound;
         }
 
-        /// <summary> Locate yt-dlp executible, either in VRC application data or locally (offer to download) </summary>
         public static void LocateYtdlp()
         {
-            _ytdlpFound = false;
+            _YtdlpFound = false;
 #if UNITY_EDITOR_WIN
             string[] splitPath = Application.persistentDataPath.Split('/', '\\');
 
-            // Check for yt-dlp in VRC application data first
-            _ytdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
+            _YtdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
 #else
-            _ytdlpPath = "/usr/bin/yt-dlp";
+            _YtdlpPath = "/usr/bin/yt-dlp";
 #endif
-            if (!File.Exists(_ytdlpPath))
+            if (!File.Exists(_YtdlpPath))
             {
-                // Check the local path (in the Assets folder)
-                _ytdlpPath = _localYtdlpPath;
+                _YtdlpPath = _localYtdlpPath;
             }
 
-            if (!File.Exists(_ytdlpPath))
+            if (!File.Exists(_YtdlpPath))
             {
-                // Check if we can find it on users PATH
 #if UNITY_EDITOR_WIN
-                _ytdlpPath = LocateExecutable("yt-dlp.exe");
+                _YtdlpPath = LocateExecutable("yt-dlp.exe");
 #else
-                _ytdlpPath = LocateExecutable("yt-dlp");
+                _YtdlpPath = LocateExecutable("yt-dlp");
 #endif
             }
 
-            if (!File.Exists(_ytdlpPath))
+            if (!File.Exists(_YtdlpPath))
             {
-                // Still don't have it, no dice
                 return;
             }
             else
             {
-                // Found it
-                _ytdlpFound = true;
-                Debug.Log($"[AudioLink] Found yt-dlp at path '{_ytdlpPath}'");
+                _YtdlpFound = true;
+                Debug.Log($"[AudioLink] Found yt-dlp at path '{_YtdlpPath}'");
             }
         }
 
-        /// <summary> Resolves a URL to one usable in a VideoPlayer. </summary>
-        /// <param name="url">URL to resolve for playback</param>
-        /// <param name="resolution">Resolution (vertical) to request from yt-dlp</param>
-        public static string Resolve(string url, int resolution)
+        public static YtdlpRequest Resolve(string url, int resolution = 720)
         {
-            // If we haven't yet found ytdlp, try to locate it
-            if (!_ytdlpFound)
+            if (!_YtdlpFound)
             {
                 LocateYtdlp();
             }
 
-            // If that didn't work, we can't resolve the URL
-            if (!_ytdlpFound)
+            if (!_YtdlpFound)
             {
                 Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : yt-dlp not found");
-                return null;
             }
 
-            using (var proc = new Process())
-            {
-                proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                proc.StartInfo.CreateNoWindow = true;
-                proc.StartInfo.UseShellExecute = false;
-                proc.StartInfo.RedirectStandardOutput = true;
-                proc.StartInfo.FileName = _ytdlpPath;
-                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
+            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+           YtdlpRequest request = new YtdlpRequest();
 
-                try
+            proc.EnableRaisingEvents = false;
+
+            proc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            proc.StartInfo.CreateNoWindow = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.FileName = _YtdlpPath;
+            proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
+
+            proc.Exited += (sender, args) =>
+            {
+                proc.Dispose();
+            };
+
+            proc.OutputDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
                 {
-                    proc.Start();
-                    proc.WaitForExit(5000);
-                    return proc.StandardOutput.ReadLine();
+                    request.resolvedURL = args.Data;
+                    request.isDone = true;
                 }
-                catch (Exception e)
-                {
-                    Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : " + e.Message);
-                    return null;
-                }
+            };
+
+            try
+            {
+                proc.Start();
+                proc.BeginOutputReadLine();
+
+                return request;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+                return null;
             }
         }
 
@@ -277,5 +258,160 @@ namespace AudioLink
             return Path.GetFullPath(name);
         }
     }
+
+    [CustomEditor(typeof(YtdlpPlayer))]
+    public class YtdlpPlayerEditor : UnityEditor.Editor
+    {
+        YtdlpPlayer _YtdlpPlayer;
+
+        void OnEnable()
+        {
+            _YtdlpPlayer = (YtdlpPlayer)target;
+            // If video player is on the same gameobject, assign it automatically
+            if (_YtdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
+                _YtdlpPlayer.videoPlayer = _YtdlpPlayer.gameObject.GetComponent<VideoPlayer>();
+        }
+
+        public override bool RequiresConstantRepaint()
+        {
+            if (_YtdlpPlayer.videoPlayer != null)
+                return _YtdlpPlayer.videoPlayer.isPlaying;
+            else
+                return false;
+        }
+
+        public override void OnInspectorGUI()
+        {
+#if UNITY_EDITOR_LINUX
+            bool available = false;
+#else
+            bool available = YtdlpURLResolver.IsYtdlpAvailable();
+#endif
+
+            bool hasVideoPlayer = _YtdlpPlayer.videoPlayer != null;
+            float playbackTime = hasVideoPlayer ? _YtdlpPlayer.GetPlaybackTime() : 0;
+            double videoLength = hasVideoPlayer ? _YtdlpPlayer.videoPlayer.length : 0;
+
+            using (new EditorGUI.DisabledScope(!available))
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUILayout.LabelField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), GUILayout.Width(100));
+                    _YtdlpPlayer.YtdlpURL = EditorGUILayout.TextField(_YtdlpPlayer.YtdlpURL);
+                    _YtdlpPlayer.resolution = (YtdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_YtdlpPlayer.resolution, GUILayout.Width(65));
+                }
+
+                using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
+                {
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        // Timestamp/Reload button
+                        EditorGUILayout.LabelField(new GUIContent(" Seek: " + _YtdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
+
+                        GUIContent reloadButtonContent = new GUIContent(" Reload URL", EditorGUIUtility.IconContent("TreeEditor.Refresh").image);
+
+                        bool updateURL = GUILayout.Button(reloadButtonContent);
+                        if (updateURL)
+                            _YtdlpPlayer.RequestPlay();
+                    }
+
+                    // Seekbar/Time input
+                    using (new EditorGUI.DisabledScope(!hasVideoPlayer || videoLength == 0))
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        // Seekbar input
+                        EditorGUI.BeginChangeCheck();
+                        playbackTime = GUILayout.HorizontalSlider(playbackTime, 0, 1);
+                        if (EditorGUI.EndChangeCheck())
+                            _YtdlpPlayer.SetPlaybackTime(playbackTime);
+
+                        // Timestamp input
+                        EditorGUI.BeginChangeCheck();
+                        double time = hasVideoPlayer ? _YtdlpPlayer.videoPlayer.time : 0;
+                        string currentTimestamp = _YtdlpPlayer.FormattedTimestamp(time, videoLength);
+                        string seekTimestamp = EditorGUILayout.DelayedTextField(currentTimestamp, GUILayout.MaxWidth(8 * currentTimestamp.Length));
+                        if (EditorGUI.EndChangeCheck() && videoLength > 0)
+                        {
+                            TimeSpan inputTimestamp;
+                            // Add extra 00:'s to force TimeSpan.TryParse to interpret times properly
+                            // 22 -> 00:00:22, 2:22 -> 00:02:22, 2:22:22 -> 00:2:22:22
+                            if (seekTimestamp.Length < 5)
+                                seekTimestamp = "00:" + seekTimestamp;
+                            if (TimeSpan.TryParse($"00:{seekTimestamp}", out inputTimestamp))
+                            {
+                                playbackTime = (float)(inputTimestamp.TotalSeconds / videoLength);
+                                _YtdlpPlayer.SetPlaybackTime(playbackTime);
+                            }
+                        }
+                    }
+
+                    // Media Controls
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        bool isPlaying = hasVideoPlayer ? _YtdlpPlayer.videoPlayer.isPlaying : false;
+                        bool isPaused = hasVideoPlayer ? _YtdlpPlayer.videoPlayer.isPaused : false;
+                        bool isStopped = !isPlaying && !isPaused;
+
+                        bool play = GUILayout.Toggle(isPlaying, new GUIContent(" Play", EditorGUIUtility.IconContent("d_PlayButton On").image), "Button") != isPlaying;
+                        bool pause = GUILayout.Toggle(isPaused, new GUIContent(" Pause", EditorGUIUtility.IconContent("d_PauseButton On").image), "Button") != isPaused;
+                        bool stop = GUILayout.Toggle(isStopped, new GUIContent(" Stop", EditorGUIUtility.IconContent("d_Record Off").image), "Button") != isStopped;
+
+                        if (hasVideoPlayer)
+                        {
+                            if (play)
+                                _YtdlpPlayer.videoPlayer.Play();
+                            else if (pause)
+                                _YtdlpPlayer.videoPlayer.Pause();
+                            else if (stop)
+                                _YtdlpPlayer.videoPlayer.Stop();
+                        }
+                    }
+                }
+
+                float volume;
+                using (new EditorGUI.DisabledScope(!_YtdlpPlayer.GetAudioSourceVolume(out volume)))
+                {
+                    EditorGUI.BeginChangeCheck();
+                    volume = EditorGUILayout.Slider(new GUIContent("  AudioSource Volume", EditorGUIUtility.IconContent("d_Profiler.Audio").image), volume, 0.0f, 1.0f);
+                    if (EditorGUI.EndChangeCheck())
+                        _YtdlpPlayer.SetAudioSourceVolume(volume);
+                }
+            }
+
+            bool videoPlayerOnThisObject = _YtdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null;
+
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || videoPlayerOnThisObject))
+            {
+                _YtdlpPlayer.videoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _YtdlpPlayer.videoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
+            }
+
+            // Video preview
+            using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
+            {
+                _YtdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _YtdlpPlayer.showVideoPreviewInComponent);
+
+                if (_YtdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _YtdlpPlayer.videoPlayer.texture != null)
+                {
+                    // Draw video preview with the same aspect ratio as the video
+                    Texture videoPlayerTexture = _YtdlpPlayer.videoPlayer.texture;
+                    float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
+                    Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
+                    EditorGUI.DrawPreviewTexture(previewRect, videoPlayerTexture, null, ScaleMode.ScaleToFit);
+                }
+            }
+
+            if (!available)
+            {
+#if UNITY_EDITOR_LINUX
+                EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux, as Unity on Linux cannot play the required file formats.", MessageType.Warning);
+#elif UNITY_EDITOR_WIN
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+#else
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+#endif
+            }
+        }
+    }
+
 }
 #endif
