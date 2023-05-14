@@ -512,23 +512,23 @@ namespace AudioLink
                 audioData = audioData2D.GetPixels();
             }
         }
-#else
-#if UDONSHARP
+#elif UDONSHARP
         public void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
-#else
-        public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
-#endif
         {
             if (request.hasError || !request.done) return;
-#if UDONSHARP
+
             request.TryGetData(audioData);
+        }
 #else
+        public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
+        {
+            if (request.hasError || !request.done) return;
+            
             NativeArray<Color> data = request.GetData<Color>();
             for (int i = 0; i < data.Length; i++)
             {
                 audioData[i] = data[i];
             }
-#endif
         }
 #endif
 
