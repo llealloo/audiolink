@@ -58,7 +58,7 @@ namespace AudioLink.Editor
             EditorGUILayout.Space();
 
             if (audioLink.audioDataToggle)
-            {                    
+            {
                 GUI.backgroundColor = Color.red;
                 if (GUILayout.Button(DisableButtonContent))
                 {
