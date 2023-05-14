@@ -18,7 +18,7 @@ namespace AudioLink
     public class YtdlpPlayer : MonoBehaviour
     {
         public string YtdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
-        Request _currentRequest = null;
+        YtdlpRequest _currentRequest = null;
 
         [SerializeField]
         public bool showVideoPreviewInComponent = false;
@@ -50,9 +50,9 @@ namespace AudioLink
 
         void Update()
         {
-            if (_currentRequest != null && _currentRequest.IsDone)
+            if (_currentRequest != null && _currentRequest.isDone)
             {
-                UpdateUrl(_currentRequest.ResolvedURL);
+                UpdateUrl(_currentRequest.resolvedURL);
                 _currentRequest = null;
             }
         }
@@ -131,10 +131,10 @@ namespace AudioLink
         }
     }
 
-    public class Request
+    public class YtdlpRequest
     {
-        public bool IsDone;
-        public string ResolvedURL;
+        public bool isDone;
+        public string resolvedURL;
     }
 
     public static class YtdlpURLResolver
@@ -188,7 +188,7 @@ namespace AudioLink
             }
         }
 
-        public static Request Resolve(string url, int resolution = 720)
+        public static YtdlpRequest Resolve(string url, int resolution = 720)
         {
             if (!_YtdlpFound)
             {
@@ -201,7 +201,7 @@ namespace AudioLink
             }
 
             System.Diagnostics.Process proc = new System.Diagnostics.Process();
-            Request request = new Request();
+           YtdlpRequest request = new YtdlpRequest();
 
             proc.EnableRaisingEvents = false;
 
@@ -221,8 +221,8 @@ namespace AudioLink
             {
                 if (args.Data != null)
                 {
-                    request.ResolvedURL = args.Data;
-                    request.IsDone = true;
+                    request.resolvedURL = args.Data;
+                    request.isDone = true;
                 }
             };
 
