@@ -101,20 +101,21 @@ namespace AudioLink.Editor
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
-#if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
             string[] paths = new string[]
             {
-                "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab"
-            };
-#else  //VRC WORLD or STANDALONE
-            string[] paths = new string[]
-            {
-#if UDONSHARP
+
+#if UDONSHARP // VRC World        
+                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab",
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
+#elif VRC_SDK_VRCSDK3 // VRC AVATAR
+                "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab",
+#elif CVR_CCK_EXISTS // CVR
+                "Packages/com.llealloo.audiolink/Runtime/CVRAudioLink.prefab",
+                "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
+#else // Standalone
+                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab",
 #endif
-                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
             };
-#endif
             foreach (string path in paths)
             {
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
