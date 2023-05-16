@@ -11,7 +11,6 @@ using UnityEngine.Video;
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
 // TODO(float3): add this to the AudioLinkMiniPlayer
-// TODO(float3): use SessionState to cache the resolved URL
 
 namespace AudioLink
 {
