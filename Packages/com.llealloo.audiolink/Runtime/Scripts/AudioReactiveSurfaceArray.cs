@@ -9,7 +9,7 @@ namespace AudioLink
 
     public class AudioReactiveSurfaceArray : UdonSharpBehaviour
 #else
-    using static UnityEngine.Shader;
+    using static Shader;
 
     public class AudioReactiveSurfaceArray : MonoBehaviour
 #endif

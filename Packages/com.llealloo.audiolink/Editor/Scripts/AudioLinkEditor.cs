@@ -81,7 +81,7 @@ namespace AudioLink.Editor
         {
             LinkAll(target as AudioLink);
         }
-        
+
         public static void LinkAll(AudioLink target)
         {
 #if UDONSHARP
@@ -114,7 +114,7 @@ namespace AudioLink.Editor
                         PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
                     }
                 }
-            } 
+            }
         }
     }
 }

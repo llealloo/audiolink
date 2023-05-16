@@ -82,16 +82,16 @@ namespace AudioLink.Editor
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
         public static bool IsWorldProjectWithoutUdonSharp()
         {
-            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            var project = new UnityProject(path);
+            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            UnityProject project = new UnityProject(path);
             return project.VPMProvider.HasPackage(VRCPackageNames.WORLDS) && !project.VPMProvider.HasPackage(VRCAddonPackageNames.UDONSHARP);
         }
 
         [MenuItem("AudioLink/Install UdonSharp dependency")]
         public static void InstallUdonSharp()
         {
-            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            var project = new UnityProject(path);
+            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            UnityProject project = new UnityProject(path);
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
@@ -130,10 +130,10 @@ namespace AudioLink.Editor
                     EditorGUIUtility.PingObject(instance);
                 }
             }
-            
-            if(audiolink != null)
+
+            if (audiolink != null)
             {
-                 AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
+                AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
             }
         }
     }

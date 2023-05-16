@@ -11,8 +11,6 @@ namespace AudioLink.Editor
 {
     public class StringInList : PropertyAttribute
     {
-        public delegate string[] GetStringList();
-
         public StringInList(params string[] list)
         {
             List = list;
@@ -21,7 +19,6 @@ namespace AudioLink.Editor
         public string[] List
         {
             get;
-            private set;
         }
     }
 
