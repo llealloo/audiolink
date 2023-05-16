@@ -77,7 +77,12 @@ namespace AudioLink.Editor
             }
         }
 
-        void LinkAll()
+        public void LinkAll()
+        {
+            LinkAll(target as AudioLink);
+        }
+        
+        public static void LinkAll(AudioLink target)
         {
 #if UDONSHARP
             UdonSharpBehaviour[] allBehaviours = FindObjectsOfType<UdonSharpBehaviour>();
@@ -109,7 +114,7 @@ namespace AudioLink.Editor
                         PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
                     }
                 }
-            }
+            } 
         }
     }
 }
