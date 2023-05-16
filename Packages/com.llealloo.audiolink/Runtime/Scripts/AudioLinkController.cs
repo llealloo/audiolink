@@ -15,7 +15,7 @@ namespace AudioLink
 #else
     using static Shader;
 
-    public class AudioLinkController : MonoBehaviour
+    public class AudioLinkController : AudioLinkBaseClass
 #endif
     {
         [Space(10)]

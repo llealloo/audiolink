@@ -11,7 +11,7 @@ namespace AudioLink
 #else
     using static UnityEngine.Shader;
 
-    public class AudioReactiveSurface : MonoBehaviour
+    public class AudioReactiveSurface : AudioLinkBaseClass
 #endif
     {
         [Header("To use custom mesh, swap mesh in Mesh Filter component above")]

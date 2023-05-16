@@ -7,7 +7,7 @@ namespace AudioLink
 
     public class AudioReactiveLight : UdonSharpBehaviour
 #else
-    public class AudioReactiveLight : MonoBehaviour
+    public class AudioReactiveLight : AudioLinkBaseClass
 #endif
     {
         public AudioLink audioLink;

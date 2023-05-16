@@ -11,7 +11,7 @@ namespace AudioLink
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class ThemeColorController : UdonSharpBehaviour
 #else
-    public class ThemeColorController : MonoBehaviour
+    public class ThemeColorController : AudioLinkBaseClass
 #endif
     {
         [UdonSynced] private int _themeColorMode;

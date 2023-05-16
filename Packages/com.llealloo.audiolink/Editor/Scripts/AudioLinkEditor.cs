@@ -27,6 +27,9 @@ namespace AudioLink.Editor
                         AssetDatabase.GUIDToAssetPath("b07c8466531ac5e4e852f3e276e4baca"));
                 Debug.Log(nameof(AudioLink) + ": restored audioData2D reference");
             }
+#if !UDONSHARP
+            GameObjectUtility.RemoveMonoBehavioursWithMissingScript(audioLink.gameObject);
+#endif
         }
 
         public override void OnInspectorGUI()

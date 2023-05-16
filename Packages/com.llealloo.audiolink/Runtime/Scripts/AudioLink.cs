@@ -21,7 +21,7 @@ namespace AudioLink
 
     using UnityEngine.Rendering;
 
-    public class AudioLink : MonoBehaviour
+    public class AudioLink : AudioLinkBaseClass
 #endif
     {
         const float AudioLinkVersionNumber = 3.02f;

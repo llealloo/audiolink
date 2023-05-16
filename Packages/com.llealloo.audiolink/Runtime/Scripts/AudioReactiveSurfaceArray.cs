@@ -11,7 +11,7 @@ namespace AudioLink
 #else
     using static UnityEngine.Shader;
 
-    public class AudioReactiveSurfaceArray : MonoBehaviour
+    public class AudioReactiveSurfaceArray : AudioLinkBaseClass
 #endif
     {
         [Header("Children should have AudioReactiveSurface shader applied")]
