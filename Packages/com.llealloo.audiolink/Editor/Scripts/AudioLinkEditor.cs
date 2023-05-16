@@ -14,8 +14,8 @@ namespace AudioLink.Editor
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : UnityEditor.Editor
     {
-        private readonly static GUIContent DisableButtonContent = EditorGUIUtility.TrTextContent("Disable readback", "Disables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
-        private readonly static GUIContent EnableButtonContent = EditorGUIUtility.TrTextContent("Enable readback", "Enables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
+        private readonly static GUIContent DisableReadbackButtonContent = EditorGUIUtility.TrTextContent("Disable readback", "Disables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
+        private readonly static GUIContent EnableReadbackButtonContent = EditorGUIUtility.TrTextContent("Enable readback", "Enables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
 
         public void OnEnable()
         {
@@ -60,7 +60,7 @@ namespace AudioLink.Editor
             if (audioLink.audioDataToggle)
             {
                 GUI.backgroundColor = Color.red;
-                if (GUILayout.Button(DisableButtonContent))
+                if (GUILayout.Button(DisableReadbackButtonContent))
                 {
                     audioLink.DisableReadback();
                     EditorUtility.SetDirty(audioLink);
@@ -69,7 +69,7 @@ namespace AudioLink.Editor
             else
             {
                 GUI.backgroundColor = Color.green;
-                if (GUILayout.Button(EnableButtonContent))
+                if (GUILayout.Button(EnableReadbackButtonContent))
                 {
                     audioLink.EnableReadback();
                     EditorUtility.SetDirty(audioLink);
