@@ -90,7 +90,7 @@ namespace AudioLink
         public bool autogain = true;
         [Range(0.0f, 1.0f)]
         public float autogainDerate;
-        
+
         [Header("Theme Colors")]
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
 #if UNITY_EDITOR
@@ -167,7 +167,7 @@ namespace AudioLink
         private int _Threshold1;
         private int _Threshold2;
         private int _Threshold3;
-        
+
         // Autogain
         private int _Autogain;
         private int _AutogainDerate;
