@@ -28,8 +28,7 @@ namespace AudioLink.Editor
         // Draw the property inside the given rect
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var stringInList = attribute as StringInList;
-            var list = stringInList.List;
+            string[] list = ((StringInList)attribute).List;
             if (property.propertyType == SerializedPropertyType.String)
             {
                 int index = Mathf.Max(0, Array.IndexOf(list, property.stringValue));

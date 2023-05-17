@@ -98,7 +98,7 @@ namespace AudioLink
                 {
                     if (!child.parent.Equals(transform)) continue;
                 }
-                var block = new MaterialPropertyBlock();
+                MaterialPropertyBlock block = new MaterialPropertyBlock();
                 block.SetFloat(_Delay, (delayStep / 128f) * (float)index);
                 block.SetFloat(_Band, (float)band);
                 block.SetFloat(_HueShift, hueShift);

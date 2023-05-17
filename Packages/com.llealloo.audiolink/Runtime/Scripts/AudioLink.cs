@@ -624,7 +624,7 @@ namespace AudioLink
         {
             VRCPlayerApi[] players = new VRCPlayerApi[VRCPlayerApi.GetPlayerCount()];
             VRCPlayerApi.GetPlayers(players);
-            foreach (var player in players)
+            foreach (VRCPlayerApi player in players)
             {
                 if (player != null)
                 {
@@ -672,7 +672,7 @@ namespace AudioLink
                 input = input.Substring(0, maxLength);
 
             // Get unicode codepoints
-            var codePoints = new int[input.Length];
+            int[] codePoints = new int[input.Length];
             int codePointsLength = 0;
             for (int i = 0; i < input.Length; i++)
             {
