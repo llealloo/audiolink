@@ -530,7 +530,7 @@ namespace AudioLink
             }
         }
 #elif UDONSHARP
-        public void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
+        public override void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
         {
             if (request.hasError || !request.done) return;
 
