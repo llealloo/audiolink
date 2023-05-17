@@ -89,6 +89,8 @@ namespace AudioLink.Editor
 #else
             MonoBehaviour[] allBehaviours = FindObjectsOfType<MonoBehaviour>();
 #endif
+            // this handles all reasonable cases of referencing audiolink
+            // (it doesn't handle referencing it multiple times in one monobehaviour, or referencing it as it's Base type)
             foreach (var behaviour in allBehaviours)
             {
                 FieldInfo fieldInfo = behaviour.GetType().GetField("audioLink");
@@ -104,7 +106,7 @@ namespace AudioLink.Editor
                         }
                     }
                 }
-                if (fieldInfo != null)
+                if (fieldInfo != null && fieldInfo.FieldType == typeof(AudioLink))
                 {
                     fieldInfo.SetValue(behaviour, target);
                     EditorUtility.SetDirty(behaviour);
