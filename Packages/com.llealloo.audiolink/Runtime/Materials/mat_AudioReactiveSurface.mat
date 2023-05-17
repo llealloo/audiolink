@@ -19,10 +19,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _AudioSpectrum:
-        m_Texture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -45,12 +41,10 @@ Material:
     - _BumpScale: 1
     - _Delay: 0
     - _Emission: 1
-    - _HueShift: 0
     - _Metallic: 0
     - _Pulse: 0
     - _PulseRotation: 0
     - _Smoothness: 0.5
-    - __dirty: 0
     m_Colors:
     - _Color: {r: 0.49803913, g: 0.49803913, b: 0.49803913, a: 1}
     - _EmissionColor: {r: 1, g: 0, b: 0.8627453, a: 0}
