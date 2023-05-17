@@ -86,6 +86,11 @@ namespace AudioLink
         [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
         public float fadeExpFalloff = 0.75f;
 
+        [Header("Autogain")]
+        public bool autogain = true;
+        [Range(0.0f, 1.0f)]
+        public float autogainDerate;
+        
         [Header("Theme Colors")]
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
 #if UNITY_EDITOR
@@ -162,10 +167,17 @@ namespace AudioLink
         private int _Threshold1;
         private int _Threshold2;
         private int _Threshold3;
+        
+        // Autogain
+        private int _Autogain;
+        private int _AutogainDerate;
+
         private int _SourceVolume;
         private int _SourceDistance;
         private int _SourceSpatialBlend;
         private int _SourcePosition;
+
+        // Theme Colors
         private int _ThemeColorMode;
         private int _CustomThemeColor0;
         private int _CustomThemeColor1;
@@ -217,10 +229,15 @@ namespace AudioLink
             _Threshold1 = PropertyToID("_Threshold1");
             _Threshold2 = PropertyToID("_Threshold2");
             _Threshold3 = PropertyToID("_Threshold3");
+
+            _Autogain = PropertyToID("_Autogain");
+            _AutogainDerate = PropertyToID("_AutogainDerate");
+
             _SourceVolume = PropertyToID("_SourceVolume");
             _SourceDistance = PropertyToID("_SourceDistance");
             _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
             _SourcePosition = PropertyToID("_SourcePosition");
+
             _ThemeColorMode = PropertyToID("_ThemeColorMode");
             _CustomThemeColor0 = PropertyToID("_CustomThemeColor0");
             _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
@@ -545,6 +562,11 @@ namespace AudioLink
 
         public void UpdateSettings()
         {
+            audioMaterial.SetFloat(_Gain, gain);
+            audioMaterial.SetFloat(_FadeLength, fadeLength);
+            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
+            audioMaterial.SetFloat(_Bass, bass);
+            audioMaterial.SetFloat(_Treble, treble);
             audioMaterial.SetFloat(_X0, x0);
             audioMaterial.SetFloat(_X1, x1);
             audioMaterial.SetFloat(_X2, x2);
@@ -553,11 +575,8 @@ namespace AudioLink
             audioMaterial.SetFloat(_Threshold1, threshold1);
             audioMaterial.SetFloat(_Threshold2, threshold2);
             audioMaterial.SetFloat(_Threshold3, threshold3);
-            audioMaterial.SetFloat(_Gain, gain);
-            audioMaterial.SetFloat(_FadeLength, fadeLength);
-            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
-            audioMaterial.SetFloat(_Bass, bass);
-            audioMaterial.SetFloat(_Treble, treble);
+            audioMaterial.SetFloat(_Autogain, autogain ? 1 : 0);
+            audioMaterial.SetFloat(_AutogainDerate, autogainDerate);
         }
 
         // Note: These might be changed frequently so as an optimization, they're in a different function

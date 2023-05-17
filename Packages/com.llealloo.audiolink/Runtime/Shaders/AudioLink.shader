@@ -15,7 +15,7 @@ Shader "AudioLink/Internal/AudioLink"
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
-        [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
+        [ToggleUI] _Autogain("Enable Autogain", float) = 1
         _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
         _SourceVolume("Audio Source Volume", float) = 1
         _SourceDistance("Distance to Source", float) = 1
@@ -102,7 +102,7 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float4 _StringCustom2[8];
 
             // Extra Properties
-            uniform float _EnableAutogain;
+            uniform float _Autogain;
             uniform float _AutogainDerate;
 
             // Set by Udon
@@ -253,7 +253,7 @@ Shader "AudioLink/Internal/AudioLink"
                 // Scales the gain by the audio source component Volume to prevent data changing when changing the volume.
                 // Clamped to 0.001 to prevent division by 0 because that will make it 'splode and we don't want that now do we?
                 incomingGain *= 1/clamp(_SourceVolume, 0.001, 1);
-                if(_EnableAutogain)
+                if(_Autogain)
                 {
                     float4 lastAutoGain = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 

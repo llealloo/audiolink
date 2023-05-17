@@ -70,6 +70,8 @@ MonoBehaviour:
   threshold3: 0.45
   fadeLength: 0.25
   fadeExpFalloff: 0.75
+  autogain: 1
+  autogainDerate: 0.1
   themeColorMode: 0
   customThemeColor0: {r: 1, g: 1, b: 0, a: 1}
   customThemeColor1: {r: 0, g: 0, b: 1, a: 1}
@@ -80,7 +82,6 @@ MonoBehaviour:
   audioMaterial: {fileID: 2100000, guid: 5189d837989b9144e8e43d3ce618e450, type: 2}
   audioRenderTexture: {fileID: 8600000, guid: f51fa799ef0abde489235f40fc0328ef, type: 2}
   audioDataToggle: 0
-  audioData: []
   audioData2D: {fileID: 2800000, guid: b07c8466531ac5e4e852f3e276e4baca, type: 2}
 --- !u!114 &8295703945185298429
 MonoBehaviour:
