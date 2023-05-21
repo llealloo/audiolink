@@ -257,8 +257,13 @@ Shader "AudioLink/Internal/AudioLink"
                 {
                     float4 lastAutoGain = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
-                    // Divide by the running volume.
-                    incomingGain *= 1. / (lastAutoGain.x + _AutogainDerate);
+                    float denominator = lastAutoGain.x + _AutogainDerate;
+                    // prevent divide by zero
+                    if (denominator > 0) 
+                    {
+                        // Divide by the running volume.
+                        incomingGain *= 1. / denominator;
+                    }
                 }
 
                 // Downsampled to 24k and 12k samples per second by averaging, limiting frame to prevent overflow
