@@ -88,7 +88,7 @@ namespace AudioLink
 
         [Header("Autogain")]
         public bool autogain = true;
-        [Range(0.0f, 1.0f)]
+        [Range(0.001f, 1.0f)]
         public float autogainDerate = 0.1f;
 
         [Header("Theme Colors")]
