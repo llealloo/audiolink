@@ -1,17 +1,16 @@
-[![Discord - AudioLink Discord](https://img.shields.io/badge/Discord-AudioLink_Discord-7289da?logo=discord&logoColor=7289da)](https://discord.gg/d5wjNwZBR3) [![AudioLink - VRChat World](https://img.shields.io/badge/AudioLink-VRChat_World-4489d7?logo=steam)](vrchat://launch?ref=vrchat.com&id=wrld_8554f998-d256-44b2-b16f-74aa32aac214:AudioLink~region(eu)&shortName=6kbyjrsy) [![Website - AudioLink Website](https://img.shields.io/badge/Website-AudioLink_Website-7289da)](https://audiolink.dev/)
+[![Discord - AudioLink Discord](https://img.shields.io/badge/Discord-AudioLink_Discord-7289da?logo=discord&logoColor=7289da)](https://discord.gg/d5wjNwZBR3) [![Website - AudioLink Website](https://img.shields.io/badge/Website-AudioLink_Website-7289da)](https://audiolink.dev/)
 
-# Udon AudioLink
+# AudioLink
 
-## A repository of audio reactive prefabs for VRChat, written in UdonSharp
+## A repository of audio reactive prefabs for Unity, written in CSharp and HLSL, compatible with VRChat and ChilloutVR
 
-AudioLink is a system that analyzes and processes in-world audio into many different highly reactive data streams and exposes the data to VRChat Udon, world shaders, and avatar shaders. 
+AudioLink is a system that analyzes and processes in-world audio into many different highly reactive data streams and exposes the data to Scripts and Shaders. 
 
 The per-frequency audio amplitude data is first read briefly into Udon using Unity's GetOutputData. It is then sent to the GPU for signal processing and buffered into a CustomRenderTexture. Then, the CustomRenderTexture is broadcast globally (called `_AudioTexture`) which can be picked up by shaders both in-world and across all avatars. 
 
 ### [Public example world](https://vrchat.com/home/launch?worldId=wrld_8554f998-d256-44b2-b16f-74aa32aac214)
 ### [Frequently Asked Questions](FAQ.md)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
-### [If you are looking to use AudioLink for ChilloutVR, check out this fork instead](https://github.com/DomNomNomVR/cvr-audio-link)
 
 ## 0.3.2 - March 12th, 2023
 ### New features
@@ -72,21 +71,19 @@ Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, 
    - If you want to use an existing project, use the "Add" option in the "Projects" tab and follow the steps there.
 3. Open the Projects tab and select your project. If you have never used the VCC with the project, use the "Migrate" button to upgrade it.
 4. On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
-5. Open the "Packages/com.llealloo.audiolink/Runtime" folder and drag AudioLinkAvatar into your scene's hierarchy.
+5. Use the "AudioLink/Add AudioLink Prefab to Scene" menu item.
 6. Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource.
    - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01.
 7. Enter playmode to test your avatar.
 
-### For non-VRChat uses
+### For non-VRChat uses (including CVR)
 1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
-2. Open the AudioLink folder and drag the AudioLink prefab into your scene's hierarchy. It should work out of the box.
+2. Use the "AudioLink/Add AudioLink Prefab to Scene" menu item. It should work out of the box.
 
 ## Getting started
 After installation, to use AudioLink:
-1. Drag AudioLink prefab into scene. It is in "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab".
-2. Link audio source by dragging the AudioSource gameobject into AudioLink's audio source parameter.
-3. Drag AudioLinkController prefab into scene and drag AudioLink into the controller's "Audio Link" parameter.
-4. Click the "Link all sound reactive objects..." button to link everything up.
+1. Use the "AudioLink/Add AudioLink Prefab to Scene" menu item.
+2. Click the "Link all sound reactive objects..." button to link everything up.
 
 If you want to see an example of a scene with AudioLink set up, press the "AudioLink -> Open AudioLink Example Scene" in the top menu of the editor.
 
