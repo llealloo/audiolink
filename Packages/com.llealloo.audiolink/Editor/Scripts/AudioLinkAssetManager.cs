@@ -82,16 +82,16 @@ namespace AudioLink.Editor
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
         public static bool IsWorldProjectWithoutUdonSharp()
         {
-            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            var project = new UnityProject(path);
+            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            UnityProject project = new UnityProject(path);
             return project.VPMProvider.HasPackage(VRCPackageNames.WORLDS) && !project.VPMProvider.HasPackage(VRCAddonPackageNames.UDONSHARP);
         }
 
         [MenuItem("AudioLink/Install UdonSharp dependency")]
         public static void InstallUdonSharp()
         {
-            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            var project = new UnityProject(path);
+            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            UnityProject project = new UnityProject(path);
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
@@ -116,14 +116,25 @@ namespace AudioLink.Editor
                 "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab",
 #endif
             };
+            GameObject audiolink = null;
+
             foreach (string path in paths)
             {
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 if (asset != null)
                 {
                     GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(asset);
+                    if (path.EndsWith("AudioLink.prefab"))
+                    {
+                        audiolink = instance;
+                    }
                     EditorGUIUtility.PingObject(instance);
                 }
+            }
+
+            if (audiolink != null)
+            {
+                AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
             }
         }
     }

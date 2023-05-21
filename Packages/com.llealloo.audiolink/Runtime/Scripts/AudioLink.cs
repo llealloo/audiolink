@@ -11,7 +11,6 @@ namespace AudioLink
 
     using VRC.SDK3.Rendering;
     using VRC.SDKBase;
-    using VRC.Udon.Common.Interfaces;
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLink : UdonSharpBehaviour
@@ -87,9 +86,16 @@ namespace AudioLink
         [Tooltip("Amplitude fade exponential falloff. This attenuates the above (linear) fade-off exponentially, creating more of a pulsed effect. Warning: this setting might be taken over by AudioLinkController")]
         public float fadeExpFalloff = 0.75f;
 
+        [Header("Autogain")]
+        public bool autogain = true;
+        [Range(0.0f, 1.0f)]
+        public float autogainDerate;
+
         [Header("Theme Colors")]
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
+#if UNITY_EDITOR
         [Editor.StringInList("ColorChord Colors", "Custom")]
+#endif
         public int themeColorMode;
         public Color customThemeColor0 = new Color(1.0f, 1.0f, 0.0f, 1.0f);
         public Color customThemeColor1 = new Color(0.0f, 0.0f, 1.0f, 1.0f);
@@ -100,17 +106,17 @@ namespace AudioLink
         [UdonSynced] public string customString1;
         [UdonSynced] public string customString2;
 
-        [Header("Internal (Do not modify)")] public Material audioMaterial;
-        public CustomRenderTexture audioRenderTexture;
+        [HideInInspector] public Material audioMaterial;
+        [HideInInspector] public CustomRenderTexture audioRenderTexture;
 
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
-        [Obsolete("Do not reference this field directly, use AudioLink.EnableReadback and AudioLink.DisableReadback instead")]
-        [HideInInspector]
-        public bool audioDataToggle = false;
+        [HideInInspector] public bool audioDataToggle = false;
 
-        [NonSerialized] public Color[] audioData = new Color[128 * 64];
-        public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
+        private const int AudioDataWidth = 128;
+        private const int AudioDataHeight = 64;
+        [NonSerialized] public Color[] audioData = new Color[AudioDataWidth * AudioDataHeight];
+        [HideInInspector] public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
@@ -161,10 +167,17 @@ namespace AudioLink
         private int _Threshold1;
         private int _Threshold2;
         private int _Threshold3;
+
+        // Autogain
+        private int _Autogain;
+        private int _AutogainDerate;
+
         private int _SourceVolume;
         private int _SourceDistance;
         private int _SourceSpatialBlend;
         private int _SourcePosition;
+
+        // Theme Colors
         private int _ThemeColorMode;
         private int _CustomThemeColor0;
         private int _CustomThemeColor1;
@@ -216,10 +229,15 @@ namespace AudioLink
             _Threshold1 = PropertyToID("_Threshold1");
             _Threshold2 = PropertyToID("_Threshold2");
             _Threshold3 = PropertyToID("_Threshold3");
+
+            _Autogain = PropertyToID("_Autogain");
+            _AutogainDerate = PropertyToID("_AutogainDerate");
+
             _SourceVolume = PropertyToID("_SourceVolume");
             _SourceDistance = PropertyToID("_SourceDistance");
             _SourceSpatialBlend = PropertyToID("_SourceSpatialBlend");
             _SourcePosition = PropertyToID("_SourcePosition");
+
             _ThemeColorMode = PropertyToID("_ThemeColorMode");
             _CustomThemeColor0 = PropertyToID("_CustomThemeColor0");
             _CustomThemeColor1 = PropertyToID("_CustomThemeColor1");
@@ -251,6 +269,10 @@ namespace AudioLink
         // TODO(3): try to port this to standalone
         void Start()
         {
+#if !UNITY_ANDROID
+            // remove camera if we aren't on quest
+            Destroy(GetComponent<Camera>());
+#endif
 #if UDONSHARP
             {
                 // Handle sync'd time stuff.
@@ -404,6 +426,17 @@ namespace AudioLink
 
         private void Update()
         {
+#if !UNITY_ANDROID
+            if (audioDataToggle)
+            {
+#if UDONSHARP
+                VRCAsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, (VRC.Udon.Common.Interfaces.IUdonEventReceiver)(Component)this);
+#else
+                AsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, OnAsyncGpuReadbackComplete);
+#endif
+            }
+#endif
+
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
 
@@ -487,6 +520,7 @@ namespace AudioLink
             UpdateCustomStrings();
 #endif
         }
+#if UNITY_ANDROID
         void OnPostRender()
         {
             if (audioDataToggle)
@@ -495,6 +529,25 @@ namespace AudioLink
                 audioData = audioData2D.GetPixels();
             }
         }
+#elif UDONSHARP
+        public override void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
+        {
+            if (request.hasError || !request.done) return;
+
+            request.TryGetData(audioData);
+        }
+#else
+        public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
+        {
+            if (request.hasError || !request.done) return;
+            
+            NativeArray<Color> data = request.GetData<Color>();
+            for (int i = 0; i < data.Length; i++)
+            {
+                audioData[i] = data[i];
+            }
+        }
+#endif
 
         private void OnEnable()
         {
@@ -509,6 +562,11 @@ namespace AudioLink
 
         public void UpdateSettings()
         {
+            audioMaterial.SetFloat(_Gain, gain);
+            audioMaterial.SetFloat(_FadeLength, fadeLength);
+            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
+            audioMaterial.SetFloat(_Bass, bass);
+            audioMaterial.SetFloat(_Treble, treble);
             audioMaterial.SetFloat(_X0, x0);
             audioMaterial.SetFloat(_X1, x1);
             audioMaterial.SetFloat(_X2, x2);
@@ -517,11 +575,8 @@ namespace AudioLink
             audioMaterial.SetFloat(_Threshold1, threshold1);
             audioMaterial.SetFloat(_Threshold2, threshold2);
             audioMaterial.SetFloat(_Threshold3, threshold3);
-            audioMaterial.SetFloat(_Gain, gain);
-            audioMaterial.SetFloat(_FadeLength, fadeLength);
-            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
-            audioMaterial.SetFloat(_Bass, bass);
-            audioMaterial.SetFloat(_Treble, treble);
+            audioMaterial.SetFloat(_Autogain, autogain ? 1 : 0);
+            audioMaterial.SetFloat(_AutogainDerate, autogainDerate);
         }
 
         // Note: These might be changed frequently so as an optimization, they're in a different function
@@ -569,7 +624,7 @@ namespace AudioLink
         {
             VRCPlayerApi[] players = new VRCPlayerApi[VRCPlayerApi.GetPlayerCount()];
             VRCPlayerApi.GetPlayers(players);
-            foreach (var player in players)
+            foreach (VRCPlayerApi player in players)
             {
                 if (player != null)
                 {
@@ -617,7 +672,7 @@ namespace AudioLink
                 input = input.Substring(0, maxLength);
 
             // Get unicode codepoints
-            var codePoints = new int[input.Length];
+            int[] codePoints = new int[input.Length];
             int codePointsLength = 0;
             for (int i = 0; i < input.Length; i++)
             {
@@ -666,13 +721,32 @@ namespace AudioLink
         public void EnableReadback()
         {
             audioDataToggle = true;
+#if UNITY_ANDROID
             GetComponent<Camera>().enabled = true;
+#endif
         }
 
         public void DisableReadback()
         {
             audioDataToggle = false;
+#if UNITY_ANDROID
             GetComponent<Camera>().enabled = false;
+#endif
+        }
+
+        public bool AudioDataIsAvailable()
+        {
+            return audioDataToggle && audioData != null && audioData.Length > 0;
+        }
+
+        public Color GetAudioDataAtPixel(int x, int y)
+        {
+            return audioData[y * AudioDataWidth + x];
+        }
+
+        public Color LerpAudioDataAtPixel(float x, float y)
+        {
+            return Color.Lerp(GetAudioDataAtPixel((int)x, (int)y), GetAudioDataAtPixel((int)x + 1, (int)y), x % 1.0f);
         }
 
         public void SendAudioOutputData()

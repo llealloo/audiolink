@@ -9,7 +9,7 @@ namespace AudioLink
 
     public class AudioReactiveSurface : UdonSharpBehaviour
 #else
-    using static UnityEngine.Shader;
+    using static Shader;
 
     public class AudioReactiveSurface : MonoBehaviour
 #endif
@@ -65,8 +65,8 @@ namespace AudioLink
 
         public void UpdateMaterial()
         {
-            var block = new MaterialPropertyBlock();
-            var mesh = GetComponent<MeshRenderer>();
+            MaterialPropertyBlock block = new MaterialPropertyBlock();
+            MeshRenderer mesh = GetComponent<MeshRenderer>();
             block.SetFloat(_Delay, (float)delay / 128f);
             block.SetFloat(_Band, (float)band);
             block.SetFloat(_HueShift, hueShift);
