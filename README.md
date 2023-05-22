@@ -121,3 +121,4 @@ If you want to see an example of a scene with AudioLink set up, press the "Audio
 - Lamp for the awesome example music and inspiration. Follow them!! https://soundcloud.com/lampdx
 - Shelter, Loner, Rizumu, and all of the other dance communities in VRChat for making this
 - rrazgriz for coming up with and implementing yt-dlp support for editor testing
+- LucHeart and DomNomNom for maintaing CVR forks of AudioLink, and letting us adopt their work
