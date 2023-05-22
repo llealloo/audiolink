@@ -1165,7 +1165,7 @@ MonoBehaviour:
       Data: 70|UnityEngine.RangeAttribute, UnityEngine.CoreModule
     - Name: min
       Entry: 4
-      Data: 0
+      Data: 0.001
     - Name: max
       Entry: 4
       Data: 1
