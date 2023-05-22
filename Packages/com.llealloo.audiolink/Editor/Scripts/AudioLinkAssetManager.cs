@@ -111,7 +111,7 @@ namespace AudioLink.Editor
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab",
 #elif CVR_CCK_EXISTS // CVR
                 "Packages/com.llealloo.audiolink/Runtime/CVRAudioLink.prefab",
-                "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
+                "Packages/com.llealloo.audiolink/Runtime/CVRAudioLinkController.prefab",
 #else // Standalone
                 "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab",
 #endif
