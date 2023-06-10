@@ -4,8 +4,8 @@
 - Add AudioLink variable `public AudioLink.AudioLink audiolink;`
 - Set Volume display `audiolink.SetMediaVolume(player.volume);`
 - Set Time display `audiolink.SetMediaTime(player.time);`
-- Set Playback display `audiolink.SetMediaPlaying((int)MediaPlaying.playing)`
-- Set Loop display `audiolink.SetMediaLoop((int)MediaLoop.Loop)`
+- Set Playback display `audiolink.SetMediaPlaying(MediaPlaying.playing)`
+- Set Loop display `audiolink.SetMediaLoop(MediaLoop.Loop)`
 
 ```
 using UdonSharp;
@@ -32,13 +32,13 @@ public class Player : UdonSharpBehaviour {
         Error     6 (0.60)
         */
         if (Utilities.IsValid(audiolink)) {
-            audiolink.SetMediaPlaying((int)MediaPlaying.None);
-            audiolink.SetMediaPlaying((int)MediaPlaying.Playing);
-            audiolink.SetMediaPlaying((int)MediaPlaying.Paused);
-            audiolink.SetMediaPlaying((int)MediaPlaying.Stopped);
-            audiolink.SetMediaPlaying((int)MediaPlaying.Loading);
-            audiolink.SetMediaPlaying((int)MediaPlaying.Streaming);
-            audiolink.SetMediaPlaying((int)MediaPlaying.Error);
+            audiolink.SetMediaPlaying(MediaPlaying.None);
+            audiolink.SetMediaPlaying(MediaPlaying.Playing);
+            audiolink.SetMediaPlaying(MediaPlaying.Paused);
+            audiolink.SetMediaPlaying(MediaPlaying.Stopped);
+            audiolink.SetMediaPlaying(MediaPlaying.Loading);
+            audiolink.SetMediaPlaying(MediaPlaying.Streaming);
+            audiolink.SetMediaPlaying(MediaPlaying.Error);
         }
 
     }
@@ -70,11 +70,11 @@ public class Player : UdonSharpBehaviour {
         RandomLoop 4 (0.40)
         */
         if (Utilities.IsValid(audiolink)) {
-            audiolink.SetMediaLoop((int)MediaLoop.None);
-            audiolink.SetMediaLoop((int)MediaLoop.Loop);
-            audiolink.SetMediaLoop((int)MediaLoop.LoopOne);
-            audiolink.SetMediaLoop((int)MediaLoop.Random);
-            audiolink.SetMediaLoop((int)MediaLoop.RandomLoop);
+            audiolink.SetMediaLoop(MediaLoop.None);
+            audiolink.SetMediaLoop(MediaLoop.Loop);
+            audiolink.SetMediaLoop(MediaLoop.LoopOne);
+            audiolink.SetMediaLoop(MediaLoop.Random);
+            audiolink.SetMediaLoop(MediaLoop.RandomLoop);
         }
 
     }

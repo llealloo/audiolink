@@ -394,8 +394,9 @@ namespace AudioLink
         Stopped 3 (0.30)
         Loading 4 (0.40)
         */
-        public void SetMediaPlaying(int state) {
+        public void SetMediaPlaying(MediaPlaying playingstate) {
 
+            int state = (int)playingstate;
             audioMaterial.SetFloat("_MediaPlaying", (float)state / 10);
 
         }
@@ -407,8 +408,9 @@ namespace AudioLink
         Random     3 (0.30)
         RandomLoop 4 (0.40)
         */
-        public void SetMediaLoop(int loop) {
+        public void SetMediaLoop(MediaLoop loopstate) {
 
+            int loop = (int)loopstate;
             audioMaterial.SetFloat("_MediaLoop", (float)loop / 10);
 
         }
