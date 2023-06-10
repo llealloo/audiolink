@@ -28,7 +28,7 @@ Shader "AudioLink/Internal/AudioLink"
         _CustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
         _CustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
 
-        [Enum(None,0,Playing,.1,Paused,.2,Stopped,.3,Loading,.4)] _MediaPlaying ("Media Playing", Float) = 0
+        [Enum(None,0,Playing,.1,Paused,.2,Stopped,.3,Loading,.4,Streaming,.5,Error,.6)] _MediaPlaying ("Media Playing", Float) = 0
         [Enum(None,0,Loop,.1,Loop One,.2,Random,.3,Random Loop,.4)] _MediaLoop ("Media Loop", Float) = 0
         _MediaVolume ("Media Volume", Range(0, 1)) = 0
         _MediaTime ("Media Time (Progress %)", Range(0, 1)) = 0

@@ -18,7 +18,9 @@ namespace AudioLink
             Playing = 1,
             Paused = 2,
             Stopped = 3,
-            Loading = 4
+            Loading = 4,
+            Streaming = 5,
+            Error = 6
         }
 
         public enum MediaLoop
@@ -45,7 +47,9 @@ namespace AudioLink
             Playing = 1,
             Paused = 2,
             Stopped = 3,
-            Loading = 4
+            Loading = 4,
+            Streaming = 5,
+            Error = 6
         }
 
         public enum MediaLoop

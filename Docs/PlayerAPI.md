@@ -28,6 +28,8 @@ public class Player : UdonSharpBehaviour {
         Paused  2 (0.20)
         Stopped 3 (0.30)
         Loading 4 (0.40)
+        Streaming 5 (0.50)
+        Error     6 (0.60)
         */
         if (Utilities.IsValid(audiolink)) {
             audiolink.SetMediaPlaying((int)MediaPlaying.None);
@@ -35,6 +37,8 @@ public class Player : UdonSharpBehaviour {
             audiolink.SetMediaPlaying((int)MediaPlaying.Paused);
             audiolink.SetMediaPlaying((int)MediaPlaying.Stopped);
             audiolink.SetMediaPlaying((int)MediaPlaying.Loading);
+            audiolink.SetMediaPlaying((int)MediaPlaying.Streaming);
+            audiolink.SetMediaPlaying((int)MediaPlaying.Error);
         }
 
     }

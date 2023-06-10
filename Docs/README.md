@@ -209,7 +209,7 @@ It contains the following dedicated pixels:
 <tr><td>2, 0 </td><td>2, 22</td><td>Milliseconds Since Instance Start</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_INSTANCE_TIME )</pre></td></tr>
 <tr><td>3, 0 </td><td>3, 22</td><td>Milliseconds Since 12:00 AM Local Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
 <tr><td>4, 0 </td><td>4, 22</td><td>Milliseconds In Network Time</td><td colspan=4><pre>AudioLinkDecodeDataAs[UInt/Seconds]( ALPASS_GENERALVU_LOCAL_TIME )</pre></td></tr>
-<tr><td>5, 0 </td><td>5, 22</td><td>Current Media State</td><td>Media Volume (0 - 1)</td><td>Media Time (0 - 1)</td><td>Media State at .1 intervals</td><td>Loop & Random</td></tr>
+<tr><td>5, 0 </td><td>5, 22</td><td>Current Media State</td><td>Media Volume</td><td>Media Time</td><td>Media Playback</td><td>Media Loop & Random</td></tr>
 <tr><td>6, 0 </td><td>6, 22</td><td>Player Data Info</td><td>Number of Players In Instance</td><td>1 if you are master</td><td>1 if you are owner</td><td>Reserved.</td></tr>
 <tr><td>7, 0 </td><td>7, 22</td><td>(Internal)</td><td colspan=4>Reserved for future use</td></tr>
 <tr><td>8, 0 </td><td>8, 22</td><td>Current Intensity</td><td>RMS Left</td><td>Peak Left</td><td>RMS Right</td><td>Peak right</td></tr>
@@ -398,16 +398,19 @@ Contains:
 - Red: Volume, 0f to 1f
 - Green: Time progress, 0f to 1f
 - Blue: Media playback state
--    0.00f None or Legacy
--    0.10f Playing
--    0.20f Paused
--    0.30f Stopped
+    - 0.00f None or Legacy
+    - 0.10f Playing
+    - 0.20f Paused
+    - 0.30f Stopped
+    - 0.40f Loading
+    - 0.50f Streaming
+    - 0.60f Error
 - Alpha: Loop & Random
--    0.00f None or Legacy
--    0.10f Loop
--    0.20f Loop one (Playlist players)
--    0.30f Random (Playlist players)
--    0.40f Random & Loop (Playlist players)
+    - 0.00f None or Legacy
+    - 0.10f Loop
+    - 0.20f Loop one (Playlist players)
+    - 0.30f Random (Playlist players)
+    - 0.40f Random & Loop (Playlist players)
 
 ### `ALPASS_GLOBAL_STRINGS`
 This section provides access access to 4 globally synced strings of text. These can be read and displayed in a shader, or used to perform logic like a check for a specific player.
