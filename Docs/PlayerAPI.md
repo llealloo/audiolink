@@ -29,11 +29,13 @@ public class Player : UdonSharpBehaviour {
         Stopped 3 (0.30)
         Loading 4 (0.40)
         */
-        audiolink.SetMediaPlaying((int)MediaPlaying.None);
-        audiolink.SetMediaPlaying((int)MediaPlaying.Playing);
-        audiolink.SetMediaPlaying((int)MediaPlaying.Paused);
-        audiolink.SetMediaPlaying((int)MediaPlaying.Stopped);
-        audiolink.SetMediaPlaying((int)MediaPlaying.Loading);
+        if (Utilities.IsValid(audiolink)) {
+            audiolink.SetMediaPlaying((int)MediaPlaying.None);
+            audiolink.SetMediaPlaying((int)MediaPlaying.Playing);
+            audiolink.SetMediaPlaying((int)MediaPlaying.Paused);
+            audiolink.SetMediaPlaying((int)MediaPlaying.Stopped);
+            audiolink.SetMediaPlaying((int)MediaPlaying.Loading);
+        }
 
     }
 
@@ -41,7 +43,7 @@ public class Player : UdonSharpBehaviour {
     public void UpdateVolume(float volume) {
 
         //Ranges from 0 to 1
-        audiolink.SetMediaVolume(volume);
+        if (Utilities.IsValid(audiolink)) audiolink.SetMediaVolume(volume);
 
     }
 
@@ -49,7 +51,7 @@ public class Player : UdonSharpBehaviour {
     public void UpdateTime(float time) {
 
         //Ranges from 0 to 1
-        audiolink.SetMediaTime(time);
+        if (Utilities.IsValid(audiolink)) audiolink.SetMediaTime(time);
 
     }
 
@@ -63,11 +65,13 @@ public class Player : UdonSharpBehaviour {
         Random     3 (0.30)
         RandomLoop 4 (0.40)
         */
-        audiolink.SetMediaLoop((int)MediaLoop.None);
-        audiolink.SetMediaLoop((int)MediaLoop.Loop);
-        audiolink.SetMediaLoop((int)MediaLoop.LoopOne);
-        audiolink.SetMediaLoop((int)MediaLoop.Random);
-        audiolink.SetMediaLoop((int)MediaLoop.RandomLoop);
+        if (Utilities.IsValid(audiolink)) {
+            audiolink.SetMediaLoop((int)MediaLoop.None);
+            audiolink.SetMediaLoop((int)MediaLoop.Loop);
+            audiolink.SetMediaLoop((int)MediaLoop.LoopOne);
+            audiolink.SetMediaLoop((int)MediaLoop.Random);
+            audiolink.SetMediaLoop((int)MediaLoop.RandomLoop);
+        }
 
     }
 }
