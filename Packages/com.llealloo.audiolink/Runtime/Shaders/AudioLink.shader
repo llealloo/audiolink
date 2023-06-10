@@ -27,6 +27,11 @@ Shader "AudioLink/Internal/AudioLink"
         _CustomThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
         _CustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
         _CustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+
+        [Enum(None,0,Playing,.1,Paused,.2,Stopped,.3,Loading,.4)] _MediaPlaying ("Media Playing", Float) = 0
+        [Enum(None,0,Loop,.1,Loop One,.2,Random,.3,Random Loop,.4)] _MediaLoop ("Media Loop", Float) = 0
+        _MediaVolume ("Media Volume", Range(0, 1)) = 0
+        _MediaTime ("Media Time (Progress %)", Range(0, 1)) = 0
     }
 
     SubShader
@@ -110,6 +115,12 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float4 _AdvancedTimeProps1;
             uniform float4 _VersionNumberAndFPSProperty;
             uniform float4 _PlayerCountAndData;
+
+            //Set by Udon for states
+            uniform float _MediaPlaying;
+            uniform float _MediaLoop;
+            uniform float _MediaVolume;
+            uniform float _MediaTime;
 
             //Raw audio data.
             cbuffer LeftSampleBuffer {
@@ -541,6 +552,11 @@ Shader "AudioLink/Internal/AudioLink"
                             major = 65536 + major;
                             uint currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
                             return AudioLinkEncodeUInt(currentNetworkTimeMS);
+                        }
+                        else if(coordinateLocal.x == 5)
+                        {
+                            //Provide Media Volume, Time, and State set by Udon
+                            return float4(_MediaVolume, _MediaTime, _MediaPlaying, _MediaLoop);
                         }
                         else if(coordinateLocal.x == 6)
                         {

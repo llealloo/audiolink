@@ -12,6 +12,24 @@ namespace AudioLink
     using VRC.SDK3.Rendering;
     using VRC.SDKBase;
 
+        public enum MediaPlaying
+        {
+            None = 0,
+            Playing = 1,
+            Paused = 2,
+            Stopped = 3,
+            Loading = 4
+        }
+
+        public enum MediaLoop
+        {
+            None = 0,
+            Loop = 1,
+            LoopOne = 2,
+            Random = 3,
+            RandomLoop = 4
+        }
+
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLink : UdonSharpBehaviour
 #else
@@ -21,10 +39,28 @@ namespace AudioLink
 
     using UnityEngine.Rendering;
 
+        public enum MediaPlaying
+        {
+            None = 0,
+            Playing = 1,
+            Paused = 2,
+            Stopped = 3,
+            Loading = 4
+        }
+
+        public enum MediaLoop
+        {
+            None = 0,
+            Loop = 1,
+            LoopOne = 2,
+            Random = 3,
+            RandomLoop = 4
+        }
+
     public class AudioLink : MonoBehaviour
 #endif
     {
-        const float AudioLinkVersionNumber = 3.02f;
+        const float AudioLinkVersionNumber = 3.03f;
 
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
@@ -331,6 +367,46 @@ namespace AudioLink
             {
                 DisableReadback();
             }
+        }
+
+        //Set Media Volume display
+        public void SetMediaVolume(float volume) {
+
+            audioMaterial.SetFloat("_MediaVolume", volume);
+
+        }
+
+        //Set Media Time display
+        public void SetMediaTime(float time) {
+
+            audioMaterial.SetFloat("_MediaTime", time);
+
+        }
+
+        /* Set Media Playing display
+        None    0 (0.00)
+        Playing 1 (0.10)
+        Paused  2 (0.20)
+        Stopped 3 (0.30)
+        Loading 4 (0.40)
+        */
+        public void SetMediaPlaying(int state) {
+
+            audioMaterial.SetFloat("_MediaPlaying", (float)state / 10);
+
+        }
+
+        /* Set Media Loop display
+        None       0 (0.00)
+        Loop       1 (0.10)
+        LoopOne    2 (0.20)
+        Random     3 (0.30)
+        RandomLoop 4 (0.40)
+        */
+        public void SetMediaLoop(int loop) {
+
+            audioMaterial.SetFloat("_MediaLoop", (float)loop / 10);
+
         }
 
         // TODO(3): try to port this to standalone

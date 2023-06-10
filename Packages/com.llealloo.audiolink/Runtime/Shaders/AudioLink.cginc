@@ -22,6 +22,7 @@
     #define ALPASS_GENERALVU_UNIX_DAYS      uint2(5,23)
     #define ALPASS_GENERALVU_UNIX_SECONDS   uint2(6,23)
     #define ALPASS_GENERALVU_SOURCE_POS     uint2(7,23)
+    #define ALPASS_MEDIASTATE               uint2(5,22)
 
     #define ALPASS_CCINTERNAL               uint2(12,22) //Size: 12, 2
     #define ALPASS_CCCOLORS                 uint2(25,22) //Size: 12, 1 (Note Color #0 is always black, Colors start at 1)

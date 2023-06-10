@@ -1,5 +1,10 @@
 # Changelog
 
+# 0.3.3 - June 10th, 2023
+### New features
+- Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs))
+- Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md)
+
 ## 0.3.2 - March 12th, 2023
 ### New features
 - Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)

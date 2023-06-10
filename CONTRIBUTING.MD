@@ -15,7 +15,7 @@ Update the version number in all places. These are:
 - Version number in Packages/com.llealloo.audiolink/Runtime/VERSION.txt
 - The AUDIOLINK_VERSION_NUMBER float in AudioLink.cs.
     - We use convention 0.3.x == 3.x where x is padded to 2 digits,
-      so 0.3.2 would be 3.02f as a float
+      so 0.3.3 would be 3.03f as a float
 
 Go through the commit history since last release, make sure that everything is in the changelog.
 
