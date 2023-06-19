@@ -23,13 +23,13 @@ public class Player : UdonSharpBehaviour {
     public void UpdatePlaying() {
 
         /* Avalible playing states
-        None    0 (0.00)
-        Playing 1 (0.10)
-        Paused  2 (0.20)
-        Stopped 3 (0.30)
-        Loading 4 (0.40)
-        Streaming 5 (0.50)
-        Error     6 (0.60)
+        None    0   (0.0f)
+        Playing 1   (1.0f)
+        Paused  2   (2.0f)
+        Stopped 3   (3.0f)
+        Loading 4   (4.0f)
+        Streaming 5 (5.0f)
+        Error     6 (6.0f)
         */
         if (VRC.SDKBase.Utilities.IsValid(audiolink)) {
             audiolink.SetMediaPlaying(MediaPlaying.None);
@@ -43,7 +43,7 @@ public class Player : UdonSharpBehaviour {
 
     }
 
-    //Update Media Volume
+    // Update Media Volume
     public void UpdateVolume(float volume) {
 
         //Ranges from 0 to 1
@@ -51,7 +51,7 @@ public class Player : UdonSharpBehaviour {
 
     }
 
-    //Update Media Time
+    // Update Media Time
     public void UpdateTime(float time) {
 
         //Ranges from 0 to 1
@@ -63,11 +63,11 @@ public class Player : UdonSharpBehaviour {
     public void UpdateLoop() {
 
         /* Avalible Loop states
-        None       0 (0.00)
-        Loop       1 (0.10)
-        LoopOne    2 (0.20)
-        Random     3 (0.30)
-        RandomLoop 4 (0.40)
+        None       0 (0.0f)
+        Loop       1 (1.0f)
+        LoopOne    2 (2.0f)
+        Random     3 (3.0f)
+        RandomLoop 4 (4.0f)
         */
         if (VRC.SDKBase.Utilities.IsValid(audiolink)) {
             audiolink.SetMediaLoop(MediaLoop.None);
