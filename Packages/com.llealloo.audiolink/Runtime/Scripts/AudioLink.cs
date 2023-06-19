@@ -397,7 +397,7 @@ namespace AudioLink
         public void SetMediaPlaying(MediaPlaying playingstate) {
 
             int state = (int)playingstate;
-            audioMaterial.SetFloat("_MediaPlaying", (float)state / 10);
+            audioMaterial.SetFloat("_MediaPlaying", (float)state);
 
         }
 
@@ -411,7 +411,7 @@ namespace AudioLink
         public void SetMediaLoop(MediaLoop loopstate) {
 
             int loop = (int)loopstate;
-            audioMaterial.SetFloat("_MediaLoop", (float)loop / 10);
+            audioMaterial.SetFloat("_MediaLoop", (float)loop);
 
         }
 
