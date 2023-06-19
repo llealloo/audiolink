@@ -395,22 +395,22 @@ For example, to get "Fixed increase when the band is light" you could subtract a
 
 ### `ALPASS_MEDIASTATE`
 Contains:
-- Red: Volume, 0f to 1f
-- Green: Time progress, 0f to 1f
+- Red: Volume, 0.0f to 1.0f
+- Green: Time progress, 0.0f to 1.0f
 - Blue: Media playback state
-    - 0.00f None or Legacy
-    - 0.10f Playing
-    - 0.20f Paused
-    - 0.30f Stopped
-    - 0.40f Loading
-    - 0.50f Streaming
-    - 0.60f Error
+    - 0.0f None or Legacy
+    - 1.0f Playing
+    - 2.0f Paused
+    - 3.0f Stopped
+    - 4.0f Loading
+    - 5.0f Streaming
+    - 6.0f Error
 - Alpha: Loop & Random
-    - 0.00f None or Legacy
-    - 0.10f Loop
-    - 0.20f Loop one (Playlist players)
-    - 0.30f Random (Playlist players)
-    - 0.40f Random & Loop (Playlist players)
+    - 0.0f None or Legacy
+    - 1.0f Loop
+    - 2.0f Loop one (Playlist players)
+    - 3.0f Random (Playlist players)
+    - 4.0f Random & Loop (Playlist players)
 
 ### `ALPASS_GLOBAL_STRINGS`
 This section provides access access to 4 globally synced strings of text. These can be read and displayed in a shader, or used to perform logic like a check for a specific player.

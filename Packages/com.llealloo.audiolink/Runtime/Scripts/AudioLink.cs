@@ -373,14 +373,18 @@ namespace AudioLink
             }
         }
 
-        //Set Media Volume display
+        /* Set Media Volume display
+        Volume 0.0f to 1.0f
+        */
         public void SetMediaVolume(float volume) {
 
             audioMaterial.SetFloat("_MediaVolume", volume);
 
         }
 
-        //Set Media Time display
+        /* Set Media Time display
+        Time 0.0f to 1.0f
+        */
         public void SetMediaTime(float time) {
 
             audioMaterial.SetFloat("_MediaTime", time);
@@ -388,11 +392,11 @@ namespace AudioLink
         }
 
         /* Set Media Playing display
-        None    0 (0.00)
-        Playing 1 (0.10)
-        Paused  2 (0.20)
-        Stopped 3 (0.30)
-        Loading 4 (0.40)
+        None    0 (0.0f)
+        Playing 1 (1.0f)
+        Paused  2 (2.0f)
+        Stopped 3 (3.0f)
+        Loading 4 (4.0f)
         */
         public void SetMediaPlaying(MediaPlaying playingstate) {
 
@@ -402,11 +406,11 @@ namespace AudioLink
         }
 
         /* Set Media Loop display
-        None       0 (0.00)
-        Loop       1 (0.10)
-        LoopOne    2 (0.20)
-        Random     3 (0.30)
-        RandomLoop 4 (0.40)
+        None       0 (0.0f)
+        Loop       1 (1.0f)
+        LoopOne    2 (2.0f)
+        Random     3 (3.0f)
+        RandomLoop 4 (4.0f)
         */
         public void SetMediaLoop(MediaLoop loopstate) {
 
