@@ -9,7 +9,7 @@ namespace AudioLink.Extras
     public class AudioLinkZone : UdonSharpBehaviour
     {
         [Space(10)]
-        public VRCAudioLink audioLink;
+        public AudioLink audioLink;
         [Space(10)]
         public AudioSource audioSource;
 
