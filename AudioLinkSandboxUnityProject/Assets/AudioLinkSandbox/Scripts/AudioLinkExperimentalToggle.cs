@@ -5,7 +5,7 @@ namespace AudioLink
 {
     public class AudioLinkExperimentalToggle : UdonSharpBehaviour
     {
-        public AudioLink audioLink;
+        public VRCAudioLink audioLink;
 
         public override void Interact()
         {
