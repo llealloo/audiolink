@@ -1,6 +1,6 @@
 # Changelog
 
-# 0.3.3 - June 10th, 2023
+# 1.0.0 - July 29th, 2023
 ### New features
 - Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs))
 - Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md)

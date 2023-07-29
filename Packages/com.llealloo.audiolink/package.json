@@ -1,7 +1,7 @@
 {
     "name" : "com.llealloo.audiolink",
     "displayName" : "AudioLink",
-    "version" : "0.3.3",
+    "version" : "0.3.2",
     "description" : "Audio reactive prefabs for VRChat",
     "gitDependencies" : {},
     "vpmDependencies" : {
