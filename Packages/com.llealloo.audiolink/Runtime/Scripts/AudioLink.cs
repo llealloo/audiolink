@@ -12,25 +12,25 @@ namespace AudioLink
     using VRC.SDK3.Rendering;
     using VRC.SDKBase;
 
-        public enum MediaPlaying
-        {
-            None = 0,
-            Playing = 1,
-            Paused = 2,
-            Stopped = 3,
-            Loading = 4,
-            Streaming = 5,
-            Error = 6
-        }
+    public enum MediaPlaying
+    {
+        None = 0,
+        Playing = 1,
+        Paused = 2,
+        Stopped = 3,
+        Loading = 4,
+        Streaming = 5,
+        Error = 6
+    }
 
-        public enum MediaLoop
-        {
-            None = 0,
-            Loop = 1,
-            LoopOne = 2,
-            Random = 3,
-            RandomLoop = 4
-        }
+    public enum MediaLoop
+    {
+        None = 0,
+        Loop = 1,
+        LoopOne = 2,
+        Random = 3,
+        RandomLoop = 4
+    }
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLink : UdonSharpBehaviour
@@ -376,7 +376,8 @@ namespace AudioLink
         /* Set Media Volume display
         Volume 0.0f to 1.0f
         */
-        public void SetMediaVolume(float volume) {
+        public void SetMediaVolume(float volume)
+        {
 
             audioMaterial.SetFloat("_MediaVolume", volume);
 
@@ -385,7 +386,8 @@ namespace AudioLink
         /* Set Media Time display
         Time 0.0f to 1.0f
         */
-        public void SetMediaTime(float time) {
+        public void SetMediaTime(float time)
+        {
 
             audioMaterial.SetFloat("_MediaTime", time);
 
@@ -398,7 +400,8 @@ namespace AudioLink
         Stopped 3 (3.0f)
         Loading 4 (4.0f)
         */
-        public void SetMediaPlaying(MediaPlaying playingstate) {
+        public void SetMediaPlaying(MediaPlaying playingstate)
+        {
 
             int state = (int)playingstate;
             audioMaterial.SetFloat("_MediaPlaying", (float)state);
@@ -412,7 +415,8 @@ namespace AudioLink
         Random     3 (3.0f)
         RandomLoop 4 (4.0f)
         */
-        public void SetMediaLoop(MediaLoop loopstate) {
+        public void SetMediaLoop(MediaLoop loopstate)
+        {
 
             int loop = (int)loopstate;
             audioMaterial.SetFloat("_MediaLoop", (float)loop);
