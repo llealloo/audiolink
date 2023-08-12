@@ -1,9 +1,18 @@
 # Changelog
 
-# 1.0.0 - July 29th, 2023
+## 1.0.0 -
 ### New features
 - Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs))
 - Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md)
+- Added Autogain; it's enabled by default. You can disable it on the audiolink material. (Thanks, cnlohr)
+- Added Async GPU Readback, you can toggle it on the audiolink script.
+- Added a CVR prefab.
+### Changes
+- We now use Semantic Versioning.
+### Improvements
+- Made yt-dlp resolve asynchronously.
+- Improved the yt-dlp interface in a number of ways. (Thanks, rRazgriz)
+- Improved the "Add Audiolink Prefab to Scene" button.
 
 ## 0.3.2 - March 12th, 2023
 ### New features
