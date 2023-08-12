@@ -6,7 +6,11 @@ AudioLink can be used in 2 ways.
 
 ## Using AudioLink in Udon
 
-AudioLink can be used in Udon via the included UdonBehaviours prefixed by `AudioReactive`, such as `AudioReactiveLight` and `AudioReactiveSurface`. However, this use case is not recommended as it requires a fairly expensive GPU readback. Performing all of the work directly in a shader yields much better performance.
+AudioLink can be used in Udon via the included UdonBehaviours prefixed by `AudioReactive`, such as `AudioReactiveLight` and `AudioReactiveSurface`. You can also directly access the Audio Data in Udon to make custom behaviors, via `AudioLink.GetAudioDataAtPixel`, `AudioLink.LerpAudioDataAtPixel` and `AudioLink.audioData`.
+
+This functionality can be toggled using the "Enable Readback / Disable Readback" at the bottom of the AudioLink behavior inspector.
+
+Using this functionality requires reading data back from the GPU to CPU, which incurs a performance penalty. On PCVR, the penalty is mostly negligible, as we can make use of "asynchronous readbacks". On Quest, however, which does not support asynchronous readbacks, we must do an expensive synchronous readback. For this reason, we don't recommend using the feature on Quest.
 
 ## The AudioLink Texture
 
