@@ -1,5 +1,8 @@
 # Using the Player API
 
+Media States can be controlled via an Udon API, which lets you hook the system up to custom video players or use it for other purposes. It can also be used in automatic fashion, where it will attempt to populate the Media State data by inspecting the chosen Audio Source. This is less precise than controlling the system manually, but is useful as a fallback. This automatic behavior is controlled by the "Auto Set Media State" toggle.
+
+To control the Player API manually:
 - Import AudioLink `using AudioLink;`
 - Disable Auto Set Media State toggle on the AudioLink behaviour
 - Add AudioLink variable `public AudioLink.AudioLink audiolink;`
