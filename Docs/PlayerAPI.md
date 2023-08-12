@@ -1,6 +1,7 @@
 # Using the Player API
 
 - Import AudioLink `using AudioLink;`
+- Disable Auto Set Media State toggle on the AudioLink behaviour
 - Add AudioLink variable `public AudioLink.AudioLink audiolink;`
 - Set Volume display `audiolink.SetMediaVolume(player.volume);`
 - Set Time display `audiolink.SetMediaTime(player.time);`

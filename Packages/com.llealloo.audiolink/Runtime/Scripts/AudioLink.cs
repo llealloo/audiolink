@@ -109,6 +109,10 @@ namespace AudioLink
         [HideInInspector] public Material audioMaterial;
         [HideInInspector] public CustomRenderTexture audioRenderTexture;
 
+        [Header("Misc")]
+        [Tooltip("Automatically determines media states, such as whether audio is currently playing or not, and makes it available to AudioLink compatible shaders. Disable this if you intend to control media states via script, for example to support custom video players.")]
+        public bool autoSetMediaState = true;
+
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         [HideInInspector] public bool audioDataToggle = false;
@@ -549,6 +553,38 @@ namespace AudioLink
                 audioMaterial.SetFloat(_SourceVolume, audioSource.volume);
                 audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
                 audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
+
+
+                if (autoSetMediaState)
+                {
+                    SetMediaVolume(audioSource.volume);
+
+                    float time = 0f;
+                    if (audioSource.clip != null)
+                    {
+                        time = audioSource.time / audioSource.clip.length;
+                    }
+                    SetMediaTime(time);
+
+                    if (audioSource.isPlaying)
+                    {
+                        SetMediaPlaying(MediaPlaying.Playing);
+                    }
+                    else
+                    {
+                        SetMediaPlaying(MediaPlaying.Stopped);
+                    }
+
+                    if (audioSource.loop)
+                    {
+                        SetMediaLoop(MediaLoop.Loop);
+                    }
+                    else
+                    {
+                        SetMediaLoop(MediaLoop.None);
+                    }
+                }
+
 
 #if UDONSHARP
                 if (Networking.LocalPlayer != null)
