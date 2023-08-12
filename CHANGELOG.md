@@ -13,6 +13,7 @@
 - Made yt-dlp resolve asynchronously.
 - Improved the yt-dlp interface in a number of ways. (Thanks, rRazgriz)
 - Improved the "Add Audiolink Prefab to Scene" button.
+- Improve logging
 
 ## 0.3.2 - March 12th, 2023
 ### New features
