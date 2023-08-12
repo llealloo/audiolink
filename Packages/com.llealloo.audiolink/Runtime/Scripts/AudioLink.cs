@@ -109,6 +109,10 @@ namespace AudioLink
         [HideInInspector] public Material audioMaterial;
         [HideInInspector] public CustomRenderTexture audioRenderTexture;
 
+        [Header("Misc")]
+        [Tooltip("Automatically determines media states, such as whether audio is currently playing or not, and makes it available to AudioLink compatible shaders. Disable this if you intend to control media states via script, for example to support custom video players.")]
+        public bool autoSetMediaState = true;
+
         [Header("Experimental (Limits performance)")]
         [Tooltip("Enable Udon audioData array. Required by AudioReactiveLight and AudioReactiveObject. Uses ReadPixels which carries a performance hit. For experimental use when performance is less of a concern")]
         [HideInInspector] public bool audioDataToggle = false;
@@ -333,6 +337,56 @@ namespace AudioLink
             }
         }
 
+        /* Set Media Volume display
+        Volume 0.0f to 1.0f
+        */
+        public void SetMediaVolume(float volume)
+        {
+
+            audioMaterial.SetFloat("_MediaVolume", volume);
+
+        }
+
+        /* Set Media Time display
+        Time 0.0f to 1.0f
+        */
+        public void SetMediaTime(float time)
+        {
+
+            audioMaterial.SetFloat("_MediaTime", time);
+
+        }
+
+        /* Set Media Playing display
+        None    0 (0.0f)
+        Playing 1 (1.0f)
+        Paused  2 (2.0f)
+        Stopped 3 (3.0f)
+        Loading 4 (4.0f)
+        */
+        public void SetMediaPlaying(MediaPlaying playingstate)
+        {
+
+            int state = (int)playingstate;
+            audioMaterial.SetFloat("_MediaPlaying", (float)state);
+
+        }
+
+        /* Set Media Loop display
+        None       0 (0.0f)
+        Loop       1 (1.0f)
+        LoopOne    2 (2.0f)
+        Random     3 (3.0f)
+        RandomLoop 4 (4.0f)
+        */
+        public void SetMediaLoop(MediaLoop loopstate)
+        {
+
+            int loop = (int)loopstate;
+            audioMaterial.SetFloat("_MediaLoop", (float)loop);
+
+        }
+
         // TODO(3): try to port this to standalone
         // Only happens once per second.
         private void FPSUpdate()
@@ -499,6 +553,38 @@ namespace AudioLink
                 audioMaterial.SetFloat(_SourceVolume, audioSource.volume);
                 audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
                 audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
+
+
+                if (autoSetMediaState)
+                {
+                    SetMediaVolume(audioSource.volume);
+
+                    float time = 0f;
+                    if (audioSource.clip != null)
+                    {
+                        time = audioSource.time / audioSource.clip.length;
+                    }
+                    SetMediaTime(time);
+
+                    if (audioSource.isPlaying)
+                    {
+                        SetMediaPlaying(MediaPlaying.Playing);
+                    }
+                    else
+                    {
+                        SetMediaPlaying(MediaPlaying.Stopped);
+                    }
+
+                    if (audioSource.loop)
+                    {
+                        SetMediaLoop(MediaLoop.Loop);
+                    }
+                    else
+                    {
+                        SetMediaLoop(MediaLoop.None);
+                    }
+                }
+
 
 #if UDONSHARP
                 if (Networking.LocalPlayer != null)
@@ -796,5 +882,25 @@ namespace AudioLink
         {
             return ((t - a) / (b - a)) * (v - u) + u;
         }
+    }
+
+    public enum MediaPlaying
+    {
+        None = 0,
+        Playing = 1,
+        Paused = 2,
+        Stopped = 3,
+        Loading = 4,
+        Streaming = 5,
+        Error = 6
+    }
+
+    public enum MediaLoop
+    {
+        None = 0,
+        Loop = 1,
+        LoopOne = 2,
+        Random = 3,
+        RandomLoop = 4
     }
 }
