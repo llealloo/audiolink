@@ -298,9 +298,9 @@ namespace AudioLink
                 }
 
                 //_networkTimeOfDayUTC = GetElapsedSecondsSinceMidnightUTC();
-                //Debug.Log($"AudioLink _networkTimeOfDayUTC = {_networkTimeOfDayUTC}" );
-                Debug.Log($"AudioLink _networkTimeMS = {_networkTimeMS}");
-                Debug.Log($"AudioLink Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
+                //Debug.Log($"[AudioLink] _networkTimeOfDayUTC = {_networkTimeOfDayUTC}" );
+                //Debug.Log($"[AudioLink] _networkTimeMS = {_networkTimeMS}");
+                //Debug.Log($"[AudioLink] Time Sync Debug: IsMaster: {Networking.IsMaster} startTime: {startTime}");
 
                 _rightChannelTestCounter = _rightChannelTestDelay;
 
@@ -323,7 +323,7 @@ namespace AudioLink
             UpdateCustomStrings();
             if (audioSource == null)
             {
-                Debug.LogWarning("No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
+                Debug.LogWarning("[AudioLink] No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
             }
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
@@ -399,14 +399,14 @@ namespace AudioLink
                     //We can now do our time setup.
                     double Now = GetElapsedSecondsSince2019();
                     _elapsedTime = Now - _masterInstanceJoinTime;
-                    Debug.Log($"AudioLink Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}");
+                    //Debug.Log($"[AudioLink] Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}");
                     _hasInitializedTime = true;
                     _fpsTime = _elapsedTime;
                 }
                 else if (_elapsedTime > 10 && Networking.IsMaster)
                 {
                     //Have we gone more than 10 seconds and we're master?
-                    Debug.Log("AudioLink Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time.");
+                    //Debug.Log("[AudioLink] Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time.");
                     _masterInstanceJoinTime = GetElapsedSecondsSince2019();
                     RequestSerialization();
                     _hasInitializedTime = true;
@@ -475,7 +475,7 @@ namespace AudioLink
                 //Slowly correct the timebase.
                 _networkTimeMS += networkTimeDelta / 20;
             }
-            //Debug.Log( $"Refinement: ${networkTimeDelta}" );
+            //Debug.Log( $"[AudioLink] Refinement: ${networkTimeDelta}" );
         }
 
         private void Update()

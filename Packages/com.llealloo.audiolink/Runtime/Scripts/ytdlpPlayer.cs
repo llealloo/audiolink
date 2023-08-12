@@ -183,7 +183,7 @@ namespace AudioLink
             else
             {
                 _ytdlpFound = true;
-                Debug.Log($"[AudioLink] Found yt-dlp at path '{_ytdlpPath}'");
+                Debug.Log($"[AudioLink:ytdlp] Found yt-dlp at path '{_ytdlpPath}'");
             }
         }
 
@@ -196,7 +196,7 @@ namespace AudioLink
 
             if (!_ytdlpFound)
             {
-                Debug.LogWarning($"[AudioLink] Unable to resolve URL '{url}' : yt-dlp not found");
+                Debug.LogWarning($"[AudioLink:ytdlp] Unable to resolve URL '{url}' : yt-dlp not found");
             }
 
             System.Diagnostics.Process proc = new System.Diagnostics.Process();
@@ -234,7 +234,7 @@ namespace AudioLink
             }
             catch (Exception e)
             {
-                Debug.Log(e.Message);
+                Debug.LogWarning($"[AudioLink:ytdlp] Unable to resolve URL '{url}' : " + e.Message);
                 return null;
             }
         }

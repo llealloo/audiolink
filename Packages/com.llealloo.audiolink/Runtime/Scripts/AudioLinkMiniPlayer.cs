@@ -114,7 +114,8 @@ namespace AudioLink
 
         public void _TriggerPlay()
         {
-            DebugLog("Trigger play");
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] Trigger play");
             if (localPlayerState == PLAYER_STATE_PLAYING || localPlayerState == PLAYER_STATE_LOADING)
                 return;
 
@@ -123,7 +124,8 @@ namespace AudioLink
 
         public void _TriggerStop()
         {
-            DebugLog("Trigger stop");
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] Trigger stop");
             if (_syncLocked && !_CanTakeControl())
                 return;
             if (!Networking.IsOwner(gameObject))
@@ -190,7 +192,9 @@ namespace AudioLink
             if (!_IsUrlValid(url))
                 return;
 
-            DebugLog("Play video " + url);
+            string message = "Play video " + url;
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] " + message);
             bool isOwner = Networking.IsOwner(gameObject);
             if (!isOwner && !_CanTakeControl())
                 return;
@@ -286,7 +290,9 @@ namespace AudioLink
             if (_syncUrl == null || _syncUrl.Get() == "")
                 return;
 
-            DebugLog("Start video load " + _syncUrl);
+            string message = "Start video load " + _syncUrl;
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] " + message);
             _UpdatePlayerState(PLAYER_STATE_LOADING);
 
 #if !UNITY_EDITOR
@@ -296,7 +302,8 @@ namespace AudioLink
 
         public void _StopVideo()
         {
-            DebugLog("Stop video");
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] Stop video");
 
             if (seekableSource)
                 _lastVideoPosition = _currentPlayer.GetTime();
@@ -321,7 +328,9 @@ namespace AudioLink
         public override void OnVideoReady()
         {
             float duration = _currentPlayer.GetDuration();
-            DebugLog("Video ready, duration: " + duration + ", position: " + _currentPlayer.GetTime());
+            string message = "Video ready, duration: " + duration + ", position: " + _currentPlayer.GetTime();
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] " + message);
 
             // If a seekable video is loaded it should have a positive duration.  Otherwise we assume it's a non-seekable stream
             seekableSource = !float.IsInfinity(duration) && !float.IsNaN(duration) && duration > 1;
@@ -346,7 +355,8 @@ namespace AudioLink
 
         public override void OnVideoStart()
         {
-            DebugLog("Video start");
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] Video start");
 
             if (Networking.IsOwner(gameObject))
             {
@@ -381,14 +391,15 @@ namespace AudioLink
         {
             if (!seekableSource && Time.time - _playStartTime < 1)
             {
-                Debug.Log("Video end encountered at start of stream, ignoring");
+                Debug.Log("[AudioLink] Video end encountered at start of stream, ignoring");
                 return;
             }
 
             _UpdatePlayerState(PLAYER_STATE_STOPPED);
             seekableSource = false;
 
-            DebugLog("Video end");
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] Video end");
             _lastVideoPosition = 0;
 
             if (Networking.IsOwner(gameObject))
@@ -410,8 +421,12 @@ namespace AudioLink
         {
             _currentPlayer.Stop();
 
-            DebugLog("Video stream failed: " + _syncUrl);
-            DebugLog("Error code: " + videoError);
+            string message = "Video stream failed: " + _syncUrl;
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] " + message);
+            string message1 = "Error code: " + videoError;
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] " + message1);
 
             _UpdatePlayerState(PLAYER_STATE_ERROR);
             localLastErrorCode = videoError;
@@ -459,14 +474,19 @@ namespace AudioLink
             if (Networking.IsOwner(gameObject))
                 return;
 
-            DebugLog($"Deserialize: video #{_syncVideoNumber}");
+            if (debugLogging)
+            {
+                Debug.Log($"[AudioLink:MiniPlayer] Deserialize: video #{_syncVideoNumber}");
+            }
 
             locked = _syncLocked;
 
             if (_syncVideoNumber == _loadedVideoNumber)
             {
                 if (localPlayerState == PLAYER_STATE_PLAYING && !_syncOwnerPlaying)
+                {
                     SendCustomEventDelayedFrames("_StopVideo", 1);
+                }
                 return;
             }
 
@@ -474,7 +494,8 @@ namespace AudioLink
 
             _loadedVideoNumber = _syncVideoNumber;
 
-            DebugLog("Starting video load from sync");
+            if (debugLogging)
+                Debug.Log("[AudioLink:MiniPlayer] Starting video load from sync");
 
             _StartVideoLoad();
         }
@@ -483,8 +504,8 @@ namespace AudioLink
         {
             if (!result.success)
             {
-                DebugLog("Failed to sync");
-                return;
+                if (debugLogging)
+                    Debug.Log("[AudioLink:MiniPlayer] Failed to sync");
             }
         }
 
@@ -576,14 +597,6 @@ namespace AudioLink
                 else
                     videoRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
             }
-        }
-
-        // Debug
-
-        void DebugLog(string message)
-        {
-            if (debugLogging)
-                Debug.Log("[AudioLink:MiniPlayer] " + message);
         }
     }
 }
