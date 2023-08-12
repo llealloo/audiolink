@@ -15,7 +15,7 @@ Shader "AudioLink/Internal/AudioLink"
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
-        [ToggleUI] _EnableAutogain("Enable Autogain", float) = 1
+        [ToggleUI] _Autogain("Enable Autogain", float) = 1
         _AutogainDerate ("Autogain Derate", Range(.001, .5)) = 0.1
         _SourceVolume("Audio Source Volume", float) = 1
         _SourceDistance("Distance to Source", float) = 1
@@ -27,6 +27,11 @@ Shader "AudioLink/Internal/AudioLink"
         _CustomThemeColor1 ("Theme Color 1", Color ) = (0.0,0.0,1.0,1.0)
         _CustomThemeColor2 ("Theme Color 2", Color ) = (1.0,0.0,0.0,1.0)
         _CustomThemeColor3 ("Theme Color 3", Color ) = (0.0,1.0,0.0,1.0)
+
+        [Enum(None,0,Playing,1,Paused,2,Stopped,3,Loading,4,Streaming,5,Error,6)] _MediaPlaying ("Media Playing", Float) = 0
+        [Enum(None,0,Loop,1,Loop One,2,Random,3,Random Loop,4)] _MediaLoop ("Media Loop", Float) = 0
+        _MediaVolume ("Media Volume", Range(0, 1)) = 0
+        _MediaTime ("Media Time (Progress %)", Range(0, 1)) = 0
     }
 
     SubShader
@@ -102,7 +107,7 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float4 _StringCustom2[8];
 
             // Extra Properties
-            uniform float _EnableAutogain;
+            uniform float _Autogain;
             uniform float _AutogainDerate;
 
             // Set by Udon
@@ -110,6 +115,12 @@ Shader "AudioLink/Internal/AudioLink"
             uniform float4 _AdvancedTimeProps1;
             uniform float4 _VersionNumberAndFPSProperty;
             uniform float4 _PlayerCountAndData;
+
+            //Set by Udon for states
+            uniform float _MediaPlaying;
+            uniform float _MediaLoop;
+            uniform float _MediaVolume;
+            uniform float _MediaTime;
 
             //Raw audio data.
             cbuffer LeftSampleBuffer {
@@ -253,7 +264,7 @@ Shader "AudioLink/Internal/AudioLink"
                 // Scales the gain by the audio source component Volume to prevent data changing when changing the volume.
                 // Clamped to 0.001 to prevent division by 0 because that will make it 'splode and we don't want that now do we?
                 incomingGain *= 1/clamp(_SourceVolume, 0.001, 1);
-                if(_EnableAutogain)
+                if(_Autogain)
                 {
                     float4 lastAutoGain = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(11, 0));
 
@@ -457,7 +468,7 @@ Shader "AudioLink/Internal/AudioLink"
                             // Third pixel: Auto Gain / Volume Monitor for ColorChord
 
                             // Compensate for the fact that we've already gain'd our samples.
-                            float deratePeak = peak / (lastAutogain.x + _AutogainDerate);
+                            float deratePeak = peak * (lastAutogain.x + _AutogainDerate);
 
                             if(deratePeak > lastAutogain.x)
                             {
@@ -541,6 +552,11 @@ Shader "AudioLink/Internal/AudioLink"
                             major = 65536 + major;
                             uint currentNetworkTimeMS = ((uint)fractional) | (((uint)major)<<16);
                             return AudioLinkEncodeUInt(currentNetworkTimeMS);
+                        }
+                        else if(coordinateLocal.x == 5)
+                        {
+                            //Provide Media Volume, Time, and State set by Udon
+                            return float4(_MediaVolume, _MediaTime, _MediaPlaying, _MediaLoop);
                         }
                         else if(coordinateLocal.x == 6)
                         {

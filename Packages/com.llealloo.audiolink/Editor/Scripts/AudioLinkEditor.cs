@@ -14,6 +14,9 @@ namespace AudioLink.Editor
     [CustomEditor(typeof(AudioLink))]
     public class AudioLinkEditor : UnityEditor.Editor
     {
+        private readonly static GUIContent DisableReadbackButtonContent = EditorGUIUtility.TrTextContent("Disable readback", "Disables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
+        private readonly static GUIContent EnableReadbackButtonContent = EditorGUIUtility.TrTextContent("Enable readback", "Enables asynchronous readback, which is required for audio-reactive Udon scripts to function. This feature comes with a slight performance penalty.");
+
         public void OnEnable()
         {
             AudioLink audioLink = (AudioLink)target;
@@ -32,17 +35,6 @@ namespace AudioLink.Editor
 #if UDONSHARP
             if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target)) return;
 #endif
-            if (Application.isPlaying)
-            {
-                if (GUILayout.Button("Enable readback"))
-                {
-                    audioLink.EnableReadback();
-                }
-                if (GUILayout.Button("Disable readback"))
-                {
-                    audioLink.DisableReadback();
-                }
-            }
 
             if (Camera.main == null)
             {
@@ -63,15 +55,42 @@ namespace AudioLink.Editor
 
             EditorGUILayout.Space();
             base.OnInspectorGUI();
+            EditorGUILayout.Space();
+
+            if (audioLink.audioDataToggle)
+            {
+                GUI.backgroundColor = Color.red;
+                if (GUILayout.Button(DisableReadbackButtonContent))
+                {
+                    audioLink.DisableReadback();
+                    EditorUtility.SetDirty(audioLink);
+                }
+            }
+            else
+            {
+                GUI.backgroundColor = Color.green;
+                if (GUILayout.Button(EnableReadbackButtonContent))
+                {
+                    audioLink.EnableReadback();
+                    EditorUtility.SetDirty(audioLink);
+                }
+            }
         }
 
-        void LinkAll()
+        public void LinkAll()
+        {
+            LinkAll(target as AudioLink);
+        }
+
+        public static void LinkAll(AudioLink target)
         {
 #if UDONSHARP
             UdonSharpBehaviour[] allBehaviours = FindObjectsOfType<UdonSharpBehaviour>();
 #else
             MonoBehaviour[] allBehaviours = FindObjectsOfType<MonoBehaviour>();
 #endif
+            // this handles all reasonable cases of referencing audiolink
+            // (it doesn't handle referencing it multiple times in one monobehaviour, or referencing it as it's Base type)
             foreach (var behaviour in allBehaviours)
             {
                 FieldInfo fieldInfo = behaviour.GetType().GetField("audioLink");
@@ -87,7 +106,7 @@ namespace AudioLink.Editor
                         }
                     }
                 }
-                if (fieldInfo != null)
+                if (fieldInfo != null && fieldInfo.FieldType == typeof(AudioLink))
                 {
                     fieldInfo.SetValue(behaviour, target);
                     EditorUtility.SetDirty(behaviour);

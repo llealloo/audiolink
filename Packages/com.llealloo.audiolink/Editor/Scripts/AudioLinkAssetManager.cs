@@ -82,16 +82,16 @@ namespace AudioLink.Editor
         [MenuItem("AudioLink/Install UdonSharp dependency", true)]
         public static bool IsWorldProjectWithoutUdonSharp()
         {
-            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            var project = new UnityProject(path);
+            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            UnityProject project = new UnityProject(path);
             return project.VPMProvider.HasPackage(VRCPackageNames.WORLDS) && !project.VPMProvider.HasPackage(VRCAddonPackageNames.UDONSHARP);
         }
 
         [MenuItem("AudioLink/Install UdonSharp dependency")]
         public static void InstallUdonSharp()
         {
-            var path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            var project = new UnityProject(path);
+            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
+            UnityProject project = new UnityProject(path);
             project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
             ReimportPackage();
         }
@@ -101,28 +101,40 @@ namespace AudioLink.Editor
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
-#if VRC_SDK_VRCSDK3 && !UDONSHARP //VRC AVATAR
             string[] paths = new string[]
             {
-                "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab"
-            };
-#else  //VRC WORLD or STANDALONE
-            string[] paths = new string[]
-            {
-#if UDONSHARP
+
+#if UDONSHARP // VRC World        
+                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab",
                 "Packages/com.llealloo.audiolink/Runtime/AudioLinkController.prefab",
+#elif VRC_SDK_VRCSDK3 // VRC AVATAR
+                "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab",
+#elif CVR_CCK_EXISTS // CVR
+                "Packages/com.llealloo.audiolink/Runtime/CVRAudioLink.prefab",
+                "Packages/com.llealloo.audiolink/Runtime/CVRAudioLinkController.prefab",
+#else // Standalone
+                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab",
 #endif
-                "Packages/com.llealloo.audiolink/Runtime/AudioLink.prefab"
             };
-#endif
+            GameObject audiolink = null;
+
             foreach (string path in paths)
             {
                 GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 if (asset != null)
                 {
                     GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(asset);
+                    if (path.EndsWith("AudioLink.prefab"))
+                    {
+                        audiolink = instance;
+                    }
                     EditorGUIUtility.PingObject(instance);
                 }
+            }
+
+            if (audiolink != null)
+            {
+                AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
             }
         }
     }

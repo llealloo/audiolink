@@ -184,10 +184,10 @@ namespace AudioLink
             bassLabel.text = "Bass: " + ((int)Remap(bassSlider.value, 0f, 2f, 0f, 200f)).ToString() + "%";
 
             // Update Sliders
-            var anchor0 = new Vector2(x0Slider.value, 1f);
-            var anchor1 = new Vector2(x1Slider.value, 1f);
-            var anchor2 = new Vector2(x2Slider.value, 1f);
-            var anchor3 = new Vector2(x3Slider.value, 1f);
+            Vector2 anchor0 = new Vector2(x0Slider.value, 1f);
+            Vector2 anchor1 = new Vector2(x1Slider.value, 1f);
+            Vector2 anchor2 = new Vector2(x2Slider.value, 1f);
+            Vector2 anchor3 = new Vector2(x3Slider.value, 1f);
             if (_threshold0Rect != null) _threshold0Rect.anchorMin = anchor0;
             if (_threshold0Rect != null) _threshold0Rect.anchorMax = anchor1;
             if (_threshold1Rect != null) _threshold1Rect.anchorMin = anchor1;
