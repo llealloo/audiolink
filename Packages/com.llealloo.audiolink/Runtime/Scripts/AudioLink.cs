@@ -12,26 +12,6 @@ namespace AudioLink
     using VRC.SDK3.Rendering;
     using VRC.SDKBase;
 
-    public enum MediaPlaying
-    {
-        None = 0,
-        Playing = 1,
-        Paused = 2,
-        Stopped = 3,
-        Loading = 4,
-        Streaming = 5,
-        Error = 6
-    }
-
-    public enum MediaLoop
-    {
-        None = 0,
-        Loop = 1,
-        LoopOne = 2,
-        Random = 3,
-        RandomLoop = 4
-    }
-
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public class AudioLink : UdonSharpBehaviour
 #else
@@ -40,26 +20,6 @@ namespace AudioLink
     using Unity.Collections;
 
     using UnityEngine.Rendering;
-
-        public enum MediaPlaying
-        {
-            None = 0,
-            Playing = 1,
-            Paused = 2,
-            Stopped = 3,
-            Loading = 4,
-            Streaming = 5,
-            Error = 6
-        }
-
-        public enum MediaLoop
-        {
-            None = 0,
-            Loop = 1,
-            LoopOne = 2,
-            Random = 3,
-            RandomLoop = 4
-        }
 
     public class AudioLink : MonoBehaviour
 #endif
@@ -886,5 +846,25 @@ namespace AudioLink
         {
             return ((t - a) / (b - a)) * (v - u) + u;
         }
+    }
+
+    public enum MediaPlaying
+    {
+        None = 0,
+        Playing = 1,
+        Paused = 2,
+        Stopped = 3,
+        Loading = 4,
+        Streaming = 5,
+        Error = 6
+    }
+
+    public enum MediaLoop
+    {
+        None = 0,
+        Loop = 1,
+        LoopOne = 2,
+        Random = 3,
+        RandomLoop = 4
     }
 }
