@@ -424,7 +424,7 @@ namespace AudioLink
 #if UNITY_EDITOR
                     0.0f,
 #else
-                    Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                    Networking.IsInstanceOwner?1.0f:0.0f,
 #endif
                 0));
 
