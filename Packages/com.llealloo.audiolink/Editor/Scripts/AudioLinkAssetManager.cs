@@ -66,7 +66,7 @@ namespace AudioLink.Editor
         {
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
             {
-                string baseAssetsPath = "Samples/AudioLink/0.3.2";
+                string baseAssetsPath = "Samples/AudioLink/1.0.0";
                 string packagePath = "Packages/com.llealloo.audiolink/Samples~/AudioLinkExampleScene";
                 string assetsPath = Path.Combine("Assets", baseAssetsPath, "AudioLinkExampleScene");
                 if (!Directory.Exists(Path.Combine(Application.dataPath, baseAssetsPath, "AudioLinkExampleScene")))
