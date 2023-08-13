@@ -135,6 +135,7 @@ namespace AudioLink
         private double _networkTimeMSAccumulatedError;
 #if UDONSHARP
         private bool _hasInitializedTime = false;
+        private VRCPlayerApi _localPlayer;
 #endif
         private double _fpsTime = 0;
         private int _fpsCount = 0;
@@ -305,12 +306,10 @@ namespace AudioLink
                 _rightChannelTestCounter = _rightChannelTestDelay;
 
                 // Set localplayer name on start
-                if (Networking.LocalPlayer != null)
+                _localPlayer = Networking.LocalPlayer;
+                if (VRC.SDKBase.Utilities.IsValid(_localPlayer))
                 {
-                    if (VRC.SDKBase.Utilities.IsValid(Networking.LocalPlayer))
-                    {
-                        UpdateGlobalString(_StringLocalPlayer, Networking.LocalPlayer.displayName);
-                    }
+                    UpdateGlobalString(_StringLocalPlayer, _localPlayer.displayName);
                 }
 
                 // Set master name once on start
@@ -424,7 +423,7 @@ namespace AudioLink
 #if UNITY_EDITOR
                     0.0f,
 #else
-                    Networking.LocalPlayer != null && Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                    _localPlayer.isInstanceOwner ? 1.0f : 0.0f,
 #endif
                 0));
 
@@ -587,9 +586,9 @@ namespace AudioLink
 
 
 #if UDONSHARP
-                if (Networking.LocalPlayer != null)
+                if (VRC.SDKBase.Utilities.IsValid(_localPlayer))
                 {
-                    float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                    float distanceToSource = Vector3.Distance(_localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
                     audioMaterial.SetFloat(_SourceDistance, distanceToSource);
                 }
 #endif
@@ -729,7 +728,7 @@ namespace AudioLink
         {
 #if UDONSHARP
             if (!Networking.IsOwner(gameObject))
-                Networking.SetOwner(Networking.LocalPlayer, gameObject);
+                Networking.SetOwner(_localPlayer, gameObject);
 #endif
 
             UpdateGlobalString(_StringCustom1, customString1);
