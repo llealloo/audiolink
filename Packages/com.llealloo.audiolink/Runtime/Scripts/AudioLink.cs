@@ -684,24 +684,18 @@ namespace AudioLink
 #if UDONSHARP
         public override void OnPlayerJoined(VRCPlayerApi player)
         {
-            if (player != null)
+            if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
             {
-                if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
-                {
-                    _masterName = player.displayName;
-                    UpdateGlobalString(_StringMasterPlayer, player.displayName);
-                }
+                _masterName = player.displayName;
+                UpdateGlobalString(_StringMasterPlayer, player.displayName);
             }
         }
 
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
-            if (player != null)
+            if (VRC.SDKBase.Utilities.IsValid(player) && (player.isMaster || player.displayName == _masterName))
             {
-                if (VRC.SDKBase.Utilities.IsValid(player) && (player.isMaster || player.displayName == _masterName))
-                {
-                    FindAndUpdateMasterName();
-                }
+                FindAndUpdateMasterName();
             }
         }
 
