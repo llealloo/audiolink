@@ -100,9 +100,9 @@ Shader "MyTestShader"
 #define ALPASS_GENERALVU_LOCAL_TIME     uint2(3,22)
 #define ALPASS_GENERALVU_NETWORK_TIME   uint2(4,22)
 #define ALPASS_GENERALVU_PLAYERINFO     uint2(6,22)
-// Added in version 2.5
+// Added in version 0.2.5
 #define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
-// Added in version 2.6
+// Added in version 0.2.6
 #define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
 #define ALPASS_THEME_COLOR0             uint2(0,23)
 #define ALPASS_THEME_COLOR1             uint2(1,23)
@@ -111,10 +111,10 @@ Shader "MyTestShader"
 #define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
 #define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
-// Added in version 3.0
+// Added in version 0.3.0
 #define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
 #define ALPASS_GENERALVU_SOURCE_POS     uint2(7,23)
-// Added in version 3.3
+// Added in version 1.0.0
 #define ALPASS_MEDIASTATE               uint(5,22)
 ```
 
