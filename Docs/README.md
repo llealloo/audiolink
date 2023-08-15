@@ -398,7 +398,7 @@ You can combine these to create new motion.
 For example, to get "Fixed increase when the band is light" you could subtract a uint sample with `offset.x = 6` from a uint sample with `offset.x = 4`.
 
 ### `ALPASS_MEDIASTATE`
-Contains:
+Provides the state of the attached Video Player set via Udon, or automatically queried from the attached Audio Source.
 - Red: Volume, 0.0f to 1.0f
 - Green: Time progress, 0.0f to 1.0f
 - Blue: Media playback state
@@ -415,6 +415,22 @@ Contains:
     - 2.0f Loop one (Playlist players)
     - 3.0f Random (Playlist players)
     - 4.0f Random & Loop (Playlist players)
+```hlsl
+// Sample media state from AudioLink
+float4 mediaState = AudioLinkData(ALPASS_MEDIASTATE);
+
+// Get volume value
+float volume = mediaState.r;
+
+// Get progress value
+float progress = mediaState.g;
+
+// Get the playing state
+float playstate = mediaState.b;
+
+// Get the looping / random state
+float loopstate = mediaState.a;
+```
 
 ### `ALPASS_GLOBAL_STRINGS`
 This section provides access access to 4 globally synced strings of text. These can be read and displayed in a shader, or used to perform logic like a check for a specific player.
