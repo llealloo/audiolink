@@ -41,6 +41,7 @@ namespace AudioLink
         public Slider sliderHue;
         public Slider sliderSaturation;
         public Slider sliderValue;
+        public Toggle themeColorToggle;
         public int customColorIndex = 0;
 
         private void Start()
@@ -85,6 +86,12 @@ namespace AudioLink
             UpdateGUI();
         }
 
+        public void ToggleThemeColorMode()
+        {
+            _themeColorMode = themeColorToggle.isOn ? 0 : 1;
+            UpdateGUI();
+        }
+
         public void OnGUIchange()
         {
             if (!_processGUIEvents)
@@ -95,7 +102,6 @@ namespace AudioLink
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(localPlayer, gameObject);
 #endif
-            bool modeChanged = false; // TODO
             customThemeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
                 1.0f,//sliderSaturation.value,
@@ -141,6 +147,11 @@ namespace AudioLink
                 audioLinkUI.SetInt("_ThemeColorMode", _themeColorMode);
                 audioLinkUI.SetInt("_SelectedColor", customColorIndex);
                 audioLinkUI.SetFloat("_Hue", h);
+
+                audioLinkUI.SetColor("_CustomColor0", customThemeColors[0]);
+                audioLinkUI.SetColor("_CustomColor1", customThemeColors[1]);
+                audioLinkUI.SetColor("_CustomColor2", customThemeColors[2]);
+                audioLinkUI.SetColor("_CustomColor3", customThemeColors[3]);
             }
 
             _processGUIEvents = true;

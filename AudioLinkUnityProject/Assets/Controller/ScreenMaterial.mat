@@ -21,24 +21,28 @@ Material:
     m_TexEnvs: []
     m_Floats:
     - _Autogain: 0
-    - _ExpFalloff: 0.1733144
-    - _Gain: 0.84920204
+    - _ExpFalloff: 0.75
+    - _Gain: 1
     - _HighMidThreshold: 0.5
     - _HighThreshold: 0.5
-    - _HitFade: 0.42394942
-    - _Hue: 0.16070311
+    - _HitFade: 0.25
+    - _Hue: 0.33333334
     - _LowMidThreshold: 0.5
     - _LowThreshold: 0.5
     - _Saturation: 0.5
     - _SelectedColor: 3
     - _ThemeColorMode: 0
-    - _Threshold0: 0.49006128
-    - _Threshold1: 0.75457996
-    - _Threshold2: 0.7896825
-    - _Threshold3: 0.51773
+    - _Threshold0: 0.45
+    - _Threshold1: 0.45
+    - _Threshold2: 0.45
+    - _Threshold3: 0.45
     - _Value: 0.5
     - _X0: 0
-    - _X1: 0.24478973
-    - _X2: 0.5370751
-    - _X3: 0.8251341
-    m_Colors: []
+    - _X1: 0.25
+    - _X2: 0.5
+    - _X3: 0.75
+    m_Colors:
+    - _CustomColor0: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    - _CustomColor1: {r: 0, g: 0, b: 1, a: 1}
+    - _CustomColor2: {r: 1, g: 0, b: 0, a: 1}
+    - _CustomColor3: {r: 0, g: 1, b: 0, a: 1}
