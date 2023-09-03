@@ -37,12 +37,14 @@ namespace AudioLink
         public Slider threshold1Slider;
         public Slider threshold2Slider;
         public Slider threshold3Slider;
+        public Toggle autoGainToggle;
 
         private float _initGain;
         private float _initTreble;
         private float _initBass;
         private float _initFadeLength;
         private float _initFadeExpFalloff;
+        private bool _initAutoGain;
         private float _initX0;
         private float _initX1;
         private float _initX2;
@@ -71,6 +73,7 @@ namespace AudioLink
         private int _Gain;
         private int _HitFade;
         private int _ExpFalloff;
+        private int _AutoGain;
         // ReSharper restore InconsistentNaming
 
         private void InitIDs()
@@ -86,6 +89,7 @@ namespace AudioLink
             _Gain = PropertyToID("_Gain");
             _HitFade = PropertyToID("_HitFade");
             _ExpFalloff = PropertyToID("_ExpFalloff");
+            _AutoGain = PropertyToID("_AutoGain");
         }
 
         #endregion
@@ -141,6 +145,7 @@ namespace AudioLink
             //_initBass = bassSlider.value;
             _initFadeLength = fadeLengthSlider.value;
             _initFadeExpFalloff = fadeExpFalloffSlider.value;
+            _initAutoGain = autoGainToggle.isOn;
             _initX0 = x0Slider.value;
             _initX1 = x1Slider.value;
             _initX2 = x2Slider.value;
@@ -165,7 +170,7 @@ namespace AudioLink
             //bassSlider.value = audioLink.bass;
             fadeLengthSlider.value = audioLink.fadeLength;
             fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
-            fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
+            autoGainToggle.isOn = audioLink.autogain;
 
             // Crossover Settings
             x0Slider.value = audioLink.x0;
@@ -205,6 +210,7 @@ namespace AudioLink
             audioLinkUI.SetFloat(_Gain, gainSlider.value);
             audioLinkUI.SetFloat(_HitFade, fadeLengthSlider.value);
             audioLinkUI.SetFloat(_ExpFalloff, fadeExpFalloffSlider.value);
+            audioLinkUI.SetInt(_AutoGain, autoGainToggle.isOn ? 1 : 0);
 
             if (audioLink == null)
             {
@@ -217,7 +223,7 @@ namespace AudioLink
             // audioLink.bass = bassSlider.value;
             audioLink.fadeLength = fadeLengthSlider.value;
             audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
-            audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
+            audioLink.autogain = autoGainToggle.isOn;
 
             // Crossover settings
             audioLink.x0 = x0Slider.value;
@@ -239,6 +245,7 @@ namespace AudioLink
             // bassSlider.value = _initBass;
             fadeLengthSlider.value = _initFadeLength;
             fadeExpFalloffSlider.value = _initFadeExpFalloff;
+            autoGainToggle.isOn = _initAutoGain;
             x0Slider.value = _initX0;
             x1Slider.value = _initX1;
             x2Slider.value = _initX2;

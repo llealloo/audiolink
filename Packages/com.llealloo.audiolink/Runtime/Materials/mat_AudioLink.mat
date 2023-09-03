@@ -25,12 +25,12 @@ Material:
     - _Bass: 1
     - _FadeExpFalloff: 0.75
     - _FadeLength: 0.25
-    - _Gain: 1
+    - _Gain: 1.1474664
     - _MediaLoop: 1
     - _MediaPlaying: 1
-    - _MediaTime: 0.40211308
+    - _MediaTime: 0.27670494
     - _MediaVolume: 1
-    - _SourceDistance: 0.6231563
+    - _SourceDistance: 0.8985921
     - _SourceSpatialBlend: 0
     - _SourceVolume: 1
     - _ThemeColorMode: 0
