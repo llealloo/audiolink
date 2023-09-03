@@ -26,10 +26,10 @@ namespace AudioLink
 
         public AudioLink audioLink; // Initialized by AudioLinkController.
 
-        public Dropdown themeColorDropdown; // Initialized from prefab.
+        public Material audioLinkUI; // Initialized by AudioLinkController.
 
         private Color[] _initCustomThemeColors;
-        private int _initThemeColorMode; // Initialized from themeColorDropdown.
+        private int _initThemeColorMode;
 
         private bool _processGUIEvents = true;
 
@@ -38,11 +38,9 @@ namespace AudioLink
 #endif
 
         // A view-controller for customThemeColors
-        public Transform extensionCanvas;
         public Slider sliderHue;
         public Slider sliderSaturation;
         public Slider sliderValue;
-        public Transform[] customColorLassos;
         public int customColorIndex = 0;
 
         private void Start()
@@ -58,7 +56,7 @@ namespace AudioLink
                     customThemeColors[3],
                 };
 
-            _initThemeColorMode = themeColorDropdown.value;
+            _initThemeColorMode = 0;
             _themeColorMode = _initThemeColorMode;
 
             UpdateGUI();
@@ -97,15 +95,14 @@ namespace AudioLink
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(localPlayer, gameObject);
 #endif
-            bool modeChanged = _themeColorMode != themeColorDropdown.value;
-            _themeColorMode = themeColorDropdown.value;
+            bool modeChanged = false; // TODO
             customThemeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
-                sliderSaturation.value,
-                sliderValue.value
+                1.0f,//sliderSaturation.value,
+                1.0f//sliderValue.value
             );
 
-            if (modeChanged) UpdateGUI();
+            UpdateGUI();
             UpdateAudioLinkThemeColors();
 #if UDONSHARP
             RequestSerialization();
@@ -129,23 +126,22 @@ namespace AudioLink
         public void UpdateGUI()
         {
             _processGUIEvents = false;
-            themeColorDropdown.value = _themeColorMode;
 
             bool isCustom = _themeColorMode == 1;
-            extensionCanvas.gameObject.SetActive(isCustom);
-            for (int i = 0; i < 4; ++i)
-            {
-                customColorLassos[i].gameObject.SetActive(
-                    i == customColorIndex
-                );
-            }
 
             // update HSV sliders
             float h, s, v;
             Color.RGBToHSV(customThemeColors[customColorIndex], out h, out s, out v);
             sliderHue.value = h;
-            sliderSaturation.value = s;
-            sliderValue.value = v;
+            //sliderSaturation.value = s;
+            //sliderValue.value = v;
+
+            if (audioLinkUI != null)
+            {
+                audioLinkUI.SetInt("_ThemeColorMode", _themeColorMode);
+                audioLinkUI.SetInt("_SelectedColor", customColorIndex);
+                audioLinkUI.SetFloat("_Hue", h);
+            }
 
             _processGUIEvents = true;
         }

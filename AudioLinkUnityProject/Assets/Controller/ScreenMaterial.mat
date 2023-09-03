@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ScreenMaterial
+  m_Shader: {fileID: 4800000, guid: 28929610fa2fd744ab4d732914c32fb7, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Floats:
+    - _Autogain: 0
+    - _ExpFalloff: 0.1733144
+    - _Gain: 0.84920204
+    - _HighMidThreshold: 0.5
+    - _HighThreshold: 0.5
+    - _HitFade: 0.42394942
+    - _Hue: 0.16070311
+    - _LowMidThreshold: 0.5
+    - _LowThreshold: 0.5
+    - _Saturation: 0.5
+    - _SelectedColor: 3
+    - _ThemeColorMode: 0
+    - _Threshold0: 0.49006128
+    - _Threshold1: 0.75457996
+    - _Threshold2: 0.7896825
+    - _Threshold3: 0.51773
+    - _Value: 0.5
+    - _X0: 0
+    - _X1: 0.24478973
+    - _X2: 0.5370751
+    - _X3: 0.8251341
+    m_Colors: []

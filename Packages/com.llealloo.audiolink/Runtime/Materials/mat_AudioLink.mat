@@ -23,25 +23,29 @@ Material:
     - _Autogain: 1
     - _AutogainDerate: 0.1
     - _Bass: 1
-    - _FadeExpFalloff: 0.75
-    - _FadeLength: 0.8
-    - _Gain: 1
-    - _SourceDistance: 30.727812
+    - _FadeExpFalloff: 0.1733144
+    - _FadeLength: 0.42394942
+    - _Gain: 0.84920204
+    - _MediaLoop: 1
+    - _MediaPlaying: 1
+    - _MediaTime: 0.3573966
+    - _MediaVolume: 1
+    - _SourceDistance: 0.49962536
     - _SourceSpatialBlend: 0
-    - _SourceVolume: 0.9
+    - _SourceVolume: 1
     - _ThemeColorMode: 0
-    - _Threshold0: 0.45
-    - _Threshold1: 0.45
-    - _Threshold2: 0.45
-    - _Threshold3: 0.45
+    - _Threshold0: 0.49006128
+    - _Threshold1: 0.75457996
+    - _Threshold2: 0.7896825
+    - _Threshold3: 0.51773
     - _Treble: 1
     - _X0: 0
-    - _X1: 0.25
-    - _X2: 0.5
-    - _X3: 0.75
+    - _X1: 0.24478973
+    - _X2: 0.5370751
+    - _X3: 0.8251341
     m_Colors:
     - _CustomThemeColor0: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     - _CustomThemeColor1: {r: 0, g: 0, b: 1, a: 1}
     - _CustomThemeColor2: {r: 1, g: 0, b: 0, a: 1}
-    - _CustomThemeColor3: {r: 0, g: 1, b: 0, a: 1}
+    - _CustomThemeColor3: {r: 1, g: 0.9642186, b: 0, a: 1}
     - _SourcePosition: {r: 0, g: 0, b: 0, a: 0}

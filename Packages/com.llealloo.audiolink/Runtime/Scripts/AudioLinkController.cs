@@ -23,16 +23,11 @@ namespace AudioLink
         [Space(10)]
         [Header("Internal (Do not modify)")]
         public ThemeColorController themeColorController;
-        public Material audioSpectrumDisplay;
-        public Text gainLabel;
+        public Material audioLinkUI;
         public Slider gainSlider;
-        public Text trebleLabel;
         public Slider trebleSlider;
-        public Text bassLabel;
         public Slider bassSlider;
-        public Text fadeLengthLabel;
         public Slider fadeLengthSlider;
-        public Text fadeExpFalloffLabel;
         public Slider fadeExpFalloffSlider;
         public Slider x0Slider;
         public Slider x1Slider;
@@ -73,6 +68,9 @@ namespace AudioLink
         private int _Threshold1;
         private int _Threshold2;
         private int _Threshold3;
+        private int _Gain;
+        private int _HitFade;
+        private int _ExpFalloff;
         // ReSharper restore InconsistentNaming
 
         private void InitIDs()
@@ -85,6 +83,9 @@ namespace AudioLink
             _Threshold1 = PropertyToID("_Threshold1");
             _Threshold2 = PropertyToID("_Threshold2");
             _Threshold3 = PropertyToID("_Threshold3");
+            _Gain = PropertyToID("_Gain");
+            _HitFade = PropertyToID("_HitFade");
+            _ExpFalloff = PropertyToID("_ExpFalloff");
         }
 
         #endregion
@@ -129,14 +130,15 @@ namespace AudioLink
             else
             {
                 themeColorController.audioLink = audioLink;
+                themeColorController.audioLinkUI = audioLinkUI;
                 themeColorController.UpdateAudioLinkThemeColors();
             }
 
             GetSettings();
 
             _initGain = gainSlider.value;
-            _initTreble = trebleSlider.value;
-            _initBass = bassSlider.value;
+            //_initTreble = trebleSlider.value;
+            //_initBass = bassSlider.value;
             _initFadeLength = fadeLengthSlider.value;
             _initFadeExpFalloff = fadeExpFalloffSlider.value;
             _initX0 = x0Slider.value;
@@ -159,8 +161,8 @@ namespace AudioLink
         {
             // General settings
             gainSlider.value = audioLink.gain;
-            trebleSlider.value = audioLink.treble;
-            bassSlider.value = audioLink.bass;
+            //trebleSlider.value = audioLink.treble;
+            //bassSlider.value = audioLink.bass;
             fadeLengthSlider.value = audioLink.fadeLength;
             fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
             fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
@@ -178,11 +180,6 @@ namespace AudioLink
 
         public void UpdateSettings()
         {
-            // Update labels
-            gainLabel.text = "Gain: " + ((int)Remap(gainSlider.value, 0f, 2f, 0f, 200f)).ToString() + "%";
-            trebleLabel.text = "Treble: " + ((int)Remap(trebleSlider.value, 0f, 2f, 0f, 200f)).ToString() + "%";
-            bassLabel.text = "Bass: " + ((int)Remap(bassSlider.value, 0f, 2f, 0f, 200f)).ToString() + "%";
-
             // Update Sliders
             Vector2 anchor0 = new Vector2(x0Slider.value, 1f);
             Vector2 anchor1 = new Vector2(x1Slider.value, 1f);
@@ -197,14 +194,17 @@ namespace AudioLink
             if (_threshold3Rect != null) _threshold3Rect.anchorMin = anchor3;
             // threshold3Rect.anchorMax is a constant value. Skip
 
-            audioSpectrumDisplay.SetFloat(_X0, x0Slider.value);
-            audioSpectrumDisplay.SetFloat(_X1, x1Slider.value);
-            audioSpectrumDisplay.SetFloat(_X2, x2Slider.value);
-            audioSpectrumDisplay.SetFloat(_X3, x3Slider.value);
-            audioSpectrumDisplay.SetFloat(_Threshold0, threshold0Slider.value);
-            audioSpectrumDisplay.SetFloat(_Threshold1, threshold1Slider.value);
-            audioSpectrumDisplay.SetFloat(_Threshold2, threshold2Slider.value);
-            audioSpectrumDisplay.SetFloat(_Threshold3, threshold3Slider.value);
+            audioLinkUI.SetFloat(_X0, x0Slider.value);
+            audioLinkUI.SetFloat(_X1, x1Slider.value);
+            audioLinkUI.SetFloat(_X2, x2Slider.value);
+            audioLinkUI.SetFloat(_X3, x3Slider.value);
+            audioLinkUI.SetFloat(_Threshold0, threshold0Slider.value);
+            audioLinkUI.SetFloat(_Threshold1, threshold1Slider.value);
+            audioLinkUI.SetFloat(_Threshold2, threshold2Slider.value);
+            audioLinkUI.SetFloat(_Threshold3, threshold3Slider.value);
+            audioLinkUI.SetFloat(_Gain, gainSlider.value);
+            audioLinkUI.SetFloat(_HitFade, fadeLengthSlider.value);
+            audioLinkUI.SetFloat(_ExpFalloff, fadeExpFalloffSlider.value);
 
             if (audioLink == null)
             {
@@ -213,8 +213,8 @@ namespace AudioLink
             }
             // General settings
             audioLink.gain = gainSlider.value;
-            audioLink.treble = trebleSlider.value;
-            audioLink.bass = bassSlider.value;
+            // audioLink.treble = trebleSlider.value;
+            // audioLink.bass = bassSlider.value;
             audioLink.fadeLength = fadeLengthSlider.value;
             audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
             audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
@@ -235,8 +235,8 @@ namespace AudioLink
         public void ResetSettings()
         {
             gainSlider.value = _initGain;
-            trebleSlider.value = _initTreble;
-            bassSlider.value = _initBass;
+            //trebleSlider.value = _initTreble;
+            // bassSlider.value = _initBass;
             fadeLengthSlider.value = _initFadeLength;
             fadeExpFalloffSlider.value = _initFadeExpFalloff;
             x0Slider.value = _initX0;
