@@ -121,25 +121,48 @@
 
             float3 selectColorLerp(float i, float3 a, float3 b, float3 c, float3 d)
             {
-                i = max(i - 1, 0);
                 int me = floor(i);
-                int top = ceil(i);
                 float3 meColor = selectColor(me, a, b, c, d);
-                float3 topColor = selectColor(top, a, b, c, d);
-                return lerp(meColor, topColor, smoothstep(frac(i), 0.0, AA_FACTOR));
+
+                // avoid singularity at 0.5
+                if (distance(frac(i), 0.5) < 0.1)
+                    return meColor;
+
+                int side = sign(frac(i) - 0.5);
+                int other = clamp(me + side, 0, 3);
+
+                float3 otherColor = selectColor(other, a, b, c, d);
+                
+                float dist = round(i) - i;
+                const float pixelDiagonal = sqrt(2.0) / 2.0 * side;
+                float distDerivativeLength = sqrt(pow(ddx(dist), 2) + pow(ddy(dist), 2));
+
+                return lerp(otherColor, meColor, smoothstep(-pixelDiagonal, pixelDiagonal, dist/distDerivativeLength));
             }
 
             float3 getBandColor(uint i) { return selectColor(i, BASS_COLOR_BG, LOWMID_COLOR_BG, HIGHMID_COLOR_BG, HIGH_COLOR_BG); }
             float3 getBandColorLerp(float i) { return selectColorLerp(i, BASS_COLOR_BG, LOWMID_COLOR_BG, HIGHMID_COLOR_BG, HIGH_COLOR_BG); }
 
+            // TODO: Deduplicate this
             float3 getBandAmplitudeLerp(float i, float delay)
             {
-                i = max(i - 1, 0);
                 int me = floor(i);
-                int top = ceil(i);
                 float meStrength = _AudioTexture[uint2(delay, me)].r;
-                float topStrength = _AudioTexture[uint2(delay, top)].r;
-                return lerp(meStrength, topStrength, smoothstep(frac(i), 0.0, AA_FACTOR));
+
+                // avoid singularity at 0.5
+                if (distance(frac(i), 0.5) < 0.1)
+                    return meStrength;
+
+                int side = sign(frac(i) - 0.5);
+                int other = clamp(me + side, 0, 3);
+
+                float otherStrength = _AudioTexture[uint2(delay, other)].r;
+                
+                float dist = round(i) - i;
+                const float pixelDiagonal = sqrt(2.0) / 2.0 * side;
+                float distDerivativeLength = sqrt(pow(ddx(dist), 2) + pow(ddy(dist), 2));
+
+                return lerp(otherStrength, meStrength, smoothstep(-pixelDiagonal, pixelDiagonal, dist/distDerivativeLength));
             }
 
             float2x2 rotationMatrix(float angle)
@@ -170,9 +193,16 @@
                 return d - thickness;
             }
             
+            float lerpstep(float a, float b, float x)
+            {
+                return saturate((x - a)/(b - a));
+            }
+
             void addElement(inout float3 existing, float3 elementColor, float elementDist)
             {
-                existing = lerp(elementColor, existing, smoothstep(0, AA_FACTOR, elementDist));
+                const float pixelDiagonal = sqrt(2.0) / 2.0;
+                float distDerivativeLength = sqrt(pow(ddx(elementDist), 2) + pow(ddy(elementDist), 2));
+                existing = lerp(elementColor, existing, lerpstep(-pixelDiagonal, pixelDiagonal, elementDist/distDerivativeLength));
             }
 
             float sdRoundedBoxCentered(float2 p, float2 b, float4 r)
@@ -251,8 +281,8 @@
                 uint bandIndex = AudioLinkRemap(uv.x, 0., areaWidth, 0, 4);
                 float bandIntensity = AudioLinkData(float2(0., bandIndex));
                 float funcY = areaHeight - (intensity.g * areaHeight);
-                float waveformDist = smoothstep(0.003+AA_FACTOR, 0.003, funcY - uv.y);
-                float waveformDistAbs = abs(smoothstep(0.003+AA_FACTOR, 0.003, abs(funcY - uv.y)));
+                float waveformDist = smoothstep(0.005, 0.003, funcY - uv.y);
+                float waveformDistAbs = abs(smoothstep(0.005, 0.003, abs(funcY - uv.y)));
 
                 // background waveform
                 color = lerp(color, color * 2, waveformDist);
@@ -559,7 +589,7 @@
 
                 // Theme colors
                 float2 colorSize = float2(topAreaSize.x * 0.25 - margin * 0.75, 0.15);
-                uint colorIndex = uv.x * 4.0;
+                uint colorIndex = min(remap(uv.x, margin, 1-margin, 0, 4), 3);
                 float2 colorOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY) + float2(colorIndex * (colorSize.x + margin), 0));
                 float colorDist = sdRoundedBoxTopLeft(colorOrigin, colorSize, CORNER_RADIUS);
                 float3 colors[4] = { _CustomColor0, _CustomColor1, _CustomColor2, _CustomColor3 };
