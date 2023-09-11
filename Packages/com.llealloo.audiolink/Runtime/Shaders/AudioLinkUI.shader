@@ -108,7 +108,8 @@
 
             #define remap(value, low1, high1, low2, high2) ((low2) + ((value) - (low1)) * ((high2) - (low2)) / ((high1) - (low1)))
 
-            #define ADD_ELEMENT(existing, elementColor, elementDist) [branch] if (elementDist <= 0.01 || any(fwidth(elementDist <= 0.01))) addElement(existing, elementColor, elementDist)
+            #define COHERENT_CONDITION(condition) ((condition) || any(fwidth(condition)))
+            #define ADD_ELEMENT(existing, elementColor, elementDist) [branch] if (COHERENT_CONDITION(elementDist <= 0.01)) addElement(existing, elementColor, elementDist)
 
             float3 selectColor(uint i, float3 a, float3 b, float3 c, float3 d)
             {
@@ -126,7 +127,7 @@
                 float3 meColor = selectColor(me, a, b, c, d);
 
                 // avoid singularity at 0.5
-                if (distance(frac(i), 0.5) < 0.1)
+                if (COHERENT_CONDITION(distance(frac(i), 0.5) < 0.1))
                     return meColor;
 
                 int side = sign(frac(i) - 0.5);
@@ -151,7 +152,7 @@
                 float meStrength = _AudioTexture[uint2(delay, me)].r;
 
                 // avoid singularity at 0.5
-                if (distance(frac(i), 0.5) < 0.1)
+                if (COHERENT_CONDITION(distance(frac(i), 0.5) < 0.1))
                     return meStrength;
 
                 int side = sign(frac(i) - 0.5);
@@ -290,9 +291,9 @@
                     boxWidths[i] = boxWidth;
 
                     // Keep track of the range of boxes we need to draw
-                    if (uv.x > currentBoxOffset + OUTLINE_WIDTH)
+                    if (COHERENT_CONDITION(uv.x > currentBoxOffset + OUTLINE_WIDTH))
                         start = i;
-                    if (uv.x < currentBoxOffset + boxWidth - handleWidth)
+                    if (COHERENT_CONDITION(uv.x < currentBoxOffset + boxWidth - handleWidth))
                         stop = min(stop, i + 1);
 
                     currentBoxOffset += boxWidth;
