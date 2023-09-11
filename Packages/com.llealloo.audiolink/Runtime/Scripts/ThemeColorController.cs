@@ -104,8 +104,8 @@ namespace AudioLink
 #endif
             customThemeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
-                1.0f,//sliderSaturation.value,
-                1.0f//sliderValue.value
+                sliderSaturation.value,
+                sliderValue.value
             );
 
             UpdateGUI();
@@ -139,14 +139,16 @@ namespace AudioLink
             float h, s, v;
             Color.RGBToHSV(customThemeColors[customColorIndex], out h, out s, out v);
             sliderHue.value = h;
-            //sliderSaturation.value = s;
-            //sliderValue.value = v;
+            sliderSaturation.value = s;
+            sliderValue.value = v;
 
             if (audioLinkUI != null)
             {
                 audioLinkUI.SetInt("_ThemeColorMode", _themeColorMode);
                 audioLinkUI.SetInt("_SelectedColor", customColorIndex);
                 audioLinkUI.SetFloat("_Hue", h);
+                audioLinkUI.SetFloat("_Saturation", s);
+                audioLinkUI.SetFloat("_Value", v);
 
                 audioLinkUI.SetColor("_CustomColor0", customThemeColors[0]);
                 audioLinkUI.SetColor("_CustomColor1", customThemeColors[1]);

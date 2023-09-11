@@ -25,12 +25,12 @@ Material:
     - _Bass: 1
     - _FadeExpFalloff: 0.75
     - _FadeLength: 0.25
-    - _Gain: 1.1474664
+    - _Gain: 1
     - _MediaLoop: 1
     - _MediaPlaying: 1
-    - _MediaTime: 0.27670494
+    - _MediaTime: 0.7841976
     - _MediaVolume: 1
-    - _SourceDistance: 0.8985921
+    - _SourceDistance: 1.1109239
     - _SourceSpatialBlend: 0
     - _SourceVolume: 1
     - _ThemeColorMode: 0
@@ -44,7 +44,7 @@ Material:
     - _X2: 0.5
     - _X3: 0.75
     m_Colors:
-    - _CustomThemeColor0: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    - _CustomThemeColor0: {r: 0.95896864, g: 0.38433918, b: 0.38433918, a: 1}
     - _CustomThemeColor1: {r: 0, g: 0, b: 1, a: 1}
     - _CustomThemeColor2: {r: 1, g: 0, b: 0, a: 1}
     - _CustomThemeColor3: {r: 0, g: 1, b: 0, a: 1}

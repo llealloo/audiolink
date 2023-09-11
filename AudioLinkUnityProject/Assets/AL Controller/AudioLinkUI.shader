@@ -75,8 +75,8 @@
             float _X3;
             float _HitFade;
             float _ExpFalloff;
-            int _ThemeColorMode;
-            int _SelectedColor;
+            uint _ThemeColorMode;
+            uint _SelectedColor;
             float _Hue;
             float _Saturation;
             float _Value;
@@ -504,11 +504,35 @@
                 float2 scaledUV = uv / size;
                 float3 color = AudioLinkHSVtoRGB(float3(_Hue, scaledUV.x, 1.0 - scaledUV.y));
 
-                float handleDist = shell(sdSphere(
+                float centerDist = sdSphere(
                     translate(uv, float2(_Saturation, _Value) * size),
                     HANDLE_RADIUS
-                ), 0.001);
-                addElement(color, ACTIVE_COLOR, handleDist);
+                );
+                addElement(color, ACTIVE_COLOR, shell(centerDist, 0.002));
+                
+                // Slider vertical grip
+                float gripDistV = abs(scaledUV.x - _Saturation) - OUTLINE_WIDTH / size.x;
+                addElement(color, ACTIVE_COLOR, max(gripDistV, -centerDist));
+
+                // Slider horizontal grip
+                float gripDistH = abs(scaledUV.y - _Value) - OUTLINE_WIDTH / size.y;
+                addElement(color, ACTIVE_COLOR, max(gripDistH, -centerDist));
+
+                // Top handle
+                float topTriSize = lerp(0.015, 0.04, smoothstep(0.4, 0.5, abs(0.5 - _Saturation)));
+                float topHandleDist = sdTriangleIsosceles(
+                    translate(uv, float2(_Saturation * size.x, topTriSize)),
+                    float2(topTriSize, -topTriSize)
+                );
+                addElement(color, ACTIVE_COLOR, topHandleDist);
+
+                // Left handle
+                float leftTriSize = lerp(0.015, 0.04, smoothstep(0.4, 0.5, abs(0.5 - _Value)));
+                float leftHandleDist = sdTriangleIsosceles(
+                    rotate(translate(uv, float2(leftTriSize, _Value * size.y)), UNITY_PI * 0.5),
+                    float2(leftTriSize, -leftTriSize)
+                );
+                addElement(color, ACTIVE_COLOR, leftHandleDist);
 
                 return color;
             }
@@ -631,7 +655,6 @@
             {
                 float2 uv = float2(i.uv.x, 1.0 - i.uv.y);
                 uv.y *= 0.3398717 / 0.218; // aspect ratio
-                if (uv.x < 0) discard;
                 return float4(drawUI(uv), 1);
             }
             ENDCG
