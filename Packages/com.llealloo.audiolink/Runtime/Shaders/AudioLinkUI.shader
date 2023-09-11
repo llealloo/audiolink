@@ -108,7 +108,7 @@
 
             #define remap(value, low1, high1, low2, high2) ((low2) + ((value) - (low1)) * ((high2) - (low2)) / ((high1) - (low1)))
 
-            #define ADD_ELEMENT(existing, elementColor, elementDist) [branch] if (elementDist <= 0.01) addElement(existing, elementColor, elementDist)
+            #define ADD_ELEMENT(existing, elementColor, elementDist) [branch] if (elementDist <= 0.01 || any(fwidth(elementDist <= 0.01))) addElement(existing, elementColor, elementDist)
 
             float3 selectColor(uint i, float3 a, float3 b, float3 c, float3 d)
             {
@@ -201,15 +201,9 @@
 
             void addElement(inout float3 existing, float3 elementColor, float elementDist)
             {
-                // Branching mixed with pixel derivatives seems to cause a strange issue on Quest
-                // where an aliased "ghost" of the UI element is visible. So for Quest, we just use a constant anti-aliasing width.
-                #if defined(UNITY_PBS_USE_BRDF2) || defined(SHADER_API_MOBILE)
-                existing = lerp(elementColor, existing, smoothstep(0, 0.002, elementDist));
-                #else
                 const float pixelDiagonal = sqrt(2.0) / 2.0;
                 float distDerivativeLength = sqrt(pow(ddx(elementDist), 2) + pow(ddy(elementDist), 2));
                 existing = lerp(elementColor, existing, lerpstep(-pixelDiagonal, pixelDiagonal, elementDist/distDerivativeLength));
-                #endif
             }
 
             float sdRoundedBoxCentered(float2 p, float2 b, float4 r)
