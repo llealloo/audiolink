@@ -103,11 +103,12 @@
             // Spacing
             const static float CORNER_RADIUS = 0.03;
             const static float FRAME_MARGIN = 0.035;
-            const static float AA_FACTOR = 0.002;
             const static float HANDLE_RADIUS = 0.007;
             const static float OUTLINE_WIDTH = 0.002;
 
             #define remap(value, low1, high1, low2, high2) ((low2) + ((value) - (low1)) * ((high2) - (low2)) / ((high1) - (low1)))
+
+            #define ADD_ELEMENT(existing, elementColor, elementDist) [branch] if (elementDist <= 0.01) addElement(existing, elementColor, elementDist)
 
             float3 selectColor(uint i, float3 a, float3 b, float3 c, float3 d)
             {
@@ -200,9 +201,15 @@
 
             void addElement(inout float3 existing, float3 elementColor, float elementDist)
             {
+                // Branching mixed with pixel derivatives seems to cause a strange issue on Quest
+                // where an aliased "ghost" of the UI element is visible. So for Quest, we just use a constant anti-aliasing width.
+                #if defined(UNITY_PBS_USE_BRDF2) || defined(SHADER_API_MOBILE)
+                existing = lerp(elementColor, existing, smoothstep(0, 0.002, elementDist));
+                #else
                 const float pixelDiagonal = sqrt(2.0) / 2.0;
                 float distDerivativeLength = sqrt(pow(ddx(elementDist), 2) + pow(ddy(elementDist), 2));
                 existing = lerp(elementColor, existing, lerpstep(-pixelDiagonal, pixelDiagonal, elementDist/distDerivativeLength));
+                #endif
             }
 
             float sdRoundedBoxCentered(float2 p, float2 b, float4 r)
@@ -266,10 +273,36 @@
 
                 float areaWidth = 1.0 - FRAME_MARGIN * 2;
                 float areaHeight = 0.35;
-                float boxWidth = areaWidth / 4.0;
+                float handleWidth = 0.015 * areaWidth;
                 
                 float threshold[4] = { _Threshold0, _Threshold1, _Threshold2, _Threshold3 };
                 float crossover[4] = { _X0 * areaWidth, _X1 * areaWidth, _X2 * areaWidth, _X3 * areaWidth };
+
+                // prefix sum to calculate offsets and sizes for boxes
+                uint start = 0;
+                uint stop = 4;
+                float currentBoxOffset = crossover[start];
+                float boxOffsets[4] = { 0, 0, 0, 0 };
+                float boxWidths[4] = { 0, 0, 0, 0 };
+                for (uint i = 0; i < 4; i++)
+                {
+                    float boxWidth = 0.0;
+                    if (i == 3) // The last box should just stretch to fill
+                        boxWidth = areaWidth - currentBoxOffset;
+                    else
+                        boxWidth = crossover[i + 1] - crossover[i];
+                    
+                    boxOffsets[i] = currentBoxOffset;
+                    boxWidths[i] = boxWidth;
+
+                    // Keep track of the range of boxes we need to draw
+                    if (uv.x > currentBoxOffset + OUTLINE_WIDTH)
+                        start = i;
+                    if (uv.x < currentBoxOffset + boxWidth - handleWidth)
+                        stop = min(stop, i + 1);
+
+                    currentBoxOffset += boxWidth;
+                }
 
                 // waveform calculation
                 uint totalBins = AUDIOLINK_EXPBINS * AUDIOLINK_EXPOCT;
@@ -278,8 +311,7 @@
                 float4 specLow = AudioLinkData(float2(fmod(noteno, 128), (noteno/128)+4.0));
                 float4 specHigh = AudioLinkData(float2(fmod(noteno+1, 128), ((noteno+1)/128)+4.0));
                 float4 intensity = lerp(specLow, specHigh, frac(notenof)) * _Gain;
-                uint bandIndex = AudioLinkRemap(uv.x, 0., areaWidth, 0, 4);
-                float bandIntensity = AudioLinkData(float2(0., bandIndex));
+                float bandIntensity = AudioLinkData(float2(0., start ^ 0)); // XOR with 0 to avoid FXC miscompilation
                 float funcY = areaHeight - (intensity.g * areaHeight);
                 float waveformDist = smoothstep(0.005, 0.003, funcY - uv.y);
                 float waveformDistAbs = abs(smoothstep(0.005, 0.003, abs(funcY - uv.y)));
@@ -287,16 +319,17 @@
                 // background waveform
                 color = lerp(color, color * 2, waveformDist);
                 color = lerp(color, color * 2, waveformDistAbs);
-
-                float boxOffset = crossover[0];
+                
+                // This optimization increases performance, but introduces aliasing. The perf difference is only really noticeable on Quest.
+                #if defined(UNITY_PBS_USE_BRDF2) || defined(SHADER_API_MOBILE)
+                [loop] for (uint i = start; i < min(stop, 4); i++)
+                #else
                 for (uint i = 0; i < 4; i++)
+                #endif
                 {
                     float boxHeight = threshold[i] * areaHeight;
-                    float boxWidth = 0.0f;
-                    if (i == 3) // The last box should just stretch to fill
-                        boxWidth = areaWidth - boxOffset;
-                    else
-                        boxWidth = crossover[i + 1] - crossover[i];
+                    float boxWidth = boxWidths[i];
+                    float boxOffset = boxOffsets[i];
 
                     float leftCornerRadius = i == 0 ? CORNER_RADIUS : 0.0;
                     float rightCornerRadius = i == 3 ? CORNER_RADIUS : 0.0;
@@ -310,29 +343,26 @@
                     float3 innerColor = getBandColor(i);
                     innerColor = lerp(innerColor, innerColor * 3, waveformDist);
                     innerColor = lerp(innerColor, lerp(innerColor * 3, 1.0, bandIntensity > threshold[i]), waveformDistAbs);
-                    addElement(color, innerColor, boxDist+OUTLINE_WIDTH);
+                    ADD_ELEMENT(color, innerColor, boxDist+OUTLINE_WIDTH);
 
                     // outer shell
                     float shellDist = shell(boxDist, OUTLINE_WIDTH);
-                    addElement(color, ACTIVE_COLOR, shellDist);
+                    ADD_ELEMENT(color, ACTIVE_COLOR, shellDist);
 
                     // Top pivot
                     float handleDist = sdSphere(
                         translate(uv, float2(boxWidth * 0.5 + boxOffset, areaHeight-boxHeight)),
                         HANDLE_RADIUS
                     );
-                    addElement(color, 1.0, handleDist);
+                    ADD_ELEMENT(color, 1.0, handleDist);
 
                     // Side pivot
                     handleDist = sdRoundedBoxCentered(
                         translate(uv, float2(boxOffset, areaHeight - boxHeight * 0.5)),
-                        float2(0.015 * areaWidth, 0.35 * boxHeight),
+                        float2(handleWidth, 0.35 * boxHeight),
                         HANDLE_RADIUS
                     );
-                    addElement(color, 1.0, handleDist);
-
-                    // Keep track of current offset
-                    boxOffset += boxWidth;
+                    ADD_ELEMENT(color, 1.0, handleDist);
                 }
 
                 return color;
@@ -358,23 +388,23 @@
                     rotate(translate(uv, float2(sliderOffsetLeft, size.y * 0.5)), UNITY_PI*0.5), 
                     float2(size.y*0.3, maxTriangleWidth)
                 ), 0.002);
-                addElement(color, inactiveColor, bgTriangleDist);
+                ADD_ELEMENT(color, inactiveColor, bgTriangleDist);
 
                 // Current active area
                 float currentTriangleWidth = maxTriangleWidth * t;
                 float currentTriangleDist = max(bgTriangleDist, uv.x - currentTriangleWidth - sliderOffsetLeft);
-                addElement(color, activeColor, currentTriangleDist);
+                ADD_ELEMENT(color, activeColor, currentTriangleDist);
 
                 // Slider handle
                 float handleDist = sdSphere(
                     translate(uv, float2(currentTriangleWidth + sliderOffsetLeft, size.y * 0.5)),
                     HANDLE_RADIUS
                 );
-                addElement(color, ACTIVE_COLOR, handleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
                 // Slider vertical grip
                 float gripDist = abs(uv.x - currentTriangleWidth - sliderOffsetLeft) - OUTLINE_WIDTH;
-                addElement(color, ACTIVE_COLOR, gripDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
                 return color;
             }
@@ -403,7 +433,7 @@
                 float fullWidth = halfWidth * 2;
                 float fullHeight = halfHeight * 2;
                 float bgTriangleDist = inflate(sdTriangleRight(triUV, halfWidth, halfHeight), 0.002);
-                addElement(color, INACTIVE_COLOR, bgTriangleDist);
+                ADD_ELEMENT(color, INACTIVE_COLOR, bgTriangleDist);
 
                 // Current active area
                 float remainingWidth = size.x - fullWidth;
@@ -413,18 +443,18 @@
 
                 triUV.x += halfWidth * _HitFade;
                 float fgTriangleDist = inflate(sdTriangleRight(triUV, halfWidth * (1.0 - _HitFade), halfHeight), 0.002);
-                addElement(color, ACTIVE_COLOR, fgTriangleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, fgTriangleDist);
 
                 // Slider handle
                 float handleDist = sdSphere(
                     translate(uv, float2(_HitFade * fullWidth + marginX, size.y * 0.5)),
                     HANDLE_RADIUS
                 );
-                addElement(color, ACTIVE_COLOR, handleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
                 // Slider vertical grip
                 float gripDist = abs(uv.x - _HitFade * halfWidth * 2 - marginX) - OUTLINE_WIDTH;
-                addElement(color, ACTIVE_COLOR, gripDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
                 return color;
             }
@@ -441,7 +471,7 @@
                 float fullWidth = halfWidth * 2;
                 float fullHeight = halfHeight * 2;
                 float bgTriangleDist = inflate(sdTriangleRight(triUV, halfWidth, halfHeight), 0.002);
-                addElement(color, INACTIVE_COLOR, bgTriangleDist);
+                ADD_ELEMENT(color, INACTIVE_COLOR, bgTriangleDist);
 
                 // Current active area
                 float remainingWidth = size.x - fullWidth;
@@ -453,18 +483,18 @@
     
                 float expFalloffY = (1.0 + (pow(triUVx, 4.0) * _ExpFalloff) - _ExpFalloff) * triUVx;
                 float fgDist = inflate((1.0 - triUVy) - expFalloffY, 0.02);
-                addElement(color, ACTIVE_COLOR, max(bgTriangleDist, fgDist*0.1));
+                ADD_ELEMENT(color, ACTIVE_COLOR, max(bgTriangleDist, fgDist*0.1));
 
                 // Slider handle
                 float handleDist = sdSphere(
                     translate(uv, float2(_ExpFalloff * fullWidth + marginX, size.y * 0.5)),
                     HANDLE_RADIUS
                 );
-                addElement(color, ACTIVE_COLOR, handleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
                 // Slider vertical grip
                 float gripDist = abs(uv.x - _ExpFalloff * halfWidth * 2 - marginX) - OUTLINE_WIDTH;
-                addElement(color, ACTIVE_COLOR, gripDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
                 return color;
             }
@@ -491,10 +521,10 @@
                     translate(uv, float2(sliderOffset, size.y * 0.5)),
                     HANDLE_RADIUS
                 );
-                addElement(color, ACTIVE_COLOR, handleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
                 float gripDist = abs(uv.x - sliderOffset) - OUTLINE_WIDTH;
-                addElement(color, ACTIVE_COLOR, gripDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
                 return color;
             }
@@ -508,15 +538,15 @@
                     translate(uv, float2(_Saturation, _Value) * size),
                     HANDLE_RADIUS
                 );
-                addElement(color, ACTIVE_COLOR, shell(centerDist, 0.002));
+                ADD_ELEMENT(color, ACTIVE_COLOR, shell(centerDist, 0.002));
                 
                 // Slider vertical grip
                 float gripDistV = abs(scaledUV.x - _Saturation) - OUTLINE_WIDTH / size.x;
-                addElement(color, ACTIVE_COLOR, max(gripDistV, -centerDist));
+                ADD_ELEMENT(color, ACTIVE_COLOR, max(gripDistV, -centerDist));
 
                 // Slider horizontal grip
                 float gripDistH = abs(scaledUV.y - _Value) - OUTLINE_WIDTH / size.y;
-                addElement(color, ACTIVE_COLOR, max(gripDistH, -centerDist));
+                ADD_ELEMENT(color, ACTIVE_COLOR, max(gripDistH, -centerDist));
 
                 // Top handle
                 float topTriSize = lerp(0.015, 0.04, smoothstep(0.4, 0.5, abs(0.5 - _Saturation)));
@@ -524,7 +554,7 @@
                     translate(uv, float2(_Saturation * size.x, topTriSize)),
                     float2(topTriSize, -topTriSize)
                 );
-                addElement(color, ACTIVE_COLOR, topHandleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, topHandleDist);
 
                 // Left handle
                 float leftTriSize = lerp(0.015, 0.04, smoothstep(0.4, 0.5, abs(0.5 - _Value)));
@@ -532,7 +562,7 @@
                     rotate(translate(uv, float2(leftTriSize, _Value * size.y)), UNITY_PI * 0.5),
                     float2(leftTriSize, -leftTriSize)
                 );
-                addElement(color, ACTIVE_COLOR, leftHandleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, leftHandleDist);
 
                 return color;
             }
@@ -568,7 +598,7 @@
                 float2 topAreaOrigin = translate(uv, FRAME_MARGIN);
                 float2 topAreaSize = float2(1.0 - FRAME_MARGIN * 2, 0.35);
                 float topAreaDist = sdRoundedBoxTopLeft(topAreaOrigin, topAreaSize, CORNER_RADIUS);
-                addElement(color, drawTopArea(topAreaOrigin), topAreaDist);
+                ADD_ELEMENT(color, drawTopArea(topAreaOrigin), topAreaDist);
                 currentY += topAreaSize.y + margin;
 
                 const float gainSliderHeight = 0.17;
@@ -578,33 +608,33 @@
                 float2 gainSliderOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 gainSliderSize = float2(gainSliderWidth, gainSliderHeight);
                 float gainSliderDist = sdRoundedBoxTopLeft(gainSliderOrigin, gainSliderSize, CORNER_RADIUS);
-                addElement(color, drawGainArea(gainSliderOrigin, gainSliderSize), gainSliderDist);
+                ADD_ELEMENT(color, drawGainArea(gainSliderOrigin, gainSliderSize), gainSliderDist);
 
                 // Autogain button
                 float2 autogainButtonOrigin = translate(uv, FRAME_MARGIN + float2(gainSliderWidth + margin, currentY));
                 float2 autogainButtonSize = float2(gainSliderHeight, gainSliderHeight);
                 float autogainButtonDist = sdRoundedBoxTopLeft(autogainButtonOrigin, autogainButtonSize, CORNER_RADIUS);
-                addElement(color, drawAutoGainButton(autogainButtonOrigin, autogainButtonSize), autogainButtonDist);
+                ADD_ELEMENT(color, drawAutoGainButton(autogainButtonOrigin, autogainButtonSize), autogainButtonDist);
                 currentY += autogainButtonSize.y + margin;
 
                 // Hit fade
                 float2 hitFadeAreaOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 hitFadeAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, gainSliderHeight);
                 float hitFadeAreaDist = sdRoundedBoxTopLeft(hitFadeAreaOrigin, hitFadeAreaSize, CORNER_RADIUS);
-                addElement(color, drawHitFadeArea(hitFadeAreaOrigin, hitFadeAreaSize), hitFadeAreaDist);
+                ADD_ELEMENT(color, drawHitFadeArea(hitFadeAreaOrigin, hitFadeAreaSize), hitFadeAreaDist);
                 
                 // Exp fallof
                 float2 expFalloffAreaOrigin = translate(uv, FRAME_MARGIN + float2(hitFadeAreaSize.x + margin, currentY));
                 float2 expFalloffAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, gainSliderHeight);
                 float expFalloffAreaDist = sdRoundedBoxTopLeft(expFalloffAreaOrigin, expFalloffAreaSize, CORNER_RADIUS);
-                addElement(color, drawExpFalloffArea(expFalloffAreaOrigin, expFalloffAreaSize), expFalloffAreaDist);
+                ADD_ELEMENT(color, drawExpFalloffArea(expFalloffAreaOrigin, expFalloffAreaSize), expFalloffAreaDist);
                 currentY += expFalloffAreaSize.y + margin;
                 
                 // 4-band
                 float2 fourBandOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 fourBandSize = float2(topAreaSize.x, 0.3);
                 float fourBandDist = sdRoundedBoxTopLeft(fourBandOrigin, fourBandSize, CORNER_RADIUS);
-                addElement(color, drawFourBandArea(fourBandOrigin, fourBandSize), fourBandDist);
+                ADD_ELEMENT(color, drawFourBandArea(fourBandOrigin, fourBandSize), fourBandDist);
                 currentY += fourBandSize.y + margin;
 
                 // Gray out irrelevant controls
@@ -617,11 +647,11 @@
                 float2 colorOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY) + float2(colorIndex * (colorSize.x + margin), 0));
                 float colorDist = sdRoundedBoxTopLeft(colorOrigin, colorSize, CORNER_RADIUS);
                 float3 colors[4] = { _CustomColor0, _CustomColor1, _CustomColor2, _CustomColor3 };
-                addElement(color, colors[colorIndex] * themeColorMultiplier, colorDist);
+                ADD_ELEMENT(color, colors[colorIndex] * themeColorMultiplier, colorDist);
                 if (colorIndex == _SelectedColor % 4)
                 {
                     float shellDist = shell(colorDist, OUTLINE_WIDTH);
-                    addElement(color, ACTIVE_COLOR * themeColorMultiplier, shellDist);
+                    ADD_ELEMENT(color, ACTIVE_COLOR * themeColorMultiplier, shellDist);
                 }
                 currentY += colorSize.y + margin;
 
@@ -629,23 +659,23 @@
                 float2 satOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 satSize = float2(colorSize.x, 0.2);
                 float satDist = sdRoundedBoxTopLeft(satOrigin, satSize, CORNER_RADIUS);
-                addElement(color, drawSaturationValueArea(satOrigin, satSize) * themeColorMultiplier, satDist);
+                ADD_ELEMENT(color, drawSaturationValueArea(satOrigin, satSize) * themeColorMultiplier, satDist);
 
                 // Hue
                 float2 hueOrigin = translate(uv, FRAME_MARGIN + float2(satSize.x + margin, currentY));
                 float2 hueSize = float2(topAreaSize.x * 0.5 - margin * 0.5, 0.2);
                 float hueDist = sdRoundedBoxTopLeft(hueOrigin, hueSize, CORNER_RADIUS);
-                addElement(color, drawHueArea(hueOrigin, hueSize) * themeColorMultiplier, hueDist);
+                ADD_ELEMENT(color, drawHueArea(hueOrigin, hueSize) * themeColorMultiplier, hueDist);
 
                 // CC toggle
                 float2 ccToggleOrigin = translate(uv, FRAME_MARGIN + float2(satSize.x + margin, currentY) + float2(hueSize.x + margin, 0));
                 float2 ccToggleSize = float2(colorSize.x, 0.2);
                 float ccToggleDist = sdRoundedBoxTopLeft(ccToggleOrigin, ccToggleSize, CORNER_RADIUS);
-                addElement(color, drawColorChordToggle(ccToggleOrigin, ccToggleSize) * colorChordMultiplier, ccToggleDist);
+                ADD_ELEMENT(color, drawColorChordToggle(ccToggleOrigin, ccToggleSize) * colorChordMultiplier, ccToggleDist);
                 if (_ThemeColorMode == 0)
                 {
                     float shellDist = shell(ccToggleDist, OUTLINE_WIDTH);
-                    addElement(color, ACTIVE_COLOR, shellDist);
+                    ADD_ELEMENT(color, ACTIVE_COLOR, shellDist);
                 }
                 
                 return color;
