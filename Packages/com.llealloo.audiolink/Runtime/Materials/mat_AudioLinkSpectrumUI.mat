@@ -26,16 +26,16 @@ Material:
     - _SpectrumGain: 1
     - _SpectrumThickness: 0.04
     - _SpectrumVertOffset: 0.1
-    - _Threshold0: 0.45
-    - _Threshold1: 0.45
-    - _Threshold2: 0.45
-    - _Threshold3: 0.45
+    - _Threshold0: 0
+    - _Threshold1: 0
+    - _Threshold2: 0
+    - _Threshold3: 0
     - _ThresholdDottedLine: 0.012
     - _ThresholdThickness: 0.01
     - _X0: 0
-    - _X1: 0.25
-    - _X2: 0.5
-    - _X3: 0.75
+    - _X1: 0.242
+    - _X2: 0.461
+    - _X3: 0.704
     m_Colors:
     - _Band0Color: {r: 0.3019608, g: 0.07058824, b: 0.07058824, a: 1}
     - _Band1Color: {r: 0.40784317, g: 0.3137255, b: 0.07058824, a: 1}

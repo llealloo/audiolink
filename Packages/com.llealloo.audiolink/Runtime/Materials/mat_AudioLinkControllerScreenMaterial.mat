@@ -31,7 +31,7 @@ Material:
     - _AutoGain: 1
     - _Autogain: 0
     - _ExpFalloff: 0.75
-    - _Gain: 1
+    - _Gain: 1.4172808
     - _HighMidThreshold: 0.5
     - _HighThreshold: 0.5
     - _HitFade: 0.25
