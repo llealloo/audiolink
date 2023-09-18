@@ -47,7 +47,7 @@ jobs:
       - run: find "Packages/${{env.packageName}}/" -name \*.meta >> metaList
           
       - name: Create full UnityPackage
-        uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
+        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
         with:
           package-path: ${{ env.unityPackage }}
           include-files: metaList
@@ -88,7 +88,7 @@ jobs:
           find "Packages/${{env.packageName}}/Editor/Scripts/" -name \*.meta >> minimalMetaList
 
       - name: Create minimal UnityPackage
-        uses: pCYSl5EDgo/create-unitypackage@e28c7a4616b2754c564b0a959a03b3c89b756fdb
+        uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
         with:
           package-path: ${{ env.minimalUnityPackage }}
           include-files: minimalMetaList

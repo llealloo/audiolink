@@ -24,7 +24,7 @@ namespace AudioLink
     public class AudioLink : MonoBehaviour
 #endif
     {
-        const float AudioLinkVersionNumber = 3.02f;
+        const float AudioLinkVersionNumber = 1.00f;
 
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
@@ -135,6 +135,7 @@ namespace AudioLink
         private double _networkTimeMSAccumulatedError;
 #if UDONSHARP
         private bool _hasInitializedTime = false;
+        private VRCPlayerApi _localPlayer;
 #endif
         private double _fpsTime = 0;
         private int _fpsCount = 0;
@@ -305,12 +306,10 @@ namespace AudioLink
                 _rightChannelTestCounter = _rightChannelTestDelay;
 
                 // Set localplayer name on start
-                if (Networking.LocalPlayer != null)
+                _localPlayer = Networking.LocalPlayer;
+                if (VRC.SDKBase.Utilities.IsValid(_localPlayer))
                 {
-                    if (VRC.SDKBase.Utilities.IsValid(Networking.LocalPlayer))
-                    {
-                        UpdateGlobalString(_StringLocalPlayer, Networking.LocalPlayer.displayName);
-                    }
+                    UpdateGlobalString(_StringLocalPlayer, _localPlayer.displayName);
                 }
 
                 // Set master name once on start
@@ -424,7 +423,7 @@ namespace AudioLink
 #if UNITY_EDITOR
                     0.0f,
 #else
-                    Networking.LocalPlayer != null && Networking.LocalPlayer.isInstanceOwner?1.0f:0.0f,
+                    _localPlayer.isInstanceOwner ? 1.0f : 0.0f,
 #endif
                 0));
 
@@ -587,9 +586,9 @@ namespace AudioLink
 
 
 #if UDONSHARP
-                if (Networking.LocalPlayer != null)
+                if (VRC.SDKBase.Utilities.IsValid(_localPlayer))
                 {
-                    float distanceToSource = Vector3.Distance(Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
+                    float distanceToSource = Vector3.Distance(_localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
                     audioMaterial.SetFloat(_SourceDistance, distanceToSource);
                 }
 #endif
@@ -685,24 +684,18 @@ namespace AudioLink
 #if UDONSHARP
         public override void OnPlayerJoined(VRCPlayerApi player)
         {
-            if (player != null)
+            if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
             {
-                if (VRC.SDKBase.Utilities.IsValid(player) && player.isMaster)
-                {
-                    _masterName = player.displayName;
-                    UpdateGlobalString(_StringMasterPlayer, player.displayName);
-                }
+                _masterName = player.displayName;
+                UpdateGlobalString(_StringMasterPlayer, player.displayName);
             }
         }
 
         public override void OnPlayerLeft(VRCPlayerApi player)
         {
-            if (player != null)
+            if (VRC.SDKBase.Utilities.IsValid(player) && (player.isMaster || player.displayName == _masterName))
             {
-                if (VRC.SDKBase.Utilities.IsValid(player) && (player.isMaster || player.displayName == _masterName))
-                {
-                    FindAndUpdateMasterName();
-                }
+                FindAndUpdateMasterName();
             }
         }
 
@@ -729,7 +722,7 @@ namespace AudioLink
         {
 #if UDONSHARP
             if (!Networking.IsOwner(gameObject))
-                Networking.SetOwner(Networking.LocalPlayer, gameObject);
+                Networking.SetOwner(_localPlayer, gameObject);
 #endif
 
             UpdateGlobalString(_StringCustom1, customString1);

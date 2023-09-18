@@ -100,9 +100,9 @@ Shader "MyTestShader"
 #define ALPASS_GENERALVU_LOCAL_TIME     uint2(3,22)
 #define ALPASS_GENERALVU_NETWORK_TIME   uint2(4,22)
 #define ALPASS_GENERALVU_PLAYERINFO     uint2(6,22)
-// Added in version 2.5
+// Added in version 0.2.5
 #define ALPASS_FILTEREDAUDIOLINK        uint2(0,28)  //Size: 16, 4
-// Added in version 2.6
+// Added in version 0.2.6
 #define ALPASS_CHRONOTENSITY            uint2(16,28) //Size: 8, 4
 #define ALPASS_THEME_COLOR0             uint2(0,23)
 #define ALPASS_THEME_COLOR1             uint2(1,23)
@@ -111,10 +111,10 @@ Shader "MyTestShader"
 #define ALPASS_FILTEREDVU               uint2(24,28) //Size: 4, 4
 #define ALPASS_FILTEREDVU_INTENSITY     uint2(24,28) //Size: 4, 1
 #define ALPASS_FILTEREDVU_MARKER        uint2(24,29) //Size: 4, 1
-// Added in version 3.0
+// Added in version 0.3.0
 #define ALPASS_GLOBAL_STRINGS           uint2(40,28) //Size: 8, 4
 #define ALPASS_GENERALVU_SOURCE_POS     uint2(7,23)
-// Added in version 3.3
+// Added in version 1.0.0
 #define ALPASS_MEDIASTATE               uint(5,22)
 ```
 
@@ -398,7 +398,7 @@ You can combine these to create new motion.
 For example, to get "Fixed increase when the band is light" you could subtract a uint sample with `offset.x = 6` from a uint sample with `offset.x = 4`.
 
 ### `ALPASS_MEDIASTATE`
-Contains:
+Provides the state of the attached Video Player set via Udon, or automatically queried from the attached Audio Source.
 - Red: Volume, 0.0f to 1.0f
 - Green: Time progress, 0.0f to 1.0f
 - Blue: Media playback state
@@ -415,6 +415,22 @@ Contains:
     - 2.0f Loop one (Playlist players)
     - 3.0f Random (Playlist players)
     - 4.0f Random & Loop (Playlist players)
+```hlsl
+// Sample media state from AudioLink
+float4 mediaState = AudioLinkData(ALPASS_MEDIASTATE);
+
+// Get volume value
+float volume = mediaState.r;
+
+// Get progress value
+float progress = mediaState.g;
+
+// Get the playing state
+float playstate = mediaState.b;
+
+// Get the looping / random state
+float loopstate = mediaState.a;
+```
 
 ### `ALPASS_GLOBAL_STRINGS`
 This section provides access access to 4 globally synced strings of text. These can be read and displayed in a shader, or used to perform logic like a check for a specific player.
