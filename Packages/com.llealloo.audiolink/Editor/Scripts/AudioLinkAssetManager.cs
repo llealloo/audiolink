@@ -3,13 +3,6 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-// This define is inserted into the file in CI.
-// We can't rely on regular scripting defines so early in the import process.
-#if !AUDIOLINK_STANDALONE && VPM_RESOLVER
-using VRC.PackageManagement.Core.Types;
-using VRC.PackageManagement.Core.Types.Packages;
-#endif
-
 namespace AudioLink.Editor
 {
     [InitializeOnLoad]
@@ -30,24 +23,7 @@ namespace AudioLink.Editor
                 }
                 else
                 {
-#if !AUDIOLINK_STANDALONE && VPM_RESOLVER
-
-                    if (IsWorldProjectWithoutUdonSharp())
-                    {
-                        if (EditorUtility.DisplayDialog(
-                            "Install missing UdonSharp dependency",
-                            "It looks like you are trying to use AudioLink in a world project, but don't have UdonSharp 1.x installed.\n" +
-                            "AudioLink will not function correctly without UdonSharp 1.x. Would you like to install it now?",
-                            "Yes", "No"))
-                        {
-                            InstallUdonSharp();
-                        }
-                    }
-                    else
-#endif
-                    {
-                        ReimportPackage();
-                    }
+                    ReimportPackage();
                     File.WriteAllText(canaryFilePath, audioLinkReimportedKey);
                     AudioLinkShaderCompatabilityUtility.UpgradeShaders();
                 }
@@ -60,7 +36,7 @@ namespace AudioLink.Editor
             SessionState.SetBool(audioLinkReimportedKey, true);
         }
 
-#if !AUDIOLINK_STANDALONE && VPM_RESOLVER
+#if !AUDIOLINK_STANDALONE
         [MenuItem("AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
@@ -77,23 +53,6 @@ namespace AudioLink.Editor
                 }
                 EditorSceneManager.OpenScene(Path.Combine(assetsPath, "AudioLink_ExampleScene.unity"));
             }
-        }
-
-        [MenuItem("AudioLink/Install UdonSharp dependency", true)]
-        public static bool IsWorldProjectWithoutUdonSharp()
-        {
-            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            UnityProject project = new UnityProject(path);
-            return project.VPMProvider.HasPackage(VRCPackageNames.WORLDS) && !project.VPMProvider.HasPackage(VRCAddonPackageNames.UDONSHARP);
-        }
-
-        [MenuItem("AudioLink/Install UdonSharp dependency")]
-        public static void InstallUdonSharp()
-        {
-            string path = new DirectoryInfo(Application.dataPath).Parent?.FullName;
-            UnityProject project = new UnityProject(path);
-            project.AddVPMPackage(VRCAddonPackageNames.UDONSHARP, "1.x");
-            ReimportPackage();
         }
 #endif
 
