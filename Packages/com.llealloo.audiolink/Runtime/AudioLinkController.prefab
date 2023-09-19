@@ -3371,7 +3371,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4003588342792173190}
   audioLink: {fileID: 0}
-  themeColorController: {fileID: 0}
+  themeColorController: {fileID: 6364769662570500387}
   audioLinkUI: {fileID: 2100000, guid: 0f19dab2300578b4d87b7662da0e74a4, type: 2}
   gainSlider: {fileID: 4003588342677736317}
   trebleSlider: {fileID: 0}
