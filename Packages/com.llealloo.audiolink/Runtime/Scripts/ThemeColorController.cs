@@ -44,6 +44,7 @@ namespace AudioLink
         public Slider sliderValue;
         public Transform[] customColorLassos;
         public int customColorIndex = 0;
+        private bool initDone = false;
 
         private void Start()
         {
@@ -51,14 +52,34 @@ namespace AudioLink
             localPlayer = Networking.LocalPlayer;
 #endif
 
-            _initCustomThemeColors = new[] {
+            if (audioLink != null)
+            {
+                _initThemeColorMode = audioLink.themeColorMode;
+                _initCustomThemeColors = new Color[4] {
+                        audioLink.customThemeColor0,
+                        audioLink.customThemeColor1,
+                        audioLink.customThemeColor2,
+                        audioLink.customThemeColor3,
+                    };
+                customThemeColors = new Color[4]{
+                        _initCustomThemeColors[0],
+                        _initCustomThemeColors[1],
+                        _initCustomThemeColors[2],
+                        _initCustomThemeColors[3],
+                    };
+            }
+            else
+            {
+                _initThemeColorMode = themeColorDropdown.value;
+                _initCustomThemeColors = new Color[4] {
                     customThemeColors[0],
                     customThemeColors[1],
                     customThemeColors[2],
                     customThemeColors[3],
                 };
+            }
+            initDone = true;
 
-            _initThemeColorMode = themeColorDropdown.value;
             _themeColorMode = _initThemeColorMode;
 
             UpdateGUI();
@@ -152,6 +173,7 @@ namespace AudioLink
 
         public void UpdateAudioLinkThemeColors()
         {
+            if(!initDone) return;
             if (audioLink == null) return;
             audioLink.themeColorMode = _themeColorMode;
             audioLink.customThemeColor0 = customThemeColors[0];
