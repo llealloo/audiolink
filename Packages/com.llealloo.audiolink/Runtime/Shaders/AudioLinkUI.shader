@@ -524,40 +524,38 @@
                 return color;
             }
 
-            float3 drawSaturationValueArea(float2 uv, float2 size)
+            float3 drawSaturationArea(float2 uv, float2 size)
             {
-                float2 scaledUV = uv / size;
-                float3 color = AudioLinkHSVtoRGB(float3(_Hue, scaledUV.x, 1.0 - scaledUV.y));
+                float saturation = 1.0 - uv.y / size.y;
+                float3 color = AudioLinkHSVtoRGB(float3(_Hue, saturation, _Value));
 
-                float centerDist = sdSphere(
-                    translate(uv, float2(_Saturation, _Value) * size),
+                float sliderOffset = size.y * (1 - _Saturation);
+                float handleDist = sdSphere(
+                    translate(uv, float2(size.x * 0.5, sliderOffset)),
                     HANDLE_RADIUS
                 );
-                ADD_ELEMENT(color, ACTIVE_COLOR, shell(centerDist, 0.002));
-                
-                // Slider vertical grip
-                float gripDistV = abs(scaledUV.x - _Saturation) - OUTLINE_WIDTH / size.x;
-                ADD_ELEMENT(color, ACTIVE_COLOR, max(gripDistV, -centerDist));
+                ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
-                // Slider horizontal grip
-                float gripDistH = abs(scaledUV.y - _Value) - OUTLINE_WIDTH / size.y;
-                ADD_ELEMENT(color, ACTIVE_COLOR, max(gripDistH, -centerDist));
+                float gripDist = abs(uv.y - sliderOffset) - OUTLINE_WIDTH;
+                ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
-                // Top handle
-                float topTriSize = lerp(0.015, 0.04, smoothstep(0.4, 0.5, abs(0.5 - _Saturation)));
-                float topHandleDist = sdTriangleIsosceles(
-                    translate(uv, float2(_Saturation * size.x, topTriSize)),
-                    float2(topTriSize, -topTriSize)
+                return color;
+            }
+
+            float3 drawValueArea(float2 uv, float2 size)
+            {
+                float value = 1.0 - uv.y / size.y;
+                float3 color = AudioLinkHSVtoRGB(float3(_Hue, _Saturation, value));
+
+                float sliderOffset = size.y * (1 - _Value);
+                float handleDist = sdSphere(
+                    translate(uv, float2(size.x * 0.5, sliderOffset)),
+                    HANDLE_RADIUS
                 );
-                ADD_ELEMENT(color, ACTIVE_COLOR, topHandleDist);
+                ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
-                // Left handle
-                float leftTriSize = lerp(0.015, 0.04, smoothstep(0.4, 0.5, abs(0.5 - _Value)));
-                float leftHandleDist = sdTriangleIsosceles(
-                    rotate(translate(uv, float2(leftTriSize, _Value * size.y)), UNITY_PI * 0.5),
-                    float2(leftTriSize, -leftTriSize)
-                );
-                ADD_ELEMENT(color, ACTIVE_COLOR, leftHandleDist);
+                float gripDist = abs(uv.y - sliderOffset) - OUTLINE_WIDTH;
+                ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
                 return color;
             }
@@ -650,20 +648,25 @@
                 }
                 currentY += colorSize.y + margin;
 
-                // Saturation / Value
-                float2 satOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
-                float2 satSize = float2(colorSize.x, 0.2);
-                float satDist = sdRoundedBoxTopLeft(satOrigin, satSize, CORNER_RADIUS);
-                ADD_ELEMENT(color, drawSaturationValueArea(satOrigin, satSize) * themeColorMultiplier, satDist);
-
                 // Hue
-                float2 hueOrigin = translate(uv, FRAME_MARGIN + float2(satSize.x + margin, currentY));
+                float2 hueOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 hueSize = float2(topAreaSize.x * 0.5 - margin * 0.5, 0.2);
                 float hueDist = sdRoundedBoxTopLeft(hueOrigin, hueSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawHueArea(hueOrigin, hueSize) * themeColorMultiplier, hueDist);
 
+                // Saturation / Value
+                float2 satOrigin = translate(uv, FRAME_MARGIN + float2(hueSize.x + margin, currentY));
+                float2 satSize = float2(colorSize.x / 2 - margin / 2, 0.2);
+                float satDist = sdRoundedBoxTopLeft(satOrigin, satSize, CORNER_RADIUS);
+                ADD_ELEMENT(color, drawSaturationArea(satOrigin, satSize) * themeColorMultiplier, satDist);
+
+                float2 valOrigin = translate(uv, FRAME_MARGIN + float2(hueSize.x + satSize.x + margin * 2, currentY));
+                float2 valSize = satSize;
+                float valDist = sdRoundedBoxTopLeft(valOrigin, valSize, CORNER_RADIUS);
+                ADD_ELEMENT(color, drawValueArea(valOrigin, valSize) * themeColorMultiplier, valDist);
+
                 // CC toggle
-                float2 ccToggleOrigin = translate(uv, FRAME_MARGIN + float2(satSize.x + margin, currentY) + float2(hueSize.x + margin, 0));
+                float2 ccToggleOrigin = translate(uv, FRAME_MARGIN + float2(colorSize.x + margin, currentY) + float2(hueSize.x + margin, 0));
                 float2 ccToggleSize = float2(colorSize.x, 0.2);
                 float ccToggleDist = sdRoundedBoxTopLeft(ccToggleOrigin, ccToggleSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawColorChordToggle(ccToggleOrigin, ccToggleSize) * colorChordMultiplier, ccToggleDist);
