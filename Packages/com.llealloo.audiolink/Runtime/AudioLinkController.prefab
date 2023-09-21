@@ -3449,7 +3449,7 @@ MonoBehaviour:
   ExactGrip: {fileID: 0}
   allowManipulationWhenEquipped: 0
   orientation: 0
-  AutoHold: 0
+  AutoHold: 2
   InteractionText: 
   UseText: Use
   useEventBroadcastType: 0
