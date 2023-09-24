@@ -22,15 +22,15 @@ namespace AudioLink
         /// <remarks>Corresponds to ALPASS_AUDIOLINKHISTORY in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassAudioLinkHistory => new Vector2Int(1, 0);
         /// <remarks>Corresponds to ALPASS_GENERALVU in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVu => new Vector2Int(0, 22);
+        public static Vector2Int ALPassGeneralVU => new Vector2Int(0, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_INSTANCE_TIME in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuInstanceTime => new Vector2Int(2, 22);
+        public static Vector2Int ALPassGeneralVUInstanceTime => new Vector2Int(2, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_LOCAL_TIME in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuLocalTime => new Vector2Int(3, 22);
+        public static Vector2Int ALPassGeneralVULocalTime => new Vector2Int(3, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_NETWORK_TIME in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuNetworkTime => new Vector2Int(4, 22);
+        public static Vector2Int ALPassGeneralVUNetworkTime => new Vector2Int(4, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_PLAYERINFO in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuPlayerInfo => new Vector2Int(6, 22);
+        public static Vector2Int ALPassGeneralVUPlayerInfo => new Vector2Int(6, 22);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR0 in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassThemeColor0 => new Vector2Int(0, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR1 in AudioLink.cginc.</remarks>
@@ -40,11 +40,11 @@ namespace AudioLink
         /// <remarks>Corresponds to ALPASS_THEME_COLOR3 in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassThemeColor3 => new Vector2Int(3, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_DAYS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuUnixDays => new Vector2Int(5, 23);
+        public static Vector2Int ALPassGeneralVUUnixDays => new Vector2Int(5, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_SECONDS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuUnixSeconds => new Vector2Int(6, 23);
+        public static Vector2Int ALPassGeneralVUUnixSeconds => new Vector2Int(6, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_SOURCE_POS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVuSourcePos => new Vector2Int(7, 23);
+        public static Vector2Int ALPassGeneralVUSourcePos => new Vector2Int(7, 23);
         /// <remarks>Corresponds to ALPASS_MEDIASTATE in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassMediaState => new Vector2Int(5, 22);
 
@@ -63,11 +63,11 @@ namespace AudioLink
         /// <remarks>Corresponds to ALPASS_CHRONOTENSITY in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassChronotensity => new Vector2Int(16, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredVu => new Vector2Int(24, 28);
+        public static Vector2Int ALPassFilteredVU => new Vector2Int(24, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU_INTENSITY in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredVuIntensity => new Vector2Int(24, 28);
+        public static Vector2Int ALPassFilteredVUIntensity => new Vector2Int(24, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU_MARKER in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredVuMarker => new Vector2Int(24, 29);
+        public static Vector2Int ALPassFilteredVUMarker => new Vector2Int(24, 29);
         /// <remarks>Corresponds to ALPASS_GLOBAL_STRINGS in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassGlobalStrings => new Vector2Int(40, 28);
         #endregion
