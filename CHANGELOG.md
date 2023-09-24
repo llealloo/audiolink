@@ -9,7 +9,7 @@
 - Added a ChilloutVR prefab.
 ### Changes
 - We have switched to using [Semantic Versioning](https://semver.org/), marking this release as 1.0.0. This may break shaders written for very old versions of AudioLink.
-- The "VRCAudioLink" namespace has been renamed to "AudioLink". This is a breaking change.
+- The "VRCAudioLink" namespace has been renamed to "AudioLink". This is a breaking change. We've added a new scripting define, `AUDIOLINK_V1`, which will be present for future versions of AudioLink, to aid with backwards compatability.
 - Removed the dependency on the VPM package resolver.
 ### Improvements
 - Made yt-dlp integration resolve URLs asynchronously.

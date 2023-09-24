@@ -12,6 +12,7 @@ namespace AudioLink.Editor
         static AudioLinkDefineManager()
         {
             AddDefineIfMissing(EditorUserBuildSettings.selectedBuildTargetGroup, "AUDIOLINK");
+            AddDefineIfMissing(EditorUserBuildSettings.selectedBuildTargetGroup, "AUDIOLINK_V1");
             Shader.EnableKeyword("AUDIOLINK_IMPORTED");
         }
 
