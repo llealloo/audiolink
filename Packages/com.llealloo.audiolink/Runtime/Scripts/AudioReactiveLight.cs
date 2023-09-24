@@ -34,7 +34,8 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                float amplitude = audioLink.GetAudioDataAtPixel(delay, band).grayscale;
+                // Convert to grayscale
+                float amplitude = Vector3.Dot(audioLink.GetDataAtPixel(delay, band), new Vector3(0.299f, 0.587f, 0.114f));
                 if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
                 _light.color = HueShift(_initialColor, amplitude * hueShift);
             }
