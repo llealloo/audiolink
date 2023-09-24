@@ -4,16 +4,19 @@
 ### New features
 - Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs))
 - Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md)
-- Added Autogain; it's enabled by default. You can disable it on the audiolink material. (Thanks, cnlohr)
-- Added Async GPU Readback, you can toggle it on the audiolink script.
-- Added a CVR prefab.
+- Added Autogain; it's enabled by default. You can disable it on the AudioLink controller. (Thanks, cnlohr)
+- Added Async GPU Readback, you can toggle it on the AudioLink script.
+- Added a ChilloutVR prefab.
 ### Changes
-- We now use Semantic Versioning.
+- We have switched to using [Semantic Versioning](https://semver.org/), marking this release as 1.0.0. This may break shaders written for very old versions of AudioLink.
+- Removed the dependency on the VPM package resolver.
 ### Improvements
-- Made yt-dlp resolve asynchronously.
-- Improved the yt-dlp interface in a number of ways. (Thanks, rRazgriz)
+- Made yt-dlp integration resolve URLs asynchronously.
+- Improved the yt-dlp integration UI in a number of ways. (Thanks, rRazgriz)
 - Improved the "Add Audiolink Prefab to Scene" button.
-- Improve logging
+- Improved logging, with less meaningless warning spam.
+- Cache the local player in AudioLink scripts for slightly improved performance. (Thanks, Nessie)
+- Fixed null reference exceptions being fired when a player leaves the world. (Thanks, Nessie)
 
 ## 0.3.2 - March 12th, 2023
 ### New features
