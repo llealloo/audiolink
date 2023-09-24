@@ -10,9 +10,9 @@ namespace AudioLink
         /// <remarks>Corresponds to ALPASS_WAVEFORM in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassWaveform => new Vector2Int(0, 6);
         /// <remarks>Corresponds to ALPASS_AUDIOLINK in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudiolink => new Vector2Int(0, 0);
+        public static Vector2Int ALPassAudioLink => new Vector2Int(0, 0);
         /// <remarks>Corresponds to ALPASS_AUDIOBASS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudiobass => new Vector2Int(0, 0);
+        public static Vector2Int ALPassAudioBass => new Vector2Int(0, 0);
         /// <remarks>Corresponds to ALPASS_AUDIOLOWMIDS in AudioLink.cginc.</remarks>
         public static Vector2Int ALPassAudioLowMids => new Vector2Int(0, 1);
         /// <remarks>Corresponds to ALPASS_AUDIOHIGHMIDS in AudioLink.cginc.</remarks>
