@@ -225,7 +225,7 @@ namespace AudioLink
         /// <param name="position">The coordinates of the pixel to read.</param>
         /// <returns>The value of the pixel at the given coordinates, decoded as an unsigned integer.</returns>
         /// <remarks>Corresponds to AudioLinkDecodeDataAsUInt() in AudioLink.cginc.</remarks>
-        uint DecodeDataAsUInt(Vector2Int position)
+        public uint DecodeDataAsUInt(Vector2Int position)
         {
             Vector4 rpx = GetDataAtPixel(position);
             return (uint)rpx.x + (uint)rpx.y * 1024 + (uint)rpx.z * 1048576 + (uint)rpx.w * 1073741824;
@@ -239,7 +239,7 @@ namespace AudioLink
         /// <param name="position">The coordinates of the pixel to read.</param>
         /// <returns>The value of the pixel at the given coordinates, decoded as a float representing seconds.</returns>
         /// <remarks>Corresponds to AudioLinkDecodeDataAsSeconds() in AudioLink.cginc.</remarks>
-        float DecodeDataAsSeconds(Vector2Int position)
+        public float DecodeDataAsSeconds(Vector2Int position)
         {
             int time = (int)DecodeDataAsUInt(position) & 0x7ffffff;
             return (float)(time / 1000) + (float)(time % 1000) / 1000.0f;
@@ -251,7 +251,7 @@ namespace AudioLink
         /// <param name="hertz">The frequency to sample in range [13.75; 14080].</param>
         /// <returns>The amplitude of the given frequency.</returns>
         /// <remarks>Corresponds to AudioLinkGetAmplitudeAtFrequency() in AudioLink.cginc.</remarks> 
-        Vector4 GetAmplitudeAtFrequency(float hertz)
+        public Vector4 GetAmplitudeAtFrequency(float hertz)
         {
             float note = AudioLinkExpBins * Mathf.Log(hertz / AudioLinkBottomFrequency, 2);
             return LerpAudioDataAtPixelMultiline(ALPassDft + new Vector2(note, 0));
@@ -264,7 +264,7 @@ namespace AudioLink
         /// <param name="quarter">The quartertone to sample in range [0; 23].</param>
         /// <returns>The amplitude of the given quartertone.</returns>
         /// <remarks>Corresponds to AudioLinkGetAmplitudeAtQuarterNote() in AudioLink.cginc.</remarks>
-        Vector4 GetAmplitudeAtQuarterNote(float octave, float quarter)
+        public Vector4 GetAmplitudeAtQuarterNote(float octave, float quarter)
         {
             return LerpAudioDataAtPixelMultiline(ALPassDft + new Vector2(octave * AudioLinkExpBins + quarter, 0));
         }
@@ -276,7 +276,7 @@ namespace AudioLink
         /// <param name="note">The semitone to sample in range [0; 11].</param>
         /// <returns>The amplitude of the given semitone.</returns>
         /// <remarks>Corresponds to AudioLinkGetAmplitudeAtNote() in AudioLink.cginc.</remarks>
-        Vector4 GetAmplitudeAtNote(float octave, float note)
+        public Vector4 GetAmplitudeAtNote(float octave, float note)
         {
             float quarter = note * 2.0f;
             return GetAmplitudeAtQuarterNote(octave, quarter);
@@ -288,7 +288,7 @@ namespace AudioLink
         /// <param name="quarter">The quartertone to sample in range [0; 23].</param>
         /// <returns>The amplitude of the given quartertone across all octaves.</returns>
         /// <remarks>Corresponds to AudioLinkGetAmplitudesAtQuarterNote() in AudioLink.cginc.</remarks>
-        Vector4 GetAmplitudesAtQuarterNote(float quarter)
+        public Vector4 GetAmplitudesAtQuarterNote(float quarter)
         {
             Vector4 amplitude = Color.clear;
             for (int i = 0; i < AudioLinkExpOct; i++)
@@ -304,7 +304,7 @@ namespace AudioLink
         /// <param name="note">The semitone to sample in range [0; 11].</param>
         /// <returns>The amplitude of the given semitone across all octaves.</returns>
         /// <remarks>Corresponds to AudioLinkGetAmplitudesAtNote() in AudioLink.cginc.</remarks>
-        Vector4 GetAmplitudesAtNote(float note)
+        public Vector4 GetAmplitudesAtNote(float note)
         {
             float quarter = note * 2.0f;
             return GetAmplitudesAtQuarterNote(quarter);
@@ -318,7 +318,7 @@ namespace AudioLink
         /// <param name="index">The chronotensity index to sample in range [0; 7].</param>
         /// <returns>A reasonable drop-in replacement time value for _Time.y.</returns>
         /// <remarks>Corresponds to AudioLinkGetChronoTime() in AudioLink.cginc.</remarks>
-        float GetChronoTime(uint index, uint band)
+        public float GetChronoTime(uint index, uint band)
         {
             return (DecodeDataAsUInt(ALPassChronotensity + new Vector2Int((int)index, (int)band))) / 100000.0f;
         }
@@ -332,7 +332,7 @@ namespace AudioLink
         /// <param name="speed">The speed to modulate the chronotensity value by.</param>
         /// <returns>A chronotensity value in the interval [0; 1].</returns>
         /// <remarks>Corresponds to AudioLinkGetChronoTime() in AudioLink.cginc.</remarks>
-        float GetChronoTimeNormalized(uint index, uint band, float speed)
+        public float GetChronoTimeNormalized(uint index, uint band, float speed)
         {
             return (GetChronoTime(index, band) * speed) % 1.0f;
         }
@@ -347,7 +347,7 @@ namespace AudioLink
         /// <param name="interval">The interval to modulate the chronotensity value by.</param>
         /// <returns>A chronotensity value in the interval [0; interval].</returns>
         /// <remarks>Corresponds to AudioLinkGetChronoTimeInterval() in AudioLink.cginc.</remarks>
-        float GetChronoTimeInterval(uint index, uint band, float speed, float interval)
+        public float GetChronoTimeInterval(uint index, uint band, float speed, float interval)
         {
             return GetChronoTimeNormalized(index, band, speed) * interval;
         }
@@ -357,7 +357,7 @@ namespace AudioLink
         /// </summary>
         /// <returns>The first synced custom string.</returns>
         /// <remarks>Corresponds to AudioLinkGetCustomString1Char() in AudioLink.cginc.</remarks>
-        string GetCustomString1()
+        public string GetCustomString1()
         {
             return customString1;
         }
@@ -367,7 +367,7 @@ namespace AudioLink
         /// </summary>
         /// <returns>The second synced custom string.</returns>
         /// <remarks>Corresponds to AudioLinkGetCustomString1Char() in AudioLink.cginc.</remarks>
-        string GetCustomString2()
+        public string GetCustomString2()
         {
             return customString2;
         }
