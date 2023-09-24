@@ -5,7 +5,6 @@
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Metallic ("Metallic", 2D) = "white" {}
-        [ToggleUI] _UseTheme ("Use Theme", Int) = 0
     }
     SubShader
     {
@@ -18,7 +17,6 @@
         sampler2D _MainTex;
         sampler2D _Metallic;
         float4 _Color;
-        int _UseTheme;
 
         struct Input
         {
