@@ -5,7 +5,8 @@
 - Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs))
 - Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md)
 - Added Autogain; it's enabled by default. You can disable it on the AudioLink controller. (Thanks, cnlohr)
-- Added Async GPU Readback, you can toggle it on the AudioLink script.
+- Added Async GPU Readback, you can toggle it on the AudioLink prefab. This means you can read data from AudioLink in Udon, without having to pay a heavy performance penalty! Note that this feature only works on PC. Quest (and other mobile platforms) will continue to use the old slow synchronous readbacks, which we advise against.
+- Added a new C# API for reading audio data in Udon, to better accomodate the new Async Readbacks.
 - Added a ChilloutVR prefab.
 ### Changes
 - We have switched to using [Semantic Versioning](https://semver.org/), marking this release as 1.0.0. This may break shaders written for very old versions of AudioLink.
