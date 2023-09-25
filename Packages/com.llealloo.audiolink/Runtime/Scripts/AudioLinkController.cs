@@ -135,7 +135,7 @@ namespace AudioLink
             {
                 themeColorController.audioLink = audioLink;
                 themeColorController.audioLinkUI = audioLinkUI;
-                themeColorController.UpdateAudioLinkThemeColors();
+                themeColorController.InitializeAudioLinkThemeColors();
             }
 
             GetSettings();

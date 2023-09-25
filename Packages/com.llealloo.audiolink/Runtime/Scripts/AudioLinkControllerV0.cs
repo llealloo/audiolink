@@ -22,7 +22,7 @@ namespace AudioLink
         public AudioLink audioLink;
         [Space(10)]
         [Header("Internal (Do not modify)")]
-        public ThemeColorController themeColorController;
+        public ThemeColorControllerV0 themeColorController;
         public Material audioSpectrumDisplay;
         public Text gainLabel;
         public Slider gainSlider;
@@ -96,11 +96,11 @@ namespace AudioLink
         }
 #endif
 
-        ThemeColorController FindThemeColorController()
+        ThemeColorControllerV0 FindThemeColorController()
         {
             Transform controllerTransform = transform.Find("ThemeColorController");
             if (controllerTransform == null) return null;
-            return controllerTransform.GetComponent<ThemeColorController>();
+            return controllerTransform.GetComponent<ThemeColorControllerV0>();
         }
 
         void Start()
@@ -129,7 +129,7 @@ namespace AudioLink
             else
             {
                 themeColorController.audioLink = audioLink;
-                themeColorController.UpdateAudioLinkThemeColors();
+                themeColorController.InitializeAudioLinkThemeColors();
             }
 
             GetSettings();

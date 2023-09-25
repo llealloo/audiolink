@@ -52,21 +52,11 @@ namespace AudioLink
 #endif
 
             _initCustomThemeColors = new[] {
-                    customThemeColors[0],
-                    customThemeColors[1],
-                    customThemeColors[2],
-                    customThemeColors[3],
-                };
-
-            _initThemeColorMode = themeColorDropdown.value;
-            _themeColorMode = _initThemeColorMode;
-
-            UpdateGUI();
-            UpdateAudioLinkThemeColors();
-#if UDONSHARP
-            if (Networking.IsOwner(gameObject))
-                RequestSerialization();
-#endif
+                customThemeColors[0],
+                customThemeColors[1],
+                customThemeColors[2],
+                customThemeColors[3],
+            };
         }
 
 #if UDONSHARP
@@ -148,6 +138,33 @@ namespace AudioLink
             sliderValue.value = v;
 
             _processGUIEvents = true;
+        }
+
+        public void InitializeAudioLinkThemeColors()
+        {
+            if (audioLink == null) return;
+
+            customThemeColors[0] = audioLink.customThemeColor0;
+            customThemeColors[1] = audioLink.customThemeColor1;
+            customThemeColors[2] = audioLink.customThemeColor2;
+            customThemeColors[3] = audioLink.customThemeColor3;
+
+            _initCustomThemeColors = new[] {
+                customThemeColors[0],
+                customThemeColors[1],
+                customThemeColors[2],
+                customThemeColors[3],
+            };
+
+            _initThemeColorMode = audioLink.themeColorMode;
+            _themeColorMode = _initThemeColorMode;
+
+            UpdateGUI();
+            UpdateAudioLinkThemeColors();
+#if UDONSHARP
+            if (Networking.IsOwner(gameObject))
+                RequestSerialization();
+#endif
         }
 
         public void UpdateAudioLinkThemeColors()
