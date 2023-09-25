@@ -80,6 +80,7 @@ namespace AudioLink
         {
             _themeColorMode = themeColorToggle.isOn ? 0 : 1;
             UpdateGUI();
+            UpdateAudioLinkThemeColors();
         }
 
         public void OnGUIchange()
