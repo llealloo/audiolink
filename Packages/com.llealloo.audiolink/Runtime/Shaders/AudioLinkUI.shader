@@ -515,7 +515,7 @@
                 float3 color = FOREGROUND_COLOR;
 
                 float2 sliceSize = float2(size.x, size.y / 4.0);
-                float strength = getBandAmplitudeLerp((1.0 - uv.y / size.y) * 4.0, uv.x / size.x * 32.0);
+                float strength = getBandAmplitudeLerp((uv.y / size.y) * 4.0, uv.x / size.x * 32.0);
                 float3 sliceColor = getBandColorLerp(uv.y / sliceSize.y);
                 sliceColor = lerp(sliceColor, sliceColor * 10, pow(strength, 2.0));
 
