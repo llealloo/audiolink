@@ -20,6 +20,7 @@
 - Improved logging, with less meaningless warning spam.
 - Cache the local player in AudioLink scripts for slightly improved performance. (Thanks, Nessie)
 - Fixed null reference exceptions being fired when a player leaves the world. (Thanks, Nessie)
+- Fixed an issue where theme colors would reset to the defaults on world start (https://github.com/llealloo/vrc-udon-audio-link/issues/281).
 
 ## 0.3.2 - March 12th, 2023
 ### New features
