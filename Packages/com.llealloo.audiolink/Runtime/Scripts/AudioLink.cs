@@ -334,56 +334,6 @@ namespace AudioLink
             }
         }
 
-        /* Set Media Volume display
-        Volume 0.0f to 1.0f
-        */
-        public void SetMediaVolume(float volume)
-        {
-
-            audioMaterial.SetFloat("_MediaVolume", volume);
-
-        }
-
-        /* Set Media Time display
-        Time 0.0f to 1.0f
-        */
-        public void SetMediaTime(float time)
-        {
-
-            audioMaterial.SetFloat("_MediaTime", time);
-
-        }
-
-        /* Set Media Playing display
-        None    0 (0.0f)
-        Playing 1 (1.0f)
-        Paused  2 (2.0f)
-        Stopped 3 (3.0f)
-        Loading 4 (4.0f)
-        */
-        public void SetMediaPlaying(MediaPlaying playingstate)
-        {
-
-            int state = (int)playingstate;
-            audioMaterial.SetFloat("_MediaPlaying", (float)state);
-
-        }
-
-        /* Set Media Loop display
-        None       0 (0.0f)
-        Loop       1 (1.0f)
-        LoopOne    2 (2.0f)
-        Random     3 (3.0f)
-        RandomLoop 4 (4.0f)
-        */
-        public void SetMediaLoop(MediaLoop loopstate)
-        {
-
-            int loop = (int)loopstate;
-            audioMaterial.SetFloat("_MediaLoop", (float)loop);
-
-        }
-
         // TODO(3): try to port this to standalone
         // Only happens once per second.
         private void FPSUpdate()
@@ -858,25 +808,5 @@ namespace AudioLink
         {
             return ((t - a) / (b - a)) * (v - u) + u;
         }
-    }
-
-    public enum MediaPlaying
-    {
-        None = 0,
-        Playing = 1,
-        Paused = 2,
-        Stopped = 3,
-        Loading = 4,
-        Streaming = 5,
-        Error = 6
-    }
-
-    public enum MediaLoop
-    {
-        None = 0,
-        Loop = 1,
-        LoopOne = 2,
-        Random = 3,
-        RandomLoop = 4
     }
 }
