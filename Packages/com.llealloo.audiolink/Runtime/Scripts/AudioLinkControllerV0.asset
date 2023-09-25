@@ -131,7 +131,7 @@ MonoBehaviour:
       Data: 8|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: AudioLink.ThemeColorController, AudioLink
+      Data: AudioLink.ThemeColorControllerV0, AudioLink
     - Name: 
       Entry: 8
       Data: 
