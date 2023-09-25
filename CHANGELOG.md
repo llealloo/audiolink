@@ -3,7 +3,7 @@
 ## 1.0.0 -
 ### New features
 - Added a new AudioLink Controller, with a completely revamped design. The old controller is still included, if you don't want to change. (Thamks to everyone who helped, including Pema, Lea, Teeh, Sacred, TechAnon and more)
-- Added Autogain; it's enabled by default. You can disable it on the AudioLink controller. (Thanks, cnlohr)
+- Added automatic gain adjustment; it's enabled by default. You can disable it on the AudioLink controller. (Thanks, cnlohr)
 - Added Async GPU Readback, you can toggle it on the AudioLink prefab. This means you can read data from AudioLink in Udon, without having to pay a heavy performance penalty! Note that this feature only works on PC. Quest (and other mobile platforms) will continue to use the old slow synchronous readbacks, which we advise against.
 - Added [a new C# API](https://github.com/llealloo/vrc-udon-audio-link/blob/master/Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.DataAPI.cs) for reading audio data in Udon, to better accomodate the new Async Readbacks.
 - Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)). (Thanks, fundale)
