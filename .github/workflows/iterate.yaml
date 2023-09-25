@@ -72,6 +72,7 @@ jobs:
           echo "Packages/${{env.packageName}}/Runtime/AudioLink.prefab.meta" >> minimalMetaList
           echo "Packages/${{env.packageName}}/Runtime/AudioLinkAvatar.prefab.meta" >> minimalMetaList
           echo "Packages/${{env.packageName}}/Runtime/AudioLinkController.prefab.meta" >> minimalMetaList
+          echo "Packages/${{env.packageName}}/Runtime/AudioLinkControllerV0.prefab.meta" >> minimalMetaList
           echo "Packages/${{env.packageName}}/Runtime/VERSION.txt.meta" >> minimalMetaList
 
           echo "Packages/${{env.packageName}}/Runtime/Scripts.meta" >> minimalMetaList
