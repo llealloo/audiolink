@@ -2,6 +2,8 @@
 {
     Properties
     {
+        [ToggleUI] _Power("On/Off", Float) = 1.0
+
         _Gain("Gain", Range(0, 2)) = 1.0
         [ToggleUI] _AutoGain("Autogain", Float) = 0.0
 
@@ -31,6 +33,8 @@
 
         _GainTexture ("Gain Texture", 2D) = "white" {}
         _AutoGainTexture ("Autogain Texture", 2D) = "white" {}
+        _PowerTexture ("Power Texture", 2D) = "white" {}
+        _ResetTexture ("Reset Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -63,6 +67,7 @@
             }
 
             // Uniforms
+            float _Power;
             float _Gain;
             float _AutoGain;
             float _Threshold0;
@@ -86,6 +91,8 @@
             float3 _CustomColor3;
             sampler2D _GainTexture;
             sampler2D _AutoGainTexture;
+            sampler2D _PowerTexture;
+            sampler2D _ResetTexture;
 
             // Colors
             const static float3 BACKGROUND_COLOR = 0.033;
@@ -101,8 +108,8 @@
             const static float3 HIGH_COLOR_FG = pow(float3(41.0/255.0, 171.0/255.0, 226.0/255.0), 2.2);
 
             // Spacing
-            const static float CORNER_RADIUS = 0.03;
-            const static float FRAME_MARGIN = 0.035;
+            const static float CORNER_RADIUS = 0.025;
+            const static float FRAME_MARGIN = 0.03;
             const static float HANDLE_RADIUS = 0.007;
             const static float OUTLINE_WIDTH = 0.002;
 
@@ -374,7 +381,7 @@
                 float gainIcon = tex2D(_GainTexture, saturate((uv - float2(0.01, 0.0)) / size.y)).r;
                 color = lerp(color, ACTIVE_COLOR, gainIcon.r);
 
-                const float sliderOffsetLeft = 0.2;
+                const float sliderOffsetLeft = 0.16;
                 const float sliderOffsetRight = 0.02;
 
                 // Background fill
@@ -406,14 +413,23 @@
 
             float drawAutoGainButton(float2 uv, float2 size)
             {
-                float3 color = FOREGROUND_COLOR;
-
                 float2 scaledUV = uv / size;
+                float autoGainIcon = tex2D(_AutoGainTexture, float2(scaledUV.x, 1-scaledUV.y)).r;
+                return lerp(FOREGROUND_COLOR, _AutoGain ? ACTIVE_COLOR : INACTIVE_COLOR, autoGainIcon);
+            }
 
-                float autoGainIcon = tex2D(_AutoGainTexture, scaledUV).r;
-                color = lerp(color, _AutoGain ? ACTIVE_COLOR : INACTIVE_COLOR, autoGainIcon);
+            float drawPowerButton(float2 uv, float2 size)
+            {
+                float2 scaledUV = uv / size;
+                float powerIcon = tex2D(_PowerTexture, float2(scaledUV.x, 1-scaledUV.y)).r;
+                return lerp(FOREGROUND_COLOR, _Power ? ACTIVE_COLOR : INACTIVE_COLOR, powerIcon);
+            }
 
-                return color;
+            float drawResetButton(float2 uv, float2 size)
+            {
+                float2 scaledUV = uv / size;
+                float resetIcon = tex2D(_ResetTexture, float2(scaledUV.x, 1-scaledUV.y)).r;
+                return lerp(FOREGROUND_COLOR, ACTIVE_COLOR, resetIcon);
             }
             
             float3 drawHitFadeArea(float2 uv, float2 size)
@@ -580,6 +596,27 @@
                 return selectColorLerp(colorIndex, a, b, c, d);
             }
 
+            float3 drawAutoCorrelatorArea(float2 uv, float2 size)
+            {
+                float3 color = FOREGROUND_COLOR;
+
+                float2 scaledUV = uv / size;
+
+                float2 mirroredUV = abs(2*(scaledUV - 0.5));
+                float3 autoCorrelator = AudioLinkLerp(ALPASS_AUTOCORRELATOR + float2(mirroredUV.x * AUDIOLINK_WIDTH, 0));
+                float scaledAutoCorrelator = abs(autoCorrelator.r*0.007);
+
+                float middle = size.y * 0.5;
+                float autoCorrelatorDist = smoothstep(0.005, 0.003, middle - uv.y);
+                float autoCorrelatorDistAbs = abs(smoothstep(0.005, 0.003, abs(middle - uv.y) - scaledAutoCorrelator));
+
+                float4 vu = saturate(AudioLinkData(ALPASS_FILTEREDVU_INTENSITY) * 2.5);
+                float autoCorrelatorColor = lerp(FOREGROUND_COLOR, ACTIVE_COLOR, vu);
+                autoCorrelatorColor = lerp(autoCorrelatorColor, FOREGROUND_COLOR, smoothstep(0, 1, mirroredUV.x));
+
+                return lerp(BACKGROUND_COLOR * 0.8, autoCorrelatorColor, autoCorrelatorDistAbs);
+            }
+
             float3 drawUI(float2 uv)
             {
                 float3 color = BACKGROUND_COLOR;
@@ -594,8 +631,9 @@
                 ADD_ELEMENT(color, drawTopArea(topAreaOrigin), topAreaDist);
                 currentY += topAreaSize.y + margin;
 
-                const float gainSliderHeight = 0.17;
+                const float gainSliderHeight = 0.13;
                 const float gainSliderWidth = topAreaSize.x - gainSliderHeight - margin;
+                const float fadeSliderHeight = 0.19;
 
                 // Gain slider
                 float2 gainSliderOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
@@ -612,20 +650,20 @@
 
                 // Hit fade
                 float2 hitFadeAreaOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
-                float2 hitFadeAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, gainSliderHeight);
+                float2 hitFadeAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, fadeSliderHeight);
                 float hitFadeAreaDist = sdRoundedBoxTopLeft(hitFadeAreaOrigin, hitFadeAreaSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawHitFadeArea(hitFadeAreaOrigin, hitFadeAreaSize), hitFadeAreaDist);
                 
                 // Exp fallof
                 float2 expFalloffAreaOrigin = translate(uv, FRAME_MARGIN + float2(hitFadeAreaSize.x + margin, currentY));
-                float2 expFalloffAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, gainSliderHeight);
+                float2 expFalloffAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, fadeSliderHeight);
                 float expFalloffAreaDist = sdRoundedBoxTopLeft(expFalloffAreaOrigin, expFalloffAreaSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawExpFalloffArea(expFalloffAreaOrigin, expFalloffAreaSize), expFalloffAreaDist);
                 currentY += expFalloffAreaSize.y + margin;
                 
                 // 4-band
                 float2 fourBandOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
-                float2 fourBandSize = float2(topAreaSize.x, 0.3);
+                float2 fourBandSize = float2(topAreaSize.x, fadeSliderHeight);
                 float fourBandDist = sdRoundedBoxTopLeft(fourBandOrigin, fourBandSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawFourBandArea(fourBandOrigin, fourBandSize), fourBandDist);
                 currentY += fourBandSize.y + margin;
@@ -635,12 +673,16 @@
                 float colorChordMultiplier = lerp(1.0, 0.2, _ThemeColorMode);
 
                 // Theme colors
-                float2 colorSize = float2(topAreaSize.x * 0.25 - margin * 0.75, 0.15);
+                float colorWidth = topAreaSize.x * 0.25 - margin * 0.75;
+                float2 colorSize = float2(colorWidth, gainSliderHeight);
                 uint colorIndex = min(remap(uv.x, margin, 1-margin, 0, 4), 3);
                 float2 colorOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY) + float2(colorIndex * (colorSize.x + margin), 0));
                 float colorDist = sdRoundedBoxTopLeft(colorOrigin, colorSize, CORNER_RADIUS);
                 float3 colors[4] = { _CustomColor0, _CustomColor1, _CustomColor2, _CustomColor3 };
-                ADD_ELEMENT(color, colors[colorIndex] * themeColorMultiplier, colorDist);
+                if (fwidth(colorIndex) == 0)
+                {
+                    ADD_ELEMENT(color, colors[colorIndex] * themeColorMultiplier, colorDist);
+                }
                 if (colorIndex == _SelectedColor % 4)
                 {
                     float shellDist = shell(colorDist, OUTLINE_WIDTH);
@@ -675,7 +717,26 @@
                     float shellDist = shell(ccToggleDist, OUTLINE_WIDTH);
                     ADD_ELEMENT(color, ACTIVE_COLOR, shellDist);
                 }
+                currentY += hueSize.y + margin;
                 
+                // Power button
+                float2 powerButtonOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
+                float2 powerButtonSize = float2(gainSliderHeight, gainSliderHeight);
+                float powerButtonDist = sdRoundedBoxTopLeft(powerButtonOrigin, powerButtonSize, CORNER_RADIUS);
+                ADD_ELEMENT(color, drawPowerButton(powerButtonOrigin, powerButtonSize), powerButtonDist);
+
+                // Reset button
+                float2 resetButtonOrigin = translate(uv, FRAME_MARGIN + float2(gainSliderWidth + margin, currentY));
+                float2 resetButtonSize = float2(gainSliderHeight, gainSliderHeight);
+                float resetButtonDist = sdRoundedBoxTopLeft(resetButtonOrigin, resetButtonSize, CORNER_RADIUS);
+                ADD_ELEMENT(color, drawResetButton(resetButtonOrigin, resetButtonSize), resetButtonDist);
+
+                // Spectrogram area
+                float2 autoCorrelatorButtonOrigin = translate(uv, FRAME_MARGIN + float2(powerButtonSize.x + margin, currentY));
+                float2 autoCorrelatorButtonSize = float2(topAreaSize.x - powerButtonSize.x - resetButtonSize.x - margin * 2, gainSliderHeight);
+                float autoCorrelatorButtonDist = sdRoundedBoxTopLeft(autoCorrelatorButtonOrigin, autoCorrelatorButtonSize, CORNER_RADIUS);
+                ADD_ELEMENT(color, drawAutoCorrelatorArea(autoCorrelatorButtonOrigin, autoCorrelatorButtonSize), autoCorrelatorButtonDist);
+
                 return color;
             }
 

@@ -38,6 +38,7 @@ namespace AudioLink
         public Slider threshold2Slider;
         public Slider threshold3Slider;
         public Toggle autoGainToggle;
+        public Toggle powerToggle;
 
         private float _initGain;
         private float _initTreble;
@@ -74,6 +75,7 @@ namespace AudioLink
         private int _HitFade;
         private int _ExpFalloff;
         private int _AutoGain;
+        private int _Power;
         // ReSharper restore InconsistentNaming
 
         private void InitIDs()
@@ -90,6 +92,7 @@ namespace AudioLink
             _HitFade = PropertyToID("_HitFade");
             _ExpFalloff = PropertyToID("_ExpFalloff");
             _AutoGain = PropertyToID("_AutoGain");
+            _Power = PropertyToID("_Power");
         }
 
         #endregion
@@ -211,6 +214,7 @@ namespace AudioLink
             audioLinkUI.SetFloat(_HitFade, fadeLengthSlider.value);
             audioLinkUI.SetFloat(_ExpFalloff, fadeExpFalloffSlider.value);
             audioLinkUI.SetInt(_AutoGain, autoGainToggle.isOn ? 1 : 0);
+            audioLinkUI.SetInt(_Power, powerToggle.isOn ? 1 : 0);
 
             if (audioLink == null)
             {
@@ -236,6 +240,9 @@ namespace AudioLink
             audioLink.threshold3 = threshold3Slider.value;
 
             audioLink.UpdateSettings();
+
+            // Toggle
+            audioLink.gameObject.SetActive(powerToggle.isOn);
         }
 
         public void ResetSettings()
