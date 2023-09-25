@@ -682,11 +682,12 @@
                 if (fwidth(colorIndex) == 0)
                 {
                     ADD_ELEMENT(color, colors[colorIndex] * themeColorMultiplier, colorDist);
-                }
-                if (colorIndex == _SelectedColor % 4)
-                {
-                    float shellDist = shell(colorDist, OUTLINE_WIDTH);
-                    ADD_ELEMENT(color, ACTIVE_COLOR * themeColorMultiplier, shellDist);
+
+                    if (colorIndex == _SelectedColor % 4)
+                    {
+                        float shellDist = shell(colorDist, OUTLINE_WIDTH);
+                        ADD_ELEMENT(color, ACTIVE_COLOR * themeColorMultiplier, shellDist);
+                    }
                 }
                 currentY += colorSize.y + margin;
 
