@@ -12,19 +12,27 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Frequently Asked Questions](FAQ.md)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 0.3.2 - March 12th, 2023
+## 1.0.0
 ### New features
-- Added integration with ytdlp for easy testing of AudioLink shaders in avatar projects. The AudioLinkAvatar prefab now has an UI that lets you paste in a YouTube link, the audio of which will be used to drive AudioLink. (Thanks, rRazgriz)
-- A global shader keyword, "AUDIOLINK_IMPORTED" will now be set automatically when AudioLink is imported.
-- Added a button for quickly adding AudioLink prefabs to the current scene. Available under "AudioLink -> Add AudioLink Prefab to Scene".
-- Added the ability to get network time from the AudioLinkTime node
-- Added methods to enable/disable the AL texture through the AL behaviour and also made it do that when you enable/disable the GO itself
+- Added a new AudioLink Controller, with a completely revamped design. The old controller is still included, if you don't want to change. (Thanks to everyone who helped, including Pema, Lea, Teeh, Sacred, TechAnon and more)
+- Added automatic gain adjustment. It's enabled by default, but you can disable it on the AudioLink controller. (Thanks, cnlohr)
+- Added Async GPU Readback, you can toggle it on the AudioLink prefab. This means you can read data from AudioLink in Udon, without having to pay a heavy performance penalty! Note that this feature only works on PC. Quest (and other mobile platforms) will continue to use the old slow synchronous readbacks, which we advise against.
+- Added [a new C# API](https://github.com/llealloo/vrc-udon-audio-link/blob/master/Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.DataAPI.cs) for reading audio data in Udon, to better accomodate the new Async Readbacks.
+- Added Media Playback States, which provide information about the currently playing track. ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)). (Thanks, fundale)
+- Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md), to control the aforementioned Playback States.  (Thanks, fundale)
+- Added an AudioLink prefab for ChilloutVR.
 ### Changes
-- Add FAQ.md containing frequently asked questions and answers.
-- Add issue templates. Submit issues with them [here](https://github.com/llealloo/vrc-udon-audio-link/issues/new/choose).
-### Bugfixes
-- Ask User to save current scenes before opening the example scene
-- Fix some broken amplify nodes
+- We have switched to using [Semantic Versioning](https://semver.org/), marking this release as 1.0.0. This may break shaders written for very old versions of AudioLink. The version will now read as `1.00f` to AudioLink shaders.
+- The "VRCAudioLink" namespace has been renamed to "AudioLink". This is a breaking change. We've added a new scripting define, `AUDIOLINK_V1`, which will be present for future versions of AudioLink, to aid with backwards compatability.
+- Removed the dependency on the VPM package resolver.
+### Improvements
+- Made yt-dlp integration resolve URLs asynchronously.
+- Improved the yt-dlp integration UI in a number of ways. (Thanks, rRazgriz)
+- Improved the "Add Audiolink Prefab to Scene" button.
+- Improved logging, with less meaningless warning spam.
+- Cache the local player in AudioLink scripts for slightly improved performance. (Thanks, Nessie)
+- Fixed null reference exceptions being fired when a player leaves the world. (Thanks, Nessie)
+- Fixed an issue where theme colors would reset to the defaults on world start (https://github.com/llealloo/vrc-udon-audio-link/issues/281).
 
 ## Updating projects from version 2.8 or lower? (...first time setup? please see next section)
 1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
