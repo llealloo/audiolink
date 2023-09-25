@@ -2,7 +2,7 @@
 
 ## 1.0.0 -
 ### New features
-- Added a new AudioLink Controller, with a completely revamped design. The old controller is still included, if you don't want to change.
+- Added a new AudioLink Controller, with a completely revamped design. The old controller is still included, if you don't want to change. (Thamks to everyone who helped, including Pema, Lea, Teeh, Sacred, TechAnon and more)
 - Added Media Playback States ([See Docs](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs))
 - Added Media States Udon API [VideoPlayer API](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs/PlayerAPI.md)
 - Added Autogain; it's enabled by default. You can disable it on the AudioLink controller. (Thanks, cnlohr)
