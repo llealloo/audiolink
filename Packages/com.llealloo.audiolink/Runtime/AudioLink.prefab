@@ -73,10 +73,10 @@ MonoBehaviour:
   autogain: 1
   autogainDerate: 0.1
   themeColorMode: 0
-  customThemeColor0: {r: 1, g: 1, b: 0, a: 1}
-  customThemeColor1: {r: 0, g: 0, b: 1, a: 1}
-  customThemeColor2: {r: 1, g: 0, b: 0, a: 1}
-  customThemeColor3: {r: 0, g: 1, b: 0, a: 1}
+  customThemeColor0: {r: 0, g: 0.7176471, b: 1, a: 1}
+  customThemeColor1: {r: 0.5137255, g: 0.2627451, b: 1, a: 1}
+  customThemeColor2: {r: 1, g: 0.49803922, b: 0, a: 1}
+  customThemeColor3: {r: 0.79607844, g: 1, b: 0.0627451, a: 1}
   customString1: 
   customString2: 
   audioMaterial: {fileID: 2100000, guid: 5189d837989b9144e8e43d3ce618e450, type: 2}

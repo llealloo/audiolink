@@ -43,11 +43,11 @@ Material:
     - _HighMidThreshold: 0.5
     - _HighThreshold: 0.5
     - _HitFade: 0.25
-    - _Hue: 0.15338646
+    - _Hue: 0.5470588
     - _LowMidThreshold: 0.5
     - _LowThreshold: 0.5
-    - _Saturation: 0.9843137
     - _Power: 1
+    - _Saturation: 1
     - _SelectedColor: 0
     - _ThemeColorMode: 0
     - _Threshold0: 0.45
@@ -60,7 +60,7 @@ Material:
     - _X2: 0.5
     - _X3: 0.75
     m_Colors:
-    - _CustomColor0: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-    - _CustomColor1: {r: 0, g: 0, b: 1, a: 1}
-    - _CustomColor2: {r: 1, g: 0, b: 0, a: 1}
-    - _CustomColor3: {r: 0, g: 1, b: 0, a: 1}
+    - _CustomColor0: {r: 0, g: 0.7176471, b: 1, a: 1}
+    - _CustomColor1: {r: 0.5137255, g: 0.2627451, b: 1, a: 1}
+    - _CustomColor2: {r: 1, g: 0.49803922, b: 0, a: 1}
+    - _CustomColor3: {r: 0.79607844, g: 1, b: 0.0627451, a: 1}

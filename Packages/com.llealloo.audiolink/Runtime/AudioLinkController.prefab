@@ -2044,10 +2044,10 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 4003588342280408971}
   customThemeColors:
-  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  - {r: 0, g: 0, b: 1, a: 1}
-  - {r: 1, g: 0, b: 0, a: 1}
-  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 0, g: 0.7176471, b: 1, a: 1}
+  - {r: 0.5137255, g: 0.2627451, b: 1, a: 1}
+  - {r: 1, g: 0.49803922, b: 0, a: 1}
+  - {r: 0.79607844, g: 1, b: 0.0627451, a: 1}
   audioLink: {fileID: 0}
   audioLinkUI: {fileID: 2100000, guid: 0f19dab2300578b4d87b7662da0e74a4, type: 2}
   sliderHue: {fileID: 4003588343568425045}
