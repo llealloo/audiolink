@@ -3311,6 +3311,17 @@ MonoBehaviour:
           m_StringArgument: SelectCustomColor3
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4003588342792173191
 GameObject:
   m_ObjectHideFlags: 0
@@ -4293,6 +4304,17 @@ MonoBehaviour:
           m_StringArgument: SelectCustomColor0
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4003588342992553189
 GameObject:
   m_ObjectHideFlags: 0
@@ -4553,6 +4575,17 @@ MonoBehaviour:
           m_StringArgument: OnGUIchange
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &4003588342999758683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4736,6 +4769,17 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: OnGUIchange
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &4003588343048789196
@@ -5318,6 +5362,17 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: SelectCustomColor2
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &4003588343263787873
@@ -6414,6 +6469,17 @@ MonoBehaviour:
           m_StringArgument: OnGUIchange
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &4003588343568425042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6589,6 +6655,17 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: SelectCustomColor1
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4003588342280408971}
+        m_MethodName: SendCustomEvent
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ForceThemeColorMode
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &4003588343622687539

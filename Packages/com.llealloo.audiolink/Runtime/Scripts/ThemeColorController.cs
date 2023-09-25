@@ -83,6 +83,11 @@ namespace AudioLink
             UpdateAudioLinkThemeColors();
         }
 
+        public void ForceThemeColorMode()
+        {
+            themeColorToggle.isOn = false;
+        }
+
         public void OnGUIchange()
         {
             if (!_processGUIEvents)
