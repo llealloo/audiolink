@@ -85,6 +85,11 @@ namespace AudioLink
 
         public void ForceThemeColorMode()
         {
+            if (!_processGUIEvents)
+            {
+                return;
+            }
+            
             themeColorToggle.isOn = false;
         }
 
@@ -137,6 +142,9 @@ namespace AudioLink
             sliderHue.value = h;
             sliderSaturation.value = s;
             sliderValue.value = v;
+
+            // update toggle
+            themeColorToggle.isOn = _themeColorMode == 0;
 
             if (audioLinkUI != null)
             {
