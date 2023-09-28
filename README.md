@@ -12,7 +12,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Frequently Asked Questions](FAQ.md)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 1.0.0
+## 1.0.0 - September 29th, 2023
 ### New features
 - Added a new AudioLink Controller, with a completely revamped design. The old controller is still included, if you don't want to change. (Thanks to everyone who helped, including Pema, Lea, Teeh, Sacred, TechAnon and more)
 - Added automatic gain adjustment. It's enabled by default, but you can disable it on the AudioLink controller. (Thanks, cnlohr)
