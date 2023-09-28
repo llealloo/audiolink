@@ -1,88 +1,93 @@
 ﻿
+#if UDONSHARP
 using UdonSharp;
 using UnityEngine;
 using UnityEngine.Animations;
 using VRC.SDKBase;
 using VRC.Udon;
 
-public class AudioLinkControllerHandle : UdonSharpBehaviour
+namespace AudioLink
 {
-    public ParentConstraint parentConstraint;
-
-    private ParentConstraint selfConstraint;
-
-    public void Start()
+    public class AudioLinkControllerHandle : UdonSharpBehaviour
     {
-        selfConstraint = GetComponent<ParentConstraint>();
-    }
-
-    public override void OnPickup()
-    {
-        Networking.SetOwner(Networking.LocalPlayer, parentConstraint.gameObject);
-
-        selfConstraint.enabled = false;
-
-        parentConstraint.enabled = true;
-
-        int me = -1, other = -1;
-        for (int i = 0; i < 2; i++)
+        public ParentConstraint parentConstraint;
+    
+        private ParentConstraint selfConstraint;
+    
+        public void Start()
         {
-            if (parentConstraint.GetSource(i).sourceTransform == transform)
+            selfConstraint = GetComponent<ParentConstraint>();
+        }
+    
+        public override void OnPickup()
+        {
+            Networking.SetOwner(Networking.LocalPlayer, parentConstraint.gameObject);
+    
+            selfConstraint.enabled = false;
+    
+            parentConstraint.enabled = true;
+    
+            int me = -1, other = -1;
+            for (int i = 0; i < 2; i++)
             {
-                me = i;
+                if (parentConstraint.GetSource(i).sourceTransform == transform)
+                {
+                    me = i;
+                }
+                else
+                {
+                    other = i;
+                }
+            }
+            
+            if (parentConstraint.GetSource(other).weight > 0)
+            {
+                var otherSource = parentConstraint.GetSource(other);
+                otherSource.weight = 0.5f;
+                var meSource = parentConstraint.GetSource(me);
+                meSource.weight = 0.5f;
+                parentConstraint.SetSource(me, meSource);
+                parentConstraint.SetSource(other, otherSource);
             }
             else
             {
-                other = i;
+                var meSource = parentConstraint.GetSource(me);
+                meSource.weight = 1;
+                parentConstraint.SetSource(me, meSource);
             }
         }
-        
-        if (parentConstraint.GetSource(other).weight > 0)
+    
+        public override void OnDrop()
         {
-            var otherSource = parentConstraint.GetSource(other);
-            otherSource.weight = 0.5f;
-            var meSource = parentConstraint.GetSource(me);
-            meSource.weight = 0.5f;
-            parentConstraint.SetSource(me, meSource);
-            parentConstraint.SetSource(other, otherSource);
-        }
-        else
-        {
-            var meSource = parentConstraint.GetSource(me);
-            meSource.weight = 1;
-            parentConstraint.SetSource(me, meSource);
-        }
-    }
-
-    public override void OnDrop()
-    {
-        selfConstraint.enabled = true;
-
-        int me = -1, other = -1;
-        for (int i = 0; i < 2; i++)
-        {
-            if (parentConstraint.GetSource(i).sourceTransform == transform)
+            selfConstraint.enabled = true;
+    
+            int me = -1, other = -1;
+            for (int i = 0; i < 2; i++)
             {
-                me = i;
+                if (parentConstraint.GetSource(i).sourceTransform == transform)
+                {
+                    me = i;
+                }
+                else
+                {
+                    other = i;
+                }
+            }
+    
+            var meSource = parentConstraint.GetSource(me);
+            meSource.weight = 0;
+            parentConstraint.SetSource(me, meSource);
+            if (parentConstraint.GetSource(other).weight > 0)
+            {
+                var otherSource = parentConstraint.GetSource(other);
+                otherSource.weight = 1f;
+                parentConstraint.SetSource(other, otherSource);
             }
             else
             {
-                other = i;
+                parentConstraint.enabled = false;
             }
-        }
-
-        var meSource = parentConstraint.GetSource(me);
-        meSource.weight = 0;
-        parentConstraint.SetSource(me, meSource);
-        if (parentConstraint.GetSource(other).weight > 0)
-        {
-            var otherSource = parentConstraint.GetSource(other);
-            otherSource.weight = 1f;
-            parentConstraint.SetSource(other, otherSource);
-        }
-        else
-        {
-            parentConstraint.enabled = false;
         }
     }
 }
+#endif
