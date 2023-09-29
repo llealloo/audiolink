@@ -452,19 +452,20 @@
                 float marginX = remainingWidth / 2;
                 float marginY = remainingHeight / 2;
 
-                triUV.x += halfWidth * _HitFade;
-                float fgTriangleDist = inflate(sdTriangleRight(triUV, halfWidth * (1.0 - _HitFade), halfHeight), 0.002);
+                float invHitFade = 1 - _HitFade;
+                triUV.x += halfWidth * invHitFade;
+                float fgTriangleDist = inflate(sdTriangleRight(triUV, halfWidth * _HitFade, halfHeight), 0.002);
                 ADD_ELEMENT(color, ACTIVE_COLOR, fgTriangleDist);
 
                 // Slider handle
                 float handleDist = sdSphere(
-                    translate(uv, float2(_HitFade * fullWidth + marginX, size.y * 0.5)),
+                    translate(uv, float2(invHitFade * fullWidth + marginX, size.y * 0.5)),
                     HANDLE_RADIUS
                 );
                 ADD_ELEMENT(color, ACTIVE_COLOR, handleDist);
 
                 // Slider vertical grip
-                float gripDist = abs(uv.x - _HitFade * halfWidth * 2 - marginX) - OUTLINE_WIDTH;
+                float gripDist = abs(uv.x - invHitFade * halfWidth * 2 - marginX) - OUTLINE_WIDTH;
                 ADD_ELEMENT(color, ACTIVE_COLOR, gripDist);
 
                 return color;
