@@ -156,7 +156,7 @@
             float3 getBandAmplitudeLerp(float i, float delay)
             {
                 int me = floor(i);
-                float meStrength = _AudioTexture[uint2(delay, me)].r;
+                float meStrength = AudioLinkLerp(float2(delay, me)).r;
 
                 // avoid singularity at 0.5
                 if (COHERENT_CONDITION(distance(frac(i), 0.5) < 0.1))
@@ -165,7 +165,7 @@
                 int side = sign(frac(i) - 0.5);
                 int other = clamp(me + side, 0, 3);
 
-                float otherStrength = _AudioTexture[uint2(delay, other)].r;
+                float otherStrength = AudioLinkLerp(float2(delay, other)).r;
                 
                 float dist = round(i) - i;
                 const float pixelDiagonal = sqrt(2.0) / 2.0 * side;
@@ -516,9 +516,9 @@
                 float3 color = FOREGROUND_COLOR;
 
                 float2 sliceSize = float2(size.x, size.y / 4.0);
-                float strength = getBandAmplitudeLerp((uv.y / size.y) * 4.0, uv.x / size.x * 32.0);
+                float strength = getBandAmplitudeLerp((uv.y / size.y) * 4.0, uv.x / size.x * 64.0);
                 float3 sliceColor = getBandColorLerp(uv.y / sliceSize.y);
-                sliceColor = lerp(sliceColor, sliceColor * 10, strength);
+                sliceColor = saturate(lerp(sliceColor, sliceColor * 15, strength));
 
                 return sliceColor;
             }
