@@ -35,9 +35,16 @@
         _AutoGainTexture ("Autogain Texture", 2D) = "white" {}
         _PowerTexture ("Power Texture", 2D) = "white" {}
         _ResetTexture ("Reset Texture", 2D) = "white" {}
+
+        _UnlitMode ("Unlit UI Mode", Range(0, 1)) = 0.1
     }
     SubShader
     {
+        Tags{"RenderType" = "Custom"  "Queue" = "Transparent+0" "IgnoreProjector" = "True"}
+        Cull Off
+        ZWrite On
+        Blend One SrcAlpha
+
         Pass
         {
             CGPROGRAM
@@ -85,6 +92,7 @@
             float _Hue;
             float _Saturation;
             float _Value;
+            float _UnlitMode;
             float3 _CustomColor0;
             float3 _CustomColor1;
             float3 _CustomColor2;
@@ -95,17 +103,17 @@
             sampler2D _ResetTexture;
 
             // Colors
-            const static float3 BACKGROUND_COLOR = 0.033;
-            const static float3 FOREGROUND_COLOR = 0.075;
-            const static float3 INACTIVE_COLOR = 0.13;
-            const static float3 ACTIVE_COLOR = 0.8;
-            const static float3 BASS_COLOR_BG = pow(float3(44.0/255.0, 12.0/255.0, 43.0/255.0), 2.2);
-            const static float3 BASS_COLOR_MG = pow(float3(103.0/255.0, 27.0/255.0, 100.0/255.0), 2.2);
-            const static float3 BASS_COLOR_FG = pow(float3(147.0/255.0, 39.0/255.0, 143.0/255.0), 2.2);
-            const static float3 LOWMID_COLOR_BG = pow(float3(76.0/255.0, 53.0/255.0, 18.0/255.0), 2.2);
-            const static float3 HIGHMID_COLOR_BG = pow(float3(42.0/255.0, 60.0/255.0, 19.0/255.0), 2.2);
-            const static float3 HIGH_COLOR_BG = pow(float3(12.0/255.0, 52.0/255.0, 68.0/255.0), 2.2);
-            const static float3 HIGH_COLOR_FG = pow(float3(41.0/255.0, 171.0/255.0, 226.0/255.0), 2.2);
+            const static float4 BACKGROUND_COLOR = float4(0.0, 0.0, 0.0, 1.0);
+            const static float4 FOREGROUND_COLOR = float4(0.02, 0.02, 0.02, 1.0);
+            const static float4 INACTIVE_COLOR = float4(0.13, 0.13, 0.13, 1.0);
+            const static float4 ACTIVE_COLOR = float4(0.8, 0.8, 0.8, 1.0);
+            const static float4 BASS_COLOR_BG = float4(pow(float3(44.0/255.0, 12.0/255.0, 43.0/255.0), 2.2), 1.0);
+            const static float4 BASS_COLOR_MG = float4(pow(float3(103.0/255.0, 27.0/255.0, 100.0/255.0), 2.2), 1.0);
+            const static float4 BASS_COLOR_FG = float4(pow(float3(147.0/255.0, 39.0/255.0, 143.0/255.0), 2.2), 1.0);
+            const static float4 LOWMID_COLOR_BG = float4(pow(float3(76.0/255.0, 53.0/255.0, 18.0/255.0), 2.2), 1.0);
+            const static float4 HIGHMID_COLOR_BG = float4(pow(float3(42.0/255.0, 60.0/255.0, 19.0/255.0), 2.2), 1.0);
+            const static float4 HIGH_COLOR_BG = float4(pow(float3(12.0/255.0, 52.0/255.0, 68.0/255.0), 2.2), 1.0);
+            const static float4 HIGH_COLOR_FG = float4(pow(float3(41.0/255.0, 171.0/255.0, 226.0/255.0), 2.2), 1.0);
 
             // Spacing
             const static float CORNER_RADIUS = 0.025;
@@ -118,7 +126,7 @@
             #define COHERENT_CONDITION(condition) ((condition) || any(fwidth(condition)))
             #define ADD_ELEMENT(existing, elementColor, elementDist) [branch] if (COHERENT_CONDITION(elementDist <= 0.01)) addElement(existing, elementColor, elementDist)
 
-            float3 selectColor(uint i, float3 a, float3 b, float3 c, float3 d)
+            float4 selectColor(uint i, float3 a, float3 b, float3 c, float3 d)
             {
                 return float4x4(
                     float4(a, 0.0),
@@ -128,10 +136,10 @@
                 )[i % 4];
             }
 
-            float3 selectColorLerp(float i, float3 a, float3 b, float3 c, float3 d)
+            float4 selectColorLerp(float i, float3 a, float3 b, float3 c, float3 d)
             {
                 int me = floor(i);
-                float3 meColor = selectColor(me, a, b, c, d);
+                float4 meColor = selectColor(me, a, b, c, d);
 
                 // avoid singularity at 0.5
                 if (COHERENT_CONDITION(distance(frac(i), 0.5) < 0.1))
@@ -146,11 +154,13 @@
                 const float pixelDiagonal = sqrt(2.0) / 2.0 * side;
                 float distDerivativeLength = sqrt(pow(ddx(dist), 2) + pow(ddy(dist), 2));
 
-                return lerp(otherColor, meColor, smoothstep(-pixelDiagonal, pixelDiagonal, dist/distDerivativeLength));
+                float alphaBlend = smoothstep(-pixelDiagonal, pixelDiagonal, dist/distDerivativeLength);
+
+                return float4(lerp(otherColor, meColor, alphaBlend), alphaBlend);
             }
 
-            float3 getBandColor(uint i) { return selectColor(i, BASS_COLOR_BG, LOWMID_COLOR_BG, HIGHMID_COLOR_BG, HIGH_COLOR_BG); }
-            float3 getBandColorLerp(float i) { return selectColorLerp(i, BASS_COLOR_BG, LOWMID_COLOR_BG, HIGHMID_COLOR_BG, HIGH_COLOR_BG); }
+            float4 getBandColor(uint i) { return selectColor(i, BASS_COLOR_BG, LOWMID_COLOR_BG, HIGHMID_COLOR_BG, HIGH_COLOR_BG); }
+            float4 getBandColorLerp(float i) { return selectColorLerp(i, BASS_COLOR_BG, LOWMID_COLOR_BG, HIGHMID_COLOR_BG, HIGH_COLOR_BG); }
 
             // TODO: Deduplicate this
             float3 getBandAmplitudeLerp(float i, float delay)
@@ -207,11 +217,16 @@
                 return saturate((x - a)/(b - a));
             }
 
-            void addElement(inout float3 existing, float3 elementColor, float elementDist)
+            void addElement(inout float4 existing, float3 elementColor, float elementDist)
             {
                 const float pixelDiagonal = sqrt(2.0) / 2.0;
                 float distDerivativeLength = sqrt(pow(ddx(elementDist), 2) + pow(ddy(elementDist), 2));
-                existing = lerp(elementColor, existing, lerpstep(-pixelDiagonal, pixelDiagonal, elementDist/distDerivativeLength));
+
+                // Calculate alpha
+                float alphaBlend = lerpstep(-pixelDiagonal, pixelDiagonal, elementDist/distDerivativeLength);
+
+                existing.rgb = lerp(elementColor, existing.rgb, alphaBlend);
+                existing.a = lerp(_UnlitMode, existing.a, alphaBlend);
             }
 
             float sdRoundedBoxCentered(float2 p, float2 b, float4 r)
@@ -269,9 +284,9 @@
                 return length( pa - ba*h );
             }
 
-            float3 drawTopArea(float2 uv)
+            float4 drawTopArea(float2 uv)
             {
-                float3 color = FOREGROUND_COLOR;
+                float4 color = FOREGROUND_COLOR;
 
                 float areaWidth = 1.0 - FRAME_MARGIN * 2;
                 float areaHeight = 0.35;
@@ -370,13 +385,13 @@
                 return color;
             }
 
-            float3 drawGainArea(float2 uv, float2 size)
+            float4 drawGainArea(float2 uv, float2 size)
             {
                 float3 inactiveColor = INACTIVE_COLOR;
                 float3 activeColor = ACTIVE_COLOR;
                 float3 t = _Gain / 2.0f;
 
-                float3 color = FOREGROUND_COLOR;
+                float4 color = FOREGROUND_COLOR;
 
                 float gainIcon = tex2D(_GainTexture, saturate((uv - float2(0.01, 0.0)) / size.y)).r;
                 color = lerp(color, ACTIVE_COLOR, gainIcon.r);
@@ -432,9 +447,9 @@
                 return lerp(FOREGROUND_COLOR, ACTIVE_COLOR, resetIcon);
             }
             
-            float3 drawHitFadeArea(float2 uv, float2 size)
+            float4 drawHitFadeArea(float2 uv, float2 size)
             {
-                float3 color = FOREGROUND_COLOR;
+                float4 color = FOREGROUND_COLOR;
 
                 // Background fill
                 float2 triUV = -(uv - float2(size.x / 2, size.y / 2));
@@ -471,9 +486,9 @@
                 return color;
             }
 
-            float3 drawExpFalloffArea(float2 uv, float2 size)
+            float4 drawExpFalloffArea(float2 uv, float2 size)
             {
-                float3 color = FOREGROUND_COLOR;
+                float4 color = FOREGROUND_COLOR;
 
                 // Background fill
                 float2 triUV = -(uv - float2(size.x / 2, size.y / 2));
@@ -511,22 +526,22 @@
                 return color;
             }
 
-            float3 drawFourBandArea(float2 uv, float2 size)
+            float4 drawFourBandArea(float2 uv, float2 size)
             {
-                float3 color = FOREGROUND_COLOR;
+                float4 color = FOREGROUND_COLOR;
 
                 float2 sliceSize = float2(size.x, size.y / 4.0);
                 float strength = getBandAmplitudeLerp((uv.y / size.y) * 4.0, uv.x / size.x * 64.0);
-                float3 sliceColor = getBandColorLerp(uv.y / sliceSize.y);
+                float4 sliceColor = float4(getBandColorLerp(uv.y / sliceSize.y));
                 sliceColor = saturate(lerp(sliceColor, sliceColor * 15, strength));
 
                 return sliceColor;
             }
 
-            float3 drawHueArea(float2 uv, float2 size)
+            float4 drawHueArea(float2 uv, float2 size)
             {
                 float hue = uv.x / size.x;
-                float3 color = AudioLinkHSVtoRGB(float3(hue, 1.0, 1.0));
+                float4 color = float4(AudioLinkHSVtoRGB(float3(hue, 1.0, 1.0)), 1);
 
                 float sliderOffset = size.x * _Hue;
                 float handleDist = sdSphere(
@@ -541,10 +556,10 @@
                 return color;
             }
 
-            float3 drawSaturationArea(float2 uv, float2 size)
+            float4 drawSaturationArea(float2 uv, float2 size)
             {
                 float saturation = 1.0 - uv.y / size.y;
-                float3 color = AudioLinkHSVtoRGB(float3(_Hue, saturation, _Value));
+                float4 color = float4(AudioLinkHSVtoRGB(float3(_Hue, saturation, _Value)), 1);
 
                 float sliderOffset = size.y * (1 - _Saturation);
                 float handleDist = sdSphere(
@@ -559,10 +574,10 @@
                 return color;
             }
 
-            float3 drawValueArea(float2 uv, float2 size)
+            float4 drawValueArea(float2 uv, float2 size)
             {
                 float value = 1.0 - uv.y / size.y;
-                float3 color = AudioLinkHSVtoRGB(float3(_Hue, _Saturation, value));
+                float4 color = float4(AudioLinkHSVtoRGB(float3(_Hue, _Saturation, value)), 1);
 
                 float sliderOffset = size.y * (1 - _Value);
                 float handleDist = sdSphere(
@@ -577,7 +592,7 @@
                 return color;
             }
 
-            float3 drawColorChordToggle(float2 uv, float2 size)
+            float4 drawColorChordToggle(float2 uv, float2 size)
             {
                 float colorIndex = uv.x / size.x * 3.97;
                 float3 a = AudioLinkData(ALPASS_THEME_COLOR0 + uint2(0, 0));
@@ -597,9 +612,9 @@
                 return selectColorLerp(colorIndex, a, b, c, d);
             }
 
-            float3 drawAutoCorrelatorArea(float2 uv, float2 size)
+            float4 drawAutoCorrelatorArea(float2 uv, float2 size)
             {
-                float3 color = FOREGROUND_COLOR;
+                float4 color = FOREGROUND_COLOR;
 
                 float2 scaledUV = uv / size;
 
@@ -615,12 +630,13 @@
                 float autoCorrelatorColor = lerp(FOREGROUND_COLOR, ACTIVE_COLOR, vu);
                 autoCorrelatorColor = lerp(autoCorrelatorColor, FOREGROUND_COLOR, smoothstep(0, 1, mirroredUV.x));
 
-                return lerp(BACKGROUND_COLOR * 0.8, autoCorrelatorColor, autoCorrelatorDistAbs);
+                return lerp(FOREGROUND_COLOR * 0.2, autoCorrelatorColor, autoCorrelatorDistAbs);
             }
 
-            float3 drawUI(float2 uv)
+            float4 drawUI(float2 uv)
             {
-                float3 color = BACKGROUND_COLOR;
+                float4 color = BACKGROUND_COLOR;
+                float alpha = 0;
 
                 const float margin = 0.03;
                 float currentY = 0;
@@ -746,7 +762,7 @@
             {
                 float2 uv = float2(i.uv.x, 1.0 - i.uv.y);
                 uv.y *= 0.3398717 / 0.218; // aspect ratio
-                return float4(drawUI(uv), 1);
+                return drawUI(uv);
             }
             ENDCG
         }

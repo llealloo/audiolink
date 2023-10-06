@@ -54,6 +54,7 @@ Material:
     - _Threshold1: 0.45
     - _Threshold2: 0.45
     - _Threshold3: 0.45
+    - _UnlitMode: 0.35
     - _Value: 1
     - _X0: 0
     - _X1: 0.25
