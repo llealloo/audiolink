@@ -16,7 +16,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### Changes
 - Made the logo on the new AudioLink controller audio reactive.
 - Changed the recently added [C# Data API](https://github.com/llealloo/vrc-udon-audio-link/blob/master/Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.DataAPI.cs) to not use Vector2Int. This type does not work correctly in UdonSharp.
-- Deprecated AudioLinkGetVersion() and replaced it with AudioLinkGetVersionMajor() and AudioLinkGetVersionMinor(). For this current release, both will return 1.0f. Unfortunately, the recent 1.0.0 will be detected as 0 on the major version due to an oversight. This should be the only version in existence with an incorrect version number.
+- **Important for shader developers:** Deprecated AudioLinkGetVersion() and replaced it with AudioLinkGetVersionMajor() and AudioLinkGetVersionMinor(). For this current release, both will return 1.0f. Unfortunately, the recent 1.0.0 will be detected as 0 on the major version due to an oversight. This should be the only version in existence with an incorrect version number. For all other versions, these 2 functions are backwards compatible. Any shaders going forward should use these 2 functions, or read directly from green (major version) and alpha (minor version) of the pixel at `ALPASS_GENERALVU`.
 
 ## 1.0.0 - September 29th, 2023
 ### New features
