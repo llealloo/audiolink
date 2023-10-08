@@ -1,0 +1,26 @@
+fileFormatVersion: 2
+guid: ee2ac9239044a344dbe897578c058b04
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: AudioLink Mono
+  fontNames:
+  - AudioLink Mono
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: a652f655a331661418024bf3c595e773, type: 3}
+  - {fileID: 12800000, guid: 191d6496ee13e6f4fbfaeaa15d7cead2, type: 3}
+  - {fileID: 12800000, guid: 75e3a837f78b62947a0f7df305b08f5a, type: 3}
+  - {fileID: 12800000, guid: 5692b5da717eb764c938aa81526ef282, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
