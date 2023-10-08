@@ -15,7 +15,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ## 1.1.0 - October 8th, 2023
 ### Changes
 - Made the logo on the new AudioLink controller audio reactive.
-- Changed the recently added [C# Data API](https://github.com/llealloo/vrc-udon-audio-link/blob/master/Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.DataAPI.cs).
+- Changed the recently added [C# Data API](https://github.com/llealloo/vrc-udon-audio-link/blob/master/Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.DataAPI.cs) to not use Vector2Int. This type does not work correctly in UdonSharp.
 
 ## 1.0.0 - September 29th, 2023
 ### New features
