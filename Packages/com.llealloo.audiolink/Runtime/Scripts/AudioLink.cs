@@ -363,8 +363,6 @@ namespace AudioLink
                 }
             }
 #endif
-
-            audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(AudioLinkVersionNumber, 0, _fpsCount, 1));
             // The red channel should be 3.02f forever - this is the last version before the versioning change.
             audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(3.02f, AudioLinkVersionNumberMajor, _fpsCount, AudioLinkVersionNumberMinor));
 #if UDONSHARP
