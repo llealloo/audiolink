@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 - October 9th, 2023
+### Changes
+- **Important for shader developers:** Deprecated AudioLinkGetVersion() and replaced it with AudioLinkGetVersionMajor() and AudioLinkGetVersionMinor(). For this current release, major will read 1.0f, and minor will read 2.0f. Unfortunately, the recent 1.0.0 and 1.1.0 versions will be detected as 0 on the major version due to an oversight. These should be the only versions in existence with an incorrect version number. For all other versions, these 2 functions are backwards compatible. Any shaders going forward should use these 2 functions, or read directly from green (major version) and alpha (minor version) of the pixel at `ALPASS_GENERALVU`.
+
 ## 1.1.0 - October 8th, 2023
 ### Changes
 - Made the logo on the new AudioLink controller audio reactive.
