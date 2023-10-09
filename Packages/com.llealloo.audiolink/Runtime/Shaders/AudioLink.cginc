@@ -112,6 +112,7 @@
         #endif
     }
 
+    // DEPRECATED! Use AudioLinkGetVersionMajor and AudioLinkGetVersionMinor() instead.
     //Get version of audiolink present in the world, 0 if no audiolink is present
     float AudioLinkGetVersion()
     {
@@ -128,6 +129,37 @@
             return 1;
         else
             return 0;
+    }
+
+    float AudioLinkGetVersionMajor()
+    {
+        return AudioLinkData(ALPASS_GENERALVU).y;
+    }
+
+    float AudioLinkGetVersionMinor()
+    {
+        // If the major version is 1 or greater, we are using the new versioning system.
+        if (AudioLinkGetVersionMajor() > 0)
+        {
+            return AudioLinkData(ALPASS_GENERALVU).w;
+        }
+        // Otherwise, defer to the old logic for determining version.
+        else
+        {
+            int2 dims;
+            #if !defined(AUDIOLINK_STANDARD_INDEXING)
+                _AudioTexture.GetDimensions(dims.x, dims.y);
+            #else
+                dims = _AudioTexture_TexelSize.zw;
+            #endif
+
+            if (dims.x >= 128)
+                return AudioLinkData(ALPASS_GENERALVU).x;
+            else if (dims.x > 16)
+                return 1;
+            else
+                return 0;
+        }
     }
 
     // This pulls data from this texture.

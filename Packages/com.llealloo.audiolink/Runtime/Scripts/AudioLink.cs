@@ -24,7 +24,8 @@ namespace AudioLink
     public partial class AudioLink : MonoBehaviour
 #endif
     {
-        const float AudioLinkVersionNumber = 1.00f;
+        const float AudioLinkVersionNumberMajor = 1.00f;
+        const float AudioLinkVersionNumberMinor = 2.00f;
 
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
@@ -362,8 +363,8 @@ namespace AudioLink
                 }
             }
 #endif
-
-            audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(AudioLinkVersionNumber, 0, _fpsCount, 1));
+            // The red channel should be 3.02f forever - this is the last version before the versioning change.
+            audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(3.02f, AudioLinkVersionNumberMajor, _fpsCount, AudioLinkVersionNumberMinor));
 #if UDONSHARP
             audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
