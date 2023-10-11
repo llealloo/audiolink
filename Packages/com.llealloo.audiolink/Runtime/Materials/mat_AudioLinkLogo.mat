@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: mat_AudioLinkLogo
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 38d0d632969951049b3c541d62bc6d7c, type: 3}
   m_ShaderKeywords: POI_PATHING VIGNETTE_MASKED _EMISSION _LIGHTINGMODE_REALISTIC
     _RIM2STYLE_POIYOMI _RIMSTYLE_POIYOMI _STOCHASTICMODE_DELIOT_HEITZ
   m_LightmapFlags: 1
@@ -1304,6 +1304,7 @@ Material:
     - _GITDEWorldOrMesh1: 0
     - _GITDEWorldOrMesh2: 0
     - _GITDEWorldOrMesh3: 0
+    - _Gain: 4.38
     - _GlitterAngleRange: 90
     - _GlitterBias: 0.8
     - _GlitterBlendType: 0
@@ -1992,6 +1993,9 @@ Material:
     - _PolarSpiralPower: 0
     - _PolarUV: 0
     - _PostProcess: 0
+    - _PulseOffsetQ: 0.58
+    - _PulseWidth: 0.4
+    - _QPower: 4
     - _RGBBlendMultiplicative: 0
     - _RGBMaskEnabled: 0
     - _RGBMaskUV: 0
@@ -2848,6 +2852,7 @@ Material:
     - _BackFaceTexturePan: {r: 0, g: 0, b: 0, a: 0}
     - _BacklightColor: {r: 0.85, g: 0.8, b: 0.7, a: 1}
     - _BacklightColorTexPan: {r: 0, g: 0, b: 0, a: 0}
+    - _BaseColor: {r: 0.019607844, g: 0.019607844, b: 0.019607844, a: 1}
     - _BlackLightMasking0Range: {r: 0.1, g: 0.5, b: 0, a: 0}
     - _BlackLightMasking1Range: {r: 0.1, g: 0.5, b: 0, a: 0}
     - _BlackLightMasking2Range: {r: 0.1, g: 0.5, b: 0, a: 0}

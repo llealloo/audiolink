@@ -6,70 +6,70 @@ namespace AudioLink
     {
         #region Passes
         /// <remarks>Corresponds to ALPASS_DFT in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassDft => new Vector2Int(0, 4);
+        public static Vector2 ALPassDft => new Vector2(0, 4);
         /// <remarks>Corresponds to ALPASS_WAVEFORM in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassWaveform => new Vector2Int(0, 6);
+        public static Vector2 ALPassWaveform => new Vector2(0, 6);
         /// <remarks>Corresponds to ALPASS_AUDIOLINK in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudioLink => new Vector2Int(0, 0);
+        public static Vector2 ALPassAudioLink => new Vector2(0, 0);
         /// <remarks>Corresponds to ALPASS_AUDIOBASS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudioBass => new Vector2Int(0, 0);
+        public static Vector2 ALPassAudioBass => new Vector2(0, 0);
         /// <remarks>Corresponds to ALPASS_AUDIOLOWMIDS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudioLowMids => new Vector2Int(0, 1);
+        public static Vector2 ALPassAudioLowMids => new Vector2(0, 1);
         /// <remarks>Corresponds to ALPASS_AUDIOHIGHMIDS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudioHighMids => new Vector2Int(0, 2);
+        public static Vector2 ALPassAudioHighMids => new Vector2(0, 2);
         /// <remarks>Corresponds to ALPASS_AUDIOTREBLE in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudioTreble => new Vector2Int(0, 3);
+        public static Vector2 ALPassAudioTreble => new Vector2(0, 3);
         /// <remarks>Corresponds to ALPASS_AUDIOLINKHISTORY in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAudioLinkHistory => new Vector2Int(1, 0);
+        public static Vector2 ALPassAudioLinkHistory => new Vector2(1, 0);
         /// <remarks>Corresponds to ALPASS_GENERALVU in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVU => new Vector2Int(0, 22);
+        public static Vector2 ALPassGeneralVU => new Vector2(0, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_INSTANCE_TIME in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVUInstanceTime => new Vector2Int(2, 22);
+        public static Vector2 ALPassGeneralVUInstanceTime => new Vector2(2, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_LOCAL_TIME in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVULocalTime => new Vector2Int(3, 22);
+        public static Vector2 ALPassGeneralVULocalTime => new Vector2(3, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_NETWORK_TIME in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVUNetworkTime => new Vector2Int(4, 22);
+        public static Vector2 ALPassGeneralVUNetworkTime => new Vector2(4, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_PLAYERINFO in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVUPlayerInfo => new Vector2Int(6, 22);
+        public static Vector2 ALPassGeneralVUPlayerInfo => new Vector2(6, 22);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR0 in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassThemeColor0 => new Vector2Int(0, 23);
+        public static Vector2 ALPassThemeColor0 => new Vector2(0, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR1 in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassThemeColor1 => new Vector2Int(1, 23);
+        public static Vector2 ALPassThemeColor1 => new Vector2(1, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR2 in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassThemeColor2 => new Vector2Int(2, 23);
+        public static Vector2 ALPassThemeColor2 => new Vector2(2, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR3 in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassThemeColor3 => new Vector2Int(3, 23);
+        public static Vector2 ALPassThemeColor3 => new Vector2(3, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_DAYS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVUUnixDays => new Vector2Int(5, 23);
+        public static Vector2 ALPassGeneralVUUnixDays => new Vector2(5, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_SECONDS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVUUnixSeconds => new Vector2Int(6, 23);
+        public static Vector2 ALPassGeneralVUUnixSeconds => new Vector2(6, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_SOURCE_POS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGeneralVUSourcePos => new Vector2Int(7, 23);
+        public static Vector2 ALPassGeneralVUSourcePos => new Vector2(7, 23);
         /// <remarks>Corresponds to ALPASS_MEDIASTATE in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassMediaState => new Vector2Int(5, 22);
+        public static Vector2 ALPassMediaState => new Vector2(5, 22);
 
         /// <remarks>Corresponds to ALPASS_CCINTERNAL in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassCcInternal => new Vector2Int(12, 22);
+        public static Vector2 ALPassCcInternal => new Vector2(12, 22);
         /// <remarks>Corresponds to ALPASS_CCCOLORS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassCcColors => new Vector2Int(25, 22);
+        public static Vector2 ALPassCcColors => new Vector2(25, 22);
         /// <remarks>Corresponds to ALPASS_CCSTRIP in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassCcStrip => new Vector2Int(0, 24);
+        public static Vector2 ALPassCcStrip => new Vector2(0, 24);
         /// <remarks>Corresponds to ALPASS_CCLIGHTS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassCcLights => new Vector2Int(0, 25);
+        public static Vector2 ALPassCcLights => new Vector2(0, 25);
         /// <remarks>Corresponds to ALPASS_AUTOCORRELATOR in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassAutoCorrelator => new Vector2Int(0, 27);
+        public static Vector2 ALPassAutoCorrelator => new Vector2(0, 27);
         /// <remarks>Corresponds to ALPASS_FILTEREDAUDIOLINK in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredAudioLink => new Vector2Int(0, 28);
+        public static Vector2 ALPassFilteredAudioLink => new Vector2(0, 28);
         /// <remarks>Corresponds to ALPASS_CHRONOTENSITY in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassChronotensity => new Vector2Int(16, 28);
+        public static Vector2 ALPassChronotensity => new Vector2(16, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredVU => new Vector2Int(24, 28);
+        public static Vector2 ALPassFilteredVU => new Vector2(24, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU_INTENSITY in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredVUIntensity => new Vector2Int(24, 28);
+        public static Vector2 ALPassFilteredVUIntensity => new Vector2(24, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU_MARKER in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassFilteredVUMarker => new Vector2Int(24, 29);
+        public static Vector2 ALPassFilteredVUMarker => new Vector2(24, 29);
         /// <remarks>Corresponds to ALPASS_GLOBAL_STRINGS in AudioLink.cginc.</remarks>
-        public static Vector2Int ALPassGlobalStrings => new Vector2Int(40, 28);
+        public static Vector2 ALPassGlobalStrings => new Vector2(40, 28);
         #endregion
 
         #region Constants
@@ -144,9 +144,9 @@ namespace AudioLink
         /// <param name="position">The coordinates of the pixel to read.</param>
         /// <returns>The value of the pixel at the given coordinates.</returns> 
         /// <remarks>Corresponds to AudioLinkData() in AudioLink.cginc.</remarks>
-        public Vector4 GetDataAtPixel(Vector2Int position)
+        public Vector4 GetDataAtPixel(Vector2 position)
         {
-            return GetDataAtPixel(position.x, position.y);
+            return GetDataAtPixel((int)position.x, (int)position.y);
         }
 
         /// <summary>
@@ -190,9 +190,9 @@ namespace AudioLink
         /// <param name="position">The coordinates of the pixel to read.</param>
         /// <returns>The value of the pixel at the given coordinates.</returns>
         /// <remarks>Corresponds to AudioLinkDataMultiline() in AudioLink.cginc.</remarks>
-        public Vector4 GetDataAtPixelMultiline(Vector2Int position)
+        public Vector4 GetDataAtPixelMultiline(Vector2 position)
         {
-            return GetDataAtPixelMultiline(position.x, position.y);
+            return GetDataAtPixelMultiline((int)position.x, (int)position.y);
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace AudioLink
         /// <param name="position">The coordinates of the pixel to read.</param>
         /// <returns>The value of the pixel at the given coordinates, decoded as an unsigned integer.</returns>
         /// <remarks>Corresponds to AudioLinkDecodeDataAsUInt() in AudioLink.cginc.</remarks>
-        public uint DecodeDataAsUInt(Vector2Int position)
+        public uint DecodeDataAsUInt(Vector2 position)
         {
             Vector4 rpx = GetDataAtPixel(position);
             return (uint)rpx.x + (uint)rpx.y * 1024 + (uint)rpx.z * 1048576 + (uint)rpx.w * 1073741824;
@@ -239,7 +239,7 @@ namespace AudioLink
         /// <param name="position">The coordinates of the pixel to read.</param>
         /// <returns>The value of the pixel at the given coordinates, decoded as a float representing seconds.</returns>
         /// <remarks>Corresponds to AudioLinkDecodeDataAsSeconds() in AudioLink.cginc.</remarks>
-        public float DecodeDataAsSeconds(Vector2Int position)
+        public float DecodeDataAsSeconds(Vector2 position)
         {
             int time = (int)DecodeDataAsUInt(position) & 0x7ffffff;
             return (float)(time / 1000) + (float)(time % 1000) / 1000.0f;
@@ -320,7 +320,7 @@ namespace AudioLink
         /// <remarks>Corresponds to AudioLinkGetChronoTime() in AudioLink.cginc.</remarks>
         public float GetChronoTime(uint index, uint band)
         {
-            return (DecodeDataAsUInt(ALPassChronotensity + new Vector2Int((int)index, (int)band))) / 100000.0f;
+            return (DecodeDataAsUInt(ALPassChronotensity + new Vector2((int)index, (int)band))) / 100000.0f;
         }
 
         /// <summary>
