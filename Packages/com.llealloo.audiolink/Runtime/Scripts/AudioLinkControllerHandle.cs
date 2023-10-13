@@ -11,6 +11,7 @@ namespace AudioLink
     public class AudioLinkControllerHandle : UdonSharpBehaviour
     {
         public ParentConstraint parentConstraint;
+        public VRC_Pickup otherHandle;
     
         private ParentConstraint selfConstraint;
     
@@ -26,6 +27,8 @@ namespace AudioLink
             selfConstraint.enabled = false;
     
             parentConstraint.enabled = true;
+
+            otherHandle.pickupable = false;
     
             int me = -1, other = -1;
             for (int i = 0; i < 2; i++)
@@ -60,6 +63,8 @@ namespace AudioLink
         public override void OnDrop()
         {
             selfConstraint.enabled = true;
+
+            otherHandle.pickupable = true;
     
             int me = -1, other = -1;
             for (int i = 0; i < 2; i++)
