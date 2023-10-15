@@ -40,7 +40,7 @@ namespace AudioLink.Editor
         }
 
 #if !AUDIOLINK_STANDALONE
-        [MenuItem("AudioLink/Open AudioLink Example Scene")]
+        [MenuItem("Tools/AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
