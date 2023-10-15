@@ -37,7 +37,7 @@ namespace AudioLink.Editor
         }
 
 #if !AUDIOLINK_STANDALONE
-        [MenuItem("AudioLink/Open AudioLink Example Scene")]
+        [MenuItem("Tools/AudioLink/Open AudioLink Example Scene")]
         public static void OpenExampleScene()
         {
             if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -56,7 +56,7 @@ namespace AudioLink.Editor
         }
 #endif
 
-        [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
+        [MenuItem("Tools/AudioLink/Add AudioLink Prefab to Scene", false)]
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
