@@ -66,7 +66,7 @@ namespace AudioLink.Editor
         private const string _audioLinkCVRPath = "Packages/com.llealloo.audiolink/Runtime/CVRAudioLink.prefab";
         private const string _audioLinkCVRControllerPath = "Packages/com.llealloo.audiolink/Runtime/CVRAudioLinkController.prefab";
 
-        [MenuItem("AudioLink/Add AudioLink Prefab to Scene", false)]
+        [MenuItem("Tools/AudioLink/Add AudioLink Prefab to Scene", false)]
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
