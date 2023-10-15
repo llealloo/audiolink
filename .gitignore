@@ -6,6 +6,7 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 .vs/
+.idea/
 
 # Gradle cache directory
 .gradle/
