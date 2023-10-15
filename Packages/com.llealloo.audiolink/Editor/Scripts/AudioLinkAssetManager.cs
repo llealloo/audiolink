@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Experimental.SceneManagement;
 using UnityEngine;
 
 namespace AudioLink.Editor
@@ -79,16 +80,16 @@ namespace AudioLink.Editor
             if (alcInstance == null) AddPrefabInstance(_audioLinkControllerPath);
 #elif VRC_SDK_VRCSDK3 // VRC AVATAR
             var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
-            audioLink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkAvatarPath);
+            audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkAvatarPath);
 #elif CVR_CCK_EXISTS // CVR
-            audioLink = GetGameObjectsInScene("CVRAudioLink").FirstOrDefault();
-            if (audioLink == null) audioLink = AddPrefabInstance(_audioLinkCVRPath);
+            audiolink = GetGameObjectsInScene("CVRAudioLink").FirstOrDefault();
+            if (audiolink == null) audiolink = AddPrefabInstance(_audioLinkCVRPath);
 
             var controller = GetGameObjectsInScene("CVRAudioLinkController").FirstOrDefault();
             if (controller == null) AddPrefabInstance(_audioLinkCVRControllerPath);
 #else // Standalone
             var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
-            audioLink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPath);
+            audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPath);
 #endif
 
             if (audiolink != null)
@@ -113,7 +114,7 @@ namespace AudioLink.Editor
 
         private static T[] GetComponentsInScene<T>(bool includeInactive = true) where T : Component
         {
-            var stage = UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+            var stage = PrefabStageUtility.GetCurrentPrefabStage();
             GameObject[] roots = stage == null ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects() : new[] { stage.prefabContentsRoot };
             List<T> objects = new List<T>();
             foreach (GameObject root in roots) objects.AddRange(root.GetComponentsInChildren<T>(includeInactive));
@@ -122,7 +123,7 @@ namespace AudioLink.Editor
 
         private static GameObject[] GetGameObjectsInScene(string name, bool includeInactive = true)
         {
-            var stage = UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+            var stage = PrefabStageUtility.GetCurrentPrefabStage();
             GameObject[] roots = stage == null ? UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects() : new[] { stage.prefabContentsRoot };
             List<Transform> objects = new List<Transform>();
             foreach (GameObject root in roots) objects.AddRange(root.GetComponentsInChildren<Transform>(includeInactive));
