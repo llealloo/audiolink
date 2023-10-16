@@ -29,9 +29,19 @@ namespace AudioLink
                 
                     switch (key) {
 
+                        case (int)MidiIds.AudioLink:
+                        // Enable AudioLink
+                        _audioLinkController.powerToggle.isOn = true;
+                        break;
+
+                        case (int)MidiIds.AutoGain:
+                        // Enable Auto Gain
+                        _audioLinkController.autoGainToggle.isOn = true;
+                        break;
+
                         case (int)MidiIds.ColorChord:
                         // Enable Color Chord
-                        _themeColorController.themeColorDropdown.value = 0;
+                        _themeColorController.themeColorToggle.isOn = true;
                         break;
 
                         case (int)MidiIds.Reset:
@@ -71,9 +81,19 @@ namespace AudioLink
                     
                     switch (key) {
 
+                        case (int)MidiIds.AudioLink:
+                        // Disable AudioLink
+                        _audioLinkController.powerToggle.isOn = false;
+                        break;
+
+                        case (int)MidiIds.AutoGain:
+                        // Disable Auto Gain
+                        _audioLinkController.autoGainToggle.isOn = false;
+                        break;
+
                         case (int)MidiIds.ColorChord:
                         // Disable Color Chord
-                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.themeColorToggle.isOn = false;
                         break;
 
                         case (int)MidiIds.Reset:
@@ -124,12 +144,12 @@ namespace AudioLink
 
                         case (int)MidiIds.Bass: // 1
                         // Handle Bass change
-                        _audioLinkController.bassSlider.value = floatValue * 2;
+                        if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.bassSlider)) _audioLinkController.bassSlider.value = floatValue * 2;
                         break;
 
                         case (int)MidiIds.Treble: // 2
                         // Handle Treble change
-                        _audioLinkController.trebleSlider.value = floatValue * 2;
+                        if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.trebleSlider)) _audioLinkController.trebleSlider.value = floatValue * 2;
                         break;
 
                         case (int)MidiIds.Length: // 3
@@ -146,21 +166,18 @@ namespace AudioLink
 
                         case (int)MidiIds.Band0Hue: // 11
                         // Handle Band 0 Hue change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor0();
                         _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band0Saturation: // 12
                         // Handle Band 0 Saturation change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor0();
                         _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band0Value: // 13
                         // Handle Band 0 Value change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor0();
                         _themeColorController.sliderValue.value = floatValue;
                         break;
@@ -179,21 +196,18 @@ namespace AudioLink
 
                         case (int)MidiIds.Band1Hue: // 21
                         // Handle Band 1 Hue change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor1();
                         _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band1Saturation: // 22
                         // Handle Band 1 Saturation change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor1();
                         _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band1Value: // 23
                         // Handle Band 1 Value change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor1();
                         _themeColorController.sliderValue.value = floatValue;
                         break;
@@ -212,21 +226,18 @@ namespace AudioLink
 
                         case (int)MidiIds.Band2Hue: // 31
                         // Handle Band 2 Hue change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor2();
                         _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band2Saturation: // 32
                         // Handle Band 2 Saturation change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor2();
                         _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band2Value: // 33
                         // Handle Band 2 Value change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor2();
                         _themeColorController.sliderValue.value = floatValue;
                         break;
@@ -245,21 +256,18 @@ namespace AudioLink
 
                         case (int)MidiIds.Band3Hue: // 41
                         // Handle Band 3 Hue change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor3();
                         _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band3Saturation: // 42
                         // Handle Band 3 Saturation change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor3();
                         _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band3Value: // 43
                         // Handle Band 3 Value change
-                        _themeColorController.themeColorDropdown.value = 1;
                         _themeColorController.SelectCustomColor3();
                         _themeColorController.sliderValue.value = floatValue;
                         break;
@@ -303,6 +311,8 @@ namespace AudioLink
         Falloff = 4,
         ColorChord = 5,
         Reset = 6,
+        AudioLink = 7,
+        AutoGain = 8,
 
         Band0Hue = 11,
         Band0Saturation = 12,
