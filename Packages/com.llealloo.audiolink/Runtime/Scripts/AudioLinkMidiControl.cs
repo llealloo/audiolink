@@ -1,4 +1,4 @@
-﻿
+﻿#if UDONSHARP
 using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
@@ -10,39 +10,34 @@ namespace AudioLink
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class AudioLinkMidiControl : UdonSharpBehaviour
     {
-        public AudioLinkController _AudioLinkController;
-        public bool allowMidi;
-        public int midiChannel;
+        public AudioLinkController _audioLinkController;
+        public int _midiChannel;
+        public bool _allowMidi;
 
         public bool _debugMidi;
-
-        void Start()
-        {
-            
-        }
 
         public override void MidiNoteOn(int channel, int key, int value) {
 
             
 
             // Check On Midi
-            if (allowMidi && channel == midiChannel && Networking.IsOwner(_AudioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_AudioLinkController)) {
+            if (_allowMidi && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_audioLinkController)) {
 
-                if (VRC.SDKBase.Utilities.IsValid(_AudioLinkController.themeColorController)) {
+                if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.themeColorController)) {
 
-                    ThemeColorController _ThemeColorController = _AudioLinkController.themeColorController;
+                    ThemeColorController _themeColorController = _audioLinkController.themeColorController;
                 
                     switch (key) {
 
                         case (int)MidiIds.ColorChord:
                         // Enable Color Chord
-                        _ThemeColorController.themeColorDropdown.value = 0;
+                        _themeColorController.themeColorDropdown.value = 0;
                         break;
 
                         case (int)MidiIds.Reset:
                         // Trigger Controller Reset
-                        _AudioLinkController.ResetSettings();
-                        _ThemeColorController.ResetThemeColors();
+                        _audioLinkController.ResetSettings();
+                        _themeColorController.ResetThemeColors();
                         break;
 
                         default:
@@ -68,23 +63,23 @@ namespace AudioLink
         public override void MidiNoteOff(int channel, int key, int value) {
 
             // Check Off Midi
-            if (allowMidi && channel == midiChannel && Networking.IsOwner(_AudioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_AudioLinkController)) {
+            if (_allowMidi && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_audioLinkController)) {
 
-                if (VRC.SDKBase.Utilities.IsValid(_AudioLinkController.themeColorController)) {
+                if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.themeColorController)) {
 
-                    ThemeColorController _ThemeColorController = _AudioLinkController.themeColorController;
+                    ThemeColorController _themeColorController = _audioLinkController.themeColorController;
                     
                     switch (key) {
 
                         case (int)MidiIds.ColorChord:
                         // Disable Color Chord
-                        _ThemeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.themeColorDropdown.value = 1;
                         break;
 
                         case (int)MidiIds.Reset:
                         // Trigger Controller Reset
-                        _AudioLinkController.ResetSettings();
-                        _ThemeColorController.ResetThemeColors();
+                        _audioLinkController.ResetSettings();
+                        _themeColorController.ResetThemeColors();
                         break;
 
                         default:
@@ -110,11 +105,11 @@ namespace AudioLink
         public override void MidiControlChange(int channel, int key, int value) {
 
             // Check Change Midi
-            if (allowMidi && channel == midiChannel && Networking.IsOwner(_AudioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_AudioLinkController)) {
+            if (_allowMidi && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_audioLinkController)) {
 
-                if (VRC.SDKBase.Utilities.IsValid(_AudioLinkController.themeColorController)) {
+                if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.themeColorController)) {
 
-                    ThemeColorController _ThemeColorController = _AudioLinkController.themeColorController;
+                    ThemeColorController _themeColorController = _audioLinkController.themeColorController;
                 
                     float floatValue = (float)value / 127f;
 
@@ -124,159 +119,159 @@ namespace AudioLink
 
                         case (int)MidiIds.Gain: // 0
                         // Handle Gain change
-                        _AudioLinkController.gainSlider.value = floatValue * 2;
+                        _audioLinkController.gainSlider.value = floatValue * 2;
                         break;
 
                         case (int)MidiIds.Bass: // 1
                         // Handle Bass change
-                        _AudioLinkController.bassSlider.value = floatValue * 2;
+                        _audioLinkController.bassSlider.value = floatValue * 2;
                         break;
 
                         case (int)MidiIds.Treble: // 2
                         // Handle Treble change
-                        _AudioLinkController.trebleSlider.value = floatValue * 2;
+                        _audioLinkController.trebleSlider.value = floatValue * 2;
                         break;
 
                         case (int)MidiIds.Length: // 3
                         // Handle Length change
-                        _AudioLinkController.fadeLengthSlider.value = floatValue;
+                        _audioLinkController.fadeLengthSlider.value = floatValue;
                         break;
 
                         case (int)MidiIds.Falloff: // 4 
                         // Handle Falloff change
-                        _AudioLinkController.fadeExpFalloffSlider.value = floatValue;
+                        _audioLinkController.fadeExpFalloffSlider.value = floatValue;
                         break;
 
                         // Band 0
 
                         case (int)MidiIds.Band0Hue: // 11
                         // Handle Band 0 Hue change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor0();
-                        _ThemeColorController.sliderHue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor0();
+                        _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band0Saturation: // 12
                         // Handle Band 0 Saturation change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor0();
-                        _ThemeColorController.sliderSaturation.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor0();
+                        _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band0Value: // 13
                         // Handle Band 0 Value change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor0();
-                        _ThemeColorController.sliderValue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor0();
+                        _themeColorController.sliderValue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band0Threshold: // 14
                         // Handle Band 0 Threshold change
-                        _AudioLinkController.threshold0Slider.value = floatValue;
+                        _audioLinkController.threshold0Slider.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band0: // 15
                         // Handle Band 0 change
-                        _AudioLinkController.x0Slider.value = cutoff;
+                        _audioLinkController.x0Slider.value = cutoff;
                         break;
 
                         // Band 1
 
                         case (int)MidiIds.Band1Hue: // 21
                         // Handle Band 1 Hue change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor1();
-                        _ThemeColorController.sliderHue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor1();
+                        _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band1Saturation: // 22
                         // Handle Band 1 Saturation change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor1();
-                        _ThemeColorController.sliderSaturation.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor1();
+                        _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band1Value: // 23
                         // Handle Band 1 Value change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor1();
-                        _ThemeColorController.sliderValue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor1();
+                        _themeColorController.sliderValue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band1Threshold: // 24
                         // Handle Band 1 Threshold change
-                        _AudioLinkController.threshold1Slider.value = floatValue;
+                        _audioLinkController.threshold1Slider.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band1: // 25
                         // Handle Band 1 change
-                        _AudioLinkController.x1Slider.value = cutoff + .25f;
+                        _audioLinkController.x1Slider.value = cutoff + .25f;
                         break;
 
                         // Band 2
 
                         case (int)MidiIds.Band2Hue: // 31
                         // Handle Band 2 Hue change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor2();
-                        _ThemeColorController.sliderHue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor2();
+                        _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band2Saturation: // 32
                         // Handle Band 2 Saturation change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor2();
-                        _ThemeColorController.sliderSaturation.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor2();
+                        _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band2Value: // 33
                         // Handle Band 2 Value change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor2();
-                        _ThemeColorController.sliderValue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor2();
+                        _themeColorController.sliderValue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band2Threshold: // 34
                         // Handle Band 2 Threshold change
-                        _AudioLinkController.threshold2Slider.value = floatValue;
+                        _audioLinkController.threshold2Slider.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band2: // 35
                         // Handle Band 2 change
-                        _AudioLinkController.x2Slider.value = cutoff + .5f;
+                        _audioLinkController.x2Slider.value = cutoff + .5f;
                         break;
 
                         // Band 3
 
                         case (int)MidiIds.Band3Hue: // 41
                         // Handle Band 3 Hue change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor3();
-                        _ThemeColorController.sliderHue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor3();
+                        _themeColorController.sliderHue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band3Saturation: // 42
                         // Handle Band 3 Saturation change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor3();
-                        _ThemeColorController.sliderSaturation.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor3();
+                        _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band3Value: // 43
                         // Handle Band 3 Value change
-                        _ThemeColorController.themeColorDropdown.value = 1;
-                        _ThemeColorController.SelectCustomColor3();
-                        _ThemeColorController.sliderValue.value = floatValue;
+                        _themeColorController.themeColorDropdown.value = 1;
+                        _themeColorController.SelectCustomColor3();
+                        _themeColorController.sliderValue.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band3Threshold: // 44
                         // Handle Band 3 Threshold change
-                        _AudioLinkController.threshold3Slider.value = floatValue;
+                        _audioLinkController.threshold3Slider.value = floatValue;
                         break;
 
                         case (int)MidiIds.Band3: // 45
                         // Handle Band 3 change
-                        _AudioLinkController.x3Slider.value = cutoff + .75f;
+                        _audioLinkController.x3Slider.value = cutoff + .75f;
                         break;
 
                         default:
@@ -335,3 +330,4 @@ namespace AudioLink
 
     }
 }
+#endif
