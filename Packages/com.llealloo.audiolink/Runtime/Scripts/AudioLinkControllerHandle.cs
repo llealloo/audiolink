@@ -11,24 +11,31 @@ namespace AudioLink
     public class AudioLinkControllerHandle : UdonSharpBehaviour
     {
         public ParentConstraint parentConstraint;
-        public VRC_Pickup otherHandle;
+        public AudioLinkControllerHandle otherHandle;
     
         private ParentConstraint selfConstraint;
+        private VRC_Pickup thisHandlePickup;
+        private VRC_Pickup otherHandlePickup;
+        private VRCPlayerApi localPlayer;
+        private bool handleEnabled;
     
         public void Start()
         {
             selfConstraint = GetComponent<ParentConstraint>();
+            thisHandlePickup = GetComponent<VRC_Pickup>();
+            otherHandlePickup = otherHandle.GetComponent<VRC_Pickup>();
+            localPlayer = Networking.LocalPlayer;
         }
     
         public override void OnPickup()
         {
-            Networking.SetOwner(Networking.LocalPlayer, parentConstraint.gameObject);
+            Networking.SetOwner(localPlayer, parentConstraint.gameObject);
     
             selfConstraint.enabled = false;
     
             parentConstraint.enabled = true;
 
-            otherHandle.pickupable = false;
+            otherHandlePickup.pickupable = false;
     
             int me = -1, other = -1;
             for (int i = 0; i < 2; i++)
@@ -64,7 +71,7 @@ namespace AudioLink
         {
             selfConstraint.enabled = true;
 
-            otherHandle.pickupable = true;
+            otherHandle.UpdateHandleState();
     
             int me = -1, other = -1;
             for (int i = 0; i < 2; i++)
@@ -92,6 +99,24 @@ namespace AudioLink
             {
                 parentConstraint.enabled = false;
             }
+        }
+
+        public void EnableHandle()
+        {
+            handleEnabled = true;
+            //if (!otherHandlePickup.IsHeld) UpdateHandleState();
+            UpdateHandleState();
+        }
+
+        public void DisableHandle()
+        {
+            handleEnabled = false;
+            UpdateHandleState();
+        }
+
+        public void UpdateHandleState()
+        {
+            thisHandlePickup.pickupable = handleEnabled;
         }
     }
 }
