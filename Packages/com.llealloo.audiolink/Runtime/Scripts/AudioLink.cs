@@ -121,6 +121,8 @@ namespace AudioLink
         [NonSerialized] public Color[] audioData = new Color[AudioLinkWidth * AudioLinkHeight];
         [HideInInspector] public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
+        private bool _audioLinkEnabled = true;
+
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
@@ -428,6 +430,11 @@ namespace AudioLink
 
         private void Update()
         {
+            if (!_audioLinkEnabled)
+            {
+                return;
+            }
+
 #if !UNITY_ANDROID
             if (audioDataToggle)
             {
@@ -557,7 +564,7 @@ namespace AudioLink
 #if UNITY_ANDROID
         void OnPostRender()
         {
-            if (audioDataToggle)
+            if (_audioLinkEnabled && audioDataToggle)
             {
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
@@ -728,6 +735,7 @@ namespace AudioLink
 
         public void EnableAudioLink()
         {
+            _audioLinkEnabled = true;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
 #if UDONSHARP
             SetGlobalTexture(_AudioTexture, audioRenderTexture);
@@ -738,6 +746,7 @@ namespace AudioLink
 
         public void DisableAudioLink()
         {
+            _audioLinkEnabled = false;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
 #if UDONSHARP
             SetGlobalTexture(_AudioTexture, null);
