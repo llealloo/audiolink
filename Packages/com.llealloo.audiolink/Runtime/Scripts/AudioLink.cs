@@ -269,6 +269,8 @@ namespace AudioLink
             _Samples1R = PropertyToID("_Samples1R");
             _Samples2R = PropertyToID("_Samples2R");
             _Samples3R = PropertyToID("_Samples3R");
+
+            _IsInitialized = true;
         }
         #endregion
 
@@ -592,7 +594,6 @@ namespace AudioLink
 
         private void OnEnable()
         {
-            InitIDs();
             EnableAudioLink();
         }
 
@@ -735,6 +736,7 @@ namespace AudioLink
 
         public void EnableAudioLink()
         {
+            InitIDs();
             _audioLinkEnabled = true;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
 #if UDONSHARP
