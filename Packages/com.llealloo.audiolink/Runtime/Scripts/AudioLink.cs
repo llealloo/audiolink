@@ -121,6 +121,8 @@ namespace AudioLink
         [NonSerialized] public Color[] audioData = new Color[AudioLinkWidth * AudioLinkHeight];
         [HideInInspector] public Texture2D audioData2D; // Texture2D reference for hacked Blit, may eventually be depreciated
 
+        private bool _audioLinkEnabled = true;
+
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
@@ -267,6 +269,8 @@ namespace AudioLink
             _Samples1R = PropertyToID("_Samples1R");
             _Samples2R = PropertyToID("_Samples2R");
             _Samples3R = PropertyToID("_Samples3R");
+
+            _IsInitialized = true;
         }
         #endregion
 
@@ -428,6 +432,11 @@ namespace AudioLink
 
         private void Update()
         {
+            if (!_audioLinkEnabled)
+            {
+                return;
+            }
+
 #if !UNITY_ANDROID
             if (audioDataToggle)
             {
@@ -557,7 +566,7 @@ namespace AudioLink
 #if UNITY_ANDROID
         void OnPostRender()
         {
-            if (audioDataToggle)
+            if (_audioLinkEnabled && audioDataToggle)
             {
                 audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
                 audioData = audioData2D.GetPixels();
@@ -585,7 +594,6 @@ namespace AudioLink
 
         private void OnEnable()
         {
-            InitIDs();
             EnableAudioLink();
         }
 
@@ -728,6 +736,8 @@ namespace AudioLink
 
         public void EnableAudioLink()
         {
+            InitIDs();
+            _audioLinkEnabled = true;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
 #if UDONSHARP
             SetGlobalTexture(_AudioTexture, audioRenderTexture);
@@ -738,6 +748,7 @@ namespace AudioLink
 
         public void DisableAudioLink()
         {
+            _audioLinkEnabled = false;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
 #if UDONSHARP
             SetGlobalTexture(_AudioTexture, null);

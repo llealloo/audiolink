@@ -242,7 +242,14 @@ namespace AudioLink
             audioLink.UpdateSettings();
 
             // Toggle
-            audioLink.gameObject.SetActive(powerToggle.isOn);
+            if (powerToggle.isOn)
+            {
+                audioLink.EnableAudioLink();
+            }
+            else
+            {
+                audioLink.DisableAudioLink();
+            }
         }
 
         public void ResetSettings()
