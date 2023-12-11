@@ -25,7 +25,7 @@ namespace AudioLink
 #endif
     {
         const float AudioLinkVersionNumberMajor = 1.00f;
-        const float AudioLinkVersionNumberMinor = 2.00f;
+        const float AudioLinkVersionNumberMinor = 2.01f;
 
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
@@ -277,10 +277,6 @@ namespace AudioLink
         // TODO(3): try to port this to standalone
         void Start()
         {
-#if !UNITY_ANDROID
-            // remove camera if we aren't on quest
-            Destroy(GetComponent<Camera>());
-#endif
 #if UDONSHARP
             {
                 // Handle sync'd time stuff.
@@ -437,7 +433,6 @@ namespace AudioLink
                 return;
             }
 
-#if !UNITY_ANDROID
             if (audioDataToggle)
             {
 #if UDONSHARP
@@ -446,7 +441,6 @@ namespace AudioLink
                 AsyncGPUReadback.Request(audioRenderTexture, 0, TextureFormat.RGBAFloat, OnAsyncGpuReadbackComplete);
 #endif
             }
-#endif
 
             // Tested: There does not appear to be any drift updating it this way.
             _elapsedTime += Time.deltaTime;
@@ -563,16 +557,8 @@ namespace AudioLink
             UpdateCustomStrings();
 #endif
         }
-#if UNITY_ANDROID
-        void OnPostRender()
-        {
-            if (_audioLinkEnabled && audioDataToggle)
-            {
-                audioData2D.ReadPixels(new Rect(0, 0, audioData2D.width, audioData2D.height), 0, 0, false);
-                audioData = audioData2D.GetPixels();
-            }
-        }
-#elif UDONSHARP
+
+#if UDONSHARP
         public override void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
         {
             if (request.hasError || !request.done) return;
@@ -760,17 +746,11 @@ namespace AudioLink
         public void EnableReadback()
         {
             audioDataToggle = true;
-#if UNITY_ANDROID
-            GetComponent<Camera>().enabled = true;
-#endif
         }
 
         public void DisableReadback()
         {
             audioDataToggle = false;
-#if UNITY_ANDROID
-            GetComponent<Camera>().enabled = false;
-#endif
         }
 
         public void SendAudioOutputData()
