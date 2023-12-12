@@ -590,6 +590,7 @@ namespace AudioLink
 
         public void UpdateSettings()
         {
+            InitIDs();
             audioMaterial.SetFloat(_Gain, gain);
             audioMaterial.SetFloat(_FadeLength, fadeLength);
             audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
@@ -611,6 +612,7 @@ namespace AudioLink
         // rather than bundled in with the other things in UpdateSettings().
         public void UpdateThemeColors()
         {
+            InitIDs();
             audioMaterial.SetInt(_ThemeColorMode, themeColorMode);
             audioMaterial.SetColor(_CustomThemeColor0, customThemeColor0);
             audioMaterial.SetColor(_CustomThemeColor1, customThemeColor1);
@@ -689,6 +691,7 @@ namespace AudioLink
 
         private void UpdateGlobalString(int nameID, string input)
         {
+            InitIDs();
             const int maxLength = 32;
             if (input.Length > maxLength)
                 input = input.Substring(0, maxLength);
@@ -755,6 +758,7 @@ namespace AudioLink
 
         public void SendAudioOutputData()
         {
+            InitIDs();
             audioSource.GetOutputData(_audioFramesL, 0);                // left channel
 
             if (_rightChannelTestCounter > 0)
