@@ -11,6 +11,7 @@
 - Fixed normals being incorrectly flipped on the logo of the AudioLink controller. (llealloo)
 - Fixed a bug where shader ID's used by AudioLink weren't properly initialized in some cases. (Nestorboy)
 - Updated the shader used for the AudioLink controller logo to support single pass stereo instanced rendering. (Nestorboy)
+- Fix an issue where shader ID's were initialized too late when AudioLink API was used too early in the script execution cycle. (pema)
 
 ## 1.2.0 - October 9th, 2023
 ### Changes

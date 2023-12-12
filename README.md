@@ -23,6 +23,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Fixed normals being incorrectly flipped on the logo of the AudioLink controller. (llealloo)
 - Fixed a bug where shader ID's used by AudioLink weren't properly initialized in some cases. (Nestorboy)
 - Updated the shader used for the AudioLink controller logo to support single pass stereo instanced rendering. (Nestorboy)
+- Fix an issue where shader ID's were initialized too late when AudioLink API was used too early in the script execution cycle. (pema)
 
 ## Updating projects from version 0.2.8 or lower? (...first time setup? please see next section)
 1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
