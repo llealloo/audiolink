@@ -1,8 +1,9 @@
 ﻿#if UDONSHARP
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
+using VRC.SDK3.Data;
 using VRC.SDKBase;
-using VRC.Udon;
 
 namespace AudioLink
 {
@@ -10,334 +11,385 @@ namespace AudioLink
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class AudioLinkMidiControl : UdonSharpBehaviour
     {
+        // Configuration version that this version of AudioLink uses for Midi control
+        private const int _midiConfigFormatVersion = 1;
+
         public AudioLinkController _audioLinkController;
+        public bool _midiEnabled;
         public int _midiChannel;
-        public bool _allowMidi;
+        public int _resetWait = 2;
+        public TextAsset _midiConfig;
 
-        public bool _debugMidi;
+        public Text _currentDeckName;
 
-        public override void MidiNoteOn(int channel, int key, int value) {
+        private ThemeColorController _themeColorController;
+        private DataDictionary _json;
+        private DataList _midiDecks;
+        private bool _usableConfig;
+        private int _selectedDeck;
+        private int _selectedband;
+        private bool _countdownReset;
+        private int _resetTimer;
 
-            
+        private string[] _midiKeyMap = new string[128];
+        private string[] _midiKnobMap = new string[128];
 
-            // Check On Midi
-            if (_allowMidi && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_audioLinkController)) {
+        void Start()
+        {
 
-                if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.themeColorController)) {
+            _themeColorController = _audioLinkController.themeColorController;
+            _resetTimer = _resetWait * 50;
+            LoadConfig();
+            LoadDeck(0);
 
-                    ThemeColorController _themeColorController = _audioLinkController.themeColorController;
-                
-                    switch (key) {
+        }
 
-                        case (int)MidiIds.AudioLink:
-                        // Enable AudioLink
-                        _audioLinkController.powerToggle.isOn = true;
-                        break;
+        void FixedUpdate()
+        {
+            if (_countdownReset)
+            {
+                _resetTimer--;
+                if (_resetTimer <= 0)
+                {
+                    // Trigger Controller Reset
+                    _audioLinkController.ResetSettings();
+                    _themeColorController.ResetThemeColors();
 
-                        case (int)MidiIds.AutoGain:
-                        // Enable Auto Gain
-                        _audioLinkController.autoGainToggle.isOn = true;
-                        break;
+                    _countdownReset = false;
+                    _resetTimer = _resetWait * 50;
+                }
+            }
+        }
 
-                        case (int)MidiIds.ColorChord:
-                        // Enable Color Chord
-                        _themeColorController.themeColorToggle.isOn = true;
-                        break;
+        public void NextDeck()
+        {
+            _selectedDeck++;
+            if (_selectedDeck >= _midiDecks.Count) _selectedDeck = 0;
+            LoadDeck(_selectedDeck);
+        }
 
-                        case (int)MidiIds.Reset:
-                        // Trigger Controller Reset
-                        _audioLinkController.ResetSettings();
-                        _themeColorController.ResetThemeColors();
-                        break;
+        public void PrevDeck()
+        {
+            _selectedDeck--;
+            if (_selectedDeck < 0) _selectedDeck = _midiDecks.Count - 1;
+            LoadDeck(_selectedDeck);
+        }
 
-                        default:
-                        // No-op
-                        break;
+        private void LoadConfig()
+        {
 
-                    }
+            // Check if a config file is present, else use built-in
+            if (VRC.SDKBase.Utilities.IsValid(_midiConfig))
+            {
 
+                if (!VRCJson.TryDeserializeFromJson(_midiConfig.text, out DataToken jsonDataToken)) // Json had a parsing error
+                {
+                    Debug.LogError("[AudioLink-Midi] Json Parsing Failed!");
+                    return;
                 }
 
+                _json = jsonDataToken.DataDictionary;
+                if ((int)_json["ConfigFormat"].Number != _midiConfigFormatVersion) // Config uses different formatting
+                {
+                    Debug.LogError("[AudioLink-Midi] Configuration uses a different configuration format! Please use a newer or older file with the same format (" + _midiConfigFormatVersion + ")!");
+                    return;
+                }
+
+                _midiDecks = _json["MidiDecks"].DataList;
+                _usableConfig = true;
+
             }
+            else
+            {
 
-            if (_debugMidi) {
-
-                //Debug.Log(channel);
-                Debug.Log(key);
-                Debug.Log(value);
+                Debug.LogWarning("[AudioLink-Midi] Midi Controller has no configuration file!");
 
             }
 
         }
 
-        public override void MidiNoteOff(int channel, int key, int value) {
+        private void LoadDeck(int id)
+        {
+
+            if (_usableConfig)
+            {
+
+                _midiKeyMap = new string[128];
+                _midiKnobMap = new string[128];
+
+                DataDictionary selectedDeck = _midiDecks[id].DataDictionary;
+
+                DataDictionary deckKeys = selectedDeck["Keys"].DataDictionary;
+
+                DataToken[] keys = deckKeys.GetKeys().ToArray();
+                for (int index = 0; index < keys.Length; index++)
+                {
+
+                    string key = keys[index].String;
+                    _midiKeyMap[(int)deckKeys[key].DataDictionary["ID"].Number] = key;
+
+                }
+
+                DataDictionary deckKnobs = selectedDeck["Knobs"].DataDictionary;
+
+                DataToken[] knobs = deckKnobs.GetKeys().ToArray();
+                for (int index = 0; index < knobs.Length; index++)
+                {
+
+                    string knob = knobs[index].String;
+                    _midiKnobMap[(int)deckKnobs[knob].DataDictionary["ID"].Number] = knob;
+
+                }
+
+                if (VRC.SDKBase.Utilities.IsValid(_currentDeckName)) _currentDeckName.text = selectedDeck["Name"].String;
+
+            }
+            else
+            {
+
+                Debug.LogWarning("[AudioLink-Midi] Configuration is not loaded or broken!");
+
+            }
+
+        }
+
+        private bool AllowMidi(int channel)
+        {
+
+            if (VRC.SDKBase.Utilities.IsValid(_audioLinkController)) if (VRC.SDKBase.Utilities.IsValid(_themeColorController)) return _midiEnabled && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject);
+            return false;
+
+        }
+
+        private void MidiNoteChange(int channel, int key, int value, bool state)
+        {
 
             // Check Off Midi
-            if (_allowMidi && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_audioLinkController)) {
+            if (AllowMidi(channel))
+            {
 
-                if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.themeColorController)) {
+                switch (_midiKeyMap[key])
+                {
 
-                    ThemeColorController _themeColorController = _audioLinkController.themeColorController;
-                    
-                    switch (key) {
-
-                        case (int)MidiIds.AudioLink:
-                        // Disable AudioLink
-                        _audioLinkController.powerToggle.isOn = false;
+                    case "Enabled":
+                        // Toggle AudioLink on key release
+                        if (!state) _audioLinkController.powerToggle.isOn = !_audioLinkController.powerToggle.isOn;
                         break;
 
-                        case (int)MidiIds.AutoGain:
-                        // Disable Auto Gain
-                        _audioLinkController.autoGainToggle.isOn = false;
+                    case "ColorChord":
+                        // Toggle ColorChord on key release
+                        if (!state) _themeColorController.themeColorToggle.isOn = !_themeColorController.themeColorToggle.isOn;
                         break;
 
-                        case (int)MidiIds.ColorChord:
-                        // Disable Color Chord
-                        _themeColorController.themeColorToggle.isOn = false;
+                    case "AutoGain":
+                        // Toggle AutoGain on key release
+                        if (!state) _audioLinkController.autoGainToggle.isOn = !_audioLinkController.autoGainToggle.isOn;
                         break;
 
-                        case (int)MidiIds.Reset:
-                        // Trigger Controller Reset
-                        _audioLinkController.ResetSettings();
-                        _themeColorController.ResetThemeColors();
+                    case "Reset":
+                        _countdownReset = state;
+                        if (!state) _resetTimer = _resetWait * 50;
                         break;
 
-                        default:
+                    case "BandSelect0":
+                        // Set Selected Band to 1 when held
+                        _selectedband = state ? 1 : 0;
+                        _themeColorController.SelectCustomColor0();
+                        break;
+
+                    case "BandSelect1":
+                        // Set Selected Band to 2 when held
+                        _selectedband = state ? 2 : 0;
+                        _themeColorController.SelectCustomColorN(state ? 1 : 0);
+                        break;
+
+                    case "BandSelect2":
+                        // Set Selected Band to 3 when held
+                        _selectedband = state ? 3 : 0;
+                        _themeColorController.SelectCustomColorN(state ? 2 : 0);
+                        break;
+
+                    case "BandSelect3":
+                        // Set Selected Band to 4 when held
+                        _selectedband = state ? 4 : 0;
+                        _themeColorController.SelectCustomColorN(state ? 3 : 0);
+                        break;
+
+                    case "vEnable": // Software Enable
+                        _audioLinkController.powerToggle.isOn = state;
+                        break;
+
+                    case "vColorChord": // Software ColorChord
+                        _themeColorController.themeColorToggle.isOn = state;
+                        break;
+
+                    case "vAutoGain": // Software AutoGain
+                        _audioLinkController.autoGainToggle.isOn = state;
+                        break;
+
+                    default:
                         // No-op
                         break;
 
-                    }
-
                 }
-
-            }
-            
-            if (_debugMidi) {
-
-                //Debug.Log(channel);
-                Debug.Log(key);
-                Debug.Log(value);
 
             }
 
         }
 
-        public override void MidiControlChange(int channel, int key, int value) {
+        public override void MidiControlChange(int channel, int key, int value)
+        {
 
             // Check Change Midi
-            if (_allowMidi && channel == _midiChannel && Networking.IsOwner(_audioLinkController.gameObject) && VRC.SDKBase.Utilities.IsValid(_audioLinkController)) {
+            if (AllowMidi(channel))
+            {
 
-                if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.themeColorController)) {
+                float floatValue = (float)value / 127f;
 
-                    ThemeColorController _themeColorController = _audioLinkController.themeColorController;
-                
-                    float floatValue = (float)value / 127f;
+                float cutoff = floatValue / 4;
 
-                    float cutoff = floatValue / 4;
-                    
-                    switch (key) {
+                switch (_midiKnobMap[key])
+                {
 
-                        case (int)MidiIds.Gain: // 0
-                        // Handle Gain change
+                    case "Gain":
+                        // Gain change
                         _audioLinkController.gainSlider.value = floatValue * 2;
                         break;
 
-                        case (int)MidiIds.Bass: // 1
-                        // Handle Bass change
+                    case "Bass":
+                        // Bass change
                         if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.bassSlider)) _audioLinkController.bassSlider.value = floatValue * 2;
                         break;
 
-                        case (int)MidiIds.Treble: // 2
-                        // Handle Treble change
+                    case "Treble":
+                        // Treble change
                         if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.trebleSlider)) _audioLinkController.trebleSlider.value = floatValue * 2;
                         break;
 
-                        case (int)MidiIds.Length: // 3
-                        // Handle Length change
+                    case "Length":
+                        // Length change
                         _audioLinkController.fadeLengthSlider.value = floatValue;
                         break;
 
-                        case (int)MidiIds.Falloff: // 4 
-                        // Handle Falloff change
+                    case "Falloff":
+                        // Falloff change
                         _audioLinkController.fadeExpFalloffSlider.value = floatValue;
                         break;
 
-                        // Band 0
-
-                        case (int)MidiIds.Band0Hue: // 11
-                        // Handle Band 0 Hue change
-                        _themeColorController.SelectCustomColor0();
-                        _themeColorController.sliderHue.value = floatValue;
+                    case "BandSelectHue":
+                        // Selected Hue change
+                        if (_selectedband == 0)
+                        {
+                            // Gain change instead
+                            _audioLinkController.gainSlider.value = floatValue * 2;
+                        }
+                        else _themeColorController.sliderHue.value = floatValue;
                         break;
 
-                        case (int)MidiIds.Band0Saturation: // 12
-                        // Handle Band 0 Saturation change
-                        _themeColorController.SelectCustomColor0();
-                        _themeColorController.sliderSaturation.value = floatValue;
+                    case "BandSelectSaturation":
+                        // Selected Saturation change
+                        if (_selectedband == 0)
+                        {
+                            // Bass change instead
+                            if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.bassSlider)) _audioLinkController.bassSlider.value = floatValue * 2;
+                        }
+                        else _themeColorController.sliderSaturation.value = floatValue;
                         break;
 
-                        case (int)MidiIds.Band0Value: // 13
-                        // Handle Band 0 Value change
-                        _themeColorController.SelectCustomColor0();
-                        _themeColorController.sliderValue.value = floatValue;
+                    case "BandSelectValue":
+                        // Selected Value change
+                        if (_selectedband == 0)
+                        {
+                            // Treble change instead
+                            if (VRC.SDKBase.Utilities.IsValid(_audioLinkController.trebleSlider)) _audioLinkController.trebleSlider.value = floatValue * 2;
+                        }
+                        else _themeColorController.sliderValue.value = floatValue;
                         break;
 
-                        case (int)MidiIds.Band0Threshold: // 14
-                        // Handle Band 0 Threshold change
-                        _audioLinkController.threshold0Slider.value = floatValue;
+                    case "BandSelectThreshold":
+                        // Selected Threshold change
+                        switch (_selectedband)
+                        {
+                            case 1:
+                                _audioLinkController.threshold0Slider.value = floatValue;
+                                break;
+
+                            case 2:
+                                _audioLinkController.threshold1Slider.value = floatValue;
+                                break;
+
+                            case 3:
+                                _audioLinkController.threshold2Slider.value = floatValue;
+                                break;
+
+                            case 4:
+                                _audioLinkController.threshold3Slider.value = floatValue;
+                                break;
+
+                            case 0:
+                                // Length change instead
+                                _audioLinkController.fadeLengthSlider.value = floatValue;
+                                break;
+                        }
                         break;
 
-                        case (int)MidiIds.Band0: // 15
-                        // Handle Band 0 change
-                        _audioLinkController.x0Slider.value = cutoff;
+                    case "BandSelectStart":
+                        // Selected Start change
+                        switch (_selectedband)
+                        {
+                            case 1:
+                                _audioLinkController.x0Slider.value = cutoff;
+                                break;
+
+                            case 2:
+                                _audioLinkController.x1Slider.value = cutoff + .25f;
+                                break;
+
+                            case 3:
+                                _audioLinkController.x2Slider.value = cutoff + .5f;
+                                break;
+
+                            case 4:
+                                _audioLinkController.x3Slider.value = cutoff + .75f;
+                                break;
+
+                            case 0:
+                                // Falloff change instead
+                                _audioLinkController.fadeExpFalloffSlider.value = floatValue;
+                                break;
+                        }
                         break;
 
-                        // Band 1
-
-                        case (int)MidiIds.Band1Hue: // 21
-                        // Handle Band 1 Hue change
-                        _themeColorController.SelectCustomColor1();
-                        _themeColorController.sliderHue.value = floatValue;
+                    case "vBandSelect": // Software Band Select
+                        if (value > 4) value = 4;
+                        _selectedband = value;
                         break;
 
-                        case (int)MidiIds.Band1Saturation: // 22
-                        // Handle Band 1 Saturation change
-                        _themeColorController.SelectCustomColor1();
-                        _themeColorController.sliderSaturation.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band1Value: // 23
-                        // Handle Band 1 Value change
-                        _themeColorController.SelectCustomColor1();
-                        _themeColorController.sliderValue.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band1Threshold: // 24
-                        // Handle Band 1 Threshold change
-                        _audioLinkController.threshold1Slider.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band1: // 25
-                        // Handle Band 1 change
-                        _audioLinkController.x1Slider.value = cutoff + .25f;
-                        break;
-
-                        // Band 2
-
-                        case (int)MidiIds.Band2Hue: // 31
-                        // Handle Band 2 Hue change
-                        _themeColorController.SelectCustomColor2();
-                        _themeColorController.sliderHue.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band2Saturation: // 32
-                        // Handle Band 2 Saturation change
-                        _themeColorController.SelectCustomColor2();
-                        _themeColorController.sliderSaturation.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band2Value: // 33
-                        // Handle Band 2 Value change
-                        _themeColorController.SelectCustomColor2();
-                        _themeColorController.sliderValue.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band2Threshold: // 34
-                        // Handle Band 2 Threshold change
-                        _audioLinkController.threshold2Slider.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band2: // 35
-                        // Handle Band 2 change
-                        _audioLinkController.x2Slider.value = cutoff + .5f;
-                        break;
-
-                        // Band 3
-
-                        case (int)MidiIds.Band3Hue: // 41
-                        // Handle Band 3 Hue change
-                        _themeColorController.SelectCustomColor3();
-                        _themeColorController.sliderHue.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band3Saturation: // 42
-                        // Handle Band 3 Saturation change
-                        _themeColorController.SelectCustomColor3();
-                        _themeColorController.sliderSaturation.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band3Value: // 43
-                        // Handle Band 3 Value change
-                        _themeColorController.SelectCustomColor3();
-                        _themeColorController.sliderValue.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band3Threshold: // 44
-                        // Handle Band 3 Threshold change
-                        _audioLinkController.threshold3Slider.value = floatValue;
-                        break;
-
-                        case (int)MidiIds.Band3: // 45
-                        // Handle Band 3 change
-                        _audioLinkController.x3Slider.value = cutoff + .75f;
-                        break;
-
-                        default:
+                    default:
                         // No-op
                         break;
-
-                    }
 
                 }
 
             }
-            
-            if (_debugMidi) {
-
-                //Debug.Log(channel);
-                Debug.Log(key);
-                Debug.Log(value);
-
-            }
 
         }
-    }
 
-    enum MidiIds {
-        Gain = 0,
-        Bass = 1,
-        Treble = 2,
-        Length = 3,
-        Falloff = 4,
-        ColorChord = 5,
-        Reset = 6,
-        AudioLink = 7,
-        AutoGain = 8,
+        public override void MidiNoteOn(int channel, int key, int value)
+        {
 
-        Band0Hue = 11,
-        Band0Saturation = 12,
-        Band0Value = 13,
-        Band0Threshold = 14,
-        Band0 = 15,
+            MidiNoteChange(channel, key, value, true);
 
-        Band1Hue = 21,
-        Band1Saturation = 22,
-        Band1Value = 23,
-        Band1Threshold = 24,
-        Band1 = 25,
+        }
 
-        Band2Hue = 31,
-        Band2Saturation = 32,
-        Band2Value = 33,
-        Band2Threshold = 34,
-        Band2 = 35,
+        public override void MidiNoteOff(int channel, int key, int value)
+        {
 
-        Band3Hue = 41,
-        Band3Saturation = 42,
-        Band3Value = 43,
-        Band3Threshold = 44,
-        Band3 = 45
+            MidiNoteChange(channel, key, value, false);
+
+        }
 
     }
+
 }
 #endif

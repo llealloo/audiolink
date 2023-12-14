@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7987607375305520544}
   - component: {fileID: 7987607375305520551}
   m_Layer: 0
-  m_Name: MidiController
+  m_Name: AudioLinkMidiController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,12 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7987607375305520550}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7987607375305520545
 MonoBehaviour:
@@ -69,10 +70,12 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 7987607375305520551}
-  _AudioLinkController: {fileID: 0}
-  allowMidi: 1
-  midiChannel: 0
-  _debugMidi: 0
+  _audioLinkController: {fileID: 0}
+  _midiEnabled: 0
+  _midiChannel: 0
+  _resetWait: 2
+  _midiConfig: {fileID: 4900000, guid: dfca7d191128b984688e229bca7a7291, type: 3}
+  _currentDeckName: {fileID: 0}
 --- !u!114 &7987607375305520551
 MonoBehaviour:
   m_ObjectHideFlags: 0
