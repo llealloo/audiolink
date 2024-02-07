@@ -738,7 +738,7 @@ namespace AudioLink
         public void DisableAudioLink()
         {
             _audioLinkEnabled = false;
-            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+            if (audioRenderTexture != null) { audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand; }
 #if UDONSHARP
             SetGlobalTexture(_AudioTexture, null);
 #else
