@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 namespace AudioLink
 {
@@ -6,70 +7,105 @@ namespace AudioLink
     {
         #region Passes
         /// <remarks>Corresponds to ALPASS_DFT in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassDft => new Vector2(0, 4);
+        public static Vector2 GetALPassDft() => new Vector2(0, 4);
         /// <remarks>Corresponds to ALPASS_WAVEFORM in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassWaveform => new Vector2(0, 6);
+        public static Vector2 GetALPassWaveform() => new Vector2(0, 6);
         /// <remarks>Corresponds to ALPASS_AUDIOLINK in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAudioLink => new Vector2(0, 0);
+        public static Vector2 GetALPassAudioLink() => new Vector2(0, 0);
         /// <remarks>Corresponds to ALPASS_AUDIOBASS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAudioBass => new Vector2(0, 0);
+        public static Vector2 GetALPassAudioBass() => new Vector2(0, 0);
         /// <remarks>Corresponds to ALPASS_AUDIOLOWMIDS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAudioLowMids => new Vector2(0, 1);
+        public static Vector2 GetALPassAudioLowMids() => new Vector2(0, 1);
         /// <remarks>Corresponds to ALPASS_AUDIOHIGHMIDS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAudioHighMids => new Vector2(0, 2);
+        public static Vector2 GetALPassAudioHighMids() => new Vector2(0, 2);
         /// <remarks>Corresponds to ALPASS_AUDIOTREBLE in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAudioTreble => new Vector2(0, 3);
+        public static Vector2 GetALPassAudioTreble() => new Vector2(0, 3);
         /// <remarks>Corresponds to ALPASS_AUDIOLINKHISTORY in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAudioLinkHistory => new Vector2(1, 0);
+        public static Vector2 GetALPassAudioLinkHistory() => new Vector2(1, 0);
         /// <remarks>Corresponds to ALPASS_GENERALVU in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVU => new Vector2(0, 22);
+        public static Vector2 GetALPassGeneralVU() => new Vector2(0, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_INSTANCE_TIME in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVUInstanceTime => new Vector2(2, 22);
+        public static Vector2 GetALPassGeneralVUInstanceTime() => new Vector2(2, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_LOCAL_TIME in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVULocalTime => new Vector2(3, 22);
+        public static Vector2 GetALPassGeneralVULocalTime() => new Vector2(3, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_NETWORK_TIME in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVUNetworkTime => new Vector2(4, 22);
+        public static Vector2 GetALPassGeneralVUNetworkTime() => new Vector2(4, 22);
         /// <remarks>Corresponds to ALPASS_GENERALVU_PLAYERINFO in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVUPlayerInfo => new Vector2(6, 22);
+        public static Vector2 GetALPassGeneralVUPlayerInfo() => new Vector2(6, 22);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR0 in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassThemeColor0 => new Vector2(0, 23);
+        public static Vector2 GetALPassThemeColor0() => new Vector2(0, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR1 in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassThemeColor1 => new Vector2(1, 23);
+        public static Vector2 GetALPassThemeColor1() => new Vector2(1, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR2 in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassThemeColor2 => new Vector2(2, 23);
+        public static Vector2 GetALPassThemeColor2() => new Vector2(2, 23);
         /// <remarks>Corresponds to ALPASS_THEME_COLOR3 in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassThemeColor3 => new Vector2(3, 23);
+        public static Vector2 GetALPassThemeColor3() => new Vector2(3, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_DAYS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVUUnixDays => new Vector2(5, 23);
+        public static Vector2 GetALPassGeneralVUUnixDays() => new Vector2(5, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_SECONDS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVUUnixSeconds => new Vector2(6, 23);
+        public static Vector2 GetALPassGeneralVUUnixSeconds() => new Vector2(6, 23);
         /// <remarks>Corresponds to ALPASS_GENERALVU_SOURCE_POS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGeneralVUSourcePos => new Vector2(7, 23);
+        public static Vector2 GetALPassGeneralVUSourcePos() => new Vector2(7, 23);
         /// <remarks>Corresponds to ALPASS_MEDIASTATE in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassMediaState => new Vector2(5, 22);
+        public static Vector2 GetALPassMediaState() => new Vector2(5, 22);
 
         /// <remarks>Corresponds to ALPASS_CCINTERNAL in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassCcInternal => new Vector2(12, 22);
+        public static Vector2 GetALPassCcInternal() => new Vector2(12, 22);
         /// <remarks>Corresponds to ALPASS_CCCOLORS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassCcColors => new Vector2(25, 22);
+        public static Vector2 GetALPassCcColors() => new Vector2(25, 22);
         /// <remarks>Corresponds to ALPASS_CCSTRIP in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassCcStrip => new Vector2(0, 24);
+        public static Vector2 GetALPassCcStrip() => new Vector2(0, 24);
         /// <remarks>Corresponds to ALPASS_CCLIGHTS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassCcLights => new Vector2(0, 25);
+        public static Vector2 GetALPassCcLights() => new Vector2(0, 25);
         /// <remarks>Corresponds to ALPASS_AUTOCORRELATOR in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassAutoCorrelator => new Vector2(0, 27);
+        public static Vector2 GetALPassAutoCorrelator() => new Vector2(0, 27);
         /// <remarks>Corresponds to ALPASS_FILTEREDAUDIOLINK in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassFilteredAudioLink => new Vector2(0, 28);
+        public static Vector2 GetALPassFilteredAudioLink() => new Vector2(0, 28);
         /// <remarks>Corresponds to ALPASS_CHRONOTENSITY in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassChronotensity => new Vector2(16, 28);
+        public static Vector2 GetALPassChronotensity() => new Vector2(16, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassFilteredVU => new Vector2(24, 28);
+        public static Vector2 GetALPassFilteredVU() => new Vector2(24, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU_INTENSITY in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassFilteredVUIntensity => new Vector2(24, 28);
+        public static Vector2 GetALPassFilteredVUIntensity() => new Vector2(24, 28);
         /// <remarks>Corresponds to ALPASS_FILTEREDVU_MARKER in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassFilteredVUMarker => new Vector2(24, 29);
+        public static Vector2 GetALPassFilteredVUMarker() => new Vector2(24, 29);
         /// <remarks>Corresponds to ALPASS_GLOBAL_STRINGS in AudioLink.cginc.</remarks>
-        public static Vector2 ALPassGlobalStrings => new Vector2(40, 28);
+        public static Vector2 GetALPassGlobalStrings() => new Vector2(40, 28);
+        #endregion
+
+        #region Deprecated
+        [Obsolete("Use the AudioLink.ALPassDft() function instead.")] public static Vector2 ALPassDft => new Vector2(0, 4);
+        [Obsolete("Use the AudioLink.ALPassWaveform() function instead.")] public static Vector2 ALPassWaveform => new Vector2(0, 6);
+        [Obsolete("Use the AudioLink.ALPassAudioLink() function instead.")] public static Vector2 ALPassAudioLink => new Vector2(0, 0);
+        [Obsolete("Use the AudioLink.ALPassAudioBass() function instead.")] public static Vector2 ALPassAudioBass => new Vector2(0, 0);
+        [Obsolete("Use the AudioLink.ALPassAudioLowMids() function instead.")] public static Vector2 ALPassAudioLowMids => new Vector2(0, 1);
+        [Obsolete("Use the AudioLink.ALPassAudioHighMids() function instead.")] public static Vector2 ALPassAudioHighMids => new Vector2(0, 2);
+        [Obsolete("Use the AudioLink.ALPassAudioTreble() function instead.")] public static Vector2 ALPassAudioTreble => new Vector2(0, 3);
+        [Obsolete("Use the AudioLink.ALPassAudioLinkHistory() function instead.")] public static Vector2 ALPassAudioLinkHistory => new Vector2(1, 0);
+        [Obsolete("Use the AudioLink.ALPassGeneralVU() function instead.")] public static Vector2 ALPassGeneralVU => new Vector2(0, 22);
+        [Obsolete("Use the AudioLink.ALPassGeneralVUInstanceTime() function instead.")] public static Vector2 ALPassGeneralVUInstanceTime => new Vector2(2, 22);
+        [Obsolete("Use the AudioLink.ALPassGeneralVULocalTime() function instead.")] public static Vector2 ALPassGeneralVULocalTime => new Vector2(3, 22);
+        [Obsolete("Use the AudioLink.ALPassGeneralVUNetworkTime() function instead.")] public static Vector2 ALPassGeneralVUNetworkTime => new Vector2(4, 22);
+        [Obsolete("Use the AudioLink.ALPassGeneralVUPlayerInfo() function instead.")] public static Vector2 ALPassGeneralVUPlayerInfo => new Vector2(6, 22);
+        [Obsolete("Use the AudioLink.ALPassThemeColor0() function instead.")] public static Vector2 ALPassThemeColor0 => new Vector2(0, 23);
+        [Obsolete("Use the AudioLink.ALPassThemeColor1() function instead.")] public static Vector2 ALPassThemeColor1 => new Vector2(1, 23);
+        [Obsolete("Use the AudioLink.ALPassThemeColor2() function instead.")] public static Vector2 ALPassThemeColor2 => new Vector2(2, 23);
+        [Obsolete("Use the AudioLink.ALPassThemeColor3() function instead.")] public static Vector2 ALPassThemeColor3 => new Vector2(3, 23);
+        [Obsolete("Use the AudioLink.ALPassGeneralVUUnixDays() function instead.")] public static Vector2 ALPassGeneralVUUnixDays => new Vector2(5, 23);
+        [Obsolete("Use the AudioLink.ALPassGeneralVUUnixSeconds() function instead.")] public static Vector2 ALPassGeneralVUUnixSeconds => new Vector2(6, 23);
+        [Obsolete("Use the AudioLink.ALPassGeneralVUSourcePos() function instead.")] public static Vector2 ALPassGeneralVUSourcePos => new Vector2(7, 23);
+        [Obsolete("Use the AudioLink.ALPassMediaState() function instead.")] public static Vector2 ALPassMediaState => new Vector2(5, 22);
+        [Obsolete("Use the AudioLink.ALPassCcInternal() function instead.")] public static Vector2 ALPassCcInternal => new Vector2(12, 22);
+        [Obsolete("Use the AudioLink.ALPassCcColors() function instead.")] public static Vector2 ALPassCcColors => new Vector2(25, 22);
+        [Obsolete("Use the AudioLink.ALPassCcStrip() function instead.")] public static Vector2 ALPassCcStrip => new Vector2(0, 24);
+        [Obsolete("Use the AudioLink.ALPassCcLights() function instead.")] public static Vector2 ALPassCcLights => new Vector2(0, 25);
+        [Obsolete("Use the AudioLink.ALPassAutoCorrelator() function instead.")] public static Vector2 ALPassAutoCorrelator => new Vector2(0, 27);
+        [Obsolete("Use the AudioLink.ALPassFilteredAudioLink() function instead.")] public static Vector2 ALPassFilteredAudioLink => new Vector2(0, 28);
+        [Obsolete("Use the AudioLink.ALPassChronotensity() function instead.")] public static Vector2 ALPassChronotensity => new Vector2(16, 28);
+        [Obsolete("Use the AudioLink.ALPassFilteredVU() function instead.")] public static Vector2 ALPassFilteredVU => new Vector2(24, 28);
+        [Obsolete("Use the AudioLink.ALPassFilteredVUIntensity() function instead.")] public static Vector2 ALPassFilteredVUIntensity => new Vector2(24, 28);
+        [Obsolete("Use the AudioLink.ALPassFilteredVUMarker() function instead.")] public static Vector2 ALPassFilteredVUMarker => new Vector2(24, 29);
+        [Obsolete("Use the AudioLink.ALPassGlobalStrings() function instead.")] public static Vector2 ALPassGlobalStrings => new Vector2(40, 28);
         #endregion
 
         #region Constants
@@ -254,7 +290,7 @@ namespace AudioLink
         public Vector4 GetAmplitudeAtFrequency(float hertz)
         {
             float note = AudioLinkExpBins * Mathf.Log(hertz / AudioLinkBottomFrequency, 2);
-            return LerpAudioDataAtPixelMultiline(ALPassDft + new Vector2(note, 0));
+            return LerpAudioDataAtPixelMultiline(GetALPassDft() + new Vector2(note, 0));
         }
 
         /// <summary>
@@ -266,7 +302,7 @@ namespace AudioLink
         /// <remarks>Corresponds to AudioLinkGetAmplitudeAtQuarterNote() in AudioLink.cginc.</remarks>
         public Vector4 GetAmplitudeAtQuarterNote(float octave, float quarter)
         {
-            return LerpAudioDataAtPixelMultiline(ALPassDft + new Vector2(octave * AudioLinkExpBins + quarter, 0));
+            return LerpAudioDataAtPixelMultiline(GetALPassDft() + new Vector2(octave * AudioLinkExpBins + quarter, 0));
         }
 
         /// <summary>
@@ -320,7 +356,7 @@ namespace AudioLink
         /// <remarks>Corresponds to AudioLinkGetChronoTime() in AudioLink.cginc.</remarks>
         public float GetChronoTime(uint index, uint band)
         {
-            return (DecodeDataAsUInt(ALPassChronotensity + new Vector2((int)index, (int)band))) / 100000.0f;
+            return (DecodeDataAsUInt(GetALPassChronotensity() + new Vector2((int)index, (int)band))) / 100000.0f;
         }
 
         /// <summary>

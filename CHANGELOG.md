@@ -1,6 +1,9 @@
 # Changelog
 
 ## ??? - ???, 2024
+### Changes
+- Deprecated various static properties in AudioLink.DataAPI in favor of static functions to work around a miscompilation bug in UdonSharp.
+
 ### Bugfixes
 - Fixed an issue where an exception would be thrown when leaving a world with AudioLink enabled. (@ShingenPizza)
 
