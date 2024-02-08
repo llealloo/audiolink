@@ -1,5 +1,9 @@
 # Changelog
 
+## ??? - ???, 2024
+### Bugfixes
+- Fixed an issue where an exception would be thrown when leaving a world with AudioLink enabled. (@ShingenPizza)
+
 ## 1.2.1 - December 9th, 2023
 ### Changes
 - Enabled Async GPU readbacks on mobile platforms, including Quest. This let's you access data via Udon much more cheaply. To facilitate this, AudioLink now requires Unity 2022.3 or newer. (pema)
