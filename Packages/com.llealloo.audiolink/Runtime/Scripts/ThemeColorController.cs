@@ -81,6 +81,9 @@ namespace AudioLink
             _themeColorMode = themeColorToggle.isOn ? 0 : 1;
             UpdateGUI();
             UpdateAudioLinkThemeColors();
+#if UDONSHARP
+            RequestSerialization();
+#endif
         }
 
         public void ForceThemeColorMode()
