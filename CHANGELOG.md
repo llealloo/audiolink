@@ -6,6 +6,7 @@
 
 ### Bugfixes
 - Fixed an issue where an exception would be thrown when leaving a world with AudioLink enabled. (@ShingenPizza)
+- Fixed a bug where theme colors would reset when someone joins the instance. (Teeh, orels1, pema)
 
 ## 1.2.1 - December 9th, 2023
 ### Changes
