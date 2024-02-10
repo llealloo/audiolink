@@ -51,31 +51,41 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 1. In a file browser, delete the "Assets/AudioLink" folder and the "AudioLink.meta" file.
 2. Follow the "First time setup" steps for avatar projects described below.
 
-## First time setup
+
+## Installation
 Looking to test out an avatar? See the "For Avatar Testing" section. Otherwise, see the "For Worlds" section below. After installation, check the "Getting Started" section for some tips.
 
-### For Worlds
+### Windows 
 1. Download and install the [VRChat Creator Companion](https://vrchat.com/download/vcc) (VCC), open it up.
 2. Add your project to the VCC:
    - If you want to create a new project, use the "New" option in the "Projects" tab and follow the steps there.
    - If you want to use an existing project, use the "Add" option in the "Projects" tab and follow the steps there.
 3. Open the Projects tab and select your project. If you have never used the VCC with the project, use the "Migrate" button to upgrade it.
 4. On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
+
+#### For Worlds
 5. At this point, the installation is done. To open your project, you can use the "Open Project" button in the VCC. If you want to view the example scene, use the "AudioLink -> Open AudioLink Example Scene" button in the top menu of the editor.
 
-### For Avatar Testing
-1. Download and install the [VRChat Creator Companion](https://vrchat.com/download/vcc) (VCC), open it up.
-2. Add your project to the VCC:
-   - If you want to create a new project, use the "New" option in the "Projects" tab and follow the steps there.
-   - If you want to use an existing project, use the "Add" option in the "Projects" tab and follow the steps there.
-3. Open the Projects tab and select your project. If you have never used the VCC with the project, use the "Migrate" button to upgrade it.
-4. On the right side, find the AudioLink package and add it. If it doesn't show up, make sure you have the "Curated" toggle enabled in the top-right drop-down.
+#### For Avatar Testing
 5. Use the "Tools/AudioLink/Add AudioLink Prefab to Scene" menu item.
 6. Under AudioLinkAvatar/AudioLinkInput, add a music track to the AudioClip in the AudioSource.
    - If you need it louder, duplicate the AudioLinkInput object and increase the volume on that one. Make sure Not to adjust the volume on the main AudioLinkInput object - it needs to stay at 0.01.
 7. Enter playmode to test your avatar.
 
-### For non-VRChat uses (including CVR)
+### Linux/macOs/Windows 
+
+For installing on Linux and macOS, and for Windows users who prefer the command line, we recommend using `vrc-get`. This is because, at the time of writing, `vpm` has unresolved bug(s) that might stop it from working on some systems.
+
+#### vrc-get
+1. Install [vrc-get](https://github.com/anatawa12/vrc-get?tab=readme-ov-file#installation)
+2. Open a console and `cd /path/to/your/project`
+3. Run `vrc-get i audiolink`
+
+#### vpm
+1. Install [vpm](https://vcc.docs.vrchat.com/vpm/cli/#installation--updating/) and follow their setup instructions
+2. Run `vpm add package com.llealloo.audiolink -p /path/to/your/unity/project`
+
+#### For non-VRChat uses (including CVR)
 1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
 2. Use the "Tools/AudioLink/Add AudioLink Prefab to Scene" menu item. It should work out of the box.
 
