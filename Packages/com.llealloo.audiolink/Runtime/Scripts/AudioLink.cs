@@ -15,11 +15,9 @@ namespace AudioLink
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public partial class AudioLink : UdonSharpBehaviour
 #else
-    using static Shader;
-
     using Unity.Collections;
-
     using UnityEngine.Rendering;
+    using static Shader;
 
     public partial class AudioLink : MonoBehaviour
 #endif
@@ -569,7 +567,7 @@ namespace AudioLink
         public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
         {
             if (request.hasError || !request.done) return;
-            
+
             NativeArray<Color> data = request.GetData<Color>();
             for (int i = 0; i < data.Length; i++)
             {

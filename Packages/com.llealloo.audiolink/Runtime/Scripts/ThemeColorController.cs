@@ -92,7 +92,7 @@ namespace AudioLink
             {
                 return;
             }
-            
+
             themeColorToggle.isOn = false;
         }
 
