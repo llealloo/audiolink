@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: PickupObjectFollowPlayer
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 13ababc93372fe64c8f94c27f7d434e3,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: c5e44aa6c013bd0e1b5e8d110fc0d2fe,
     type: 2}
   udonAssembly: 
   assemblyError: 

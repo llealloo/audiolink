@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: DoorZoneAudio
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2f359af3330bc3b4f9eff0fdd1d57e8a,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7815333aad8b54a7480e581f03d55f3e,
     type: 2}
   udonAssembly: 
   assemblyError: 

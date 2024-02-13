@@ -397,7 +397,7 @@ PlayerSettings:
   - m_BuildTarget: BJMSupport
     m_GraphicsJobs: 1
   - m_BuildTarget: LinuxStandaloneSupport
-    m_GraphicsJobs: 1
+    m_GraphicsJobs: 0
   - m_BuildTarget: PS4Player
     m_GraphicsJobs: 1
   - m_BuildTarget: iOSSupport

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: GrindDetector
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 56dabb3f6a6414846be61383305c2928,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 58751a8b721de19a18693e971e847ff0,
     type: 2}
   udonAssembly: 
   assemblyError: 

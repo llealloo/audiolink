@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioLinkExperimentalToggle
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: e31842b5a9ca40e40b88452c339507cf,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 60e4dd0984630c182aa3683680a66dbf,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 1
-  scriptID: 2570728851729261087
+  scriptID: 4090637432779160194
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCAudioLink.AudioLink, AudioLink
+      Data: AudioLink.AudioLink, AudioLink
     - Name: 
       Entry: 8
       Data: 

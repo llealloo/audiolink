@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: LocalTrackingAttachment
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: d58f2b90da9a03446b29d3acb7e3a553,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 000cd2573821fdc2b91e3f174f4407f4,
     type: 2}
   udonAssembly: 
   assemblyError: 
