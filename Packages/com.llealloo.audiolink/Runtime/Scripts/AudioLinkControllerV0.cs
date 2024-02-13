@@ -4,12 +4,10 @@ using UnityEngine.UI;
 namespace AudioLink
 {
 #if UDONSHARP
-    using static VRC.SDKBase.VRCShader;
-
     using UdonSharp;
-
     using VRC.SDKBase;
     using VRC.Udon;
+    using static VRC.SDKBase.VRCShader;
 
     public class AudioLinkControllerV0 : UdonSharpBehaviour
 #else

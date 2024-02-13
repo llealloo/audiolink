@@ -5,12 +5,10 @@ using UnityEngine;
 namespace AudioLink
 {
 #if UDONSHARP
-    using static VRC.SDKBase.VRCShader;
-
     using UdonSharp;
-
     using VRC.SDK3.Rendering;
     using VRC.SDKBase;
+    using static VRC.SDKBase.VRCShader;
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public partial class AudioLink : UdonSharpBehaviour
