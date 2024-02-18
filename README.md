@@ -12,18 +12,14 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Frequently Asked Questions](FAQ.md)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 1.2.1 - December 9th, 2023
+## 1.3.0 - February 18th, 2024
 ### Changes
-- Enabled Async GPU readbacks on mobile platforms, including Quest. This let's you access data via Udon much more cheaply. To facilitate this, AudioLink now requires Unity 2022.3 or newer. (pema)
-- Moved the AudioLink menu in the top menu bar into the "Tools" submenu, to bring it in line with other similar packages. (techanon)
-- Updated the "Add AudioLink Prefab to Scene" button to check for the existence of a prefab before adding a new one. (techanon)
-- Made the controller call `AudioLink.AudioLinkEnable` and `AudioLink.AudioLinkDisable` instead of toggling the AudioLink GameObject. (Nestorboy)
+- Deprecated various static properties in AudioLink.DataAPI in favor of static functions to work around a miscompilation bug in UdonSharp.
+- Deprecated the underused "AudioLink extra packages", which contains a single "AudioLinkZone" script. The script is now in the main package.
 
 ### Bugfixes
-- Fixed normals being incorrectly flipped on the logo of the AudioLink controller. (llealloo)
-- Fixed a bug where shader ID's used by AudioLink weren't properly initialized in some cases. (Nestorboy)
-- Updated the shader used for the AudioLink controller logo to support single pass stereo instanced rendering. (Nestorboy)
-- Fix an issue where shader ID's were initialized too late when AudioLink API was used too early in the script execution cycle. (pema)
+- Fixed an issue where an exception would be thrown when leaving a world with AudioLink enabled. (@ShingenPizza)
+- Fixed a bug where theme colors would reset when someone joins the instance. (Teeh, orels1, pema)
 
 ## Updating projects from version 0.2.8 or lower? (...first time setup? please see next section)
 1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
