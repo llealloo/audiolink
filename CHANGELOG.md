@@ -3,6 +3,7 @@
 ## ??? - ???, 2024
 ### Changes
 - Deprecated various static properties in AudioLink.DataAPI in favor of static functions to work around a miscompilation bug in UdonSharp.
+- Deprecated the underused "AudioLink extra packages", which contains a single "AudioLinkZone" script. The script is now in the main package.
 
 ### Bugfixes
 - Fixed an issue where an exception would be thrown when leaving a world with AudioLink enabled. (@ShingenPizza)
