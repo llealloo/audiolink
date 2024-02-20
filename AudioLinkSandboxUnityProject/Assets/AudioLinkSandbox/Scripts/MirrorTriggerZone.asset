@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: MirrorTriggerZone
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: fff65cef275b2564486ca523d64adb04,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 1c1162250664d16a7a570e04e8bc6181,
     type: 2}
   udonAssembly: 
   assemblyError: 

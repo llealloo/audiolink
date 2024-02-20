@@ -12,142 +12,139 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f11136daadff0b44ac2278a314682ab, type: 3}
   m_Name: PlayerTriggerChangeGravity
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2b64a6cb9ceb60e45bdc146722e7b72e,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ad240e026a1849288aa5732b263eb151,
     type: 2}
-  udonAssembly: ".data_start\r\n\r\n    .export GravityIn\r\n    .export GravityOut\r\n   
-    .export JetVelocityMultiplier\r\n    .export JetDelay\r\n    .export DefaultJumpImpulse\r\n   
-    .export ThrustObject\r\n    .export LinkToView\r\n    \r\n    __Boolean_0: %SystemBoolean,
-    null\r\n    __instance_0: %VRCSDKBaseVRCPlayerApi, null\r\n    onPlayerTriggerEnterPlayer:
-    %VRCSDKBaseVRCPlayerApi, null\r\n    __instance_1: %VRCSDKBaseVRCPlayerApi, null\r\n   
-    __strength_0: %SystemSingle, null\r\n    __Boolean_1: %SystemBoolean, null\r\n   
-    __Boolean_2: %SystemBoolean, null\r\n    __instance_2: %VRCSDKBaseVRCPlayerApi,
-    null\r\n    onPlayerTriggerExitPlayer: %VRCSDKBaseVRCPlayerApi, null\r\n    __instance_3:
-    %VRCSDKBaseVRCPlayerApi, null\r\n    __strength_1: %SystemSingle, null\r\n   
-    __Boolean_3: %SystemBoolean, null\r\n    __instance_4: %VRCSDKBaseVRCPlayerApi,
-    null\r\n    __impulse_0: %SystemSingle, null\r\n    __Boolean_4: %SystemBoolean,
-    null\r\n    __Boolean_5: %SystemBoolean, null\r\n    __Boolean_6: %SystemBoolean,
-    null\r\n    __instance_5: %VRCSDKBaseVRCPlayerApi, null\r\n    onPlayerTriggerStayPlayer:
-    %VRCSDKBaseVRCPlayerApi, null\r\n    __Boolean_7: %SystemBoolean, null\r\n   
-    __instance_6: %UnityEngineGameObject, this\r\n    __other_0: %SystemObject, null\r\n   
-    __instance_7: %UnityEngineTransform, this\r\n    __value_0: %UnityEngineQuaternion,
-    null\r\n    __instance_8: %UnityEngineGameObject, this\r\n    __instance_9: %VRCSDKBaseVRCPlayerApiTrackingData,
-    null\r\n    __instance_A: %VRCSDKBaseVRCPlayerApi, null\r\n    __tt_0: %VRCSDKBaseVRCPlayerApiTrackingDataType,
-    null\r\n    __Boolean_8: %SystemBoolean, null\r\n    __instance_B: %VRCSDKBaseVRCPlayerApi,
-    null\r\n    __impulse_1: %SystemSingle, null\r\n    __Boolean_9: %SystemBoolean,
-    null\r\n    __instance_C: %UnityEngineGameObject, this\r\n    __other_1: %SystemObject,
-    null\r\n    __Boolean_A: %SystemBoolean, null\r\n    __Boolean_B: %SystemBoolean,
-    null\r\n    __Boolean_C: %SystemBoolean, null\r\n    __Boolean_D: %SystemBoolean,
-    null\r\n    __Boolean_E: %SystemBoolean, null\r\n    __instance_D: %VRCSDKBaseVRCPlayerApi,
-    null\r\n    __instance_E: %VRCSDKBaseVRCPlayerApi, null\r\n    __velocity_0:
-    %UnityEngineVector3, null\r\n    __vector_0: %UnityEngineVector3, null\r\n   
-    __maxLength_0: %SystemSingle, null\r\n    __Single_0: %SystemSingle, null\r\n   
-    __Vector3_0: %UnityEngineVector3, null\r\n    __Vector3_1: %UnityEngineVector3,
-    null\r\n    __Vector3_2: %UnityEngineVector3, null\r\n    __instance_F: %VRCSDKBaseVRCPlayerApi,
-    null\r\n    __instance_10: %UnityEngineTransform, this\r\n    __instance_11:
-    %UnityEngineGameObject, this\r\n    __instance_12: %VRCUdonUdonBehaviour, this\r\n   
-    __eventName_0: %SystemString, null\r\n    __Boolean_F: %SystemBoolean, null\r\n   
-    __Boolean_10: %SystemBoolean, null\r\n    __object_0: %SystemObject, null\r\n   
-    __instance_13: %UnityEngineGameObject, this\r\n    __type_0: %SystemType, null\r\n   
-    __Type_0: %SystemType, null\r\n    __result_0: %SystemBoolean, null\r\n    __instance_14:
-    %VRCUdonUdonBehaviour, this\r\n    __eventName_1: %SystemString, null\r\n   
-    __instance_15: %VRCUdonUdonBehaviour, this\r\n    __eventName_2: %SystemString,
-    null\r\n    __delaySeconds_0: %SystemSingle, null\r\n    __eventTiming_0: %VRCUdonCommonEnumsEventTiming,
-    null\r\n    __instance_16: %UnityEngineAudioSource, null\r\n    __value_1: %SystemSingle,
-    null\r\n    __Type_1: %SystemType, null\r\n    __min_0: %SystemSingle, null\r\n   
-    __max_0: %SystemSingle, null\r\n    __instance_18: %UnityEngineAudioSource, null\r\n   
-    __instance_17: %UnityEngineGameObject, this\r\n    __type_1: %SystemType, null\r\n   
-    __Type_2: %SystemType, null\r\n    __returnValue: %SystemObject, null\r\n   
-    GravityIn: %SystemSingle, null\r\n    GravityOut: %SystemSingle, null\r\n   
-    JetVelocityMultiplier: %SystemSingle, null\r\n    IsInside: %SystemBoolean, null\r\n   
-    Jets: %SystemBoolean, null\r\n    JetDelay: %SystemSingle, null\r\n    DefaultJumpImpulse:
-    %SystemSingle, null\r\n    ThrustObject: %UnityEngineGameObject, this\r\n   
-    LinkToView: %SystemBoolean, null\r\n\r\n.data_end\r\n\r\n.code_start\r\n\r\n   
-    .export _onPlayerTriggerEnter\r\n    \r\n    _onPlayerTriggerEnter:\r\n    \r\n       
-    PUSH, onPlayerTriggerEnterPlayer\r\n        PUSH, __instance_0\r\n        COPY\r\n       
-    PUSH, __instance_0\r\n        PUSH, __Boolean_0\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\r\n       
-    PUSH, __Boolean_0\r\n        JUMP_IF_FALSE, 0x00000084\r\n        PUSH, onPlayerTriggerEnterPlayer\r\n       
-    PUSH, __instance_1\r\n        COPY\r\n        PUSH, __instance_1\r\n        PUSH,
-    GravityIn\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetGravityStrength__SystemSingle__SystemVoid\"\r\n       
-    PUSH, __Boolean_1\r\n        PUSH, IsInside\r\n        COPY\r\n        JUMP,
-    0x00000084\r\n        JUMP, 0xFFFFFFFC\r\n    \r\n    .export _onPlayerTriggerExit\r\n   
-    \r\n    _onPlayerTriggerExit:\r\n    \r\n        PUSH, onPlayerTriggerExitPlayer\r\n       
-    PUSH, __instance_2\r\n        COPY\r\n        PUSH, __instance_2\r\n        PUSH,
-    __Boolean_2\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\r\n       
-    PUSH, __Boolean_2\r\n        JUMP_IF_FALSE, 0x0000013C\r\n        PUSH, onPlayerTriggerExitPlayer\r\n       
-    PUSH, __instance_3\r\n        COPY\r\n        PUSH, __instance_3\r\n        PUSH,
-    GravityOut\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetGravityStrength__SystemSingle__SystemVoid\"\r\n       
-    PUSH, __Boolean_3\r\n        PUSH, IsInside\r\n        COPY\r\n        PUSH,
-    onPlayerTriggerExitPlayer\r\n        PUSH, __instance_4\r\n        COPY\r\n       
-    PUSH, __instance_4\r\n        PUSH, DefaultJumpImpulse\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetJumpImpulse__SystemSingle__SystemVoid\"\r\n       
-    JUMP, 0x0000013C\r\n        JUMP, 0xFFFFFFFC\r\n    \r\n    .export _onPlayerTriggerStay\r\n   
-    \r\n    _onPlayerTriggerStay:\r\n    \r\n        PUSH, onPlayerTriggerStayPlayer\r\n       
-    PUSH, __instance_5\r\n        COPY\r\n        PUSH, __instance_5\r\n        PUSH,
-    __Boolean_5\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\r\n       
-    PUSH, __Boolean_5\r\n        PUSH, LinkToView\r\n        PUSH, __Boolean_4\r\n       
-    EXTERN, \"SystemBoolean.__op_ConditionalAnd__SystemBoolean_SystemBoolean__SystemBoolean\"\r\n       
-    PUSH, __Boolean_4\r\n        JUMP_IF_FALSE, 0x000002C4\r\n        PUSH, ThrustObject\r\n       
-    PUSH, __other_0\r\n        COPY\r\n        PUSH, __instance_6\r\n        PUSH,
-    __other_0\r\n        PUSH, __Boolean_7\r\n        EXTERN, \"UnityEngineGameObject.__Equals__SystemObject__SystemBoolean\"\r\n       
-    PUSH, __Boolean_7\r\n        JUMP_IF_FALSE, 0x000001EC\r\n        JUMP, 0x000002BC\r\n       
-    PUSH, ThrustObject\r\n        PUSH, __instance_8\r\n        COPY\r\n        PUSH,
-    __instance_8\r\n        PUSH, __instance_7\r\n        EXTERN, \"UnityEngineGameObject.__get_transform__UnityEngineTransform\"\r\n       
-    PUSH, onPlayerTriggerStayPlayer\r\n        PUSH, __instance_A\r\n        COPY\r\n       
-    PUSH, __instance_A\r\n        PUSH, __tt_0\r\n        PUSH, __instance_9\r\n       
-    EXTERN, \"VRCSDKBaseVRCPlayerApi.__GetTrackingData__VRCSDKBaseVRCPlayerApiTrackingDataType__VRCSDKBaseVRCPlayerApiTrackingData\"\r\n       
-    PUSH, __instance_9\r\n        PUSH, __value_0\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApiTrackingData.__get_rotation__UnityEngineQuaternion\"\r\n       
-    PUSH, __instance_7\r\n        PUSH, __value_0\r\n        EXTERN, \"UnityEngineTransform.__set_rotation__UnityEngineQuaternion__SystemVoid\"\r\n       
-    PUSH, __Boolean_8\r\n        PUSH, IsInside\r\n        COPY\r\n        PUSH,
-    onPlayerTriggerStayPlayer\r\n        PUSH, __instance_B\r\n        COPY\r\n       
-    PUSH, __instance_B\r\n        PUSH, __impulse_1\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetJumpImpulse__SystemSingle__SystemVoid\"\r\n       
-    JUMP, 0x000002C4\r\n        JUMP, 0xFFFFFFFC\r\n    \r\n    .export _inputJump\r\n   
-    \r\n    _inputJump:\r\n    \r\n        PUSH, ThrustObject\r\n        PUSH, __other_1\r\n       
-    COPY\r\n        PUSH, __instance_C\r\n        PUSH, __other_1\r\n        PUSH,
-    __Boolean_9\r\n        EXTERN, \"UnityEngineGameObject.__Equals__SystemObject__SystemBoolean\"\r\n       
-    PUSH, __Boolean_9\r\n        JUMP_IF_FALSE, 0x00000318\r\n        JUMP, 0x000004AC\r\n       
-    PUSH, __instance_D\r\n        EXTERN, \"VRCSDKBaseNetworking.__get_LocalPlayer__VRCSDKBaseVRCPlayerApi\"\r\n       
-    PUSH, __instance_D\r\n        PUSH, __Boolean_E\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\r\n       
-    PUSH, IsInside\r\n        PUSH, __Boolean_E\r\n        PUSH, __Boolean_C\r\n       
-    EXTERN, \"SystemBoolean.__op_ConditionalAnd__SystemBoolean_SystemBoolean__SystemBoolean\"\r\n       
-    PUSH, Jets\r\n        PUSH, __Boolean_C\r\n        PUSH, __Boolean_A\r\n       
-    EXTERN, \"SystemBoolean.__op_ConditionalAnd__SystemBoolean_SystemBoolean__SystemBoolean\"\r\n       
-    PUSH, __Boolean_A\r\n        JUMP_IF_FALSE, 0x000004AC\r\n        PUSH, __instance_D\r\n       
-    PUSH, __instance_E\r\n        COPY\r\n        PUSH, __instance_D\r\n        PUSH,
-    __instance_F\r\n        COPY\r\n        PUSH, __instance_D\r\n        PUSH, __Vector3_1\r\n       
-    EXTERN, \"VRCSDKBaseVRCPlayerApi.__GetVelocity__UnityEngineVector3\"\r\n       
-    PUSH, ThrustObject\r\n        PUSH, __instance_11\r\n        COPY\r\n       
-    PUSH, __instance_11\r\n        PUSH, __instance_10\r\n        EXTERN, \"UnityEngineGameObject.__get_transform__UnityEngineTransform\"\r\n       
-    PUSH, __instance_10\r\n        PUSH, __Vector3_2\r\n        EXTERN, \"UnityEngineTransform.__get_forward__UnityEngineVector3\"\r\n       
-    PUSH, __Vector3_1\r\n        PUSH, __Vector3_2\r\n        PUSH, __Vector3_0\r\n       
-    EXTERN, \"UnityEngineVector3.__op_Addition__UnityEngineVector3_UnityEngineVector3__UnityEngineVector3\"\r\n       
-    PUSH, JetVelocityMultiplier\r\n        PUSH, __Vector3_0\r\n        PUSH, __vector_0\r\n       
-    EXTERN, \"UnityEngineVector3.__op_Multiply__SystemSingle_UnityEngineVector3__UnityEngineVector3\"\r\n       
-    PUSH, __vector_0\r\n        PUSH, __maxLength_0\r\n        PUSH, __velocity_0\r\n       
-    EXTERN, \"UnityEngineVector3.__ClampMagnitude__UnityEngineVector3_SystemSingle__UnityEngineVector3\"\r\n       
-    PUSH, __instance_D\r\n        PUSH, __velocity_0\r\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetVelocity__UnityEngineVector3__SystemVoid\"\r\n       
-    PUSH, __instance_12\r\n        PUSH, __eventName_0\r\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomEvent__SystemString__SystemVoid\"\r\n       
-    JUMP, 0x000004AC\r\n        JUMP, 0xFFFFFFFC\r\n    \r\n    .export _RestoreJets\r\n   
-    \r\n    _RestoreJets:\r\n    \r\n        PUSH, __Boolean_F\r\n        PUSH, Jets\r\n       
-    COPY\r\n        JUMP, 0xFFFFFFFC\r\n    \r\n    .export _FireJets\r\n    \r\n   
-    _FireJets:\r\n    \r\n        PUSH, __Boolean_10\r\n        PUSH, Jets\r\n       
-    COPY\r\n        PUSH, __Type_0\r\n        PUSH, __type_0\r\n        COPY\r\n       
-    PUSH, __instance_13\r\n        PUSH, __type_0\r\n        PUSH, __object_0\r\n       
-    EXTERN, \"UnityEngineGameObject.__GetComponent__SystemType__UnityEngineComponent\"\r\n       
-    PUSH, __object_0\r\n        PUSH, __result_0\r\n        EXTERN, \"VRCSDKBaseUtilities.__IsValid__SystemObject__SystemBoolean\"\r\n       
-    PUSH, __result_0\r\n        JUMP_IF_FALSE, 0x00000560\r\n        PUSH, __instance_14\r\n       
-    PUSH, __eventName_1\r\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomEvent__SystemString__SystemVoid\"\r\n       
-    JUMP, 0x00000560\r\n        PUSH, __instance_15\r\n        PUSH, __eventName_2\r\n       
-    PUSH, JetDelay\r\n        PUSH, __eventTiming_0\r\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomEventDelayedSeconds__SystemString_SystemSingle_VRCUdonCommonEnumsEventTiming__SystemVoid\"\r\n       
-    JUMP, 0xFFFFFFFC\r\n    \r\n    .export _JetSound\r\n    \r\n    _JetSound:\r\n   
-    \r\n        PUSH, __Type_1\r\n        PUSH, __type_1\r\n        COPY\r\n       
-    PUSH, __instance_17\r\n        PUSH, __type_1\r\n        PUSH, __instance_16\r\n       
-    EXTERN, \"UnityEngineGameObject.__GetComponent__SystemType__UnityEngineComponent\"\r\n       
-    PUSH, __min_0\r\n        PUSH, __max_0\r\n        PUSH, __value_1\r\n       
-    EXTERN, \"UnityEngineRandom.__Range__SystemSingle_SystemSingle__SystemSingle\"\r\n       
-    PUSH, __instance_16\r\n        PUSH, __value_1\r\n        EXTERN, \"UnityEngineAudioSource.__set_pitch__SystemSingle__SystemVoid\"\r\n       
-    PUSH, __Type_2\r\n        PUSH, __type_1\r\n        COPY\r\n        PUSH, __instance_16\r\n       
-    PUSH, __instance_18\r\n        COPY\r\n        PUSH, __instance_16\r\n       
-    EXTERN, \"UnityEngineAudioSource.__Play__SystemVoid\"\r\n        JUMP, 0xFFFFFFFC\r\n   
-    \r\n\r\n.code_end\r\n"
+  udonAssembly: ".data_start\n\n    .export GravityIn\n    .export GravityOut\n   
+    .export JetVelocityMultiplier\n    .export JetDelay\n    .export DefaultJumpImpulse\n   
+    .export ThrustObject\n    .export LinkToView\n    \n    __Boolean_0: %SystemBoolean,
+    null\n    __instance_0: %VRCSDKBaseVRCPlayerApi, null\n    onPlayerTriggerEnterPlayer:
+    %VRCSDKBaseVRCPlayerApi, null\n    __instance_1: %VRCSDKBaseVRCPlayerApi, null\n   
+    __strength_0: %SystemSingle, null\n    __Boolean_1: %SystemBoolean, null\n   
+    __Boolean_2: %SystemBoolean, null\n    __instance_2: %VRCSDKBaseVRCPlayerApi,
+    null\n    onPlayerTriggerExitPlayer: %VRCSDKBaseVRCPlayerApi, null\n    __instance_3:
+    %VRCSDKBaseVRCPlayerApi, null\n    __strength_1: %SystemSingle, null\n    __Boolean_3:
+    %SystemBoolean, null\n    __instance_4: %VRCSDKBaseVRCPlayerApi, null\n    __impulse_0:
+    %SystemSingle, null\n    __Boolean_4: %SystemBoolean, null\n    __Boolean_5:
+    %SystemBoolean, null\n    __Boolean_6: %SystemBoolean, null\n    __instance_5:
+    %VRCSDKBaseVRCPlayerApi, null\n    onPlayerTriggerStayPlayer: %VRCSDKBaseVRCPlayerApi,
+    null\n    __Boolean_7: %SystemBoolean, null\n    __instance_6: %UnityEngineGameObject,
+    this\n    __other_0: %SystemObject, null\n    __instance_7: %UnityEngineTransform,
+    this\n    __value_0: %UnityEngineQuaternion, null\n    __instance_8: %UnityEngineGameObject,
+    this\n    __instance_9: %VRCSDKBaseVRCPlayerApiTrackingData, null\n    __instance_A:
+    %VRCSDKBaseVRCPlayerApi, null\n    __tt_0: %VRCSDKBaseVRCPlayerApiTrackingDataType,
+    null\n    __Boolean_8: %SystemBoolean, null\n    __instance_B: %VRCSDKBaseVRCPlayerApi,
+    null\n    __impulse_1: %SystemSingle, null\n    __Boolean_9: %SystemBoolean,
+    null\n    __instance_C: %UnityEngineGameObject, this\n    __other_1: %SystemObject,
+    null\n    __Boolean_A: %SystemBoolean, null\n    __Boolean_B: %SystemBoolean,
+    null\n    __Boolean_C: %SystemBoolean, null\n    __Boolean_D: %SystemBoolean,
+    null\n    __Boolean_E: %SystemBoolean, null\n    __instance_D: %VRCSDKBaseVRCPlayerApi,
+    null\n    __instance_E: %VRCSDKBaseVRCPlayerApi, null\n    __velocity_0: %UnityEngineVector3,
+    null\n    __vector_0: %UnityEngineVector3, null\n    __maxLength_0: %SystemSingle,
+    null\n    __Single_0: %SystemSingle, null\n    __Vector3_0: %UnityEngineVector3,
+    null\n    __Vector3_1: %UnityEngineVector3, null\n    __Vector3_2: %UnityEngineVector3,
+    null\n    __instance_F: %VRCSDKBaseVRCPlayerApi, null\n    __instance_10: %UnityEngineTransform,
+    this\n    __instance_11: %UnityEngineGameObject, this\n    __instance_12: %VRCUdonUdonBehaviour,
+    this\n    __eventName_0: %SystemString, null\n    __Boolean_F: %SystemBoolean,
+    null\n    __Boolean_10: %SystemBoolean, null\n    __object_0: %SystemObject,
+    null\n    __instance_13: %UnityEngineGameObject, this\n    __type_0: %SystemType,
+    null\n    __Type_0: %SystemType, null\n    __result_0: %SystemBoolean, null\n   
+    __instance_14: %VRCUdonUdonBehaviour, this\n    __eventName_1: %SystemString,
+    null\n    __instance_15: %VRCUdonUdonBehaviour, this\n    __eventName_2: %SystemString,
+    null\n    __delaySeconds_0: %SystemSingle, null\n    __eventTiming_0: %VRCUdonCommonEnumsEventTiming,
+    null\n    __instance_16: %UnityEngineAudioSource, null\n    __value_1: %SystemSingle,
+    null\n    __Type_1: %SystemType, null\n    __min_0: %SystemSingle, null\n   
+    __max_0: %SystemSingle, null\n    __instance_18: %UnityEngineAudioSource, null\n   
+    __instance_17: %UnityEngineGameObject, this\n    __type_1: %SystemType, null\n   
+    __Type_2: %SystemType, null\n    __returnValue: %SystemObject, null\n    GravityIn:
+    %SystemSingle, null\n    GravityOut: %SystemSingle, null\n    JetVelocityMultiplier:
+    %SystemSingle, null\n    IsInside: %SystemBoolean, null\n    Jets: %SystemBoolean,
+    null\n    JetDelay: %SystemSingle, null\n    DefaultJumpImpulse: %SystemSingle,
+    null\n    ThrustObject: %UnityEngineGameObject, this\n    LinkToView: %SystemBoolean,
+    null\n\n.data_end\n\n.code_start\n\n    .export _onPlayerTriggerEnter\n    \n   
+    _onPlayerTriggerEnter:\n    \n        PUSH, onPlayerTriggerEnterPlayer\n       
+    PUSH, __instance_0\n        COPY\n        PUSH, __instance_0\n        PUSH, __Boolean_0\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\n        PUSH,
+    __Boolean_0\n        JUMP_IF_FALSE, 0x00000084\n        PUSH, onPlayerTriggerEnterPlayer\n       
+    PUSH, __instance_1\n        COPY\n        PUSH, __instance_1\n        PUSH, GravityIn\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetGravityStrength__SystemSingle__SystemVoid\"\n       
+    PUSH, __Boolean_1\n        PUSH, IsInside\n        COPY\n        JUMP, 0x00000084\n       
+    JUMP, 0xFFFFFFFC\n    \n    .export _onPlayerTriggerExit\n    \n    _onPlayerTriggerExit:\n   
+    \n        PUSH, onPlayerTriggerExitPlayer\n        PUSH, __instance_2\n       
+    COPY\n        PUSH, __instance_2\n        PUSH, __Boolean_2\n        EXTERN,
+    \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\n        PUSH, __Boolean_2\n       
+    JUMP_IF_FALSE, 0x0000013C\n        PUSH, onPlayerTriggerExitPlayer\n        PUSH,
+    __instance_3\n        COPY\n        PUSH, __instance_3\n        PUSH, GravityOut\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetGravityStrength__SystemSingle__SystemVoid\"\n       
+    PUSH, __Boolean_3\n        PUSH, IsInside\n        COPY\n        PUSH, onPlayerTriggerExitPlayer\n       
+    PUSH, __instance_4\n        COPY\n        PUSH, __instance_4\n        PUSH, DefaultJumpImpulse\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetJumpImpulse__SystemSingle__SystemVoid\"\n       
+    JUMP, 0x0000013C\n        JUMP, 0xFFFFFFFC\n    \n    .export _onPlayerTriggerStay\n   
+    \n    _onPlayerTriggerStay:\n    \n        PUSH, onPlayerTriggerStayPlayer\n       
+    PUSH, __instance_5\n        COPY\n        PUSH, __instance_5\n        PUSH, __Boolean_5\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\n        PUSH,
+    __Boolean_5\n        PUSH, LinkToView\n        PUSH, __Boolean_4\n        EXTERN,
+    \"SystemBoolean.__op_ConditionalAnd__SystemBoolean_SystemBoolean__SystemBoolean\"\n       
+    PUSH, __Boolean_4\n        JUMP_IF_FALSE, 0x000002C4\n        PUSH, ThrustObject\n       
+    PUSH, __other_0\n        COPY\n        PUSH, __instance_6\n        PUSH, __other_0\n       
+    PUSH, __Boolean_7\n        EXTERN, \"UnityEngineGameObject.__Equals__SystemObject__SystemBoolean\"\n       
+    PUSH, __Boolean_7\n        JUMP_IF_FALSE, 0x000001EC\n        JUMP, 0x000002BC\n       
+    PUSH, ThrustObject\n        PUSH, __instance_8\n        COPY\n        PUSH, __instance_8\n       
+    PUSH, __instance_7\n        EXTERN, \"UnityEngineGameObject.__get_transform__UnityEngineTransform\"\n       
+    PUSH, onPlayerTriggerStayPlayer\n        PUSH, __instance_A\n        COPY\n       
+    PUSH, __instance_A\n        PUSH, __tt_0\n        PUSH, __instance_9\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__GetTrackingData__VRCSDKBaseVRCPlayerApiTrackingDataType__VRCSDKBaseVRCPlayerApiTrackingData\"\n       
+    PUSH, __instance_9\n        PUSH, __value_0\n        EXTERN, \"VRCSDKBaseVRCPlayerApiTrackingData.__get_rotation__UnityEngineQuaternion\"\n       
+    PUSH, __instance_7\n        PUSH, __value_0\n        EXTERN, \"UnityEngineTransform.__set_rotation__UnityEngineQuaternion__SystemVoid\"\n       
+    PUSH, __Boolean_8\n        PUSH, IsInside\n        COPY\n        PUSH, onPlayerTriggerStayPlayer\n       
+    PUSH, __instance_B\n        COPY\n        PUSH, __instance_B\n        PUSH, __impulse_1\n       
+    EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetJumpImpulse__SystemSingle__SystemVoid\"\n       
+    JUMP, 0x000002C4\n        JUMP, 0xFFFFFFFC\n    \n    .export _inputJump\n   
+    \n    _inputJump:\n    \n        PUSH, ThrustObject\n        PUSH, __other_1\n       
+    COPY\n        PUSH, __instance_C\n        PUSH, __other_1\n        PUSH, __Boolean_9\n       
+    EXTERN, \"UnityEngineGameObject.__Equals__SystemObject__SystemBoolean\"\n       
+    PUSH, __Boolean_9\n        JUMP_IF_FALSE, 0x00000318\n        JUMP, 0x000004AC\n       
+    PUSH, __instance_D\n        EXTERN, \"VRCSDKBaseNetworking.__get_LocalPlayer__VRCSDKBaseVRCPlayerApi\"\n       
+    PUSH, __instance_D\n        PUSH, __Boolean_E\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__get_isLocal__SystemBoolean\"\n       
+    PUSH, IsInside\n        PUSH, __Boolean_E\n        PUSH, __Boolean_C\n       
+    EXTERN, \"SystemBoolean.__op_ConditionalAnd__SystemBoolean_SystemBoolean__SystemBoolean\"\n       
+    PUSH, Jets\n        PUSH, __Boolean_C\n        PUSH, __Boolean_A\n        EXTERN,
+    \"SystemBoolean.__op_ConditionalAnd__SystemBoolean_SystemBoolean__SystemBoolean\"\n       
+    PUSH, __Boolean_A\n        JUMP_IF_FALSE, 0x000004AC\n        PUSH, __instance_D\n       
+    PUSH, __instance_E\n        COPY\n        PUSH, __instance_D\n        PUSH, __instance_F\n       
+    COPY\n        PUSH, __instance_D\n        PUSH, __Vector3_1\n        EXTERN,
+    \"VRCSDKBaseVRCPlayerApi.__GetVelocity__UnityEngineVector3\"\n        PUSH, ThrustObject\n       
+    PUSH, __instance_11\n        COPY\n        PUSH, __instance_11\n        PUSH,
+    __instance_10\n        EXTERN, \"UnityEngineGameObject.__get_transform__UnityEngineTransform\"\n       
+    PUSH, __instance_10\n        PUSH, __Vector3_2\n        EXTERN, \"UnityEngineTransform.__get_forward__UnityEngineVector3\"\n       
+    PUSH, __Vector3_1\n        PUSH, __Vector3_2\n        PUSH, __Vector3_0\n       
+    EXTERN, \"UnityEngineVector3.__op_Addition__UnityEngineVector3_UnityEngineVector3__UnityEngineVector3\"\n       
+    PUSH, JetVelocityMultiplier\n        PUSH, __Vector3_0\n        PUSH, __vector_0\n       
+    EXTERN, \"UnityEngineVector3.__op_Multiply__SystemSingle_UnityEngineVector3__UnityEngineVector3\"\n       
+    PUSH, __vector_0\n        PUSH, __maxLength_0\n        PUSH, __velocity_0\n       
+    EXTERN, \"UnityEngineVector3.__ClampMagnitude__UnityEngineVector3_SystemSingle__UnityEngineVector3\"\n       
+    PUSH, __instance_D\n        PUSH, __velocity_0\n        EXTERN, \"VRCSDKBaseVRCPlayerApi.__SetVelocity__UnityEngineVector3__SystemVoid\"\n       
+    PUSH, __instance_12\n        PUSH, __eventName_0\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomEvent__SystemString__SystemVoid\"\n       
+    JUMP, 0x000004AC\n        JUMP, 0xFFFFFFFC\n    \n    .export _RestoreJets\n   
+    \n    _RestoreJets:\n    \n        PUSH, __Boolean_F\n        PUSH, Jets\n       
+    COPY\n        JUMP, 0xFFFFFFFC\n    \n    .export _FireJets\n    \n    _FireJets:\n   
+    \n        PUSH, __Boolean_10\n        PUSH, Jets\n        COPY\n        PUSH,
+    __Type_0\n        PUSH, __type_0\n        COPY\n        PUSH, __instance_13\n       
+    PUSH, __type_0\n        PUSH, __object_0\n        EXTERN, \"UnityEngineGameObject.__GetComponent__SystemType__UnityEngineComponent\"\n       
+    PUSH, __object_0\n        PUSH, __result_0\n        EXTERN, \"VRCSDKBaseUtilities.__IsValid__SystemObject__SystemBoolean\"\n       
+    PUSH, __result_0\n        JUMP_IF_FALSE, 0x00000560\n        PUSH, __instance_14\n       
+    PUSH, __eventName_1\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomEvent__SystemString__SystemVoid\"\n       
+    JUMP, 0x00000560\n        PUSH, __instance_15\n        PUSH, __eventName_2\n       
+    PUSH, JetDelay\n        PUSH, __eventTiming_0\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomEventDelayedSeconds__SystemString_SystemSingle_VRCUdonCommonEnumsEventTiming__SystemVoid\"\n       
+    JUMP, 0xFFFFFFFC\n    \n    .export _JetSound\n    \n    _JetSound:\n    \n       
+    PUSH, __Type_1\n        PUSH, __type_1\n        COPY\n        PUSH, __instance_17\n       
+    PUSH, __type_1\n        PUSH, __instance_16\n        EXTERN, \"UnityEngineGameObject.__GetComponent__SystemType__UnityEngineComponent\"\n       
+    PUSH, __min_0\n        PUSH, __max_0\n        PUSH, __value_1\n        EXTERN,
+    \"UnityEngineRandom.__Range__SystemSingle_SystemSingle__SystemSingle\"\n       
+    PUSH, __instance_16\n        PUSH, __value_1\n        EXTERN, \"UnityEngineAudioSource.__set_pitch__SystemSingle__SystemVoid\"\n       
+    PUSH, __Type_2\n        PUSH, __type_1\n        COPY\n        PUSH, __instance_16\n       
+    PUSH, __instance_18\n        COPY\n        PUSH, __instance_16\n        EXTERN,
+    \"UnityEngineAudioSource.__Play__SystemVoid\"\n        JUMP, 0xFFFFFFFC\n   
+    \n\n.code_end\n"
   assemblyError: 
   graphData:
     name: 

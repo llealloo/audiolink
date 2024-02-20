@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: UnpooledPlayerController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 1f02c804bef8f714db4a4112c53006cd,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: fd72c66d6340e0e79a2970d375196c8e,
     type: 2}
   udonAssembly: 
   assemblyError: 

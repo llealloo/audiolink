@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AvatarHeightTracker Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: d629d96b911452047bf7c4a4e2b99d6b,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: f6e8ed7c5b17652749c61c9830b37c6b,
     type: 2}
   udonAssembly: 
   assemblyError: 

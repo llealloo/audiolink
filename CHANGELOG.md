@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 - February 18th, 2024
+### Changes
+- Deprecated various static properties in AudioLink.DataAPI in favor of static functions to work around a miscompilation bug in UdonSharp.
+- Deprecated the underused "AudioLink extra packages", which contains a single "AudioLinkZone" script. The script is now in the main package.
+
+### Bugfixes
+- Fixed an issue where an exception would be thrown when leaving a world with AudioLink enabled. (@ShingenPizza)
+- Fixed a bug where theme colors would reset when someone joins the instance. (Teeh, orels1, pema)
+
 ## 1.2.1 - December 9th, 2023
 ### Changes
 - Enabled Async GPU readbacks on mobile platforms, including Quest. This let's you access data via Udon much more cheaply. To facilitate this, AudioLink now requires Unity 2022.3 or newer. (pema)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: BezierWalker
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 80d569a8115791047ab29769e4cc209f,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 594ad6a2b35c8e325874f7a99ce17617,
     type: 2}
   udonAssembly: 
   assemblyError: 

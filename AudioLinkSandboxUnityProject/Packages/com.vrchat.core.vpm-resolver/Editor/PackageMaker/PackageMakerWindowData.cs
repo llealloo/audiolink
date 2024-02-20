@@ -8,6 +8,10 @@ public class PackageMakerWindowData : ScriptableObject
     public static string defaultAssetPath = Path.Combine("Assets", "PackageMakerWindowData.asset");
     public string targetAssetFolder;
     public string packageID;
+    
+    public string authorName;
+    public string authorEmail;
+    public string authorUrl;
     public PackageMakerWindow.VRCPackageEnum relatedPackage;
 
     public static PackageMakerWindowData GetOrCreate()

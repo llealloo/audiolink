@@ -75,3 +75,6 @@ crashlytics-build.properties
 
 /AudioLinkUnityProject/Assets/Samples*
 /AudioLinkSandboxUnityProject/Assets/Samples*
+/AudioLinkUnityProject/.vscode/
+/AudioLinkSandboxUnityProject/.vscode/
+/AudioLinkUnityProject/Assets/Scenes*

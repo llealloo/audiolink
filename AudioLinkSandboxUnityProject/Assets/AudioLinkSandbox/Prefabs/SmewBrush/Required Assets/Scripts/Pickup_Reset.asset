@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: Pickup_Reset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c5d4ac2a8ce89f243b89aa801bb4f181,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 8c6f74060695a5875a283a101ad6baa0,
     type: 2}
   udonAssembly: 
   assemblyError: 

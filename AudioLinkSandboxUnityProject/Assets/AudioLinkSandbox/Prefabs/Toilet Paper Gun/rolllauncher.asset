@@ -12,31 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f11136daadff0b44ac2278a314682ab, type: 3}
   m_Name: rolllauncher
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c50c8b360028bec4785c89bb5e349eea,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 9e061f42a82a6d3b69ce0ca77b24e016,
     type: 2}
-  udonAssembly: ".data_start\r\n\r\n    .export ThisAnimator\r\n    \r\n    __instance_0:
-    %VRCUdonUdonBehaviour, this\r\n    __target_0: %VRCUdonCommonInterfacesNetworkEventTarget,
-    null\r\n    __eventName_0: %SystemString, null\r\n    __instance_1: %UnityEngineAnimator,
-    null\r\n    __name_0: %SystemString, null\r\n    __value_0: %SystemBoolean, null\r\n   
-    __instance_2: %VRCUdonUdonBehaviour, this\r\n    __target_1: %VRCUdonCommonInterfacesNetworkEventTarget,
-    null\r\n    __eventName_1: %SystemString, null\r\n    __instance_3: %UnityEngineAnimator,
-    null\r\n    __name_1: %SystemString, null\r\n    __value_1: %SystemBoolean, null\r\n   
-    ThisAnimator: %UnityEngineAnimator, null\r\n\r\n.data_end\r\n\r\n.code_start\r\n\r\n   
-    .export _onPickupUseUp\r\n    \r\n    _onPickupUseUp:\r\n    \r\n        PUSH,
-    __instance_0\r\n        PUSH, __target_0\r\n        PUSH, __eventName_0\r\n       
-    EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomNetworkEvent__VRCUdonCommonInterfacesNetworkEventTarget_SystemString__SystemVoid\"\r\n       
-    JUMP, 0xFFFFFFFC\r\n    \r\n    .export releasethepaper\r\n    \r\n    releasethepaper:\r\n   
-    \r\n        PUSH, ThisAnimator\r\n        PUSH, __instance_1\r\n        COPY\r\n       
-    PUSH, __instance_1\r\n        PUSH, __name_0\r\n        PUSH, __value_0\r\n       
-    EXTERN, \"UnityEngineAnimator.__SetBool__SystemString_SystemBoolean__SystemVoid\"\r\n       
-    JUMP, 0xFFFFFFFC\r\n    \r\n    .export _onPickupUseDown\r\n    \r\n    _onPickupUseDown:\r\n   
-    \r\n        PUSH, __instance_2\r\n        PUSH, __target_1\r\n        PUSH, __eventName_1\r\n       
-    EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomNetworkEvent__VRCUdonCommonInterfacesNetworkEventTarget_SystemString__SystemVoid\"\r\n       
-    JUMP, 0xFFFFFFFC\r\n    \r\n    .export nomorepaper\r\n    \r\n    nomorepaper:\r\n   
-    \r\n        PUSH, ThisAnimator\r\n        PUSH, __instance_3\r\n        COPY\r\n       
-    PUSH, __instance_3\r\n        PUSH, __name_1\r\n        PUSH, __value_1\r\n       
-    EXTERN, \"UnityEngineAnimator.__SetBool__SystemString_SystemBoolean__SystemVoid\"\r\n       
-    JUMP, 0xFFFFFFFC\r\n    \r\n\r\n.code_end\r\n"
+  udonAssembly: ".data_start\n\n    .export ThisAnimator\n    \n    __instance_0:
+    %VRCUdonUdonBehaviour, this\n    __target_0: %VRCUdonCommonInterfacesNetworkEventTarget,
+    null\n    __eventName_0: %SystemString, null\n    __instance_1: %UnityEngineAnimator,
+    null\n    __name_0: %SystemString, null\n    __value_0: %SystemBoolean, null\n   
+    __instance_2: %VRCUdonUdonBehaviour, this\n    __target_1: %VRCUdonCommonInterfacesNetworkEventTarget,
+    null\n    __eventName_1: %SystemString, null\n    __instance_3: %UnityEngineAnimator,
+    null\n    __name_1: %SystemString, null\n    __value_1: %SystemBoolean, null\n   
+    ThisAnimator: %UnityEngineAnimator, null\n\n.data_end\n\n.code_start\n\n    .export
+    _onPickupUseUp\n    \n    _onPickupUseUp:\n    \n        PUSH, __instance_0\n       
+    PUSH, __target_0\n        PUSH, __eventName_0\n        EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomNetworkEvent__VRCUdonCommonInterfacesNetworkEventTarget_SystemString__SystemVoid\"\n       
+    JUMP, 0xFFFFFFFC\n    \n    .export releasethepaper\n    \n    releasethepaper:\n   
+    \n        PUSH, ThisAnimator\n        PUSH, __instance_1\n        COPY\n       
+    PUSH, __instance_1\n        PUSH, __name_0\n        PUSH, __value_0\n       
+    EXTERN, \"UnityEngineAnimator.__SetBool__SystemString_SystemBoolean__SystemVoid\"\n       
+    JUMP, 0xFFFFFFFC\n    \n    .export _onPickupUseDown\n    \n    _onPickupUseDown:\n   
+    \n        PUSH, __instance_2\n        PUSH, __target_1\n        PUSH, __eventName_1\n       
+    EXTERN, \"VRCUdonCommonInterfacesIUdonEventReceiver.__SendCustomNetworkEvent__VRCUdonCommonInterfacesNetworkEventTarget_SystemString__SystemVoid\"\n       
+    JUMP, 0xFFFFFFFC\n    \n    .export nomorepaper\n    \n    nomorepaper:\n   
+    \n        PUSH, ThisAnimator\n        PUSH, __instance_3\n        COPY\n       
+    PUSH, __instance_3\n        PUSH, __name_1\n        PUSH, __value_1\n       
+    EXTERN, \"UnityEngineAnimator.__SetBool__SystemString_SystemBoolean__SystemVoid\"\n       
+    JUMP, 0xFFFFFFFC\n    \n\n.code_end\n"
   assemblyError: 
   graphData:
     name: 

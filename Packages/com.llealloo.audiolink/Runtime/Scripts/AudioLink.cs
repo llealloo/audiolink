@@ -5,27 +5,23 @@ using UnityEngine;
 namespace AudioLink
 {
 #if UDONSHARP
-    using static VRC.SDKBase.VRCShader;
-
     using UdonSharp;
-
     using VRC.SDK3.Rendering;
     using VRC.SDKBase;
+    using static VRC.SDKBase.VRCShader;
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public partial class AudioLink : UdonSharpBehaviour
 #else
-    using static Shader;
-
     using Unity.Collections;
-
     using UnityEngine.Rendering;
+    using static Shader;
 
     public partial class AudioLink : MonoBehaviour
 #endif
     {
         const float AudioLinkVersionNumberMajor = 1.00f;
-        const float AudioLinkVersionNumberMinor = 2.01f;
+        const float AudioLinkVersionNumberMinor = 3.00f;
 
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
@@ -569,7 +565,7 @@ namespace AudioLink
         public void OnAsyncGpuReadbackComplete(AsyncGPUReadbackRequest request)
         {
             if (request.hasError || !request.done) return;
-            
+
             NativeArray<Color> data = request.GetData<Color>();
             for (int i = 0; i < data.Length; i++)
             {
@@ -738,7 +734,7 @@ namespace AudioLink
         public void DisableAudioLink()
         {
             _audioLinkEnabled = false;
-            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+            if (audioRenderTexture != null) { audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand; }
 #if UDONSHARP
             SetGlobalTexture(_AudioTexture, null);
 #else
