@@ -1,6 +1,6 @@
 name: Build Release
 
-on: 
+on:
   workflow_dispatch:
 
 env:
@@ -10,48 +10,50 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    
       - name: Checkout
         uses: actions/checkout@v3
-    
+
       - name: Get version
         id: version
         uses: notiz-dev/github-action-json-property@7c8cf5cc36eb85d8d287a8086a39dac59628eb31
-        with: 
-            path: "Packages/${{env.packageName}}/package.json"
-            prop_path: "version"
-            
-      - run: echo ${{steps.version.outputs.prop}} 
-    
+        with:
+          path: "Packages/${{env.packageName}}/package.json"
+          prop_path: "version"
+
+      - run: echo ${{steps.version.outputs.prop}}
+
       - name: Set Environment Variables
         run: |
           echo "zipFile=${{ env.packageName }}-${{ steps.version.outputs.prop }}".zip >> $GITHUB_ENV
           echo "unityPackage=${{ env.packageName }}-${{ steps.version.outputs.prop }}.unitypackage" >> $GITHUB_ENV
           echo "minimalUnityPackage=AudioLink_${{ steps.version.outputs.prop }}_minimal.unitypackage" >> $GITHUB_ENV
-      
+
       - name: Copy root files
         run: |
-          cp LICENSE* Packages/${{ env.packageName }}/
-          cp README.md* Packages/${{ env.packageName }}/
-          cp CHANGELOG.md* Packages/${{ env.packageName }}/
+          cp LICENSE Packages/${{ env.packageName }}/
+          cp README.md Packages/${{ env.packageName }}/
+          cp CHANGELOG.md Packages/${{ env.packageName }}/
+          cp .github/workflows/StandaloneMetadata/LICENSE.meta Packages/${{ env.packageName }}/
+          cp .github/workflows/StandaloneMetadata/README.md.meta Packages/${{ env.packageName }}/
+          cp .github/workflows/StandaloneMetadata/CHANGELOG.md.meta Packages/${{ env.packageName }}/
           mkdir -p Packages/${{ env.packageName }}/Documentation~/
           cp -R Docs/* Packages/${{ env.packageName }}/Documentation~/
-      
+
       - name: Create zip
         uses: thedoctor0/zip-release@09336613be18a8208dfa66bd57efafd9e2685657
         with:
           type: "zip"
           directory: "Packages/${{env.packageName}}/"
           filename: "../../${{env.zipFile}}"
-          
+
       - run: find "Packages/${{env.packageName}}/" -name \*.meta >> metaList
-          
+
       - name: Create full UnityPackage
         uses: pCYSl5EDgo/create-unitypackage@cfcd3cf0391a5ef1306342794866a9897c32af0b
         with:
           package-path: ${{ env.unityPackage }}
           include-files: metaList
-        
+
       - name: Make minimal meta list
         run: |
           sed -i '1s/^/#define AUDIOLINK_STANDALONE\n/' "Packages/${{env.packageName}}/Editor/Scripts/AudioLinkAssetManager.cs"
