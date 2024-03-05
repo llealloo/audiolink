@@ -48,7 +48,7 @@ Shader "AudioLink/Internal/AudioLink"
             CGINCLUDE
             //On Quest UNITY_UV_STARTS_AT_TOP is false but actual uv behaves as it's true breaking entire audio texture,same issue occur in editor on OpenGL ES mode
             //So SHADER_API_GLES3 is included to fix texture on Quest, in case of same issue occuring on PC entire conditioning here need to be removed.
-            #if UNITY_UV_STARTS_AT_TOP || SHADER_API_GLES3
+            #if UNITY_UV_STARTS_AT_TOP || SHADER_API_GLES3 || SHADER_API_GLCORE
                 #define AUDIO_LINK_ALPHA_START(BASECOORDY) \
                 float2 guv = IN.globalTexcoord.xy; \
                 uint2 coordinateGlobal = round(guv * _SelfTexture2D_TexelSize.zw - 0.5); \
