@@ -19,13 +19,11 @@ namespace AudioLink
         public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
         ytdlpRequest _currentRequest = null;
 
-        [SerializeField]
-        public bool showVideoPreviewInComponent = false;
+        [SerializeField] public bool showVideoPreviewInComponent = false;
 
         public VideoPlayer videoPlayer = null;
 
-        [SerializeField]
-        public Resolution resolution = Resolution._720p;
+        [SerializeField] public Resolution resolution = Resolution._720p;
 
         public enum Resolution
         {
@@ -153,7 +151,6 @@ namespace AudioLink
             string tpath = ytdlPath.Substring(0, ytdlPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
             string path = EditorUtility.OpenFilePanel("Select YTDL Location", tpath, "");
             EditorPrefs.SetString(userDefinedYTDLPathKey, path ?? string.Empty);
-
         }
 
         [MenuItem(userDefinedYTDLPathMenu, true, priority = 1)]
@@ -238,10 +235,7 @@ namespace AudioLink
             proc.StartInfo.FileName = _ytdlpPath;
             proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
 
-            proc.Exited += (sender, args) =>
-            {
-                proc.Dispose();
-            };
+            proc.Exited += (sender, args) => { proc.Dispose(); };
 
             proc.OutputDataReceived += (sender, args) =>
             {
@@ -332,7 +326,11 @@ namespace AudioLink
 
         public override void OnInspectorGUI()
         {
+#if UNITY_EDITOR_LINUX
+            bool available = false;
+#else
             bool available = ytdlpURLResolver.IsytdlpAvailable();
+#endif
             bool hasVideoPlayer = _ytdlpPlayer.videoPlayer != null;
             float playbackTime = hasVideoPlayer ? _ytdlpPlayer.GetPlaybackTime() : 0;
             double videoLength = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.length : 0;
@@ -347,7 +345,9 @@ namespace AudioLink
                     if (EditorGUI.EndChangeCheck())
                     {
                         EditorUtility.SetDirty(_ytdlpPlayer);
-                    };
+                    }
+
+                    ;
                     _ytdlpPlayer.resolution = (ytdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
                 }
 
@@ -462,6 +462,5 @@ namespace AudioLink
             }
         }
     }
-
 }
 #endif
