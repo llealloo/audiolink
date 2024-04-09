@@ -434,6 +434,7 @@ namespace AudioLink
             using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
             {
                 Header("Global Video Texture Settings", -1);
+                EditorGUILayout.HelpBox("Global Video Texture is a community standard use of the _Udon_VideoTex global texture.\nThis texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
                 using (new EditorGUILayout.VerticalScope("box"))
                 {
                     _ytdlpPlayer.enableGlobalTexture = EditorGUILayout.Toggle(new GUIContent("  Enable Global Video Texture"), _ytdlpPlayer.enableGlobalTexture);
@@ -468,10 +469,11 @@ namespace AudioLink
 
         /// <summary>
         /// Draws some text in the same style as the [Header] attribute.
+        /// Text size is based on the default largeLabel font size.
         /// </summary>
         /// <param name="header">the desired text to draw</param>
-        /// <param name="fontSizeDelta"></param>
-        public static void Header(string header, int fontSizeDelta = 0)
+        /// <param name="fontSizeDelta">font size adjustment from the default largeLabel font size</param>
+        private static void Header(string header, int fontSizeDelta = 0)
         {
             var style = new GUIStyle(EditorStyles.boldLabel) { fontSize = EditorStyles.largeLabel.fontSize + fontSizeDelta };
             EditorGUILayout.LabelField(header, style);
