@@ -147,6 +147,12 @@ namespace AudioLink
         [MenuItem(userDefinedYTDLPathMenu, priority = 1)]
         private static void SelectYtdlInstall()
         {
+            if (Menu.GetChecked(userDefinedYTDLPathMenu))
+            {
+                EditorPrefs.SetString(userDefinedYTDLPathKey, string.Empty);
+                return;
+            }
+
             string ytdlPath = EditorPrefs.GetString(userDefinedYTDLPathKey, "");
             string tpath = ytdlPath.Substring(0, ytdlPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
             string path = EditorUtility.OpenFilePanel("Select YTDL Location", tpath, "");
@@ -182,6 +188,7 @@ namespace AudioLink
                     Debug.Log($"[AudioLink:ytdlp] Custom YTDL location found: {customPath}");
                     _ytdlpPath = customPath;
                     _ytdlpFound = true;
+                    return;
                 }
 
                 Debug.LogWarning($"[AudioLink:ytdlp] Custom YTDL location detected but does not exist: {customPath}");
@@ -343,11 +350,7 @@ namespace AudioLink
                     EditorGUI.BeginChangeCheck();
                     _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(_ytdlpPlayer.ytdlpURL);
                     if (EditorGUI.EndChangeCheck())
-                    {
                         EditorUtility.SetDirty(_ytdlpPlayer);
-                    }
-
-                    ;
                     _ytdlpPlayer.resolution = (ytdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
                 }
 
