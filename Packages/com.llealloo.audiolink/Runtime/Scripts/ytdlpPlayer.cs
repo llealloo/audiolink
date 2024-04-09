@@ -28,12 +28,12 @@ namespace AudioLink
         public Resolution resolution = Resolution._720p;
 
         public bool enableGlobalTexture = true;
+        public string globalTextureName = "_Udon_VideoTex";
         public bool forceStandbyTexture = false;
         public bool showStandbyIfPaused = true;
         public Texture2D standbyTexture;
 
-        private const string _globalVideoTextureName = "_Udon_VideoTex";
-        private int _globalVideoTextureId;
+        private int _globalTextureId;
         private bool _globalTextureActive = false;
 
         public enum Resolution
@@ -48,7 +48,7 @@ namespace AudioLink
 
         void OnEnable()
         {
-            _globalVideoTextureId = Shader.PropertyToID(_globalVideoTextureName);
+            _globalTextureId = Shader.PropertyToID(globalTextureName);
             RequestPlay();
         }
 
@@ -158,14 +158,14 @@ namespace AudioLink
 
             if (enableGlobalTexture)
             {
-                Shader.SetGlobalTexture(_globalVideoTextureId, texture);
+                Shader.SetGlobalTexture(_globalTextureId, texture);
                 _globalTextureActive = true;
             }
             // if globals ever get disabled, unset the custom texture global flag as well
             else if (_globalTextureActive)
             {
                 _globalTextureActive = false;
-                Shader.SetGlobalTexture(_globalVideoTextureId, null);
+                Shader.SetGlobalTexture(_globalTextureId, null);
             }
         }
     }
@@ -294,6 +294,7 @@ namespace AudioLink
                     }
                 }
             }
+
             return Path.GetFullPath(name);
         }
     }
@@ -434,13 +435,17 @@ namespace AudioLink
             using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
             {
                 Header("Global Video Texture Settings", -1);
-                EditorGUILayout.HelpBox("Global Video Texture is a community standard use of the _Udon_VideoTex global texture.\nThis texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
+                EditorGUILayout.HelpBox("Global Video Texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
                 using (new EditorGUILayout.VerticalScope("box"))
                 {
                     _ytdlpPlayer.enableGlobalTexture = EditorGUILayout.Toggle(new GUIContent("  Enable Global Video Texture"), _ytdlpPlayer.enableGlobalTexture);
-                    _ytdlpPlayer.showStandbyIfPaused = EditorGUILayout.Toggle(new GUIContent("  Show Standby Texture when Paused"), _ytdlpPlayer.showStandbyIfPaused);
-                    _ytdlpPlayer.forceStandbyTexture = EditorGUILayout.Toggle(new GUIContent("  Force Show Standby Texture"), _ytdlpPlayer.forceStandbyTexture);
-                    _ytdlpPlayer.standbyTexture = (Texture2D)EditorGUILayout.ObjectField(new GUIContent("  Standby Texture"), _ytdlpPlayer.standbyTexture, typeof(Texture2D), true, GUILayout.Height(EditorGUIUtility.singleLineHeight));
+                    if (_ytdlpPlayer.enableGlobalTexture)
+                    {
+                        _ytdlpPlayer.globalTextureName = EditorGUILayout.TextField(new GUIContent("  Global Texture Property Target"), _ytdlpPlayer.globalTextureName);
+                        _ytdlpPlayer.showStandbyIfPaused = EditorGUILayout.Toggle(new GUIContent("  Show Standby Texture when Paused"), _ytdlpPlayer.showStandbyIfPaused);
+                        _ytdlpPlayer.forceStandbyTexture = EditorGUILayout.Toggle(new GUIContent("  Force Show Standby Texture"), _ytdlpPlayer.forceStandbyTexture);
+                        _ytdlpPlayer.standbyTexture = (Texture2D)EditorGUILayout.ObjectField(new GUIContent("  Standby Texture"), _ytdlpPlayer.standbyTexture, typeof(Texture2D), true, GUILayout.Height(EditorGUIUtility.singleLineHeight));
+                    }
                 }
 
                 _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _ytdlpPlayer.showVideoPreviewInComponent);
