@@ -357,19 +357,16 @@ namespace AudioLink
             if (_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
                 _ytdlpPlayer.videoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
 
-            var script = _ytdlpPlayer;
-            ytdlpURL = serializedObject.FindProperty(nameof(script.ytdlpURL));
-            resolution = serializedObject.FindProperty(nameof(script.resolution));
-            enableGlobalVideoTexture = serializedObject.FindProperty(nameof(script.enableGlobalVideoTexture));
-            globalTextureName = serializedObject.FindProperty(nameof(script.globalTextureName));
-            transformTextureMode = serializedObject.FindProperty(nameof(script.textureTransformMode));
-            texturePixelOrigin = serializedObject.FindProperty(nameof(script.texturePixelOrigin));
-            texturePixelSize = serializedObject.FindProperty(nameof(script.texturePixelSize));
-            textureTiling = serializedObject.FindProperty(nameof(script.textureTiling));
-            textureOffset = serializedObject.FindProperty(nameof(script.textureOffset));
-            showStandbyIfPaused = serializedObject.FindProperty(nameof(script.showStandbyIfPaused));
-            forceStandbyTexture = serializedObject.FindProperty(nameof(script.forceStandbyTexture));
-            standbyTexture = serializedObject.FindProperty(nameof(script.standbyTexture));
+            enableGlobalVideoTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.enableGlobalVideoTexture));
+            globalTextureName = serializedObject.FindProperty(nameof(_ytdlpPlayer.globalTextureName));
+            transformTextureMode = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureTransformMode));
+            texturePixelOrigin = serializedObject.FindProperty(nameof(_ytdlpPlayer.texturePixelOrigin));
+            texturePixelSize = serializedObject.FindProperty(nameof(_ytdlpPlayer.texturePixelSize));
+            textureTiling = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureTiling));
+            textureOffset = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureOffset));
+            showStandbyIfPaused = serializedObject.FindProperty(nameof(_ytdlpPlayer.showStandbyIfPaused));
+            forceStandbyTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.forceStandbyTexture));
+            standbyTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.standbyTexture));
         }
 
         public override bool RequiresConstantRepaint()
@@ -398,8 +395,13 @@ namespace AudioLink
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     EditorGUILayout.LabelField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), GUILayout.Width(100));
-                    EditorGUILayout.PropertyField(ytdlpURL, GUIContent.none);
-                    EditorGUILayout.PropertyField(resolution, GUIContent.none, GUILayout.Width(65));
+                    EditorGUI.BeginChangeCheck();
+                    _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(_ytdlpPlayer.ytdlpURL);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        EditorUtility.SetDirty(_ytdlpPlayer);
+                    };
+                    _ytdlpPlayer.resolution = (ytdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
                 }
 
                 using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
