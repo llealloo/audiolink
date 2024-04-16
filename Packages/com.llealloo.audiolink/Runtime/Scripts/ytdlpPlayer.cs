@@ -25,7 +25,7 @@ namespace AudioLink
         public VideoPlayer videoPlayer = null;
 
         [SerializeField]
-        public Resolution resolution = Resolution._720p;
+        public Resolution resolution = Resolution._2160p;
 
         public enum Resolution
         {
@@ -61,12 +61,16 @@ namespace AudioLink
             if (videoPlayer == null)
                 return;
 
+            videoPlayer.prepareCompleted -= MediaReady;
+            videoPlayer.prepareCompleted += MediaReady;
             videoPlayer.url = resolved;
-            SetPlaybackTime(0.0f);
-            if (videoPlayer.length > 0)
-            {
-                videoPlayer.Play();
-            }
+            videoPlayer.Prepare();
+        }
+
+        private void MediaReady(VideoPlayer player)
+        {
+            SetPlaybackTime(player, 0.0f);
+            if (player.length > 0) player.Play();
         }
 
         public float GetPlaybackTime()
@@ -77,10 +81,10 @@ namespace AudioLink
                 return 0;
         }
 
-        public void SetPlaybackTime(float time)
+        public void SetPlaybackTime(VideoPlayer player, float time)
         {
-            if (videoPlayer != null && videoPlayer.length > 0 && videoPlayer.canSetTime)
-                videoPlayer.time = videoPlayer.length * Mathf.Clamp(time, 0.0f, 1.0f);
+            if (player != null && player.length > 0 && player.canSetTime)
+                player.time = player.length * Mathf.Clamp(time, 0.0f, 1.0f);
         }
 
         public string FormattedTimestamp(double seconds, double maxSeconds = 0)
@@ -327,7 +331,7 @@ namespace AudioLink
                         EditorGUI.BeginChangeCheck();
                         playbackTime = GUILayout.HorizontalSlider(playbackTime, 0, 1);
                         if (EditorGUI.EndChangeCheck())
-                            _ytdlpPlayer.SetPlaybackTime(playbackTime);
+                            _ytdlpPlayer.SetPlaybackTime(_ytdlpPlayer.videoPlayer, playbackTime);
 
                         // Timestamp input
                         EditorGUI.BeginChangeCheck();
@@ -344,7 +348,7 @@ namespace AudioLink
                             if (TimeSpan.TryParse($"00:{seekTimestamp}", out inputTimestamp))
                             {
                                 playbackTime = (float)(inputTimestamp.TotalSeconds / videoLength);
-                                _ytdlpPlayer.SetPlaybackTime(playbackTime);
+                                _ytdlpPlayer.SetPlaybackTime(_ytdlpPlayer.videoPlayer, playbackTime);
                             }
                         }
                     }
@@ -352,8 +356,8 @@ namespace AudioLink
                     // Media Controls
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        bool isPlaying = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.isPlaying : false;
-                        bool isPaused = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.isPaused : false;
+                        bool isPlaying = hasVideoPlayer && _ytdlpPlayer.videoPlayer.isPlaying;
+                        bool isPaused = hasVideoPlayer && _ytdlpPlayer.videoPlayer.isPaused;
                         bool isStopped = !isPlaying && !isPaused;
 
                         bool play = GUILayout.Toggle(isPlaying, new GUIContent(" Play", EditorGUIUtility.IconContent("d_PlayButton On").image), "Button") != isPlaying;
