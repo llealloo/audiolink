@@ -84,7 +84,7 @@ MonoBehaviour:
   ytdlpURL: https://www.youtube.com/watch?v=SFTcZ1GXOCQ
   showVideoPreviewInComponent: 0
   videoPlayer: {fileID: 5208934818770322006}
-  resolution: 720
+  resolution: 2160
 --- !u!1 &8800328339556915021
 GameObject:
   m_ObjectHideFlags: 0
