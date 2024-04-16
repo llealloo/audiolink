@@ -524,6 +524,7 @@ namespace AudioLink
                 {
                     // Draw video preview with the same aspect ratio as the video
                     Texture videoPlayerTexture = _ytdlpPlayer.videoPlayer.texture;
+                    EditorGUILayout.LabelField($"Resolution: {videoPlayerTexture.width}x{videoPlayerTexture.height}");
                     float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
                     Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
                     EditorGUI.DrawPreviewTexture(previewRect, videoPlayerTexture, null, ScaleMode.ScaleToFit);
