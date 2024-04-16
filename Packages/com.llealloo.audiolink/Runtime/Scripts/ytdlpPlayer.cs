@@ -25,7 +25,7 @@ namespace AudioLink
         public VideoPlayer videoPlayer = null;
 
         [SerializeField]
-        public Resolution resolution = Resolution._2160p;
+        public Resolution resolution = Resolution._720p;
 
         public enum Resolution
         {
@@ -265,7 +265,10 @@ namespace AudioLink
     [CustomEditor(typeof(ytdlpPlayer))]
     public class ytdlpPlayerEditor : UnityEditor.Editor
     {
-        ytdlpPlayer _ytdlpPlayer;
+        private ytdlpPlayer _ytdlpPlayer;
+
+        private SerializedProperty ytdlpURL;
+        private SerializedProperty resolution;
 
         void OnEnable()
         {
@@ -273,6 +276,9 @@ namespace AudioLink
             // If video player is on the same gameobject, assign it automatically
             if (_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
                 _ytdlpPlayer.videoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
+
+            ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpPlayer.ytdlpURL));
+            resolution = serializedObject.FindProperty(nameof(_ytdlpPlayer.resolution));
         }
 
         public override bool RequiresConstantRepaint()
@@ -285,6 +291,7 @@ namespace AudioLink
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
 #if UNITY_EDITOR_LINUX
             bool available = false;
 #else
@@ -300,13 +307,8 @@ namespace AudioLink
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     EditorGUILayout.LabelField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), GUILayout.Width(100));
-                    EditorGUI.BeginChangeCheck();
-                    _ytdlpPlayer.ytdlpURL = EditorGUILayout.TextField(_ytdlpPlayer.ytdlpURL);
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        EditorUtility.SetDirty(_ytdlpPlayer);
-                    };
-                    _ytdlpPlayer.resolution = (ytdlpPlayer.Resolution)EditorGUILayout.EnumPopup(_ytdlpPlayer.resolution, GUILayout.Width(65));
+                    EditorGUILayout.PropertyField(ytdlpURL, GUIContent.none);
+                    EditorGUILayout.PropertyField(resolution, GUIContent.none, GUILayout.Width(65));
                 }
 
                 using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
@@ -418,6 +420,8 @@ namespace AudioLink
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
 #endif
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
     }
 
