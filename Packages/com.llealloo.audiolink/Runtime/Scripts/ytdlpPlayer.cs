@@ -336,9 +336,6 @@ namespace AudioLink
     {
         ytdlpPlayer _ytdlpPlayer;
 
-        private SerializedProperty ytdlpURL;
-        private SerializedProperty resolution;
-
         private SerializedProperty enableGlobalVideoTexture;
         private SerializedProperty globalTextureName;
         private SerializedProperty transformTextureMode;
