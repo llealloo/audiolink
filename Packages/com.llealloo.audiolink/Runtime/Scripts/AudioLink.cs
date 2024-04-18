@@ -755,6 +755,14 @@ namespace AudioLink
         public void SendAudioOutputData()
         {
             InitIDs();
+            
+            #if UNITY_WEBGL && !UNITY_EDITOR
+
+                _audioFramesL = AudioPeer.AudioFrequencyBand8.GetWaveform();
+                _audioFramesR = _audioFramesL;
+
+            #else
+
             audioSource.GetOutputData(_audioFramesL, 0);                // left channel
 
             if (_rightChannelTestCounter > 0)
@@ -776,6 +784,8 @@ namespace AudioLink
                 audioSource.GetOutputData(_audioFramesR, 1);            // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
+
+            #endif
 
             Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
             audioMaterial.SetFloatArray(_Samples0L, _samples);

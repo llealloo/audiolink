@@ -220,7 +220,11 @@ namespace AudioLink
                 return;
             }
             // General settings
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            audioLink.gain = gainSlider.value * 2;
+            #else
             audioLink.gain = gainSlider.value;
+            #endif
             // audioLink.treble = trebleSlider.value;
             // audioLink.bass = bassSlider.value;
             audioLink.fadeLength = fadeLengthSlider.value;
