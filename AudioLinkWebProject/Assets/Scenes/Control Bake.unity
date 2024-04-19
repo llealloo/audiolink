@@ -922,7 +922,6 @@ GameObject:
   m_Component:
   - component: {fileID: 849179695443642393}
   - component: {fileID: 569928628004381435}
-  - component: {fileID: 5250813097155795689}
   m_Layer: 0
   m_Name: AudioLinkInput
   m_TagString: Untagged
@@ -930,18 +929,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
   m_IsActive: 1
---- !u!114 &5250813097155795689
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5250813097155795688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad1316099ede29048b6c8eb7ee2660e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5349455653125356735
 MonoBehaviour:
   m_ObjectHideFlags: 0

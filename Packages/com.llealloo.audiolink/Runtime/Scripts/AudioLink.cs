@@ -337,15 +337,17 @@ namespace AudioLink
 
             SetupAnalyserSpace();
             audioLinkWebPeer = new WebALPeer();
-            
+
             WebALID = UnityEngine.Random.Range(0, 99999);
 
             LinkAnalyser(WebALID, audioSource.clip.length, 4096);
 
             Application.focusChanged += (focus) => {
-                if (focus) {
-                    LinkAnalyser(WebALID, audioSource.clip.length, 4096);
-                } else UnlinkAnalyser(WebALID);
+                if (_audioLinkEnabled) {
+                    if (focus) {
+                        LinkAnalyser(WebALID, audioSource.clip.length, 4096);
+                    } else UnlinkAnalyser(WebALID);
+                }
             };
 
 #endif
@@ -767,6 +769,10 @@ namespace AudioLink
 #else
             SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
 #endif
+#if UNITY_WEBGL
+            SetupAnalyserSpace();
+            LinkAnalyser(WebALID, audioSource.clip.length, 4096);
+#endif
         }
 
         public void DisableAudioLink()
@@ -777,6 +783,9 @@ namespace AudioLink
             SetGlobalTexture(_AudioTexture, null);
 #else
             SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
+#endif
+#if UNITY_WEBGL
+            UnlinkAnalyser(WebALID);
 #endif
         }
 
