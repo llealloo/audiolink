@@ -769,7 +769,7 @@ namespace AudioLink
 #else
             SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
 #endif
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyserSpace();
             LinkAnalyser(WebALID, audioSource.clip.length, 4096);
 #endif
@@ -784,7 +784,7 @@ namespace AudioLink
 #else
             SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
 #endif
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             UnlinkAnalyser(WebALID);
 #endif
         }
