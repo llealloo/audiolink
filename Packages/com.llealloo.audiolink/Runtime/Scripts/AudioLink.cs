@@ -17,6 +17,10 @@ namespace AudioLink
     using UnityEngine.Rendering;
     using static Shader;
 
+    #if UNITY_WEBGL
+    using System.Runtime.InteropServices;
+    #endif
+
     public partial class AudioLink : MonoBehaviour
 #endif
     {
@@ -210,6 +214,25 @@ namespace AudioLink
         private int _Samples3R;
         // ReSharper restore InconsistentNaming
 
+        #if UNITY_WEBGL
+        
+        public static WebALPeer audioLinkWebPeer { get; private set; }
+
+        [DllImport("__Internal")]
+        private static extern int SetupAnalyserSpace();
+        [DllImport("__Internal")]
+        private static extern int LinkAnalyser(int ID, float duration, int bufferSize);
+        [DllImport("__Internal")]
+        private static extern int UnlinkAnalyser(int ID);
+        [DllImport("__Internal")]
+        private static extern int FetchAnalyserLeft(int ID, float[] timeDomainDataLeft, int size);
+        [DllImport("__Internal")]
+        private static extern int FetchAnalyserRight(int ID, float[] timeDomainDataRight, int size);
+
+        private int WebALID = 0;
+        
+        #endif
+
         private bool _IsInitialized = false;
         private void InitIDs()
         {
@@ -310,6 +333,21 @@ namespace AudioLink
                 // Set master name once on start
                 FindAndUpdateMasterName();
             }
+#elif UNITY_WEBGL && !UNITY_EDITOR
+
+            SetupAnalyserSpace();
+            audioLinkWebPeer = new WebALPeer();
+            
+            WebALID = UnityEngine.Random.Range(0, 99999);
+
+            LinkAnalyser(WebALID, audioSource.clip.length, 4096);
+
+            Application.focusChanged += (focus) => {
+                if (focus) {
+                    LinkAnalyser(WebALID, audioSource.clip.length, 4096);
+                } else UnlinkAnalyser(WebALID);
+            };
+
 #endif
 
             UpdateSettings();
@@ -758,8 +796,21 @@ namespace AudioLink
             
             #if UNITY_WEBGL && !UNITY_EDITOR
 
-                _audioFramesL = AudioPeer.AudioFrequencyBand8.GetWaveform();
-                _audioFramesR = _audioFramesL;
+                if (audioSource.isPlaying)
+                {
+                    audioLinkWebPeer.SyncLeft((leftSamples) =>
+                    {
+                        FetchAnalyserLeft(WebALID, leftSamples, 4096);
+                    });
+
+                    audioLinkWebPeer.SyncRight((rightSamples) =>
+                    {
+                        FetchAnalyserRight(WebALID, rightSamples, 4096);
+                    });
+                }
+
+                _audioFramesL = audioLinkWebPeer.GetWaveformLeft();
+                _audioFramesR = audioLinkWebPeer.GetWaveformRight();
 
             #else
 
