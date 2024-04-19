@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+// Reworked and modifed to fix a weird Unity limitation: https://github.com/Lakistein/Unity-Audio-Visualizers
+
 #if UNITY_WEBGL
 namespace AudioLink
 {
