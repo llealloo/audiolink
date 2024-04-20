@@ -19,6 +19,7 @@ namespace AudioLink
     {
         public enum TextureTransformMode
         {
+            AsIs,
             Normalized,
             ByPixels
         }
@@ -44,6 +45,7 @@ namespace AudioLink
         private int _globalTextureId;
         private int _globalTextureTransformId;
         private bool _globalTextureActive = false;
+        internal Vector4 _lastGlobalST = Vector4.zero;
 
         public enum Resolution
         {
@@ -169,33 +171,44 @@ namespace AudioLink
             Vector4 st = new Vector4(1, 1, 0, 0);
             if (enableGlobalVideoTexture)
             {
-                if (texture == null || showStandby) { }
-                else if (textureTransformMode == TextureTransformMode.ByPixels)
+                if (texture != null && !showStandby)
                 {
-                    // calculate offset/tiling from source texture pixel size.
-                    float sourceWidth = texture.width;
-                    float sourceHeight = texture.height;
-                    float targetWidth = texturePixelSize.x;
-                    float targetHeight = texturePixelSize.y;
-                    float targetX = texturePixelOrigin.x;
-                    float targetY = texturePixelOrigin.y;
-                    if (targetWidth == 0) st.x = 1;
-                    else st.x = targetWidth / sourceWidth;
-                    if (targetHeight == 0) st.y = 1;
-                    else st.y = targetHeight / sourceHeight;
-                    st.z = targetX / sourceWidth;
-                    st.w = (sourceHeight - targetHeight - targetY) / sourceHeight;
+                    switch (textureTransformMode)
+                    {
+                        case TextureTransformMode.Normalized:
+                            st.x = textureTiling.x;
+                            st.y = textureTiling.y;
+                            st.z = textureOffset.x;
+                            st.w = textureOffset.y;
+                            break;
+                        case TextureTransformMode.ByPixels:
+                            // calculate offset/tiling from source texture pixel size.
+                            float sourceWidth = texture.width;
+                            float sourceHeight = texture.height;
+                            float targetWidth = texturePixelSize.x;
+                            float targetHeight = texturePixelSize.y;
+                            float targetX = texturePixelOrigin.x;
+                            float targetY = texturePixelOrigin.y;
+                            if (targetWidth == 0) targetWidth = sourceWidth;
+                            if (targetHeight == 0) targetHeight = sourceHeight;
+                            st.x = targetWidth / sourceWidth;
+                            st.y = targetHeight / sourceHeight;
+                            st.z = targetX / sourceWidth;
+                            st.w = (sourceHeight - targetHeight - targetY) / sourceHeight;
+                            break;
+                    }
                 }
-                else st = new Vector4(textureTiling.x, textureTiling.y, textureOffset.x, textureOffset.y);
 
                 Shader.SetGlobalVector(_globalTextureTransformId, st);
                 Shader.SetGlobalTexture(_globalTextureId, texture);
+                _lastGlobalST = st;
                 _globalTextureActive = true;
             }
             // if globals ever get disabled, unset the custom texture global flag as well
             else if (_globalTextureActive)
             {
                 _globalTextureActive = false;
+                _lastGlobalST = st;
                 Shader.SetGlobalVector(_globalTextureTransformId, st);
                 Shader.SetGlobalTexture(_globalTextureId, null);
             }
@@ -495,7 +508,8 @@ namespace AudioLink
                     EditorGUILayout.PropertyField(enableGlobalVideoTexture, new GUIContent("Enable Global Video Texture"));
                     if (_ytdlpPlayer.enableGlobalVideoTexture)
                     {
-                        EditorGUILayout.PropertyField(globalTextureName, new GUIContent("Global Texture Property Target"));
+                        using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
+                            EditorGUILayout.PropertyField(globalTextureName, new GUIContent("Global Texture Property Target"));
                         EditorGUILayout.PropertyField(transformTextureMode, new GUIContent("Transform Texture (" + _ytdlpPlayer.globalTextureName + "_ST)"));
                         EditorGUI.indentLevel++;
                         switch (_ytdlpPlayer.textureTransformMode)
@@ -507,6 +521,9 @@ namespace AudioLink
                             case ytdlpPlayer.TextureTransformMode.ByPixels:
                                 EditorGUILayout.PropertyField(texturePixelOrigin, new GUIContent("Pixel Origin (from Top-Left)"));
                                 EditorGUILayout.PropertyField(texturePixelSize, new GUIContent("Pixel Size (0 = Texture Source Size)"));
+                                if (EditorApplication.isPlaying)
+                                    using (new EditorGUI.DisabledScope(true))
+                                        EditorGUILayout.LabelField($"Normalized: {_ytdlpPlayer._lastGlobalST}");
                                 break;
                         }
 
