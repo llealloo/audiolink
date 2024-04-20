@@ -687,9 +687,9 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: AUDIOLINK;AUDIOLINK_V1
-    Standalone: AUDIOLINK;AUDIOLINK_V1
-    WebGL: AUDIOLINK;AUDIOLINK_V1
+    Android: 
+    Standalone: 
+    WebGL: 
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
