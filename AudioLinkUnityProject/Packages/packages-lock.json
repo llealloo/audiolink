@@ -6,35 +6,6 @@
       "source": "local",
       "dependencies": {}
     },
-    "com.unity.burst": {
-      "version": "1.8.7",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.mathematics": "1.2.1"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.cinemachine": {
-      "version": "2.9.7",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.31"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.collections": {
-      "version": "2.1.4",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.burst": "1.8.4",
-        "com.unity.modules.unityanalytics": "1.0.0",
-        "com.unity.nuget.mono-cecil": "1.11.4"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
@@ -67,29 +38,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.inputsystem": {
-      "version": "1.6.3",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.uielements": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.mathematics": {
-      "version": "1.2.6",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.nuget.mono-cecil": {
-      "version": "1.11.4",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
     "com.unity.nuget.newtonsoft-json": {
       "version": "3.2.1",
       "depth": 1,
@@ -97,12 +45,19 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.postprocessing": {
-      "version": "3.2.2",
+    "com.unity.sysroot": {
+      "version": "2.0.7",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.sysroot.linux-x86_64": {
+      "version": "2.0.6",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.physics": "1.0.0"
+        "com.unity.sysroot": "2.0.7"
       },
       "url": "https://packages.unity.com"
     },
@@ -138,6 +93,16 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.toolchain.linux-x86_64": {
+      "version": "2.0.6",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.sysroot": "2.0.7",
+        "com.unity.sysroot.linux-x86_64": "2.0.6"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ugui": {
       "version": "1.0.0",
       "depth": 0,
@@ -147,67 +112,12 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
-    "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.10",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.vr": "1.0.0",
-        "com.unity.modules.xr": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.xr.management": {
-      "version": "4.4.0",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.subsystems": "1.0.0",
-        "com.unity.modules.vr": "1.0.0",
-        "com.unity.modules.xr": "1.0.0",
-        "com.unity.xr.legacyinputhelpers": "2.1.7"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.xr.oculus": {
-      "version": "4.0.0",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.xr.management": "4.2.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.vrchat.base": {
-      "version": "file:com.vrchat.base",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.burst": "1.8.7",
-        "com.unity.collections": "2.1.4",
-        "com.unity.mathematics": "1.2.6",
-        "com.unity.nuget.newtonsoft-json": "3.2.1",
-        "com.unity.xr.management": "4.3.3",
-        "com.unity.xr.oculus": "4.0.0"
-      }
-    },
     "com.vrchat.core.vpm-resolver": {
       "version": "file:com.vrchat.core.vpm-resolver",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.2"
-      }
-    },
-    "com.vrchat.worlds": {
-      "version": "file:com.vrchat.worlds",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.cinemachine": "2.9.7",
-        "com.unity.postprocessing": "3.2.2",
-        "com.unity.textmeshpro": "3.0.6",
-        "com.unity.inputsystem": "1.2.0"
       }
     },
     "com.unity.modules.ai": {
