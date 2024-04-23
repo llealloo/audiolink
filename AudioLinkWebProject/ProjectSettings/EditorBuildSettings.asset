@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Control Bake.unity
+    path: Assets/Scenes/WebGL Demo.unity
     guid: ac662ccf61f174b4b96ce09d3b22c8b3
   m_configObjects: {}
