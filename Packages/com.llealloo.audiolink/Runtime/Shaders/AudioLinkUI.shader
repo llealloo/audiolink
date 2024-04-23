@@ -95,11 +95,7 @@
             sampler2D _ResetTexture;
 
             // Colors
-            #if SHADER_API_DESKTOP && SHADER_API_GLES3 // Lighten things up for web users
-            const static float3 BACKGROUND_COLOR = 0.15;
-            #else
             const static float3 BACKGROUND_COLOR = 0.033;
-            #endif
             const static float3 FOREGROUND_COLOR = 0.075;
             const static float3 INACTIVE_COLOR = 0.13;
             const static float3 ACTIVE_COLOR = 0.8;

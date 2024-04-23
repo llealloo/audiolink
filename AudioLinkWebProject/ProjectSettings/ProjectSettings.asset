@@ -153,7 +153,8 @@ PlayerSettings:
   resetResolutionOnWindowResize: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
-  applicationIdentifier: {}
+  applicationIdentifier:
+    Standalone: com.DefaultCompany.AudioLink-Controller
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -783,8 +784,8 @@ PlayerSettings:
   webGLPowerPreference: 2
   scriptingDefineSymbols:
     Android: 
-    Standalone: 
-    WebGL: 
+    Standalone: AUDIOLINK;AUDIOLINK_V1
+    WebGL: AUDIOLINK;AUDIOLINK_V1
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

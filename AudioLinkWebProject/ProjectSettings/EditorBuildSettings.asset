@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Control Bake.unity
+    guid: ac662ccf61f174b4b96ce09d3b22c8b3
   m_configObjects: {}

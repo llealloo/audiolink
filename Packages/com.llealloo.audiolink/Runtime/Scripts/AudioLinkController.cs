@@ -98,7 +98,7 @@ namespace AudioLink
 #if UNITY_EDITOR
         void Update()
         {
-            //UpdateSettings();
+            UpdateSettings();
         }
 #endif
 
@@ -142,8 +142,8 @@ namespace AudioLink
             GetSettings();
 
             _initGain = gainSlider.value;
-            //_initTreble = trebleSlider.value;
-            //_initBass = bassSlider.value;
+            _initTreble = trebleSlider.value;
+            _initBass = bassSlider.value;
             _initFadeLength = fadeLengthSlider.value;
             _initFadeExpFalloff = fadeExpFalloffSlider.value;
             _initAutoGain = autoGainToggle.isOn;
@@ -167,8 +167,8 @@ namespace AudioLink
         {
             // General settings
             gainSlider.value = audioLink.gain;
-            //trebleSlider.value = audioLink.treble;
-            //bassSlider.value = audioLink.bass;
+            trebleSlider.value = audioLink.treble;
+            bassSlider.value = audioLink.bass;
             fadeLengthSlider.value = audioLink.fadeLength;
             fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
             autoGainToggle.isOn = audioLink.autogain;
@@ -220,13 +220,9 @@ namespace AudioLink
                 return;
             }
             // General settings
-            #if UNITY_WEBGL && !UNITY_EDITOR
-            audioLink.gain = gainSlider.value * 2;
-            #else
             audioLink.gain = gainSlider.value;
-            #endif
-            // audioLink.treble = trebleSlider.value;
-            // audioLink.bass = bassSlider.value;
+            audioLink.treble = trebleSlider.value;
+            audioLink.bass = bassSlider.value;
             audioLink.fadeLength = fadeLengthSlider.value;
             audioLink.fadeExpFalloff = fadeExpFalloffSlider.value;
             audioLink.autogain = autoGainToggle.isOn;
@@ -257,8 +253,8 @@ namespace AudioLink
         public void ResetSettings()
         {
             gainSlider.value = _initGain;
-            //trebleSlider.value = _initTreble;
-            // bassSlider.value = _initBass;
+            trebleSlider.value = _initTreble;
+            bassSlider.value = _initBass;
             fadeLengthSlider.value = _initFadeLength;
             fadeExpFalloffSlider.value = _initFadeExpFalloff;
             autoGainToggle.isOn = _initAutoGain;
