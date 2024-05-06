@@ -334,7 +334,7 @@ namespace AudioLink
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
             proc.StartInfo.FileName = _ytdlpPath;
-            proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}]/best[height<=?{resolution}]\" --get-url \"{url}\"";
+            proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
 
             proc.Exited += (sender, args) => { proc.Dispose(); };
 
