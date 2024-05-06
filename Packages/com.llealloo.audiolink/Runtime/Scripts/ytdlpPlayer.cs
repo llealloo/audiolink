@@ -31,7 +31,7 @@ namespace AudioLink
         public VideoPlayer videoPlayer = null;
         public Resolution resolution = Resolution._720p;
 
-        public bool enableGlobalVideoTexture = true;
+        public bool enableGlobalVideoTexture = false;
         public string globalTextureName = "_Udon_VideoTex";
         public TextureTransformMode textureTransformMode = TextureTransformMode.Normalized;
         public Vector2Int texturePixelOrigin = new Vector2Int(0, 0);
