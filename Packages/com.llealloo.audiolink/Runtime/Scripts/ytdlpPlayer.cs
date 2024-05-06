@@ -14,16 +14,38 @@ using UnityEngine.Video;
 
 namespace AudioLink
 {
+
     public class ytdlpPlayer : MonoBehaviour
     {
+        public enum TextureTransformMode
+        {
+            AsIs,
+            Normalized,
+            ByPixels
+        }
+
         public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
         ytdlpRequest _currentRequest = null;
 
-        [SerializeField] public bool showVideoPreviewInComponent = false;
-
+        public bool showVideoPreviewInComponent = false;
         public VideoPlayer videoPlayer = null;
+        public Resolution resolution = Resolution._720p;
 
-        [SerializeField] public Resolution resolution = Resolution._720p;
+        public bool enableGlobalVideoTexture = false;
+        public string globalTextureName = "_Udon_VideoTex";
+        public TextureTransformMode textureTransformMode = TextureTransformMode.Normalized;
+        public Vector2Int texturePixelOrigin = new Vector2Int(0, 0);
+        public Vector2Int texturePixelSize = new Vector2Int(0, 0);
+        public Vector2 textureTiling = new Vector2(1f, 1f);
+        public Vector2 textureOffset = new Vector2(0f, 0f);
+        public bool forceStandbyTexture = false;
+        public bool showStandbyIfPaused = true;
+        public Texture2D standbyTexture;
+
+        private int _globalTextureId;
+        private int _globalTextureTransformId;
+        private bool _globalTextureActive = false;
+        internal Vector4 _lastGlobalST = Vector4.zero;
 
         public enum Resolution
         {
@@ -37,6 +59,8 @@ namespace AudioLink
 
         void OnEnable()
         {
+            _globalTextureId = Shader.PropertyToID(globalTextureName);
+            _globalTextureTransformId = Shader.PropertyToID(globalTextureName + "_ST");
             RequestPlay();
         }
 
@@ -45,7 +69,7 @@ namespace AudioLink
             _currentRequest = ytdlpURLResolver.Resolve(ytdlpURL, (int)resolution);
         }
 
-        void Update()
+        private void Update()
         {
             if (_currentRequest != null && _currentRequest.isDone)
             {
@@ -53,6 +77,8 @@ namespace AudioLink
                 _currentRequest = null;
             }
         }
+
+        private void LateUpdate() => ExportGlobalVideoTexture();
 
         public void UpdateUrl(string resolved)
         {
@@ -128,6 +154,67 @@ namespace AudioLink
                 AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
                 if (audioSourceOutput != null)
                     audioSourceOutput.volume = Mathf.Clamp01(volume);
+            }
+        }
+
+        private void ExportGlobalVideoTexture()
+        {
+            Texture texture = null;
+            bool showStandby = forceStandbyTexture;
+            if (!showStandby && videoPlayer != null)
+            {
+                // enable pausing or stopping the video to make the standby texture show
+                showStandby |= (!videoPlayer.isPaused || showStandbyIfPaused) && !videoPlayer.isPlaying;
+                if (!showStandby) texture = videoPlayer.targetTexture != null ? videoPlayer.targetTexture : videoPlayer.texture;
+            }
+
+            showStandby |= texture == null;
+            if (showStandby && standbyTexture != null)
+                texture = standbyTexture;
+
+            Vector4 st = new Vector4(1, 1, 0, 0);
+            if (enableGlobalVideoTexture)
+            {
+                if (texture != null && !showStandby)
+                {
+                    switch (textureTransformMode)
+                    {
+                        case TextureTransformMode.Normalized:
+                            st.x = textureTiling.x;
+                            st.y = textureTiling.y;
+                            st.z = textureOffset.x;
+                            st.w = textureOffset.y;
+                            break;
+                        case TextureTransformMode.ByPixels:
+                            // calculate offset/tiling from source texture pixel size.
+                            float sourceWidth = texture.width;
+                            float sourceHeight = texture.height;
+                            float targetWidth = texturePixelSize.x;
+                            float targetHeight = texturePixelSize.y;
+                            float targetX = texturePixelOrigin.x;
+                            float targetY = texturePixelOrigin.y;
+                            if (targetWidth == 0) targetWidth = sourceWidth;
+                            if (targetHeight == 0) targetHeight = sourceHeight;
+                            st.x = targetWidth / sourceWidth;
+                            st.y = targetHeight / sourceHeight;
+                            st.z = targetX / sourceWidth;
+                            st.w = (sourceHeight - targetHeight - targetY) / sourceHeight;
+                            break;
+                    }
+                }
+
+                Shader.SetGlobalVector(_globalTextureTransformId, st);
+                Shader.SetGlobalTexture(_globalTextureId, texture);
+                _lastGlobalST = st;
+                _globalTextureActive = true;
+            }
+            // if globals ever get disabled, unset the custom texture global flag as well
+            else if (_globalTextureActive)
+            {
+                _globalTextureActive = false;
+                _lastGlobalST = st;
+                Shader.SetGlobalVector(_globalTextureTransformId, st);
+                Shader.SetGlobalTexture(_globalTextureId, null);
             }
         }
     }
@@ -325,6 +412,17 @@ namespace AudioLink
         private SerializedProperty ytdlpURL;
         private SerializedProperty resolution;
 
+        private SerializedProperty enableGlobalVideoTexture;
+        private SerializedProperty globalTextureName;
+        private SerializedProperty transformTextureMode;
+        private SerializedProperty texturePixelOrigin;
+        private SerializedProperty texturePixelSize;
+        private SerializedProperty textureTiling;
+        private SerializedProperty textureOffset;
+        private SerializedProperty showStandbyIfPaused;
+        private SerializedProperty forceStandbyTexture;
+        private SerializedProperty standbyTexture;
+
         void OnEnable()
         {
             _ytdlpPlayer = (ytdlpPlayer)target;
@@ -334,6 +432,16 @@ namespace AudioLink
 
             ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpPlayer.ytdlpURL));
             resolution = serializedObject.FindProperty(nameof(_ytdlpPlayer.resolution));
+            enableGlobalVideoTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.enableGlobalVideoTexture));
+            globalTextureName = serializedObject.FindProperty(nameof(_ytdlpPlayer.globalTextureName));
+            transformTextureMode = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureTransformMode));
+            texturePixelOrigin = serializedObject.FindProperty(nameof(_ytdlpPlayer.texturePixelOrigin));
+            texturePixelSize = serializedObject.FindProperty(nameof(_ytdlpPlayer.texturePixelSize));
+            textureTiling = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureTiling));
+            textureOffset = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureOffset));
+            showStandbyIfPaused = serializedObject.FindProperty(nameof(_ytdlpPlayer.showStandbyIfPaused));
+            forceStandbyTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.forceStandbyTexture));
+            standbyTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.standbyTexture));
         }
 
         public override bool RequiresConstantRepaint()
@@ -458,9 +566,45 @@ namespace AudioLink
                 {
                     // Draw video preview with the same aspect ratio as the video
                     Texture videoPlayerTexture = _ytdlpPlayer.videoPlayer.texture;
+                    EditorGUILayout.LabelField($"Resolution: {videoPlayerTexture.width}x{videoPlayerTexture.height}");
                     float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
                     Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
                     EditorGUI.DrawPreviewTexture(previewRect, videoPlayerTexture, null, ScaleMode.ScaleToFit);
+                }
+
+                EditorGUILayout.PropertyField(enableGlobalVideoTexture, new GUIContent("Enable Global Video Texture"));
+                using (new EditorGUILayout.VerticalScope("box"))
+                {
+                    if (_ytdlpPlayer.enableGlobalVideoTexture)
+                    {
+                        EditorGUILayout.LabelField("Global Video Texture Settings");
+
+                        EditorGUILayout.HelpBox("Global Video Texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
+
+                        using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
+                            EditorGUILayout.PropertyField(globalTextureName, new GUIContent("Global Texture Property Target"));
+                        EditorGUILayout.PropertyField(transformTextureMode, new GUIContent("Transform Texture (" + _ytdlpPlayer.globalTextureName + "_ST)"));
+                        EditorGUI.indentLevel++;
+                        switch (_ytdlpPlayer.textureTransformMode)
+                        {
+                            case ytdlpPlayer.TextureTransformMode.Normalized:
+                                EditorGUILayout.PropertyField(textureTiling, new GUIContent("Tiling"));
+                                EditorGUILayout.PropertyField(textureOffset, new GUIContent("Offset"));
+                                break;
+                            case ytdlpPlayer.TextureTransformMode.ByPixels:
+                                EditorGUILayout.PropertyField(texturePixelOrigin, new GUIContent("Pixel Origin (from Top-Left)"));
+                                EditorGUILayout.PropertyField(texturePixelSize, new GUIContent("Pixel Size (0 = Texture Source Size)"));
+                                if (EditorApplication.isPlaying)
+                                    using (new EditorGUI.DisabledScope(true))
+                                        EditorGUILayout.LabelField($"Normalized: {_ytdlpPlayer._lastGlobalST}");
+                                break;
+                        }
+
+                        EditorGUI.indentLevel--;
+                        EditorGUILayout.PropertyField(showStandbyIfPaused, new GUIContent("Show Standby Texture when Paused"));
+                        EditorGUILayout.PropertyField(forceStandbyTexture, new GUIContent("Force Show Standby Texture"));
+                        EditorGUILayout.PropertyField(standbyTexture, new GUIContent("Standby Texture"), GUILayout.Height(EditorGUIUtility.singleLineHeight));
+                    }
                 }
             }
 
