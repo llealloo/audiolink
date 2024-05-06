@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 - ???
+### Changes
+- Reduced the sizes of various icon textures used by AudioLink. (Teeh)
+- Improved the logic that searches for a yt-dlp excecutable in ytdlpPlayer avatar testing prefab. It should more consistently find the executable accross platforms now. Additionally, the ability to override which executable is used has been added under `Tools > AudioLink > Select Custom YTDL Location`. (techanon)
+
+### Bugfixes
+- Fixed an issue where the AudioLink texture was flipped when using OpenGL. (fundale)
+- Fixed an issue where the ytdlpPlayer avatar testing prefab was selecting an incompatible format at certain resolution settings, resulting in the video failing to play. (pema)
+- Fixed an issue where the ytdlpPlayer avatar testing prefab restarted the video about ~3 seconds in. (techanon)
+
 ## 1.3.0 - February 18th, 2024
 ### Changes
 - Deprecated various static properties in AudioLink.DataAPI in favor of static functions to work around a miscompilation bug in UdonSharp.
