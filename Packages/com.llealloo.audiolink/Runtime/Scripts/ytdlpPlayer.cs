@@ -560,13 +560,27 @@ namespace AudioLink
             // Video preview
             using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
             {
-                Header("Global Video Texture Settings", -1);
-                EditorGUILayout.HelpBox("Global Video Texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
+                _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _ytdlpPlayer.showVideoPreviewInComponent);
+
+                if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.videoPlayer.texture != null)
+                {
+                    // Draw video preview with the same aspect ratio as the video
+                    Texture videoPlayerTexture = _ytdlpPlayer.videoPlayer.texture;
+                    EditorGUILayout.LabelField($"Resolution: {videoPlayerTexture.width}x{videoPlayerTexture.height}");
+                    float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
+                    Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
+                    EditorGUI.DrawPreviewTexture(previewRect, videoPlayerTexture, null, ScaleMode.ScaleToFit);
+                }
+
+                EditorGUILayout.PropertyField(enableGlobalVideoTexture, new GUIContent("Enable Global Video Texture"));
                 using (new EditorGUILayout.VerticalScope("box"))
                 {
-                    EditorGUILayout.PropertyField(enableGlobalVideoTexture, new GUIContent("Enable Global Video Texture"));
                     if (_ytdlpPlayer.enableGlobalVideoTexture)
                     {
+                        EditorGUILayout.LabelField("Global Video Texture Settings");
+
+                        EditorGUILayout.HelpBox("Global Video Texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
+
                         using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
                             EditorGUILayout.PropertyField(globalTextureName, new GUIContent("Global Texture Property Target"));
                         EditorGUILayout.PropertyField(transformTextureMode, new GUIContent("Transform Texture (" + _ytdlpPlayer.globalTextureName + "_ST)"));
@@ -591,18 +605,6 @@ namespace AudioLink
                         EditorGUILayout.PropertyField(forceStandbyTexture, new GUIContent("Force Show Standby Texture"));
                         EditorGUILayout.PropertyField(standbyTexture, new GUIContent("Standby Texture"), GUILayout.Height(EditorGUIUtility.singleLineHeight));
                     }
-                }
-
-                _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _ytdlpPlayer.showVideoPreviewInComponent);
-
-                if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.videoPlayer.texture != null)
-                {
-                    // Draw video preview with the same aspect ratio as the video
-                    Texture videoPlayerTexture = _ytdlpPlayer.videoPlayer.texture;
-                    EditorGUILayout.LabelField($"Resolution: {videoPlayerTexture.width}x{videoPlayerTexture.height}");
-                    float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
-                    Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
-                    EditorGUI.DrawPreviewTexture(previewRect, videoPlayerTexture, null, ScaleMode.ScaleToFit);
                 }
             }
 
