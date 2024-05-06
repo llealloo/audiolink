@@ -7,6 +7,7 @@
 ### Changes
 - Reduced the sizes of various icon textures used by AudioLink. (Teeh)
 - Improved the logic that searches for a yt-dlp excecutable in ytdlpPlayer avatar testing prefab. It should more consistently find the executable accross platforms now. Additionally, the ability to override which executable is used has been added under `Tools > AudioLink > Select Custom YTDL Location`. (techanon)
+- The "Upgrade AudioLink compatible shaders" popup will no longer display on first import, as shader authors have had plenty of time to upgrade their shaders at this point. It can still be run manually via the `Tools > AudioLink > Update AudioLink Compatible Shaders` menu item.
 
 ### Bugfixes
 - Fixed an issue where the AudioLink texture was flipped when using OpenGL. (fundale)
