@@ -61,6 +61,10 @@
             v2f vert (appdata v)
             {
                 v2f o;
+                // Prevent z-fighting on mobile by moving the panel out a bit
+                #ifdef SHADER_API_MOBILE
+                v.vertex.z -= 0.0012;
+                #endif
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 return o;
