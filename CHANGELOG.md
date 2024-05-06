@@ -14,6 +14,7 @@
 - Fixed an issue where the ytdlpPlayer avatar testing prefab was selecting an incompatible format at certain resolution settings, resulting in the video failing to play. (pema)
 - Fixed an issue where the ytdlpPlayer avatar testing prefab restarted the video about ~3 seconds in. (techanon)
 - Fixed an issue where the AudioLink controller was z-fighting on mobile platforms. (pema)
+- Fixed issue #299, where modifying the settings on the AudioLink prefab wouldn't properly apply to the control. (pema)
 
 ## 1.3.0 - February 18th, 2024
 ### Changes
