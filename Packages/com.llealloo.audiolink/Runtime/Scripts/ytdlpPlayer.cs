@@ -621,18 +621,6 @@ namespace AudioLink
 
             serializedObject.ApplyModifiedProperties();
         }
-
-        /// <summary>
-        /// Draws some text in the same style as the [Header] attribute.
-        /// Text size is based on the default largeLabel font size.
-        /// </summary>
-        /// <param name="header">the desired text to draw</param>
-        /// <param name="fontSizeDelta">font size adjustment from the default largeLabel font size</param>
-        private static void Header(string header, int fontSizeDelta = 0)
-        {
-            var style = new GUIStyle(EditorStyles.boldLabel) { fontSize = EditorStyles.largeLabel.fontSize + fontSizeDelta };
-            EditorGUILayout.LabelField(header, style);
-        }
     }
 }
 #endif
