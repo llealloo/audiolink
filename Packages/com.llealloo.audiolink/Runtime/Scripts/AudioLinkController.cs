@@ -166,22 +166,34 @@ namespace AudioLink
         private void GetSettings()
         {
             // General settings
-            gainSlider.value = audioLink.gain;
+            gainSlider.SetValueWithoutNotify(audioLink.gain);
+            gainSlider.GetComponent<GlobalSlider>().SlideUpdate();
             //trebleSlider.value = audioLink.treble;
             //bassSlider.value = audioLink.bass;
-            fadeLengthSlider.value = audioLink.fadeLength;
-            fadeExpFalloffSlider.value = audioLink.fadeExpFalloff;
-            autoGainToggle.isOn = audioLink.autogain;
+            fadeLengthSlider.SetValueWithoutNotify(audioLink.fadeLength);
+            fadeLengthSlider.GetComponent<GlobalSlider>().SlideUpdate();
+            fadeExpFalloffSlider.SetValueWithoutNotify(audioLink.fadeExpFalloff);
+            fadeExpFalloffSlider.GetComponent<GlobalSlider>().SlideUpdate();
+            autoGainToggle.SetIsOnWithoutNotify(audioLink.autogain);
+            autoGainToggle.GetComponent<GlobalToggle>().ToggleUpdate();
 
             // Crossover Settings
-            x0Slider.value = audioLink.x0;
-            x1Slider.value = audioLink.x1;
-            x2Slider.value = audioLink.x2;
-            x3Slider.value = audioLink.x3;
-            threshold0Slider.value = audioLink.threshold0;
-            threshold1Slider.value = audioLink.threshold1;
-            threshold2Slider.value = audioLink.threshold2;
-            threshold3Slider.value = audioLink.threshold3;
+            x0Slider.SetValueWithoutNotify(audioLink.x0);
+            x0Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            x1Slider.SetValueWithoutNotify(audioLink.x1);
+            x1Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            x2Slider.SetValueWithoutNotify(audioLink.x2);
+            x2Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            x3Slider.SetValueWithoutNotify(audioLink.x3);
+            x3Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold0Slider.SetValueWithoutNotify(audioLink.threshold0);
+            threshold0Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold1Slider.SetValueWithoutNotify(audioLink.threshold1);
+            threshold1Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold2Slider.SetValueWithoutNotify(audioLink.threshold2);
+            threshold2Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold3Slider.SetValueWithoutNotify(audioLink.threshold3);
+            threshold3Slider.GetComponent<GlobalSlider>().SlideUpdate();
         }
 
         public void UpdateSettings()
