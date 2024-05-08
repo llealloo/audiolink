@@ -81,7 +81,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9b9b5c52a71184bb2fad4c01f0bc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ytdlpURL: https://www.youtube.com/watch?v=SFTcZ1GXOCQ
+  ytdlpURL: https://www.youtube.com/watch?v=vGXyAKy-X6s
   showVideoPreviewInComponent: 0
   videoPlayer: {fileID: 5208934818770322006}
   resolution: 720
@@ -213,7 +213,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 1
   Mute: 0
