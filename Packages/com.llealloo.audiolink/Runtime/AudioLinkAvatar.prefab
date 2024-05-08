@@ -29,7 +29,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8800328339556915023}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -81,20 +81,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af9b9b5c52a71184bb2fad4c01f0bc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ytdlpURL: https://www.youtube.com/watch?v=SFTcZ1GXOCQ
+  ytdlpURL: https://www.youtube.com/watch?v=dZPcLi2-5dE
   showVideoPreviewInComponent: 0
   videoPlayer: {fileID: 5208934818770322006}
   resolution: 720
-  enableGlobalVideoTexture: 0
-  globalTextureName: _Udon_VideoTex
-  textureTransformMode: 1
-  texturePixelOrigin: {x: 0, y: 0}
-  texturePixelSize: {x: 0, y: 0}
-  textureTiling: {x: 1, y: 1}
-  textureOffset: {x: 0, y: 0}
-  forceStandbyTexture: 0
-  showStandbyIfPaused: 1
-  standbyTexture: {fileID: 0}
 --- !u!1 &8800328339556915021
 GameObject:
   m_ObjectHideFlags: 0
