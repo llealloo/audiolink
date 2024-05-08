@@ -24,7 +24,7 @@ namespace AudioLink
             ByPixels
         }
 
-        public string ytdlpURL = "https://www.youtube.com/watch?v=SFTcZ1GXOCQ";
+        public string ytdlpURL = "https://www.youtube.com/watch?v=dZPcLi2-5dE";
         ytdlpRequest _currentRequest = null;
 
         public bool showVideoPreviewInComponent = false;
