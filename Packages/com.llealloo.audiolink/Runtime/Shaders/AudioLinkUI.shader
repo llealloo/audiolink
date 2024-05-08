@@ -16,7 +16,7 @@
         _X1("Crossover X1", Range(0.242, 0.387)) = 0.25
         _X2("Crossover X2", Range(0.461, 0.628)) = 0.5
         _X3("Crossover X3", Range(0.704, 0.953)) = 0.75
-        
+
         _HitFade("Hit Fade", Range(0, 1)) = 0.5
         _ExpFalloff("Exp Falloff", Range(0, 1)) = 0.5
 
@@ -94,9 +94,13 @@
             float3 _CustomColor2;
             float3 _CustomColor3;
             sampler2D _GainTexture;
+            float4 _GainTexture_TexelSize;
             sampler2D _AutoGainTexture;
+            float4 _AutoGainTexture_TexelSize;
             sampler2D _PowerTexture;
+            float4 _PowerTexture_TexelSize;
             sampler2D _ResetTexture;
+            float4 _ResetTexture_TexelSize;
 
             // Colors
             const static float3 BACKGROUND_COLOR = 0.033;
@@ -145,7 +149,7 @@
                 int other = clamp(me + side, 0, 3);
 
                 float3 otherColor = selectColor(other, a, b, c, d);
-                
+
                 float dist = round(i) - i;
                 const float pixelDiagonal = sqrt(2.0) / 2.0 * side;
                 float distDerivativeLength = sqrt(pow(ddx(dist), 2) + pow(ddy(dist), 2));
@@ -170,7 +174,7 @@
                 int other = clamp(me + side, 0, 3);
 
                 float otherStrength = AudioLinkLerp(float2(delay, other)).r;
-                
+
                 float dist = round(i) - i;
                 const float pixelDiagonal = sqrt(2.0) / 2.0 * side;
                 float distDerivativeLength = sqrt(pow(ddx(dist), 2) + pow(ddy(dist), 2));
@@ -205,7 +209,7 @@
             {
                 return d - thickness;
             }
-            
+
             float lerpstep(float a, float b, float x)
             {
                 return saturate((x - a)/(b - a));
@@ -273,6 +277,17 @@
                 return length( pa - ba*h );
             }
 
+            #define TEX2D_MSDF(tex, uv) tex2DMSDF(tex, tex##_TexelSize.xy * 4.0, uv)
+
+            float tex2DMSDF(sampler2D tex, float2 unit, float2 uv)
+            {
+                float3 c = tex2D(tex, uv).rgb;
+                return saturate(
+                    (max(min(c.r, c.g), min(max(c.r, c.g), c.b)) - 0.5) *
+                    max(dot(unit, 0.5 / fwidth(uv)), 1) + 0.5
+                );
+            }
+
             float3 drawTopArea(float2 uv)
             {
                 float3 color = FOREGROUND_COLOR;
@@ -280,7 +295,7 @@
                 float areaWidth = 1.0 - FRAME_MARGIN * 2;
                 float areaHeight = 0.35;
                 float handleWidth = 0.015 * areaWidth;
-                
+
                 float threshold[4] = { _Threshold0, _Threshold1, _Threshold2, _Threshold3 };
                 float crossover[4] = { _X0 * areaWidth, _X1 * areaWidth, _X2 * areaWidth, _X3 * areaWidth };
 
@@ -297,7 +312,7 @@
                         boxWidth = areaWidth - currentBoxOffset;
                     else
                         boxWidth = crossover[i + 1] - crossover[i];
-                    
+
                     boxOffsets[i] = currentBoxOffset;
                     boxWidths[i] = boxWidth;
 
@@ -325,7 +340,7 @@
                 // background waveform
                 color = lerp(color, color * 2, waveformDist);
                 color = lerp(color, color * 2, waveformDistAbs);
-                
+
                 // This optimization increases performance, but introduces aliasing. The perf difference is only really noticeable on Quest.
                 #if defined(UNITY_PBS_USE_BRDF2) || defined(SHADER_API_MOBILE)
                 [loop] for (uint i = start; i < min(stop, 4); i++)
@@ -382,7 +397,7 @@
 
                 float3 color = FOREGROUND_COLOR;
 
-                float gainIcon = tex2D(_GainTexture, saturate((uv - float2(0.01, 0.0)) / size.y)).r;
+                float gainIcon = TEX2D_MSDF(_GainTexture, saturate((uv - float2(0.01, 0.0)) / size.y));
                 color = lerp(color, ACTIVE_COLOR, gainIcon.r);
 
                 const float sliderOffsetLeft = 0.16;
@@ -391,7 +406,7 @@
                 // Background fill
                 float maxTriangleWidth = size.x - sliderOffsetLeft - sliderOffsetRight;
                 float bgTriangleDist = inflate(sdTriangleIsosceles(
-                    rotate(translate(uv, float2(sliderOffsetLeft, size.y * 0.5)), UNITY_PI*0.5), 
+                    rotate(translate(uv, float2(sliderOffsetLeft, size.y * 0.5)), UNITY_PI*0.5),
                     float2(size.y*0.3, maxTriangleWidth)
                 ), 0.002);
                 ADD_ELEMENT(color, inactiveColor, bgTriangleDist);
@@ -418,24 +433,24 @@
             float drawAutoGainButton(float2 uv, float2 size)
             {
                 float2 scaledUV = uv / size;
-                float autoGainIcon = tex2D(_AutoGainTexture, float2(scaledUV.x, 1-scaledUV.y)).r;
+                float autoGainIcon = TEX2D_MSDF(_AutoGainTexture, float2(scaledUV.x, 1-scaledUV.y));
                 return lerp(FOREGROUND_COLOR, _AutoGain ? ACTIVE_COLOR : INACTIVE_COLOR, autoGainIcon);
             }
 
             float drawPowerButton(float2 uv, float2 size)
             {
                 float2 scaledUV = uv / size;
-                float powerIcon = tex2D(_PowerTexture, float2(scaledUV.x, 1-scaledUV.y)).r;
+                float powerIcon = TEX2D_MSDF(_PowerTexture, float2(scaledUV.x, 1-scaledUV.y));
                 return lerp(FOREGROUND_COLOR, _Power ? ACTIVE_COLOR : INACTIVE_COLOR, powerIcon);
             }
 
             float drawResetButton(float2 uv, float2 size)
             {
                 float2 scaledUV = uv / size;
-                float resetIcon = tex2D(_ResetTexture, float2(scaledUV.x, 1-scaledUV.y)).r;
+                float resetIcon = TEX2D_MSDF(_ResetTexture, float2(scaledUV.x, 1-scaledUV.y));
                 return lerp(FOREGROUND_COLOR, ACTIVE_COLOR, resetIcon);
             }
-            
+
             float3 drawHitFadeArea(float2 uv, float2 size)
             {
                 float3 color = FOREGROUND_COLOR;
@@ -496,7 +511,7 @@
                 float marginY = remainingHeight / 2;
                 float triUVx = remap(uv.x, marginX, size.x-marginX, 0, 1);
                 float triUVy = remap(uv.y, marginY, size.y-marginY, 0, 1);
-    
+
                 float expFalloffY = (1.0 + (pow(triUVx, 4.0) * _ExpFalloff) - _ExpFalloff) * triUVx;
                 float fgDist = inflate((1.0 - triUVy) - expFalloffY, 0.02);
                 ADD_ELEMENT(color, ACTIVE_COLOR, max(bgTriangleDist, fgDist*0.1));
@@ -588,7 +603,7 @@
                 float3 b = AudioLinkData(ALPASS_THEME_COLOR0 + uint2(1, 0));
                 float3 c = AudioLinkData(ALPASS_THEME_COLOR0 + uint2(2, 0));
                 float3 d = AudioLinkData(ALPASS_THEME_COLOR0 + uint2(3, 0));
-                
+
                 // If no music is playing, let's just show theme colors so it isn't black
                 if (!any(a) && !any(b) && !any(c) && !any(d))
                 {
@@ -658,14 +673,14 @@
                 float2 hitFadeAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, fadeSliderHeight);
                 float hitFadeAreaDist = sdRoundedBoxTopLeft(hitFadeAreaOrigin, hitFadeAreaSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawHitFadeArea(hitFadeAreaOrigin, hitFadeAreaSize), hitFadeAreaDist);
-                
+
                 // Exp fallof
                 float2 expFalloffAreaOrigin = translate(uv, FRAME_MARGIN + float2(hitFadeAreaSize.x + margin, currentY));
                 float2 expFalloffAreaSize = float2(topAreaSize.x * 0.5 - margin * 0.5, fadeSliderHeight);
                 float expFalloffAreaDist = sdRoundedBoxTopLeft(expFalloffAreaOrigin, expFalloffAreaSize, CORNER_RADIUS);
                 ADD_ELEMENT(color, drawExpFalloffArea(expFalloffAreaOrigin, expFalloffAreaSize), expFalloffAreaDist);
                 currentY += expFalloffAreaSize.y + margin;
-                
+
                 // 4-band
                 float2 fourBandOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 fourBandSize = float2(topAreaSize.x, fadeSliderHeight);
@@ -724,7 +739,7 @@
                     ADD_ELEMENT(color, ACTIVE_COLOR, shellDist);
                 }
                 currentY += hueSize.y + margin;
-                
+
                 // Power button
                 float2 powerButtonOrigin = translate(uv, FRAME_MARGIN + float2(0, currentY));
                 float2 powerButtonSize = float2(gainSliderHeight, gainSliderHeight);
