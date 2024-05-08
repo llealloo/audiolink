@@ -167,33 +167,37 @@ namespace AudioLink
         {
             // General settings
             gainSlider.SetValueWithoutNotify(audioLink.gain);
-            gainSlider.GetComponent<GlobalSlider>().SlideUpdate();
             //trebleSlider.value = audioLink.treble;
             //bassSlider.value = audioLink.bass;
             fadeLengthSlider.SetValueWithoutNotify(audioLink.fadeLength);
-            fadeLengthSlider.GetComponent<GlobalSlider>().SlideUpdate();
             fadeExpFalloffSlider.SetValueWithoutNotify(audioLink.fadeExpFalloff);
-            fadeExpFalloffSlider.GetComponent<GlobalSlider>().SlideUpdate();
             autoGainToggle.SetIsOnWithoutNotify(audioLink.autogain);
-            autoGainToggle.GetComponent<GlobalToggle>().ToggleUpdate();
 
             // Crossover Settings
             x0Slider.SetValueWithoutNotify(audioLink.x0);
-            x0Slider.GetComponent<GlobalSlider>().SlideUpdate();
             x1Slider.SetValueWithoutNotify(audioLink.x1);
-            x1Slider.GetComponent<GlobalSlider>().SlideUpdate();
             x2Slider.SetValueWithoutNotify(audioLink.x2);
-            x2Slider.GetComponent<GlobalSlider>().SlideUpdate();
             x3Slider.SetValueWithoutNotify(audioLink.x3);
-            x3Slider.GetComponent<GlobalSlider>().SlideUpdate();
             threshold0Slider.SetValueWithoutNotify(audioLink.threshold0);
-            threshold0Slider.GetComponent<GlobalSlider>().SlideUpdate();
             threshold1Slider.SetValueWithoutNotify(audioLink.threshold1);
-            threshold1Slider.GetComponent<GlobalSlider>().SlideUpdate();
             threshold2Slider.SetValueWithoutNotify(audioLink.threshold2);
-            threshold2Slider.GetComponent<GlobalSlider>().SlideUpdate();
             threshold3Slider.SetValueWithoutNotify(audioLink.threshold3);
+
+            // Send events
+#if UDONSHARP
+            gainSlider.GetComponent<GlobalSlider>().SlideUpdate();
+            fadeLengthSlider.GetComponent<GlobalSlider>().SlideUpdate();
+            fadeExpFalloffSlider.GetComponent<GlobalSlider>().SlideUpdate();
+            autoGainToggle.GetComponent<GlobalToggle>().ToggleUpdate();
+            x0Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            x1Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            x2Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            x3Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold0Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold1Slider.GetComponent<GlobalSlider>().SlideUpdate();
+            threshold2Slider.GetComponent<GlobalSlider>().SlideUpdate();
             threshold3Slider.GetComponent<GlobalSlider>().SlideUpdate();
+#endif
         }
 
         public void UpdateSettings()
