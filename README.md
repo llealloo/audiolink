@@ -123,3 +123,4 @@ After installation, to use AudioLink:
 - Shelter, Loner, Rizumu, and all of the other dance communities in VRChat for making this
 - rrazgriz for coming up with and implementing yt-dlp support for editor testing
 - LucHeart and DomNomNom for maintaing CVR forks of AudioLink, and letting us adopt their work
+- Rollthered for providing us with music for demo purposes.
