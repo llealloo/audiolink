@@ -1,8 +1,14 @@
-## Developer Notes
+## Contributing
 
-Development happens on `master`. This is the branch you should target in pull requests, if you want to contribute.
+Development of AudioLink happens on the `master` branch. This is the branch you should target in pull requests, if you want to contribute.
 
-### Version update processes
+If you'd like to implement a new feature or major change, join our [Discord](https://discord.com/invite/d5wjNwZBR3) and chat to us about it first, or open an [issue](https://github.com/llealloo/audiolink/issues) to discuss. Bugfixes are usually fine to submit without prior discussion.
+
+When submitting changes, please try to avoid comitting unnecessary changes. In particular, GUIDs of UdonSharp program assets are known to occasionally regenerate themselves when changing scripts. These changes should usually not be comitted.
+
+AudioLink is licensed under the [MIT License](https://en.wikipedia.org/wiki/MIT_License). By contributing, you agree to license your changes under the same license.
+
+## Version update processes
 
 Make sure the sample scene (the one you can open with a dropdown) still works.
 If necessary, open it in editor, fix it, and transplant it back into Packages/com.llealloo.audiolink/Samples~...
