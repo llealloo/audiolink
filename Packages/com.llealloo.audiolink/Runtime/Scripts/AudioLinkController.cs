@@ -18,7 +18,8 @@ namespace AudioLink
     {
         [Space(10)]
         public AudioLink audioLink;
-        [Space(10)]
+        public ControllerSyncMode controllerSyncMode;
+        [Space(25)]
         [Header("Internal (Do not modify)")]
         public ThemeColorController themeColorController;
         public Material audioLinkUI;
@@ -109,6 +110,41 @@ namespace AudioLink
             return controllerTransform.GetComponent<ThemeColorController>();
         }
 
+        private void SetTransformSync(Transform transf, int syncMode, int targetMode)
+        {
+
+            #if UDONSHARP
+
+            transf.GetComponent<UdonBehaviour>().enabled = syncMode < targetMode;
+
+            #endif
+
+        }
+
+        void SetControllerSyncMode(int syncMode)
+        {
+            
+            SetTransformSync(gainSlider.transform, syncMode, 2);
+            //SetTransformSync(trebleSlider.transform, syncMode, 2);
+            //SetTransformSync(bassSlider.transform, syncMode, 2);
+            SetTransformSync(fadeLengthSlider.transform, syncMode, 3);
+            SetTransformSync(fadeExpFalloffSlider.transform, syncMode, 3);
+
+            SetTransformSync(x0Slider.transform, syncMode, 3);
+            SetTransformSync(x1Slider.transform, syncMode, 3);
+            SetTransformSync(x2Slider.transform, syncMode, 3);
+            SetTransformSync(x3Slider.transform, syncMode, 3);
+
+            SetTransformSync(threshold0Slider.transform, syncMode, 3);
+            SetTransformSync(threshold1Slider.transform, syncMode, 3);
+            SetTransformSync(threshold2Slider.transform, syncMode, 3);
+            SetTransformSync(threshold3Slider.transform, syncMode, 3);
+
+            SetTransformSync(autoGainToggle.transform, syncMode, 3);
+            SetTransformSync(powerToggle.transform, syncMode, 1);
+
+        }
+
         void Start()
         {
             InitIDs();
@@ -138,6 +174,8 @@ namespace AudioLink
                 themeColorController.audioLinkUI = audioLinkUI;
                 themeColorController.InitializeAudioLinkThemeColors();
             }
+            
+            SetControllerSyncMode((int)controllerSyncMode);
 
             GetSettings();
 
@@ -293,5 +331,12 @@ namespace AudioLink
         {
             return ((t - a) / (b - a)) * (v - u) + u;
         }
+    }
+
+    public enum ControllerSyncMode {
+        All = 0,
+        ExcludePower = 1,
+        ExcludePowerAndGain = 2,
+        None = 3
     }
 }
