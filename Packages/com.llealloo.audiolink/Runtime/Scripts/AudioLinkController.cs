@@ -248,14 +248,7 @@ namespace AudioLink
             audioLink.UpdateSettings();
 
             // Toggle
-            if (powerToggle.isOn)
-            {
-                audioLink.EnableAudioLink();
-            }
-            else
-            {
-                audioLink.DisableAudioLink();
-            }
+            audioLink.SetAudioLinkState(powerToggle.isOn);
         }
 
         public void ResetSettings()
