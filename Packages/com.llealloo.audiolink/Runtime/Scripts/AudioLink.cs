@@ -759,16 +759,25 @@ namespace AudioLink
             audioMaterial.SetVectorArray(nameID, vecs);
         }
 
+        public void ToggleAudioLink() {
+            SetAudioLinkState(!_audioLinkEnabled);
+        }
+
+        public void SetAudioLinkState(bool state) {
+            if (state) {
+                EnableAudioLink();
+            } else {
+                DisableAudioLink();
+            }
+        }
+
         public void EnableAudioLink()
         {
             InitIDs();
             _audioLinkEnabled = true;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
-#if UDONSHARP
-            SetGlobalTexture(_AudioTexture, audioRenderTexture);
-#else
-            SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
-#endif
+            SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
+
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyserSpace();
             LinkAnalyser(WebALID, audioSource.clip.length, 4096);
@@ -779,13 +788,18 @@ namespace AudioLink
         {
             _audioLinkEnabled = false;
             if (audioRenderTexture != null) { audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand; }
-#if UDONSHARP
-            SetGlobalTexture(_AudioTexture, null);
-#else
-            SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
-#endif
+            SetGlobalTextureWrapper(_AudioTexture, null, RenderTextureSubElement.Default);
+
 #if UNITY_WEBGL && !UNITY_EDITOR
             UnlinkAnalyser(WebALID);
+#endif
+        }
+
+        public void SetGlobalTextureWrapper(int nameID, RenderTexture value, RenderTextureSubElement element) {
+#if UDONSHARP
+            SetGlobalTexture(nameID, value);
+#else
+            SetGlobalTexture(nameID, value, element);
 #endif
         }
 

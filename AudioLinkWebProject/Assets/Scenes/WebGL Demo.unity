@@ -161,7 +161,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a00bad3af5b40c243b9d7e21de8117d8, type: 2}
+  - {fileID: 2100000, guid: fff1f228025f40d40988e97d37af3984, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -971,8 +971,6 @@ MonoBehaviour:
   themeColorController: {fileID: 4489544078437587817}
   audioLinkUI: {fileID: 2100000, guid: 0f19dab2300578b4d87b7662da0e74a4, type: 2}
   gainSlider: {fileID: 5878814510927184183}
-  trebleSlider: {fileID: 0}
-  bassSlider: {fileID: 0}
   fadeLengthSlider: {fileID: 5878814512520100266}
   fadeExpFalloffSlider: {fileID: 5878814511523571542}
   x0Slider: {fileID: 5878814511087823408}
