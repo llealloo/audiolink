@@ -125,8 +125,6 @@ namespace AudioLink
         {
             
             SetTransformSync(gainSlider.transform, syncMode, 2);
-            //SetTransformSync(trebleSlider.transform, syncMode, 2);
-            //SetTransformSync(bassSlider.transform, syncMode, 2);
             SetTransformSync(fadeLengthSlider.transform, syncMode, 3);
             SetTransformSync(fadeExpFalloffSlider.transform, syncMode, 3);
 
