@@ -23,8 +23,6 @@ namespace AudioLink
         public ThemeColorController themeColorController;
         public Material audioLinkUI;
         public Slider gainSlider;
-        public Slider trebleSlider;
-        public Slider bassSlider;
         public Slider fadeLengthSlider;
         public Slider fadeExpFalloffSlider;
         public Slider x0Slider;
