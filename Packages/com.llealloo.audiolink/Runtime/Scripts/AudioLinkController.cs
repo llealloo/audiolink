@@ -110,7 +110,7 @@ namespace AudioLink
             return controllerTransform.GetComponent<ThemeColorController>();
         }
 
-        private void SetTransformSync(Transform transf, int syncMode, int targetMode)
+        private void SetTransformSync(Transform transf, ControllerSyncMode syncMode, ControllerSyncMode targetMode)
         {
 
             #if UDONSHARP
@@ -121,25 +121,25 @@ namespace AudioLink
 
         }
 
-        void SetControllerSyncMode(int syncMode)
+        void SetControllerSyncMode(ControllerSyncMode syncMode)
         {
             
-            SetTransformSync(gainSlider.transform, syncMode, 2);
-            SetTransformSync(fadeLengthSlider.transform, syncMode, 3);
-            SetTransformSync(fadeExpFalloffSlider.transform, syncMode, 3);
+            SetTransformSync(gainSlider.transform, syncMode, ControllerSyncMode.ExcludePowerAndGain);
+            SetTransformSync(fadeLengthSlider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(fadeExpFalloffSlider.transform, syncMode, ControllerSyncMode.None);
 
-            SetTransformSync(x0Slider.transform, syncMode, 3);
-            SetTransformSync(x1Slider.transform, syncMode, 3);
-            SetTransformSync(x2Slider.transform, syncMode, 3);
-            SetTransformSync(x3Slider.transform, syncMode, 3);
+            SetTransformSync(x0Slider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(x1Slider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(x2Slider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(x3Slider.transform, syncMode, ControllerSyncMode.None);
 
-            SetTransformSync(threshold0Slider.transform, syncMode, 3);
-            SetTransformSync(threshold1Slider.transform, syncMode, 3);
-            SetTransformSync(threshold2Slider.transform, syncMode, 3);
-            SetTransformSync(threshold3Slider.transform, syncMode, 3);
+            SetTransformSync(threshold0Slider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(threshold1Slider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(threshold2Slider.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(threshold3Slider.transform, syncMode, ControllerSyncMode.None);
 
-            SetTransformSync(autoGainToggle.transform, syncMode, 3);
-            SetTransformSync(powerToggle.transform, syncMode, 1);
+            SetTransformSync(autoGainToggle.transform, syncMode, ControllerSyncMode.None);
+            SetTransformSync(powerToggle.transform, syncMode, ControllerSyncMode.ExcludePower);
 
         }
 
@@ -173,7 +173,7 @@ namespace AudioLink
                 themeColorController.InitializeAudioLinkThemeColors();
             }
             
-            SetControllerSyncMode((int)controllerSyncMode);
+            SetControllerSyncMode(controllerSyncMode);
 
             GetSettings();
 
