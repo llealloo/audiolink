@@ -17,9 +17,9 @@ namespace AudioLink
     using UnityEngine.Rendering;
     using static Shader;
 
-    #if UNITY_WEBGL
+#if UNITY_WEBGL
     using System.Runtime.InteropServices;
-    #endif
+#endif
 
     public partial class AudioLink : MonoBehaviour
 #endif
@@ -214,8 +214,8 @@ namespace AudioLink
         private int _Samples3R;
         // ReSharper restore InconsistentNaming
 
-        #if UNITY_WEBGL
-        
+#if UNITY_WEBGL
+
         public static WebALPeer audioLinkWebPeer { get; private set; }
 
         [DllImport("__Internal")]
@@ -230,8 +230,8 @@ namespace AudioLink
         private static extern int FetchAnalyserRight(int ID, float[] timeDomainDataRight, int size);
 
         private int WebALID = 0;
-        
-        #endif
+
+#endif
 
         private bool _IsInitialized = false;
         private void InitIDs()
@@ -759,14 +759,19 @@ namespace AudioLink
             audioMaterial.SetVectorArray(nameID, vecs);
         }
 
-        public void ToggleAudioLink() {
+        public void ToggleAudioLink()
+        {
             SetAudioLinkState(!_audioLinkEnabled);
         }
 
-        public void SetAudioLinkState(bool state) {
-            if (state) {
+        public void SetAudioLinkState(bool state)
+        {
+            if (state)
+            {
                 EnableAudioLink();
-            } else {
+            }
+            else
+            {
                 DisableAudioLink();
             }
         }
@@ -795,7 +800,8 @@ namespace AudioLink
 #endif
         }
 
-        public void SetGlobalTextureWrapper(int nameID, RenderTexture value, RenderTextureSubElement element) {
+        public void SetGlobalTextureWrapper(int nameID, RenderTexture value, RenderTextureSubElement element)
+        {
 #if UDONSHARP
             SetGlobalTexture(nameID, value);
 #else
@@ -816,8 +822,8 @@ namespace AudioLink
         public void SendAudioOutputData()
         {
             InitIDs();
-            
-            #if UNITY_WEBGL && !UNITY_EDITOR
+
+#if UNITY_WEBGL && !UNITY_EDITOR
 
                 if (audioSource.isPlaying)
                 {
@@ -835,7 +841,7 @@ namespace AudioLink
                 _audioFramesL = audioLinkWebPeer.GetWaveformLeft();
                 _audioFramesR = audioLinkWebPeer.GetWaveformRight();
 
-            #else
+#else
 
             audioSource.GetOutputData(_audioFramesL, 0);                // left channel
 
@@ -859,7 +865,7 @@ namespace AudioLink
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
 
-            #endif
+#endif
 
             Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
             audioMaterial.SetFloatArray(_Samples0L, _samples);

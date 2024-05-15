@@ -8,17 +8,17 @@ using AudioLink;
 
 public class FramerateCap : MonoBehaviour
 {
-    #if AUDIOLINK_V1
+#if AUDIOLINK_V1
     public AudioLink.AudioLink audioLink;
-    #endif
+#endif
     public int limit = 60;
-    
+
     void Start()
     {
         Application.targetFrameRate = limit;
-        #if AUDIOLINK_V1
+#if AUDIOLINK_V1
         if (audioLink != null) audioLink.audioRenderTexture.updatePeriod = 1 / (float)limit;
-        #endif
+#endif
     }
 }
 #endif
