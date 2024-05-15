@@ -44,28 +44,28 @@ Material:
     - _AutoGain: 1
     - _Autogain: 0
     - _ExpFalloff: 0.75
-    - _Gain: 0.18233776
+    - _Gain: 0.4
     - _HighMidThreshold: 0.5
     - _HighThreshold: 0.5
     - _HitFade: 0.25
-    - _Hue: 0.5470588
+    - _Hue: 0.5
     - _LowMidThreshold: 0.5
     - _LowThreshold: 0.5
     - _Power: 1
-    - _Saturation: 1
+    - _Saturation: 0.000100016594
     - _SelectedColor: 0
     - _ThemeColorMode: 0
     - _Threshold0: 0.45
     - _Threshold1: 0.45
     - _Threshold2: 0.45
     - _Threshold3: 0.45
-    - _Value: 1
+    - _Value: 0.5
     - _X0: 0
     - _X1: 0.25
     - _X2: 0.5
     - _X3: 0.75
     m_Colors:
-    - _CustomColor0: {r: 0, g: 0.7176471, b: 1, a: 1}
+    - _CustomColor0: {r: 0.49995, g: 0.5, b: 0.5, a: 1}
     - _CustomColor1: {r: 0.5137255, g: 0.2627451, b: 1, a: 1}
     - _CustomColor2: {r: 1, g: 0.49803922, b: 0, a: 1}
     - _CustomColor3: {r: 0.79607844, g: 1, b: 0.0627451, a: 1}

@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/WebGL Demo.unity
     guid: ac662ccf61f174b4b96ce09d3b22c8b3
+  - enabled: 1
+    path: Assets/Scenes/WebGL Demo2.unity
+    guid: a6ae4039e67e29720a1582311b7a841e
   m_configObjects: {}

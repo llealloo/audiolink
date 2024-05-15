@@ -32,7 +32,7 @@ Shader "autocorrelatorspherefield"
 			struct fragOut
 			{
 				float4 color : SV_Target;
-				float depth : SV_Depth;
+				// float depth : SV_Depth;
 			};
 
 			sampler2D_float _CameraDepthTexture;
@@ -184,7 +184,7 @@ float2x2 rot(float angle)
 				raymarchData.color *= colorchordcolor;
 
 				fragOut f;
-				f.depth = raymarchData.clipDepth;
+				// f.depth = raymarchData.clipDepth;
 				f.color = saturate(raymarchData.color);
 
 
