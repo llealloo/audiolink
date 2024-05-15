@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "com.llealloo.audiolink": "file:../../Packages/com.llealloo.audiolink",
-    "com.unity.ide.rider": "3.0.27",
+    "com.unity.ide.rider": "3.0.28",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.textmeshpro": "3.0.8",
     "com.unity.timeline": "1.7.6",
-    "com.unity.toolchain.linux-x86_64": "2.0.6",
+    "com.unity.toolchain.linux-x86_64": "2.0.9",
     "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.9",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ThemeColorController
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 68fa6f418bf86f593a02433670dedcce,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 3eee273fc6a5e6fe793e4fbeb37276ef,
     type: 2}
   udonAssembly: 
   assemblyError: 

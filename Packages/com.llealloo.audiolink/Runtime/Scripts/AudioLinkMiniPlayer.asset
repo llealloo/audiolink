@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AudioLinkMiniPlayer
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 129e11320031ca9a6b7e579125363e13,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 62c69d67e5dbf393b85d83d636e411ac,
     type: 2}
   udonAssembly: 
   assemblyError: 
