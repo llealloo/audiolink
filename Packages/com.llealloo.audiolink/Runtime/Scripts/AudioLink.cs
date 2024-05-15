@@ -781,7 +781,7 @@ namespace AudioLink
             InitIDs();
             _audioLinkEnabled = true;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
-            SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
+            SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyserSpace();
@@ -793,14 +793,14 @@ namespace AudioLink
         {
             _audioLinkEnabled = false;
             if (audioRenderTexture != null) { audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand; }
-            SetGlobalTextureWrapper(_AudioTexture, null, RenderTextureSubElement.Default);
+            SetGlobalTextureWrapper(_AudioTexture, null, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             UnlinkAnalyser(WebALID);
 #endif
         }
 
-        public void SetGlobalTextureWrapper(int nameID, RenderTexture value, RenderTextureSubElement element)
+        public void SetGlobalTextureWrapper(int nameID, RenderTexture value, UnityEngine.Rendering.RenderTextureSubElement element)
         {
 #if UDONSHARP
             SetGlobalTexture(nameID, value);
