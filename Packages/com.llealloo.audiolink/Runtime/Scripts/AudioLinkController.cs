@@ -110,36 +110,36 @@ namespace AudioLink
             return controllerTransform.GetComponent<ThemeColorController>();
         }
 
-        private void SetTransformSync(Transform transf, ControllerSyncMode syncMode, ControllerSyncMode targetMode)
+        private void UpdateSyncMode(Transform inputTransform, ControllerSyncMode userSyncMode, ControllerSyncMode desiredSyncMode)
         {
 
             #if UDONSHARP
 
-            transf.GetComponent<UdonBehaviour>().enabled = syncMode < targetMode;
+                inputTransform.GetComponent<UdonBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
 
             #endif
 
         }
 
-        void SetControllerSyncMode(ControllerSyncMode syncMode)
+        public void SetControllerSyncMode(ControllerSyncMode syncMode)
         {
             
-            SetTransformSync(gainSlider.transform, syncMode, ControllerSyncMode.ExcludePowerAndGain);
-            SetTransformSync(fadeLengthSlider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(fadeExpFalloffSlider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(gainSlider.transform, syncMode, ControllerSyncMode.ExcludePowerAndGain);
+            UpdateSyncMode(fadeLengthSlider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(fadeExpFalloffSlider.transform, syncMode, ControllerSyncMode.None);
 
-            SetTransformSync(x0Slider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(x1Slider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(x2Slider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(x3Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(x0Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(x1Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(x2Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(x3Slider.transform, syncMode, ControllerSyncMode.None);
 
-            SetTransformSync(threshold0Slider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(threshold1Slider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(threshold2Slider.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(threshold3Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(threshold0Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(threshold1Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(threshold2Slider.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(threshold3Slider.transform, syncMode, ControllerSyncMode.None);
 
-            SetTransformSync(autoGainToggle.transform, syncMode, ControllerSyncMode.None);
-            SetTransformSync(powerToggle.transform, syncMode, ControllerSyncMode.ExcludePower);
+            UpdateSyncMode(autoGainToggle.transform, syncMode, ControllerSyncMode.None);
+            UpdateSyncMode(powerToggle.transform, syncMode, ControllerSyncMode.ExcludePower);
 
         }
 
