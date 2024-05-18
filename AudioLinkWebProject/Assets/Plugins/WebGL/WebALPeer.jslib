@@ -108,7 +108,7 @@ var AnalyserLink = {
                 return 0;
 
             } catch (e) {
-                throw e;
+                delete window["_WebALPeerAnalysers"][name];
             }
 
         }
@@ -165,5 +165,4 @@ var AnalyserLink = {
     }
 };
 
-//autoAddDeps(AnalyserLink, "$analysers");
 mergeInto(LibraryManager.library, AnalyserLink);
