@@ -16,13 +16,34 @@ namespace AudioLink
     {
         [UdonSynced] private int _themeColorMode;
 
+        public Color[] customThemeColors
+        {
+            get
+            {
+                return new[] {
+                        themeColor1,
+                        themeColor2,
+                        themeColor3,
+                        themeColor4
+                    };
+            }
+            set
+            {
+                themeColor1 = value[0];
+                themeColor2 = value[1];
+                themeColor3 = value[2];
+                themeColor4 = value[3];
+            }
+        }
+
         [UdonSynced]
-        public Color[] customThemeColors = {
-                Color.yellow,
-                Color.blue,
-                Color.red,
-                Color.green
-            };
+        public Color themeColor1 = Color.yellow;
+        [UdonSynced]
+        public Color themeColor2 = Color.blue;
+        [UdonSynced]
+        public Color themeColor3 = Color.red;
+        [UdonSynced]
+        public Color themeColor4 = Color.green;
 
         public AudioLink audioLink; // Initialized by AudioLinkController.
 
