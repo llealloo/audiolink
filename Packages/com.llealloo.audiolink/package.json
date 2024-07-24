@@ -1,10 +1,12 @@
 {
     "name" : "com.llealloo.audiolink",
     "displayName" : "AudioLink",
-    "name" : "Leah Elizabeth",
-    "email" : "hello@audiolink.dev",
-    "url" : "https://audiolink.dev/",
     "version" : "1.4.0",
+    "author": {
+        "name" : "Leah Elizabeth",
+        "email" : "hello@audiolink.dev",
+        "url" : "https://audiolink.dev/"
+    },
     "unity" : "2022.3",
     "description" : "Audio reactive prefabs for VRChat",
     "gitDependencies" : {},
