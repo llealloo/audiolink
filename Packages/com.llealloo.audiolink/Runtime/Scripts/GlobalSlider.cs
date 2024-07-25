@@ -29,6 +29,8 @@ namespace AudioLink
 
         public override void OnDeserialization()
         {
+            if (!enabled) return;
+
             deserializing = true;
             slider.value = syncedValue;
             deserializing = false;
@@ -36,6 +38,8 @@ namespace AudioLink
 
         public void SlideUpdate()
         {
+            if (!enabled) return;
+
             if (slider == null)
                 return;
             if (deserializing)
