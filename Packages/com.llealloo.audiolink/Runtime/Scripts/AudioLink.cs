@@ -26,6 +26,8 @@ namespace AudioLink
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
+        [Tooltip("Optional Right Audio Source for Dual Mono setups (AVPro video players)")]
+        public AudioSource optionalRightAudioSource;
 
         [Header("Basic EQ")]
         [Range(0.0f, 2.0f)]
@@ -765,15 +767,21 @@ namespace AudioLink
                 }
                 else
                 {
-                    audioSource.GetOutputData(_audioFramesR, 1);
+                    if (VRC.SDKBase.Utilities.IsValid(optionalRightAudioSource))
+                    {
+                        optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
+                    } else audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
             }
             else
             {
-                _rightChannelTestCounter = _rightChannelTestDelay;      // reset test countdown
-                _audioFramesR[0] = 0f;                                  // reset tested array element to zero just in case
-                audioSource.GetOutputData(_audioFramesR, 1);            // right channel test
+                _rightChannelTestCounter = _rightChannelTestDelay;                  // reset test countdown
+                _audioFramesR[0] = 0f;                                              // reset tested array element to zero just in case
+                if (VRC.SDKBase.Utilities.IsValid(optionalRightAudioSource))        // check if dual mono is present
+                {
+                    optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
+                } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
 
