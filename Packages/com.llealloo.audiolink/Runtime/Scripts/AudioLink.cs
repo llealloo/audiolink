@@ -219,15 +219,15 @@ namespace AudioLink
         public static WebALPeer audioLinkWebPeer { get; private set; }
 
         [DllImport("__Internal")]
-        private static extern int SetupAnalyserSpace();
+        private static extern int SetupAnalyzerSpace();
         [DllImport("__Internal")]
-        private static extern int LinkAnalyser(int ID, float duration, int bufferSize);
+        private static extern int LinkAnalyzer(int ID, float duration, int bufferSize);
         [DllImport("__Internal")]
-        private static extern int UnlinkAnalyser(int ID);
+        private static extern int UnlinkAnalyzer(int ID);
         [DllImport("__Internal")]
-        private static extern int FetchAnalyserLeft(int ID, float[] timeDomainDataLeft, int size);
+        private static extern int FetchAnalyzerLeft(int ID, float[] timeDomainDataLeft, int size);
         [DllImport("__Internal")]
-        private static extern int FetchAnalyserRight(int ID, float[] timeDomainDataRight, int size);
+        private static extern int FetchAnalyzerRight(int ID, float[] timeDomainDataRight, int size);
 
         private int WebALID = 0;
 
@@ -335,18 +335,18 @@ namespace AudioLink
             }
 #elif UNITY_WEBGL && !UNITY_EDITOR
 
-            SetupAnalyserSpace();
+            SetupAnalyzerSpace();
             audioLinkWebPeer = new WebALPeer();
 
             WebALID = UnityEngine.Random.Range(0, 99999);
 
-            LinkAnalyser(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
 
             Application.focusChanged += (focus) => {
                 if (_audioLinkEnabled) {
                     if (focus) {
-                        LinkAnalyser(WebALID, audioSource.clip.length, 4096);
-                    } else UnlinkAnalyser(WebALID);
+                        LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+                    } else UnlinkAnalyzer(WebALID);
                 }
             };
 
@@ -784,8 +784,8 @@ namespace AudioLink
             SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SetupAnalyserSpace();
-            LinkAnalyser(WebALID, audioSource.clip.length, 4096);
+            SetupAnalyzerSpace();
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
 #endif
         }
 
@@ -796,7 +796,7 @@ namespace AudioLink
             SetGlobalTextureWrapper(_AudioTexture, null, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            UnlinkAnalyser(WebALID);
+            UnlinkAnalyzer(WebALID);
 #endif
         }
 
@@ -829,12 +829,12 @@ namespace AudioLink
                 {
                     audioLinkWebPeer.SyncLeft((leftSamples) =>
                     {
-                        FetchAnalyserLeft(WebALID, leftSamples, 4096);
+                        FetchAnalyzerLeft(WebALID, leftSamples, 4096);
                     });
 
                     audioLinkWebPeer.SyncRight((rightSamples) =>
                     {
-                        FetchAnalyserRight(WebALID, rightSamples, 4096);
+                        FetchAnalyzerRight(WebALID, rightSamples, 4096);
                     });
                 }
 

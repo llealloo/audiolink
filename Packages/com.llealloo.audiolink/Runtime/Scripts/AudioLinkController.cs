@@ -93,13 +93,6 @@ namespace AudioLink
 
         #endregion
 
-#if UNITY_EDITOR
-        void Update()
-        {
-            UpdateSettings();
-        }
-#endif
-
         ThemeColorController FindThemeColorController()
         {
             Transform controllerTransform = transform.Find("ThemeColorController");
