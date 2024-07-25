@@ -152,11 +152,13 @@ namespace AudioLink
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(localPlayer, gameObject);
 #endif
-            SetCustomThemeColors(GetCustomThemeColors()[customColorIndex] = Color.HSVToRGB(
+            Color[] themeColors = GetCustomThemeColors();
+            themeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
                 sliderSaturation.value,
                 sliderValue.value
-            ));
+            );
+            SetCustomThemeColors(themeColors);
 
             UpdateGUI();
             UpdateAudioLinkThemeColors();

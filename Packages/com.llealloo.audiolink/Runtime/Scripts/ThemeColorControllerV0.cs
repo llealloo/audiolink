@@ -136,11 +136,13 @@ namespace AudioLink
 #endif
             bool modeChanged = _themeColorMode != themeColorDropdown.value;
             _themeColorMode = themeColorDropdown.value;
-            SetCustomThemeColors(GetCustomThemeColors()[customColorIndex] = Color.HSVToRGB(
+            Color[] themeColors = GetCustomThemeColors();
+            themeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
                 sliderSaturation.value,
                 sliderValue.value
-            ));
+            );
+            SetCustomThemeColors(themeColors);
 
             if (modeChanged) UpdateGUI();
             UpdateAudioLinkThemeColors();
