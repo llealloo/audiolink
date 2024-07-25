@@ -759,6 +759,12 @@ namespace AudioLink
             InitIDs();
             audioSource.GetOutputData(_audioFramesL, 0);                // left channel
 
+#if UDONSHARP
+            bool hasDualMono = VRC.SDKBase.Utilities.IsValid(optionalRightAudioSource);
+#else
+            bool hasDualMono = optionalRightAudioSource != null;
+#endif
+
             if (_rightChannelTestCounter > 0)
             {
                 if (_ignoreRightChannel)
@@ -767,7 +773,7 @@ namespace AudioLink
                 }
                 else
                 {
-                    if (VRC.SDKBase.Utilities.IsValid(optionalRightAudioSource))
+                    if (hasDualMono)
                     {
                         optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
                     } else audioSource.GetOutputData(_audioFramesR, 1);
@@ -778,7 +784,7 @@ namespace AudioLink
             {
                 _rightChannelTestCounter = _rightChannelTestDelay;                  // reset test countdown
                 _audioFramesR[0] = 0f;                                              // reset tested array element to zero just in case
-                if (VRC.SDKBase.Utilities.IsValid(optionalRightAudioSource))        // check if dual mono is present
+                if (hasDualMono)                                                    // check if dual mono is present
                 {
                     optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
                 } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
