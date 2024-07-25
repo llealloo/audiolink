@@ -68,7 +68,7 @@ namespace AudioLink
         /// Flags byte for various settings that are synced. Order is <see cref="_syncOwnerPlaying"/>, <see cref="_syncLocked"/>
         /// </summary>
         [UdonSynced]
-        byte _flags = 0;
+        byte _flags = 0b10;
 
         [NonSerialized]
         public int localPlayerState = PLAYER_STATE_STOPPED;
