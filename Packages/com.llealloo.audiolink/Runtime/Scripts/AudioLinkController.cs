@@ -141,6 +141,8 @@ namespace AudioLink
             UpdateSyncMode(autoGainToggle.transform, syncMode, ControllerSyncMode.None);
             UpdateSyncMode(powerToggle.transform, syncMode, ControllerSyncMode.ExcludePower);
 
+            themeColorController.networkSynced = (int)syncMode < (int)ControllerSyncMode.None;
+
         }
 
         void Start()
