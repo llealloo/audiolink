@@ -1,20 +1,23 @@
 /AudioLinkUnityProject/Assets/UdonSharp/
 /AudioLinkUnityProject/Assets/UdonSharp.meta
-/AudioLinkSandboxUnityProject/Assets/UdonSharp/
-/AudioLinkSandboxUnityProject/Assets/UdonSharp.meta
+/AudioLinkUnityProject/Assets/SerializedUdonPrograms/
+
+/AudioLinkSandboxProject/Assets/UdonSharp/
+/AudioLinkSandboxProject/Assets/UdonSharp.meta
+/AudioLinkSandboxProject/Assets/SerializedUdonPrograms/
 
 /AudioLinkUnityProject/Assets/AmplifyShaderEditor/
 /AudioLinkUnityProject/Assets/AmplifyShaderEditor.meta
-/AudioLinkSandboxUnityProject/Assets/AmplifyShaderEditor/
-/AudioLinkSandboxUnityProject/Assets/AmplifyShaderEditor.meta
+/AudioLinkSandboxProject/Assets/AmplifyShaderEditor/
+/AudioLinkSandboxProject/Assets/AmplifyShaderEditor.meta
 
 /AudioLinkUnityProject/Assets/Samples*
-/AudioLinkSandboxUnityProject/Assets/Samples*
+/AudioLinkSandboxProject/Assets/Samples*
 /AudioLinkWebProject/Assets/Samples*
 
 /AudioLinkUnityProject/.vscode/
-/AudioLinkSandboxUnityProject/.vscode/
+/AudioLinkSandboxProject/.vscode/
 /AudioLinkWebProject/.vscode/
 
 /AudioLinkUnityProject/Assets/Scenes*
-/AudioLinkSandboxUnityProject/Assets/Scenes*
+/AudioLinkSandboxProject/Assets/Scenes*
