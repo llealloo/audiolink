@@ -342,11 +342,16 @@ namespace AudioLink
 
             LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
 
-            Application.focusChanged += (focus) => {
-                if (_audioLinkEnabled) {
-                    if (focus) {
+            Application.focusChanged += (focus) => 
+            {
+                if (_audioLinkEnabled) 
+                {
+                    if (focus) 
+                    {
                         LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
-                    } else UnlinkAnalyzer(WebALID);
+                    }
+                    else
+                        UnlinkAnalyzer(WebALID);
                 }
             };
 
