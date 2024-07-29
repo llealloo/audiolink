@@ -9,32 +9,13 @@ namespace AudioLink
     public class WebALPeer : MonoBehaviour
     {
         const int SAMPLES_COUNT = 4096;
-        private float[] _waveformSamplesLeft, _waveformSamplesRight;
+        [HideInInspector][NonSerialized]
+        public float[] WaveformSamplesLeft, WaveformSamplesRight;
 
         public WebALPeer()
         {
-            _waveformSamplesLeft = new float[SAMPLES_COUNT];
-            _waveformSamplesRight = new float[SAMPLES_COUNT];
-        }
-
-        public float[] GetWaveformLeft()
-        {
-            return _waveformSamplesLeft;
-        }
-
-        public float[] GetWaveformRight()
-        {
-            return _waveformSamplesRight;
-        }
-
-        public void SyncLeft(Action<float[]> FetchSamplesLeft)
-        {
-            FetchSamplesLeft(_waveformSamplesLeft);
-        }
-
-        public void SyncRight(Action<float[]> FetchSamplesRight)
-        {
-            FetchSamplesRight(_waveformSamplesRight);
+            WaveformSamplesLeft = new float[SAMPLES_COUNT];
+            WaveformSamplesRight = new float[SAMPLES_COUNT];
         }
 
     }

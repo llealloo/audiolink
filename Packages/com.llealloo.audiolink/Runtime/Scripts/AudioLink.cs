@@ -830,21 +830,14 @@ namespace AudioLink
 
 #if UNITY_WEBGL && !UNITY_EDITOR
 
-                if (audioSource.isPlaying)
-                {
-                    audioLinkWebPeer.SyncLeft((leftSamples) =>
-                    {
-                        FetchAnalyzerLeft(WebALID, leftSamples, 4096);
-                    });
+            if (audioSource.isPlaying)
+            {
+                FetchAnalyzerLeft(WebALID, audioLinkWebPeer.WaveformSamplesLeft, 4096);
+                FetchAnalyzerRight(WebALID, audioLinkWebPeer.WaveformSamplesRight, 4096);
+            }
 
-                    audioLinkWebPeer.SyncRight((rightSamples) =>
-                    {
-                        FetchAnalyzerRight(WebALID, rightSamples, 4096);
-                    });
-                }
-
-                _audioFramesL = audioLinkWebPeer.GetWaveformLeft();
-                _audioFramesR = audioLinkWebPeer.GetWaveformRight();
+            _audioFramesL = audioLinkWebPeer.WaveformSamplesLeft;
+            _audioFramesR = audioLinkWebPeer.WaveformSamplesRight;
 
 #else
 
