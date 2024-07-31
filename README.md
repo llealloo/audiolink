@@ -109,6 +109,7 @@ After installation, to use AudioLink:
 - [ShaderForge-AudioLink](https://github.com/lethanan/ShaderForge-AudioLink) by lethanan
 - [AudioLink-USharpVideo-Adapter](https://github.com/Blabzillaweasel/AudioLink-USharpVideo-Adapter/) by Blabz
 - [ProTV](https://gitlab.com/techanon/protv) by ArchiTechAnon
+- [Blueshade Basic](https://bluethefox.gumroad.com/l/gdhsg) by Bluethefox
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
