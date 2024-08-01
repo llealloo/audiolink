@@ -73,3 +73,12 @@ crashlytics-build.properties
 
 # Generated SerializedProgramAssets
 /[Aa]ssets/SerializedUdonPrograms/*.asset*
+
+/.vscode/
+/[Aa]ssets/Scenes*
+/[Aa]ssets/Samples*
+/[Aa]ssets/UdonSharp/
+/[Aa]ssets/UdonSharp.meta
+/[Aa]ssets/AmplifyShaderEditor/
+/[Aa]ssets/AmplifyShaderEditor.meta
+/[Aa]ssets/SerilizedUdonPrograms/
