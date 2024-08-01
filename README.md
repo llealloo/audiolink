@@ -105,7 +105,6 @@ After installation, to use AudioLink:
 - [Poiyomi Shader](https://poiyomi.com/) by Poiyomi
 - [orels1 AudioLink Shader](https://github.com/orels1/orels1-AudioLink-Shader) by orels1
 - [VRC Things](https://github.com/PiMaker/VRChatUnityThings) by \_pi\_
-- [June Screen FX](https://luka.moe/june.html) by luka
 - [ShaderForge-AudioLink](https://github.com/lethanan/ShaderForge-AudioLink) by lethanan
 - [AudioLink-USharpVideo-Adapter](https://github.com/Blabzillaweasel/AudioLink-USharpVideo-Adapter/) by Blabz
 - [ProTV](https://gitlab.com/techanon/protv) by ArchiTechAnon
