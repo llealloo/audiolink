@@ -111,24 +111,26 @@ After installation, to use AudioLink:
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
-- cnlohr for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
-- lox9973 for autocorrelator functionality and the inspirational & tangential math help with signal processing
+- [cnlohr](https://github.con/cnlohr) for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
+- [lox9973](https://gitlab.com/lox9973) for autocorrelator functionality and the inspirational & tangential math help with signal processing
 - Texelsaur for the AudioLinkMiniPlayer and support!
-- Pema for the help with strengthening the codebase and inspiration!
-- 3 for joining the AudioLink team, helping maintain the codebase, and being instrumental in getting version 0.3.0 out.
-- Merlin for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
-- Orels1 for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
-- Xiexe for the help developing and testing
-- Thryrallo for the help setting up local AV3 testing functionality
-- CyanLaser for making CyanEmu
-- Lyuma for helping in many ways and being super nice!
-- ACIIL for the named texture check in AudioLink.cginc
-- fuopy for being awesome and reflecting great vibes back into this project
+- [Pema](https://github.com/pema99) for the help with strengthening the codebase and inspiration!
+- [3](https://github.com/float3) for joining the AudioLink team, helping maintain the codebase, and being instrumental in getting version 0.3.0 out.
+- [Merlin](https://github.com/merlinvr) for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
+- [Orels1](https://github.com/orels1) for all of the great help with MaterialPropertyBlocks & shaders and the auto configurator script for easy AV3 local testing
+- [Xiexe](https://github.com/Xiexe/) for the help developing and testing
+- [Thryrallo](https://github.com/thryrallo) for the help setting up local AV3 testing functionality
+- [CyanLaser](https://github.com/CyanLaser/) for making CyanEmu
+- [Lyuma](https://github.com/lyuma/) for helping in many ways and being super nice!
+- [ACIIL](https://github.com/aciil) for the named texture check in AudioLink.cginc
+- [fuopy](https://github.com/fuopy) for being awesome and reflecting great vibes back into this project
 - Colonel Cthulu for incepting the idea to make the audio data visible to avatars
 - jackiepi for math wizardry, emotional support and inspiration
 - Barry and OM3 for stoking my fire!
-- Lamp for the awesome example music and inspiration. Follow them!! https://soundcloud.com/lampdx
-- Shelter, Loner, Rizumu, and all of the other dance communities in VRChat for making this
-- rrazgriz for coming up with and implementing yt-dlp support for editor testing
-- LucHeart and DomNomNom for maintaing CVR forks of AudioLink, and letting us adopt their work
-- Rollthered for providing us with music for demo purposes.
+- [Lamp](https://soundcloud.com/lampdx) for the awesome example music and inspiration. Follow them!! https://soundcloud.com/lampdx
+- [Shelter](https://sheltervr.club/), [Loner](https://loneronline.com/), [Rizumu](https://x.com/rizumuvr), and all of the other dance communities in VRChat for making this
+- [rrazgriz](https://github.com/rrazgriz) for coming up with and implementing yt-dlp support for editor testing
+- [LucHeart](https://github.com/lucheart) and [DomNomNom](https://github.com/DomNomNomVR) for maintaing CVR forks of AudioLink, and letting us adopt their work
+- [Rollthered](https://linktr.ee/Rollthered) for providing us with music for demo purposes.
+- [fundale](https://github.com/fundale/) for figuring out WebGL support
+- all other [contributors](https://github.com/llealloo/vrc-udon-audio-link/graphs/contributors) and our community for their help and support
