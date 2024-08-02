@@ -50,14 +50,25 @@ namespace AudioLink
         int _syncVideoNumber;
         int _loadedVideoNumber;
 
-        [UdonSynced, NonSerialized]
+        /// <summary>
+        /// Synced via <see cref="_flags"/>
+        /// </summary>
+        [NonSerialized]
         public bool _syncOwnerPlaying;
 
         [UdonSynced]
         float _syncVideoStartNetworkTime;
 
-        [UdonSynced]
+        /// <summary>
+        /// Synced via <see cref="_flags"/>
+        /// </summary>
         bool _syncLocked = true;
+
+        /// <summary>
+        /// Flags byte for various settings that are synced. Order is <see cref="_syncOwnerPlaying"/>, <see cref="_syncLocked"/>
+        /// </summary>
+        [UdonSynced]
+        byte _flags = 0b10;
 
         [NonSerialized]
         public int localPlayerState = PLAYER_STATE_STOPPED;
@@ -102,6 +113,8 @@ namespace AudioLink
 
             _currentPlayer = avProVideo;
 
+            CopyIntoFlags();
+
             if (Networking.IsOwner(gameObject))
             {
                 _syncLocked = defaultLocked;
@@ -110,6 +123,27 @@ namespace AudioLink
 
                 _PlayVideo(defaultUrl);
             }
+        }
+
+        /// <summary>
+        /// Copys all the associated bools into the flags byte
+        /// </summary>
+        private void CopyIntoFlags()
+        {
+            _flags = 0;
+            if (_syncOwnerPlaying)
+                _flags |= 1;
+            if (_syncLocked)
+                _flags |= 2;
+        }
+
+        /// <summary>
+        /// Copys all the associated bools out of the flags byte into the associated bools
+        /// </summary>
+        private void CopyOutOfFlags()
+        {
+            _syncOwnerPlaying = (_flags & 1) != 0;
+            _syncLocked = (_flags & 2) != 0;
         }
 
         public void _TriggerPlay()
@@ -469,10 +503,17 @@ namespace AudioLink
             return player.isMaster || player.isInstanceOwner || !_syncLocked;
         }
 
+        public override void OnPreSerialization()
+        {
+            CopyIntoFlags();
+        }
+
         public override void OnDeserialization()
         {
             if (Networking.IsOwner(gameObject))
                 return;
+            
+            CopyOutOfFlags();
 
             if (debugLogging)
             {
