@@ -113,7 +113,7 @@ After installation, to use AudioLink:
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
 - [cnlohr](https://github.con/cnlohr) for the help with the new DFT spectrogram and helping to port AudioLink to 100% shader code
 - [lox9973](https://gitlab.com/lox9973) for autocorrelator functionality and the inspirational & tangential math help with signal processing
-- Texelsaur for the AudioLinkMiniPlayer and support!
+- [Texelsaur](https://github.com/jaquadro) for the AudioLinkMiniPlayer and support!
 - [Pema](https://github.com/pema99) for the help with strengthening the codebase and inspiration!
 - [3](https://github.com/float3) for joining the AudioLink team, helping maintain the codebase, and being instrumental in getting version 0.3.0 out.
 - [Merlin](https://github.com/merlinvr) for making UdonSharp and offering many many pointers along the way. Thank you Merlin!
