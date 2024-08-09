@@ -1,6 +1,9 @@
 name: Build Release
 
-on:
+permissions:
+  contents: write
+
+on: 
   workflow_dispatch:
 
 env:
