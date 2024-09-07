@@ -6,8 +6,10 @@ namespace AudioLink
     using UdonSharp;
     using UnityEngine.Rendering.PostProcessing;
 
+    [RequireComponent(typeof(PostProcessVolume))]
     public class AudioReactivePostProcessing : UdonSharpBehaviour
 #else
+    [RequireComponent(typeof(PostProcessVolume))]
     public class AudioReactivePostProcessing : MonoBehaviour
 #endif
     {
@@ -19,12 +21,10 @@ namespace AudioLink
         public float minWeight = 0;
 
         private PostProcessVolume _postProcessVolume;
-        private int _dataIndex;
 
         void Start()
         {
             _postProcessVolume = transform.GetComponent<PostProcessVolume>();
-            _dataIndex = (band * 128) + delay;
 
         }
 
@@ -32,8 +32,7 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                // Convert to grayscale
-                float amplitude = Vector3.Dot(audioLink.GetDataAtPixel(delay, band), new Vector3(0.299f, 0.587f, 0.114f));
+                float amplitude = audioLink.GetDataAtPixel(delay, band).x;
                 _postProcessVolume.weight = Mathf.Lerp(minWeight, weight, amplitude);
             }
         }
