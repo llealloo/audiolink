@@ -425,11 +425,10 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 3473816337021115274}
   audioLink: {fileID: 0}
+  controllerSyncMode: 0
   themeColorController: {fileID: 3750058459207842335}
   audioLinkUI: {fileID: 2100000, guid: 0f19dab2300578b4d87b7662da0e74a4, type: 2}
   gainSlider: {fileID: 6616153333697159233}
-  trebleSlider: {fileID: 0}
-  bassSlider: {fileID: 0}
   fadeLengthSlider: {fileID: 6616153334688045276}
   fadeExpFalloffSlider: {fileID: 6616153333142193696}
   x0Slider: {fileID: 6616153333847427910}
@@ -752,7 +751,7 @@ MonoBehaviour:
           m_StringArgument: ToggleThemeColorMode
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6616153334363350199}
         m_TargetAssemblyTypeName: VRC.Udon.UdonBehaviour, VRC.Udon
         m_MethodName: SendCustomEvent
         m_Mode: 5
@@ -5121,7 +5120,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &6616153334266427266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5552,6 +5551,7 @@ MonoBehaviour:
   sliderValue: {fileID: 6616153333417614438}
   themeColorToggle: {fileID: 6616153332876537567}
   customColorIndex: 0
+  networkSynced: 1
 --- !u!114 &6616153334363350199
 MonoBehaviour:
   m_ObjectHideFlags: 0
