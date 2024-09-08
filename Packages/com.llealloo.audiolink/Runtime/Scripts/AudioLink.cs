@@ -17,6 +17,10 @@ namespace AudioLink
     using UnityEngine.Rendering;
     using static Shader;
 
+#if UNITY_WEBGL
+    using System.Runtime.InteropServices;
+#endif
+
     public partial class AudioLink : MonoBehaviour
 #endif
     {
@@ -26,6 +30,8 @@ namespace AudioLink
         [Header("Main Settings")]
         [Tooltip("Should be used with AudioLinkInput unless source is 2D. WARNING: if used with a custom 3D audio source (not through AudioLinkInput), audio reactivity will be attenuated by player position away from the Audio Source")]
         public AudioSource audioSource;
+        [Tooltip("Optional Right Audio Source for Dual Mono setups (AVPro video players)")]
+        public AudioSource optionalRightAudioSource;
 
         [Header("Basic EQ")]
         [Range(0.0f, 2.0f)]
@@ -210,6 +216,25 @@ namespace AudioLink
         private int _Samples3R;
         // ReSharper restore InconsistentNaming
 
+#if UNITY_WEBGL
+
+        public static WebALPeer audioLinkWebPeer { get; private set; }
+
+        [DllImport("__Internal")]
+        private static extern int SetupAnalyzerSpace();
+        [DllImport("__Internal")]
+        private static extern int LinkAnalyzer(int ID, float duration, int bufferSize);
+        [DllImport("__Internal")]
+        private static extern int UnlinkAnalyzer(int ID);
+        [DllImport("__Internal")]
+        private static extern int FetchAnalyzerLeft(int ID, float[] timeDomainDataLeft, int size);
+        [DllImport("__Internal")]
+        private static extern int FetchAnalyzerRight(int ID, float[] timeDomainDataRight, int size);
+
+        private int WebALID = 0;
+
+#endif
+
         private bool _IsInitialized = false;
         private void InitIDs()
         {
@@ -310,6 +335,28 @@ namespace AudioLink
                 // Set master name once on start
                 FindAndUpdateMasterName();
             }
+#elif UNITY_WEBGL && !UNITY_EDITOR
+
+            SetupAnalyzerSpace();
+            audioLinkWebPeer = new WebALPeer();
+
+            WebALID = UnityEngine.Random.Range(0, 99999);
+
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+
+            Application.focusChanged += (focus) => 
+            {
+                if (_audioLinkEnabled) 
+                {
+                    if (focus) 
+                    {
+                        LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+                    }
+                    else
+                        UnlinkAnalyzer(WebALID);
+                }
+            };
+
 #endif
 
             UpdateSettings();
@@ -719,15 +766,33 @@ namespace AudioLink
             audioMaterial.SetVectorArray(nameID, vecs);
         }
 
+        public void ToggleAudioLink()
+        {
+            SetAudioLinkState(!_audioLinkEnabled);
+        }
+
+        public void SetAudioLinkState(bool state)
+        {
+            if (state)
+            {
+                EnableAudioLink();
+            }
+            else
+            {
+                DisableAudioLink();
+            }
+        }
+
         public void EnableAudioLink()
         {
             InitIDs();
             _audioLinkEnabled = true;
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
-#if UDONSHARP
-            SetGlobalTexture(_AudioTexture, audioRenderTexture);
-#else
-            SetGlobalTexture(_AudioTexture, audioRenderTexture, RenderTextureSubElement.Default);
+            SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SetupAnalyzerSpace();
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
 #endif
         }
 
@@ -735,10 +800,19 @@ namespace AudioLink
         {
             _audioLinkEnabled = false;
             if (audioRenderTexture != null) { audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand; }
+            SetGlobalTextureWrapper(_AudioTexture, null, UnityEngine.Rendering.RenderTextureSubElement.Default);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            UnlinkAnalyzer(WebALID);
+#endif
+        }
+
+        public void SetGlobalTextureWrapper(int nameID, RenderTexture value, UnityEngine.Rendering.RenderTextureSubElement element)
+        {
 #if UDONSHARP
-            SetGlobalTexture(_AudioTexture, null);
+            SetGlobalTexture(nameID, value);
 #else
-            SetGlobalTexture(_AudioTexture, null, RenderTextureSubElement.Default);
+            SetGlobalTexture(nameID, value, element);
 #endif
         }
 
@@ -755,7 +829,27 @@ namespace AudioLink
         public void SendAudioOutputData()
         {
             InitIDs();
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+
+            if (audioSource.isPlaying)
+            {
+                FetchAnalyzerLeft(WebALID, audioLinkWebPeer.WaveformSamplesLeft, 4096);
+                FetchAnalyzerRight(WebALID, audioLinkWebPeer.WaveformSamplesRight, 4096);
+            }
+
+            _audioFramesL = audioLinkWebPeer.WaveformSamplesLeft;
+            _audioFramesR = audioLinkWebPeer.WaveformSamplesRight;
+
+#else
+
             audioSource.GetOutputData(_audioFramesL, 0);                // left channel
+
+#if UDONSHARP
+            bool hasDualMono = VRC.SDKBase.Utilities.IsValid(optionalRightAudioSource);
+#else
+            bool hasDualMono = optionalRightAudioSource != null;
+#endif
 
             if (_rightChannelTestCounter > 0)
             {
@@ -765,17 +859,25 @@ namespace AudioLink
                 }
                 else
                 {
-                    audioSource.GetOutputData(_audioFramesR, 1);
+                    if (hasDualMono)
+                    {
+                        optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
+                    } else audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
             }
             else
             {
-                _rightChannelTestCounter = _rightChannelTestDelay;      // reset test countdown
-                _audioFramesR[0] = 0f;                                  // reset tested array element to zero just in case
-                audioSource.GetOutputData(_audioFramesR, 1);            // right channel test
+                _rightChannelTestCounter = _rightChannelTestDelay;                  // reset test countdown
+                _audioFramesR[0] = 0f;                                              // reset tested array element to zero just in case
+                if (hasDualMono)                                                    // check if dual mono is present
+                {
+                    optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
+                } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
+
+#endif
 
             Array.Copy(_audioFramesL, 0, _samples, 0, 1023); // 4092 - 1023 * 4
             audioMaterial.SetFloatArray(_Samples0L, _samples);

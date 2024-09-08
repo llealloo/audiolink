@@ -59,6 +59,8 @@ namespace AudioLink
         public Toggle themeColorToggle;
         public int customColorIndex = 0;
 
+        [HideInInspector] public bool networkSynced = true;
+
         private void Start()
         {
 #if UDONSHARP
@@ -71,6 +73,7 @@ namespace AudioLink
 #if UDONSHARP
         public override void OnDeserialization()
         {
+            if (!networkSynced) return;
             UpdateGUI();
             UpdateAudioLinkThemeColors();
         }
@@ -128,7 +131,8 @@ namespace AudioLink
             UpdateGUI();
             UpdateAudioLinkThemeColors();
 #if UDONSHARP
-            RequestSerialization();
+            if (networkSynced)
+                RequestSerialization();
 #endif
         }
 
@@ -163,7 +167,8 @@ namespace AudioLink
             UpdateGUI();
             UpdateAudioLinkThemeColors();
 #if UDONSHARP
-            RequestSerialization();
+            if (networkSynced)
+                RequestSerialization();
 #endif
         }
 
@@ -176,7 +181,8 @@ namespace AudioLink
             UpdateGUI();
             UpdateAudioLinkThemeColors();
 #if UDONSHARP
-            RequestSerialization();
+            if (networkSynced)
+                RequestSerialization();
 #endif
         }
 
@@ -234,7 +240,7 @@ namespace AudioLink
             UpdateGUI();
             UpdateAudioLinkThemeColors();
 #if UDONSHARP
-            if (Networking.IsOwner(gameObject))
+            if (Networking.IsOwner(gameObject) && networkSynced)
                 RequestSerialization();
 #endif
         }
