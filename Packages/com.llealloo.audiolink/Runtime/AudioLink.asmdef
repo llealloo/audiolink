@@ -1,5 +1,6 @@
 {
     "name": "AudioLink",
+    "rootNamespace": "",
     "references": [
         "UdonSharp.Runtime",
         "UdonSharp.Lib",
@@ -13,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.postprocessing",
+            "expression": "",
+            "define": "AUDIOLINK_HAS_POSTPROCESSING"
+        }
+    ],
     "noEngineReferences": false
 }

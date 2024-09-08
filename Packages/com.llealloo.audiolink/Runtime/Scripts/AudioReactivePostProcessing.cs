@@ -2,7 +2,7 @@
 
 namespace AudioLink
 {
-#if UNITY_POST_PROCESSING_STACK_V2
+#if AUDIOLINK_HAS_POSTPROCESSING
 #if UDONSHARP
     using UdonSharp;
     using UnityEngine.Rendering.PostProcessing;
