@@ -127,6 +127,10 @@ namespace AudioLink
 
         public void ToggleThemeColorMode()
         {
+#if UDONSHARP
+            if (!Networking.IsOwner(gameObject))
+                Networking.SetOwner(localPlayer, gameObject);
+#endif
             _themeColorMode = themeColorToggle.isOn ? 0 : 1;
             UpdateGUI();
             UpdateAudioLinkThemeColors();
