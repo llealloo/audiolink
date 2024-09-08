@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0 - September 8th, 2024
+### New features
+- Added the ability to adjust how the AudioLink controller is synced. You can sync every part of it, none of it, or everything except the gain and power controls. (fundale)
+- Added support for dual mono audio sources, for cases where you want to supply the left and right channel from separate sources. (fundale)
+- Added utility scripts for driving PostProcessing and blend shapes with AudioLink. These are called AudioReactivePostProcessing and AudioReactiveBlendshapes respectively. Just add them to a GameObject that has a PostProcessing component or SkinnedMeshRenderer to use. (fundale)
+
+### Changes
+- Lowered the default volume for the AudioLink avatar prefab a bit.
+- Reduces the network traffic incurred by syncing AudioLink state a bit. (Happyrobot33)
+- Deprecated `ThemeColorController.customThemeColors` as the behavior has changed. Please use `ThemeColorController.SetCustomThemeColors` and `ThemeColorController.GetCustomThemeColors` instead. This is a (minor) breaking change.
+
+### Bugfixes
+
 ## 1.4.0 - May 10th, 2024
 ### New features
 - Added support for exposing a global video texture (_Udon_VideoTex) via the ytdlpPlayer avatar testing prefab. This functionality intended for testing avatar shaders that use a global video texture. The global video texture is **not** something provided by AudioLink outside of in-editor testing - this must be done by a video player. (techanon)
