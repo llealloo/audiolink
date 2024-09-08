@@ -17,7 +17,7 @@ namespace AudioLink
     {
         [UdonSynced] private int _themeColorMode;
 
-        [Obsolete("This array will return a copy of the data, causing it to not write any data when trying to write directly to a index. Use " + nameof(GetCustomThemeColors) + " and " + nameof(SetCustomThemeColors) + " instead.", true)]
+        [Obsolete("This array will return a copy of the data, causing it to not write any data when trying to write directly to a index. Use " + nameof(GetCustomThemeColors) + " and " + nameof(SetCustomThemeColors) + " instead.", false)]
         public Color[] customThemeColors
         {
             get
