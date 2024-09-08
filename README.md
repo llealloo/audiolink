@@ -12,23 +12,19 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 ### [Frequently Asked Questions](FAQ.md)
 ### [Documentation for shader creators](https://github.com/llealloo/vrc-udon-audio-link/tree/master/Docs)
 
-## 1.4.0 - May 10th, 2024
+## 2.0.0 - September 8th, 2024
 ### New features
-- Added support for exposing a global video texture (_Udon_VideoTex) via the ytdlpPlayer avatar testing prefab. This functionality intended for testing avatar shaders that use a global video texture. The global video texture is **not** something provided by AudioLink outside of in-editor testing - this must be done by a video player. (techanon)
+- Added the ability to adjust how the AudioLink controller is synced. You can sync every part of it, none of it, or everything except the gain and power controls. (fundale)
+- Added support for dual mono audio sources, for cases where you want to supply the left and right channel from separate sources. (fundale)
+- Added utility scripts for driving PostProcessing and blend shapes with AudioLink. These are called AudioReactivePostProcessing and AudioReactiveBlendshapes respectively. Just add them to a GameObject that has a PostProcessing component or SkinnedMeshRenderer to use. (fundale)
 
 ### Changes
-- We've changed the default song in the example scene, and the avatar testing prefab, to ["Shibuya"](https://www.youtube.com/watch?v=vGXyAKy-X6s) by [Rollthered](https://linktr.ee/Rollthered). We remain forever thankful to [Lamp](https://twitter.com/LampDX) for letting us previously use their unreleased track, "Sludge Bath".
-- Reduced the sizes of various icon textures used by AudioLink. (Teeh)
-- Changed the controller to use MSDF-based textures for the icons. (Vistanz)
-- Improved the logic that searches for a yt-dlp excecutable in ytdlpPlayer avatar testing prefab. It should more consistently find the executable accross platforms now. Additionally, the ability to override which executable is used has been added under `Tools > AudioLink > Select Custom YTDL Location`. (techanon)
-- The "Upgrade AudioLink compatible shaders" popup will no longer display on first import, as shader authors have had plenty of time to upgrade their shaders at this point. It can still be run manually via the `Tools > AudioLink > Update AudioLink Compatible Shaders` menu item. (pema)
+- Lowered the default volume for the AudioLink avatar prefab a bit. (pema)
+- Reduces the network traffic incurred by syncing AudioLink state a bit. (Happyrobot33)
+- Deprecated `ThemeColorController.customThemeColors` as the behavior has changed. Please use `ThemeColorController.SetCustomThemeColors` and `ThemeColorController.GetCustomThemeColors` instead. This is a (minor) breaking change.
 
 ### Bugfixes
-- Fixed an issue where the AudioLink texture was flipped when using OpenGL. (fundale)
-- Fixed an issue where the ytdlpPlayer avatar testing prefab was selecting an incompatible format at certain resolution settings, resulting in the video failing to play. (pema)
-- Fixed an issue where the ytdlpPlayer avatar testing prefab restarted the video about ~3 seconds in. (techanon)
-- Fixed an issue where the AudioLink controller was z-fighting on mobile platforms. (pema)
-- Fixed issue #299, where modifying the settings on the AudioLink prefab wouldn't properly apply to the control. (pema)
+- Fixed a bug where the color chord theme color toggle on the controller wasn't properly synced. (pema)
 
 ## Updating projects from version 0.2.8 or lower? (...first time setup? please see next section)
 1. Before upgrading your project, **MAKE A BACKUP**! The latest version of AudioLink changes many things - better safe than sorry.
