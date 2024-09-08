@@ -7,11 +7,12 @@
 - Added utility scripts for driving PostProcessing and blend shapes with AudioLink. These are called AudioReactivePostProcessing and AudioReactiveBlendshapes respectively. Just add them to a GameObject that has a PostProcessing component or SkinnedMeshRenderer to use. (fundale)
 
 ### Changes
-- Lowered the default volume for the AudioLink avatar prefab a bit.
+- Lowered the default volume for the AudioLink avatar prefab a bit. (pema)
 - Reduces the network traffic incurred by syncing AudioLink state a bit. (Happyrobot33)
 - Deprecated `ThemeColorController.customThemeColors` as the behavior has changed. Please use `ThemeColorController.SetCustomThemeColors` and `ThemeColorController.GetCustomThemeColors` instead. This is a (minor) breaking change.
 
 ### Bugfixes
+- Fixed a bug where the color chord theme color toggle on the controller wasn't properly synced. (pema)
 
 ## 1.4.0 - May 10th, 2024
 ### New features
