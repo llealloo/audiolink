@@ -4,7 +4,6 @@ namespace AudioLink
 {
 #if UDONSHARP
     using UdonSharp;
-    using UnityEngine.Rendering.PostProcessing;
 
     [RequireComponent(typeof(SkinnedMeshRenderer))]
     public class AudioReactiveBlendshapes : UdonSharpBehaviour
