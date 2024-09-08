@@ -4,8 +4,7 @@
     "references": [
         "UdonSharp.Runtime",
         "UdonSharp.Lib",
-        "VRC.Udon",
-        "Unity.Postprocessing.Runtime"
+        "VRC.Udon"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -14,12 +13,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.postprocessing",
-            "expression": "",
-            "define": "AUDIOLINK_HAS_POSTPROCESSING"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }
