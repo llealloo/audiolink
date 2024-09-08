@@ -39,5 +39,12 @@ namespace AudioLink
         }
 
     }
+#else
+#if UDONSHARP
+    using UdonSharp;
+    public class AudioReactivePostProcessing : UdonSharpBehaviour {}
+#else
+    public class AudioReactivePostProcessing : MonoBehaviour {}
+#endif
 #endif
 }
