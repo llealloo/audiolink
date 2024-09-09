@@ -17,6 +17,7 @@ The per-frequency audio amplitude data is first read briefly into Udon using Uni
 - Added the ability to adjust how the AudioLink controller is synced. You can sync every part of it, none of it, or everything except the gain and power controls. (fundale)
 - Added support for dual mono audio sources, for cases where you want to supply the left and right channel from separate sources. (fundale)
 - Added a utility script for driving blend shapes with AudioLink - AudioReactiveBlendshapes. Just add the script to a GameObject that has a SkinnedMeshRenderer to use. (fundale)
+- Added rudimentary support for using AudioLink with the WebGL build target. (fundale, hill)
 
 ### Changes
 - Lowered the default volume for the AudioLink avatar prefab a bit. (pema)
