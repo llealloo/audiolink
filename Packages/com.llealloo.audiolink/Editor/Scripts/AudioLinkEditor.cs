@@ -84,10 +84,17 @@ namespace AudioLink.Editor
 
         public static void LinkAll(AudioLink target)
         {
+#if UNITY_6000_0_OR_NEWER
+#if UDONSHARP
+            MonoBehaviour[] allBehaviours = FindObjectsByType<UdonSharpBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+#endif
+            MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+#else
 #if UDONSHARP
             UdonSharpBehaviour[] allBehaviours = FindObjectsOfType<UdonSharpBehaviour>();
 #else
             MonoBehaviour[] allBehaviours = FindObjectsOfType<MonoBehaviour>();
+#endif
 #endif
             // this handles all reasonable cases of referencing audiolink
             // (it doesn't handle referencing it multiple times in one monobehaviour, or referencing it as it's Base type)
