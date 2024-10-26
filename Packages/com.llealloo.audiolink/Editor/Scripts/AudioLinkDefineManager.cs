@@ -24,7 +24,6 @@ namespace AudioLink.Editor
         {
             bool definesChanged = false;
 #if UNITY_6000_0_OR_NEWER
-            // Unity 6 uses build profiles instead of build groups
             var profile = BuildProfile.GetActiveBuildProfile();
             string[] defines = profile != null
                 ? profile.scriptingDefines
