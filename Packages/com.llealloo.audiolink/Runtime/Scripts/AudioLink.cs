@@ -734,7 +734,7 @@ namespace AudioLink
 
         private const int MaxLength = 32;
         private int[] codePoints = new int[MaxLength];
-        public const int VecsLength = MaxLength / 4;
+        private const int VecsLength = MaxLength / 4;
         private Vector4[] vecs = new Vector4[VecsLength];
 
         private void UpdateGlobalString(int nameID, string input)
