@@ -733,9 +733,9 @@ namespace AudioLink
 #endif
 
         private const int MaxLength = 32;
-        private int[] codePoints = new int[MaxLength];
-        private const int VecsLength = MaxLength / 4;
-        private Vector4[] vecs = new Vector4[VecsLength];
+        private int[] globalStringCodePoints = new int[MaxLength];
+        private const int packedVectorsLength = MaxLength / 4;
+        private Vector4[] globalStringPackedVectors = new Vector4[packedVectorsLength];
 
         private void UpdateGlobalString(int nameID, string input)
         {
@@ -747,31 +747,31 @@ namespace AudioLink
                 input = input.Substring(0, MaxLength);
             }
             // Get unicode codepoints, clearing previous values to prevent leftover data
-            Array.Clear(codePoints, 0, MaxLength);
+            Array.Clear(globalStringCodePoints, 0, MaxLength);
             int codePointsLength = 0;
 
             for (int i = 0; i < inputLength; i++)
             {
-                codePoints[codePointsLength++] = Char.ConvertToUtf32(input, i);
-                if (Char.IsHighSurrogate(input[i]))
+                globalStringCodePoints[codePointsLength++] = char.ConvertToUtf32(input, i);
+                if (char.IsHighSurrogate(input[i]))
                 {
                     i += 1;
                 }
             }
 
             // Pack them into vectors, clearing previous values in vecs array
-            Array.Clear(vecs, 0, VecsLength);
+            Array.Clear(globalStringPackedVectors, 0, packedVectorsLength);
             int j = 0;
-            for (int i = 0; i < VecsLength; i++)
+            for (int i = 0; i < packedVectorsLength; i++)
             {
-                if (j < codePointsLength) vecs[i].x = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
-                if (j < codePointsLength) vecs[i].y = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
-                if (j < codePointsLength) vecs[i].z = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
-                if (j < codePointsLength) vecs[i].w = IntToFloatBits24Bit((uint)codePoints[j++]); else break;
+                if (j < codePointsLength) globalStringPackedVectors[i].x = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+                if (j < codePointsLength) globalStringPackedVectors[i].y = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+                if (j < codePointsLength) globalStringPackedVectors[i].z = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+                if (j < codePointsLength) globalStringPackedVectors[i].w = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
             }
 
             // Expose the vectors to shader without causing additional allocations
-            audioMaterial.SetVectorArray(nameID, vecs);
+            audioMaterial.SetVectorArray(nameID, globalStringPackedVectors);
         }
         public void ToggleAudioLink()
         {
