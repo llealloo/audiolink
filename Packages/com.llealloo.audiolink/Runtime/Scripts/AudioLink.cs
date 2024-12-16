@@ -732,22 +732,22 @@ namespace AudioLink
         }
 #endif
 
-        private const int MaxLength = 32;
-        private int[] globalStringCodePoints = new int[MaxLength];
-        private const int packedVectorsLength = MaxLength / 4;
-        private Vector4[] globalStringPackedVectors = new Vector4[packedVectorsLength];
+        private const int GlobalStringMaxLength = 32;
+        private readonly int[] globalStringCodePoints = new int[GlobalStringMaxLength];
+        private const int GlobalStringPackedVectorsLength = GlobalStringMaxLength / 4;
+        private readonly Vector4[] globalStringPackedVectors = new Vector4[GlobalStringPackedVectorsLength];
 
         private void UpdateGlobalString(int nameID, string input)
         {
             InitIDs();
             int inputLength = input.Length;
             // Truncate the input if it exceeds the max length
-            if (inputLength > MaxLength)
+            if (inputLength > GlobalStringMaxLength)
             {
-                input = input.Substring(0, MaxLength);
+                input = input.Substring(0, GlobalStringMaxLength);
             }
             // Get unicode codepoints, clearing previous values to prevent leftover data
-            Array.Clear(globalStringCodePoints, 0, MaxLength);
+            Array.Clear(globalStringCodePoints, 0, GlobalStringMaxLength);
             int codePointsLength = 0;
 
             for (int i = 0; i < inputLength; i++)
@@ -760,9 +760,9 @@ namespace AudioLink
             }
 
             // Pack them into vectors, clearing previous values in vecs array
-            Array.Clear(globalStringPackedVectors, 0, packedVectorsLength);
+            Array.Clear(globalStringPackedVectors, 0, GlobalStringPackedVectorsLength);
             int j = 0;
-            for (int i = 0; i < packedVectorsLength; i++)
+            for (int i = 0; i < GlobalStringPackedVectorsLength; i++)
             {
                 if (j < codePointsLength) globalStringPackedVectors[i].x = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
                 if (j < codePointsLength) globalStringPackedVectors[i].y = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
