@@ -2,9 +2,8 @@
 using System.Reflection;
 
 #if UDONSHARP
-using UdonSharp;
 using UdonSharpEditor;
-using BehaviourType = UdonSharpBehaviour;
+using BehaviourType = UdonSharp.UdonSharpBehaviour;
 #else
 using BehaviourType = MonoBehaviour;
 #endif
@@ -88,11 +87,12 @@ namespace AudioLink.Editor
         public static void LinkAll(AudioLink target)
         {
             BehaviourType[] allBehaviours = FindObjectsByType<BehaviourType>(
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2021_3_OR_NEWER
                 FindObjectsInactive.Include, FindObjectsSortMode.InstanceID
-#endif            
+#else
+                true
+#endif
             );
-
             // this handles all reasonable cases of referencing audiolink
             // (it doesn't handle referencing it multiple times in one monobehaviour, or referencing it as it's Base type)
             foreach (BehaviourType behaviour in allBehaviours)
@@ -110,6 +110,7 @@ namespace AudioLink.Editor
                         }
                     }
                 }
+
                 if (fieldInfo != null && fieldInfo.FieldType == typeof(AudioLink))
                 {
                     fieldInfo.SetValue(behaviour, target);
