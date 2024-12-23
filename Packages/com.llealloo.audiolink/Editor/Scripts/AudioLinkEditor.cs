@@ -86,13 +86,13 @@ namespace AudioLink.Editor
 
         public static void LinkAll(AudioLink target)
         {
-            BehaviourType[] allBehaviours = FindObjectsByType<BehaviourType>(
+            BehaviourType[] allBehaviours = 
 #if UNITY_2021_3_OR_NEWER
-                FindObjectsInactive.Include, FindObjectsSortMode.InstanceID
+                FindObjectsByType<BehaviourType>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
 #else
-                true
+                FindObjectsOfType<BehaviourType>(true);
 #endif
-            );
+
             // this handles all reasonable cases of referencing audiolink
             // (it doesn't handle referencing it multiple times in one monobehaviour, or referencing it as it's Base type)
             foreach (BehaviourType behaviour in allBehaviours)
