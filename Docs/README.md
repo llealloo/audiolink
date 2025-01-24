@@ -126,7 +126,7 @@ A 128 x 2 block of data containing a DFT (like an FFT, but even intervals in chr
  * RED: "mag" : Raw spectrum magnitude.
  * GRN: "magEQ" : Filtered power EQ'd, used by AudioLink
  * BLU: "magfilt" : Heavily filtered spectrum for use in ColorChord
- * ALP: RESERVED.
+ * ALP: "magPhase" : Phase of the signal (from -pi to pi).
 
 AudioLink reserves the right to change:
  * The window that is used for calculations.
