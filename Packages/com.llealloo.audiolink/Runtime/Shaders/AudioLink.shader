@@ -192,6 +192,7 @@ Shader "AudioLink/Internal/AudioLink"
                     totalWindow += window;
                     phase += phaseDelta;
                 }
+                float magPhase = atan2(amplitude.y, amplitude.x);
                 float mag = (length(amplitude) / totalWindow) * AUDIOLINK_BASE_AMPLITUDE * _Gain;
 
                 // Treble compensation
@@ -207,7 +208,8 @@ Shader "AudioLink/Internal/AudioLink"
                 // Red:   Spectrum power, served straight up
                 // Green: Filtered power EQ'd, used by AudioLink 4 Band
                 // Blue:  Filtered spectrum
-                return float4(mag, magEQ, magFilt, 1);
+                // Alpha: Phase of the signal
+                return float4(mag, magEQ, magFilt, magPhase);
             }
             ENDCG
         }
