@@ -55,6 +55,27 @@
     #define AUDIOLINK_DFT_Q                 4.0
     #define AUDIOLINK_TREBLE_CORRECTION     5.0
     #define AUDIOLINK_4BAND_TARGET_RATE     90.0
+    #define AUDIOLINK_LUT                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, \
+                                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, \
+                                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, \
+                                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, \
+                                            0.008, 0.01, 0.012, 0.014, 0.017, 0.02, 0.022, 0.025, 0.029, 0.032, 0.036, \
+                                            0.04, 0.044, 0.048, 0.053, 0.057, 0.062, 0.067, 0.072, 0.078, 0.083, 0.089, \
+                                            0.095, 0.101, 0.107, 0.114, 0.121, 0.128, 0.135, 0.142, 0.149, 0.157, 0.164, \
+                                            0.172, 0.18, 0.188, 0.196, 0.205, 0.213, 0.222, 0.23, 0.239, 0.248, 0.257, \
+                                            0.266, 0.276, 0.285, 0.294, 0.304, 0.313, 0.323, 0.333, 0.342, 0.352, 0.362, \
+                                            0.372, 0.381, 0.391, 0.401, 0.411, 0.421, 0.431,  0.441, 0.451, 0.46, 0.47, \
+                                            0.48, 0.49, 0.499, 0.509, 0.519, 0.528, 0.538, 0.547, 0.556, 0.565, 0.575, \
+                                            0.584, 0.593, 0.601, 0.61, 0.619, 0.627, 0.636, 0.644, 0.652, 0.66, 0.668, \
+                                            0.676, 0.684, 0.691, 0.699, 0.706, 0.713, 0.72, 0.727, 0.734, 0.741, 0.747, \
+                                            0.754, 0.76, 0.766,  0.772, 0.778, 0.784, 0.79, 0.795, 0.801, 0.806, 0.811, \
+                                            0.816, 0.821, 0.826, 0.831, 0.835, 0.84, 0.844, 0.848, 0.853, 0.857, 0.861, \
+                                            0.864,  0.868, 0.872, 0.875, 0.879, 0.882, 0.885, 0.888, 0.891, 0.894, 0.897, \
+                                            0.899, 0.902, 0.904, 0.906, 0.909, 0.911, 0.913, 0.914, 0.916, 0.918, 0.919, \
+                                            0.921, 0.922, 0.924, 0.925, 0.926, 0.927, 0.928, 0.928, 0.929, 0.929, 0.93, \
+                                            0.93, 0.93, 0.931, 0.931, 0.93, 0.93, 0.93, 0.93, 0.929, 0.929, 0.928, 0.927, \
+                                            0.926, 0.925, 0.924, 0.923, 0.922, 0.92, 0.919, 0.917, 0.915, 0.913, 0.911, \
+                                            0.909, 0.907, 0.905, 0.903, 0.9}
 
     // Text constants
     #define AUDIOLINK_STRING_MAX_CHARS      32
@@ -178,7 +199,7 @@
     {
         uint time = AudioLinkDecodeDataAsUInt(indexloc) & 0x7ffffff;
         //Can't just divide by float.  Bug in Unity's HLSL compiler.
-        return float(time / 1000) + float( time % 1000 ) / 1000.; 
+        return float(time / 1000) + float( time % 1000 ) / 1000.;
     }
 
     #define ALDecodeDataAsSeconds( x ) AudioLinkDecodeDataAsSeconds( x )
@@ -282,14 +303,14 @@
         return (AudioLinkDecodeDataAsUInt(ALPASS_CHRONOTENSITY + uint2(index, band))) / 100000.0;
     }
 
-    // Get a chronotensity value in the interval [0; 1], modulated by the speed input, 
+    // Get a chronotensity value in the interval [0; 1], modulated by the speed input,
     // with the given chronotensity index [0; 7] and AudioLink band [0; 3].
     float AudioLinkGetChronoTimeNormalized(uint index, uint band, float speed)
     {
         return frac(AudioLinkGetChronoTime(index, band) * speed);
     }
 
-    // Get a chronotensity value in the interval [0; interval], modulated by the speed input, 
+    // Get a chronotensity value in the interval [0; interval], modulated by the speed input,
     // with the given chronotensity index [0; 7] and AudioLink band [0; 3].
     float AudioLinkGetChronoTimeInterval(uint index, uint band, float speed, float interval)
     {
