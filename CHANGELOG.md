@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 - March 10th, 2025
+### New features
+- Added support for getting phase information from AudioLink, via the alpha channel of the `ALPASS_DFT` section. There is an example shader using this feature included at `com.llealloo.audiolink/Runtime/Shaders/AudioLinkDocs_Demo10.shader`. (tt0fu)
+
+### Changes
+- Made some optimizations to handling of global strings. Should result in less allocations. (techanon)
+
+### Bugfixes
+- Fixed some issues preventing the use of AudioLink on Unity 6.x. (techanon, float3)
+
 ## 2.0.0 - September 8th, 2024
 ### New features
 - Added the ability to adjust how the AudioLink controller is synced. You can sync every part of it, none of it, or everything except the gain and power controls. (fundale)
