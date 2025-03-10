@@ -6,6 +6,7 @@
 
 ### Changes
 - Made some optimizations to handling of global strings. Should result in less allocations. (techanon)
+- Changed default resolution used for AudioLinkAvatar prefab to 360p.
 
 ### Bugfixes
 - Fixed some issues preventing the use of AudioLink on Unity 6.x. (techanon, float3)
