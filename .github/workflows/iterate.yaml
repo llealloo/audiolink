@@ -97,17 +97,17 @@ jobs:
           package-path: ${{ env.minimalUnityPackage }}
           include-files: minimalMetaList
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Zip release
           path: ${{ env.zipFile }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: UnityPackage release
           path: ${{ env.unityPackage }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Minimal UnityPackage release
           path: ${{ env.minimalUnityPackage }}
