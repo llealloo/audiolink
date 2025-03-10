@@ -5,7 +5,7 @@ using System.Reflection;
 using UdonSharpEditor;
 using BehaviourType = UdonSharp.UdonSharpBehaviour;
 #else
-using BehaviourType = MonoBehaviour;
+using BehaviourType = UnityEngine.MonoBehaviour;
 #endif
 
 using UnityEditor;
