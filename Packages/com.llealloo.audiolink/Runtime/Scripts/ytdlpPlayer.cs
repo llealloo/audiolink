@@ -333,6 +333,7 @@ namespace AudioLink
             proc.StartInfo.CreateNoWindow = true;
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.FileName = _ytdlpPath;
             proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
 
@@ -342,8 +343,15 @@ namespace AudioLink
             {
                 if (args.Data != null)
                 {
+                    Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + args.Data);
                     request.resolvedURL = args.Data;
                     request.isDone = true;
+                }
+            };
+
+            proc.ErrorDataReceived += (sender, args) => {
+                if (args.Data != null) {
+                    Debug.LogError("[AudioLink:ytdlp] ytdlp stderr: " + args.Data);
                 }
             };
 
@@ -351,6 +359,7 @@ namespace AudioLink
             {
                 proc.Start();
                 proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
 
                 return request;
             }
