@@ -235,8 +235,6 @@ namespace AudioLink
         private const string userDefinedYTDLPathKey = "YTDL-PATH-CUSTOM";
         private const string userDefinedYTDLPathMenu = "Tools/AudioLink/Select Custom YTDL Location";
 
-        // don't enable custom YTDL location menu item if project is VRCWorld type. It's only used for avatar testing, so it's useless otherwise.
-#if !UDONSHARP
         [MenuItem(userDefinedYTDLPathMenu, priority = 1)]
         private static void SelectYtdlInstall()
         {
@@ -258,7 +256,6 @@ namespace AudioLink
             Menu.SetChecked(userDefinedYTDLPathMenu, EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty) != string.Empty);
             return true;
         }
-#endif
 
         public static bool IsytdlpAvailable()
         {
