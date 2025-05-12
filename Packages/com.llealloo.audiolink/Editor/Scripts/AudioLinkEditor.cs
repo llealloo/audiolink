@@ -87,7 +87,7 @@ namespace AudioLink.Editor
         public static void LinkAll(AudioLink target)
         {
             BehaviourType[] allBehaviours = 
-#if UNITY_2021_3_OR_NEWER
+#if UNITY_2022_3_OR_NEWER
                 FindObjectsByType<BehaviourType>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
 #else
                 FindObjectsOfType<BehaviourType>(true);
