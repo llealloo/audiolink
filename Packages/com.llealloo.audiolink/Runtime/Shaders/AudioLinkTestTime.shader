@@ -34,30 +34,30 @@
             };
 
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
 
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_OUTPUT(v2f, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 return o;
             }
 
-            float4 frag (v2f i) : SV_Target
+            float4 frag(v2f i) : SV_Target
             {
                 float value = 0;
-                
+
                 float2 iuv = i.uv;
-                iuv.y = 1.-iuv.y;
+                iuv.y = 1. - iuv.y;
                 const uint rows = 21;
                 const uint cols = 21;
                 const uint number_area_cols = 11;
-                
-                float2 pos = iuv*float2(cols,rows);
+
+                float2 pos = iuv * float2(cols, rows);
                 uint2 dig = (uint2)(pos);
 
                 // This line of code is tricky;  We determine how much we should soften the edge of the text
@@ -67,12 +67,12 @@
 
                 // Another option would be to set softness to 20 and YOLO it.
 
-                float2 fmxy = float2( 4, 6 ) - (glsl_mod(pos,1.)*float2(4.,6.));
+                float2 fmxy = float2(4, 6) - (glsl_mod(pos, 1.) * float2(4., 6.));
 
                 value = 0;
                 int xoffset = 5;
                 bool leadingzero = false;
-                int points_after_decimal = 0; 
+                int points_after_decimal = 0;
                 int max_decimals = 6;
 
                 if( dig.y < 13 )
@@ -99,6 +99,7 @@
                         return PrintChar( sendchar, fmxy, softness, 0.0 );
                     }
                     
+
                     dig.x -= cols - number_area_cols;
                 }
                 else
@@ -248,6 +249,97 @@
                 }
 
                 return PrintNumberOnLine( value, fmxy, softness, dig.x - xoffset, points_after_decimal, max_decimals, leadingzero, 0 );         
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                return 0;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            ZWrite On
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normal);
+                return float4(normalWS * 0.5 + 0.5, 1);
             }
             ENDCG
         }

@@ -8,8 +8,6 @@ Shader "AudioLink/Debug/AudioLinkDebug"
 
         _SpectrumColorMix ("Spectrum Color Mix", Range(0, 1)) = 0
 
-        
-
         _SampleColorL ("Left Waveform", Color) = (.5, .5, .9, 1.)
         _SampleColorR ("Right Waveform", Color) = (.9, .5, .5, 1.)
         _SampleColorC ("Center Waveform", Color) = (.0, .0, .0, .0)
@@ -22,11 +20,11 @@ Shader "AudioLink/Debug/AudioLinkDebug"
         _SpectrumVertOffset( "Spectrum Vertical OFfset", Float ) = 0.0
         _SampleThickness ("Sample Thickness", Float) = .02
         _SpectrumThickness ("Spectrum Thickness", Float) = .01
-        
+
         _WaveformZoom ("Waveform Zoom", Float) = 2.0
-        
+
         _VUOpacity( "VU Opacity", Float) = 0.5
-        
+
         [ToggleUI] _ShowVUInMain("Show VU In Main", Float) = 0
         [ToggleUI] _EnableColorChord("Show ColorChord", Float) = 0
     }
@@ -62,14 +60,14 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                 UNITY_FOG_COORDS(1)
                 UNITY_VERTEX_OUTPUT_STEREO
             };
-            
+
             float _SpectrumGain;
             float _SampleGain;
             float _SpectrumColorMix;
             float4 _SeparatorColor;
             float _SampleThickness;
             float _SpectrumThickness;
-        
+
             float _SampleVertOffset;
             float4 _SampleColorL;
             float4 _SampleColorR;
@@ -78,16 +76,16 @@ Shader "AudioLink/Debug/AudioLinkDebug"
             float4 _SpectrumFixedColorForSlow;
             float4 _BaseColor;
             float4 _UnderSpectrumColor;
-            
+
             float _SpectrumVertOffset;
-            
+
             float _VUOpacity;
             float _ShowVUInMain;
             float _WaveformZoom;
-            
+
             float _EnableColorChord;
-            
-            v2f vert (appdata v)
+
+            v2f vert(appdata v)
             {
                 v2f o;
 
@@ -97,11 +95,11 @@ Shader "AudioLink/Debug/AudioLinkDebug"
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv * float2(1.25, 1.15);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
-            
-            fixed4 frag (v2f i) : SV_Target
+
+            fixed4 frag(v2f i) : SV_Target
             {
                 float2 iuv = i.uv;
 
@@ -129,7 +127,7 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                     #define PASS_SIX_OFFSET    int2(12,22) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
 
                     int selnote = (int)(iuv.x * 10);
-                    float4 NoteSummary = AudioLinkData(ALPASS_CCINTERNAL);
+                    // float4 NoteSummary = AudioLinkData(ALPASS_CCINTERNAL);
                     float4 Note = AudioLinkData(ALPASS_CCINTERNAL + uint2(selnote+1,0));
 
                     float intensity = clamp(Note.z * .01, 0, 1);
@@ -192,7 +190,7 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                                                       _SpectrumFixedColorForSlow, _SpectrumColorMix), 1.0), rval);
                 }
 
-                //Potentially draw 
+                //Potentially draw
                 if (_ShowVUInMain > 0.5 && iuv.x > 1 - 1 / 8. && iuv.x < 1. && iuv.y > 0.5)
                 {
                     iuv.x = (((iuv.x * 8.) - 7) + 1.);
@@ -309,6 +307,104 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                 return coloro;
 
                 //Graph-based spectrogram.
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 2.0
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+
+            half4 frag() : SV_Target
+            {
+                return 0;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            ZWrite On
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 2.0
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                return o;
+            }
+
+            half4 frag(v2f i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normal);
+                float3 normalEncoded = normalWS * 0.5 + 0.5;
+                return half4(normalEncoded, 1.0);
             }
             ENDCG
         }

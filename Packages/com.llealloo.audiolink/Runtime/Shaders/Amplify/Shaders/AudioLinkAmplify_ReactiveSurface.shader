@@ -1,8 +1,8 @@
-// Upgrade NOTE: upgraded instancing buffer 'AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha' to new syntax.
+// Upgrade NOTE: upgraded instancing buffer 'AudioLinkSurfaceAudioReactiveSurface' to new syntax.
 
 // Made with Amplify Shader Editor
 // Available at the Unity Asset Store - http://u3d.as/y3X
-Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
+Shader "AudioLink/Amplify/AudioReactiveSurface"
 {
 	Properties
 	{
@@ -42,12 +42,12 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 	SubShader
 	{
 
-		Tags { "RenderType"="Transparent" "Queue"="Transparent" "DisableBatching"="False" }
+		Tags { "RenderType"="Opaque" "Queue"="Geometry" "DisableBatching"="False" }
 	LOD 0
 
 		Cull Back
 		AlphaToMask Off
-		ZWrite Off
+		ZWrite On
 		ZTest LEqual
 		ColorMask RGBA
 
@@ -157,13 +157,16 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 		}
 		ENDCG
 
+
 		Pass
 		{
-			Blend SrcAlpha OneMinusSrcAlpha
+
+			Name "ForwardBase"
+			Tags { "LightMode"="ForwardBase" }
+
+			Blend One Zero
 
 			CGPROGRAM
-			#define _ALPHABLEND_ON 1
-			#define UNITY_STANDARD_USE_DITHER_MASK 1
 			#define ASE_NEEDS_FRAG_SHADOWCOORDS
 			#pragma multi_compile_instancing
 			#pragma multi_compile __ LOD_FADE_CROSSFADE
@@ -266,26 +269,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			uniform sampler2D _EmissionMap;
 			uniform float _Metallic;
 			uniform float _Smoothness;
-			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
 				UNITY_DEFINE_INSTANCED_PROP(float4, _BumpMap_ST)
-#define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
-#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
-#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
-#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
-#define _Band_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
-#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Pulse)
-#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Delay)
-#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Emission)
-#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
-			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface
+			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface)
 
 
 			float3 HSVToRGB( float3 c )
@@ -304,7 +307,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g8( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -506,27 +509,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#endif
 
 				float2 texCoord6 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
-				float3 hsvTorgb32 = RGBToHSV( ( tex2DNode4 * _Color ).rgb );
+				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
 				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
 				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g8 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 break6_g10 = texCoord50;
-				float temp_output_5_0_g10 = ( break6_g10.x - 0.5 );
+				float2 break6_g4 = texCoord50;
+				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
 				float _PulseRotation_Instance = UNITY_ACCESS_INSTANCED_PROP(_PulseRotation_arr, _PulseRotation);
-				float temp_output_2_0_g10 = radians( _PulseRotation_Instance );
-				float temp_output_3_0_g10 = cos( temp_output_2_0_g10 );
-				float temp_output_8_0_g10 = sin( temp_output_2_0_g10 );
-				float temp_output_20_0_g10 = ( 1.0 / ( abs( temp_output_3_0_g10 ) + abs( temp_output_8_0_g10 ) ) );
-				float temp_output_7_0_g10 = ( break6_g10.y - 0.5 );
-				float2 appendResult16_g10 = (float2(( ( ( temp_output_5_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) + ( temp_output_7_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) - ( temp_output_5_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 )));
+				float temp_output_2_0_g4 = radians( _PulseRotation_Instance );
+				float temp_output_3_0_g4 = cos( temp_output_2_0_g4 );
+				float temp_output_8_0_g4 = sin( temp_output_2_0_g4 );
+				float temp_output_20_0_g4 = ( 1.0 / ( abs( temp_output_3_0_g4 ) + abs( temp_output_8_0_g4 ) ) );
+				float temp_output_7_0_g4 = ( break6_g4.y - 0.5 );
+				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g8 = ( ( (_Delay_Instance + (( appendResult16_g10.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g8 = AudioLinkLerp3_g8( Band3_g8 , Delay3_g8 );
-				float temp_output_96_0 = localAudioLinkLerp3_g8;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 
@@ -540,8 +542,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 
-				float alpha98 = tex2DNode4.a;
-
 				o.Albedo = hsvTorgb39;
 				o.Normal = ( UnpackNormal( tex2D( _BumpMap, uv_BumpMap ) ) * _BumpScale );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -552,7 +552,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#endif
 				o.Smoothness = _Smoothness;
 				o.Occlusion = 1;
-				o.Alpha = alpha98;
+				o.Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 				float3 BakedGI = 0;
@@ -692,17 +692,16 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			ENDCG
 		}
 
+
 		Pass
 		{
 
 			Name "ForwardAdd"
 			Tags { "LightMode"="ForwardAdd" }
 			ZWrite Off
-			Blend SrcAlpha One
+			Blend One One
 
 			CGPROGRAM
-			#define _ALPHABLEND_ON 1
-			#define UNITY_STANDARD_USE_DITHER_MASK 1
 			#define ASE_NEEDS_FRAG_SHADOWCOORDS
 			#pragma multi_compile_instancing
 			#pragma multi_compile __ LOD_FADE_CROSSFADE
@@ -799,26 +798,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			uniform sampler2D _EmissionMap;
 			uniform float _Metallic;
 			uniform float _Smoothness;
-			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
 				UNITY_DEFINE_INSTANCED_PROP(float4, _BumpMap_ST)
-#define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
-#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
-#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
-#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
-#define _Band_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
-#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Pulse)
-#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Delay)
-#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Emission)
-#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
-			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface
+			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface)
 
 
 			float3 HSVToRGB( float3 c )
@@ -837,7 +836,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g8( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -1020,27 +1019,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 
 
 				float2 texCoord6 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
-				float3 hsvTorgb32 = RGBToHSV( ( tex2DNode4 * _Color ).rgb );
+				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
 				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
 				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g8 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord9.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 break6_g10 = texCoord50;
-				float temp_output_5_0_g10 = ( break6_g10.x - 0.5 );
+				float2 break6_g4 = texCoord50;
+				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
 				float _PulseRotation_Instance = UNITY_ACCESS_INSTANCED_PROP(_PulseRotation_arr, _PulseRotation);
-				float temp_output_2_0_g10 = radians( _PulseRotation_Instance );
-				float temp_output_3_0_g10 = cos( temp_output_2_0_g10 );
-				float temp_output_8_0_g10 = sin( temp_output_2_0_g10 );
-				float temp_output_20_0_g10 = ( 1.0 / ( abs( temp_output_3_0_g10 ) + abs( temp_output_8_0_g10 ) ) );
-				float temp_output_7_0_g10 = ( break6_g10.y - 0.5 );
-				float2 appendResult16_g10 = (float2(( ( ( temp_output_5_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) + ( temp_output_7_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) - ( temp_output_5_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 )));
+				float temp_output_2_0_g4 = radians( _PulseRotation_Instance );
+				float temp_output_3_0_g4 = cos( temp_output_2_0_g4 );
+				float temp_output_8_0_g4 = sin( temp_output_2_0_g4 );
+				float temp_output_20_0_g4 = ( 1.0 / ( abs( temp_output_3_0_g4 ) + abs( temp_output_8_0_g4 ) ) );
+				float temp_output_7_0_g4 = ( break6_g4.y - 0.5 );
+				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g8 = ( ( (_Delay_Instance + (( appendResult16_g10.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g8 = AudioLinkLerp3_g8( Band3_g8 , Delay3_g8 );
-				float temp_output_96_0 = localAudioLinkLerp3_g8;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 
@@ -1054,8 +1052,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 
-				float alpha98 = tex2DNode4.a;
-
 				o.Albedo = hsvTorgb39;
 				o.Normal = ( UnpackNormal( tex2D( _BumpMap, uv_BumpMap ) ) * _BumpScale );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -1066,7 +1062,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#endif
 				o.Smoothness = _Smoothness;
 				o.Occlusion = 1;
-				o.Alpha = alpha98;
+				o.Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float3 Transmission = 1;
 				float3 Translucency = 1;
@@ -1168,8 +1164,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			AlphaToMask Off
 
 			CGPROGRAM
-			#define _ALPHABLEND_ON 1
-			#define UNITY_STANDARD_USE_DITHER_MASK 1
 			#define ASE_NEEDS_FRAG_SHADOWCOORDS
 			#pragma multi_compile_instancing
 			#pragma multi_compile __ LOD_FADE_CROSSFADE
@@ -1256,26 +1250,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			uniform sampler2D _EmissionMap;
 			uniform float _Metallic;
 			uniform float _Smoothness;
-			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
 				UNITY_DEFINE_INSTANCED_PROP(float4, _BumpMap_ST)
-#define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
-#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
-#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
-#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
-#define _Band_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
-#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Pulse)
-#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Delay)
-#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Emission)
-#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
-			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface
+			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface)
 
 
 			float3 HSVToRGB( float3 c )
@@ -1294,7 +1288,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g8( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -1478,27 +1472,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				half atten = 1;
 
 				float2 texCoord6 = IN.ase_texcoord8.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
-				float3 hsvTorgb32 = RGBToHSV( ( tex2DNode4 * _Color ).rgb );
+				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
 				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
 				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g8 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord8.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 break6_g10 = texCoord50;
-				float temp_output_5_0_g10 = ( break6_g10.x - 0.5 );
+				float2 break6_g4 = texCoord50;
+				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
 				float _PulseRotation_Instance = UNITY_ACCESS_INSTANCED_PROP(_PulseRotation_arr, _PulseRotation);
-				float temp_output_2_0_g10 = radians( _PulseRotation_Instance );
-				float temp_output_3_0_g10 = cos( temp_output_2_0_g10 );
-				float temp_output_8_0_g10 = sin( temp_output_2_0_g10 );
-				float temp_output_20_0_g10 = ( 1.0 / ( abs( temp_output_3_0_g10 ) + abs( temp_output_8_0_g10 ) ) );
-				float temp_output_7_0_g10 = ( break6_g10.y - 0.5 );
-				float2 appendResult16_g10 = (float2(( ( ( temp_output_5_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) + ( temp_output_7_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) - ( temp_output_5_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 )));
+				float temp_output_2_0_g4 = radians( _PulseRotation_Instance );
+				float temp_output_3_0_g4 = cos( temp_output_2_0_g4 );
+				float temp_output_8_0_g4 = sin( temp_output_2_0_g4 );
+				float temp_output_20_0_g4 = ( 1.0 / ( abs( temp_output_3_0_g4 ) + abs( temp_output_8_0_g4 ) ) );
+				float temp_output_7_0_g4 = ( break6_g4.y - 0.5 );
+				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g8 = ( ( (_Delay_Instance + (( appendResult16_g10.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g8 = AudioLinkLerp3_g8( Band3_g8 , Delay3_g8 );
-				float temp_output_96_0 = localAudioLinkLerp3_g8;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 
@@ -1512,8 +1505,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 
-				float alpha98 = tex2DNode4.a;
-
 				o.Albedo = hsvTorgb39;
 				o.Normal = ( UnpackNormal( tex2D( _BumpMap, uv_BumpMap ) ) * _BumpScale );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -1524,7 +1515,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#endif
 				o.Smoothness = _Smoothness;
 				o.Occlusion = 1;
-				o.Alpha = alpha98;
+				o.Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float3 BakedGI = 0;
 
@@ -1624,8 +1615,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			Cull Off
 
 			CGPROGRAM
-			#define _ALPHABLEND_ON 1
-			#define UNITY_STANDARD_USE_DITHER_MASK 1
 			#define ASE_NEEDS_FRAG_SHADOWCOORDS
 			#pragma multi_compile_instancing
 			#pragma multi_compile __ LOD_FADE_CROSSFADE
@@ -1693,24 +1682,24 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			uniform sampler2D _MainTex;
 			uniform float4 _Color;
 			uniform sampler2D _EmissionMap;
-			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionMap_ST)
-#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionMap_ST_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float4, _EmissionColor)
-#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _EmissionColor_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _AudioHueShift)
-#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _AudioHueShift_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Band)
-#define _Band_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Band_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _PulseRotation)
-#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _PulseRotation_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Pulse)
-#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Pulse_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Delay)
-#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+#define _Delay_arr AudioLinkSurfaceAudioReactiveSurface
 				UNITY_DEFINE_INSTANCED_PROP(float, _Emission)
-#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
-			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+#define _Emission_arr AudioLinkSurfaceAudioReactiveSurface
+			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface)
 
 
 			float3 HSVToRGB( float3 c )
@@ -1729,7 +1718,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float e = 1.0e-10;
 				return float3( abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 			}
-			inline float AudioLinkLerp3_g8( int Band, float Delay )
+			inline float AudioLinkLerp3_g6( int Band, float Delay )
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
@@ -1886,27 +1875,26 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#endif
 
 				float2 texCoord6 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
-				float3 hsvTorgb32 = RGBToHSV( ( tex2DNode4 * _Color ).rgb );
+				float3 hsvTorgb32 = RGBToHSV( ( tex2D( _MainTex, texCoord6 ) * _Color ).rgb );
 				float _AudioHueShift_Instance = UNITY_ACCESS_INSTANCED_PROP(_AudioHueShift_arr, _AudioHueShift);
 				float hueShift33 = _AudioHueShift_Instance;
 				float _Band_Instance = UNITY_ACCESS_INSTANCED_PROP(_Band_arr, _Band);
-				int Band3_g8 = (int)_Band_Instance;
+				int Band3_g6 = (int)_Band_Instance;
 				float2 texCoord50 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
-				float2 break6_g10 = texCoord50;
-				float temp_output_5_0_g10 = ( break6_g10.x - 0.5 );
+				float2 break6_g4 = texCoord50;
+				float temp_output_5_0_g4 = ( break6_g4.x - 0.5 );
 				float _PulseRotation_Instance = UNITY_ACCESS_INSTANCED_PROP(_PulseRotation_arr, _PulseRotation);
-				float temp_output_2_0_g10 = radians( _PulseRotation_Instance );
-				float temp_output_3_0_g10 = cos( temp_output_2_0_g10 );
-				float temp_output_8_0_g10 = sin( temp_output_2_0_g10 );
-				float temp_output_20_0_g10 = ( 1.0 / ( abs( temp_output_3_0_g10 ) + abs( temp_output_8_0_g10 ) ) );
-				float temp_output_7_0_g10 = ( break6_g10.y - 0.5 );
-				float2 appendResult16_g10 = (float2(( ( ( temp_output_5_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) + ( temp_output_7_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g10 * temp_output_3_0_g10 * temp_output_20_0_g10 ) - ( temp_output_5_0_g10 * temp_output_8_0_g10 * temp_output_20_0_g10 ) ) + 0.5 )));
+				float temp_output_2_0_g4 = radians( _PulseRotation_Instance );
+				float temp_output_3_0_g4 = cos( temp_output_2_0_g4 );
+				float temp_output_8_0_g4 = sin( temp_output_2_0_g4 );
+				float temp_output_20_0_g4 = ( 1.0 / ( abs( temp_output_3_0_g4 ) + abs( temp_output_8_0_g4 ) ) );
+				float temp_output_7_0_g4 = ( break6_g4.y - 0.5 );
+				float2 appendResult16_g4 = (float2(( ( ( temp_output_5_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) + ( temp_output_7_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 ) , ( ( ( temp_output_7_0_g4 * temp_output_3_0_g4 * temp_output_20_0_g4 ) - ( temp_output_5_0_g4 * temp_output_8_0_g4 * temp_output_20_0_g4 ) ) + 0.5 )));
 				float _Pulse_Instance = UNITY_ACCESS_INSTANCED_PROP(_Pulse_arr, _Pulse);
 				float _Delay_Instance = UNITY_ACCESS_INSTANCED_PROP(_Delay_arr, _Delay);
-				float Delay3_g8 = ( ( (_Delay_Instance + (( appendResult16_g10.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
-				float localAudioLinkLerp3_g8 = AudioLinkLerp3_g8( Band3_g8 , Delay3_g8 );
-				float temp_output_96_0 = localAudioLinkLerp3_g8;
+				float Delay3_g6 = ( ( (_Delay_Instance + (( appendResult16_g4.x * _Pulse_Instance ) - 0.0) * (1.0 - _Delay_Instance) / (1.0 - 0.0)) % 1.0 ) * 128.0 );
+				float localAudioLinkLerp3_g6 = AudioLinkLerp3_g6( Band3_g6 , Delay3_g6 );
+				float temp_output_96_0 = localAudioLinkLerp3_g6;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
 
@@ -1917,12 +1905,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
 
-				float alpha98 = tex2DNode4.a;
-
 				o.Albedo = hsvTorgb39;
 				o.Normal = fixed3( 0, 0, 1 );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
-				o.Alpha = alpha98;
+				o.Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 
 				#ifdef _ALPHATEST_ON
@@ -1957,8 +1943,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			AlphaToMask Off
 
 			CGPROGRAM
-			#define _ALPHABLEND_ON 1
-			#define UNITY_STANDARD_USE_DITHER_MASK 1
 			#define ASE_NEEDS_FRAG_SHADOWCOORDS
 			#pragma multi_compile_instancing
 			#pragma multi_compile __ LOD_FADE_CROSSFADE
@@ -1998,13 +1982,13 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 normal : NORMAL;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
-				float4 ase_texcoord : TEXCOORD0;
+
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
 			struct v2f {
 				V2F_SHADOW_CASTER;
-				float4 ase_texcoord2 : TEXCOORD2;
+
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
@@ -2020,9 +2004,8 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float _TessEdgeLength;
 				float _TessMaxDisp;
 			#endif
-			uniform sampler2D _MainTex;
-			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
-			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface)
+			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface)
 
 
 
@@ -2033,10 +2016,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				UNITY_TRANSFER_INSTANCE_ID(v,o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				o.ase_texcoord2.xy = v.ase_texcoord.xy;
 
-				//setting value to unused interpolator channels and avoid initialization warnings
-				o.ase_texcoord2.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					float3 defaultVertexValue = v.vertex.xyz;
 				#else
@@ -2064,7 +2044,6 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 normal : NORMAL;
 				float4 texcoord1 : TEXCOORD1;
 				float4 texcoord2 : TEXCOORD2;
-				float4 ase_texcoord : TEXCOORD0;
 
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
@@ -2085,7 +2064,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				o.normal = v.normal;
 				o.texcoord1 = v.texcoord1;
 				o.texcoord2 = v.texcoord2;
-				o.ase_texcoord = v.ase_texcoord;
+
 				return o;
 			}
 
@@ -2127,7 +2106,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				o.normal = patch[0].normal * bary.x + patch[1].normal * bary.y + patch[2].normal * bary.z;
 				o.texcoord1 = patch[0].texcoord1 * bary.x + patch[1].texcoord1 * bary.y + patch[2].texcoord1 * bary.z;
 				o.texcoord2 = patch[0].texcoord2 * bary.x + patch[1].texcoord2 * bary.y + patch[2].texcoord2 * bary.z;
-				o.ase_texcoord = patch[0].ase_texcoord * bary.x + patch[1].ase_texcoord * bary.y + patch[2].ase_texcoord * bary.z;
+
 				#if defined(ASE_PHONG_TESSELLATION)
 				float3 pp[3];
 				for (int i = 0; i < 3; ++i)
@@ -2166,13 +2145,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 					SurfaceOutputStandard o = (SurfaceOutputStandard)0;
 				#endif
 
-				float2 texCoord6 = IN.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
-				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
-				float alpha98 = tex2DNode4.a;
 
 				o.Normal = fixed3( 0, 0, 1 );
 				o.Occlusion = 1;
-				o.Alpha = alpha98;
+				o.Alpha = 1;
 				float AlphaClipThreshold = 0.5;
 				float AlphaClipThresholdShadow = 0.5;
 
@@ -2206,148 +2182,103 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			}
 			ENDCG
 		}
-        Pass
-        {
-            Name "DepthOnly"
-            Tags{"LightMode" = "DepthOnly"}
-
-            ZWrite On
-            ColorMask 0
-            Cull Back
-            Blend SrcAlpha OneMinusSrcAlpha
-
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma multi_compile_instancing
-            #include "UnityCG.cginc"
-            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float4 texcoord : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-                float2 texcoord : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            sampler2D _MainTex;
-
-            UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
-            UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
-
-            v2f vert(appdata v)
-            {
-                v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.texcoord = v.texcoord.xy;
-                return o;
-            }
-
-            float4 frag(v2f i) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(i);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-
-                float4 tex2DNode4 = tex2D(_MainTex, i.texcoord);
-                float alpha = tex2DNode4.a;
-
-                #if defined(_ALPHATEST_ON)
-                    clip(alpha - 0.5);
-                #endif
-
-                return 0;
-            }
-            ENDCG
-        }
-
-        // DepthNormals pass
-        Pass
-        {
-            Name "DepthNormals"
-            Tags{"LightMode" = "DepthNormals"}
-
-            ZWrite On
-            Cull Back
-            Blend SrcAlpha OneMinusSrcAlpha
-
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma multi_compile_instancing
-            #include "UnityCG.cginc"
-            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
-                float4 tangent : TANGENT;
-                float4 texcoord : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct v2f
-            {
-                float4 vertex : SV_POSITION;
-                float2 texcoord : TEXCOORD0;
-                float3 normal : TEXCOORD1;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            sampler2D _MainTex;
-            sampler2D _BumpMap;
-            float _BumpScale;
-
-            UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _BumpMap_ST)
-            #define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
-            UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
-
-            v2f vert(appdata v)
-            {
-                v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                UNITY_TRANSFER_INSTANCE_ID(v, o);
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.texcoord = v.texcoord.xy;
-                o.normal = UnityObjectToWorldNormal(v.normal);
-                return o;
-            }
-
-            float4 frag(v2f i) : SV_TARGET
-            {
-                UNITY_SETUP_INSTANCE_ID(i);
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-
-                float4 tex2DNode4 = tex2D(_MainTex, i.texcoord);
-                float alpha = tex2DNode4.a;
-
-                #if defined(_ALPHATEST_ON)
-                    clip(alpha - 0.5);
-                #endif
-
-                float4 _BumpMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_BumpMap_ST_arr, _BumpMap_ST);
-                float2 uv_BumpMap = i.texcoord * _BumpMap_ST_Instance.xy + _BumpMap_ST_Instance.zw;
-                float3 normalMap = UnpackNormal(tex2D(_BumpMap, uv_BumpMap));
-                float3 normal = normalize(normalMap * float3(_BumpScale, _BumpScale, 1.0));
-
-                return float4(normal * 0.5 + 0.5, 1);
-            }
-            ENDCG
-        }
 
 	}
+	CustomEditor "ASEMaterialInspector"
+
+
 }
+/*ASEBEGIN
+Version=18908
+3114.4;81.6;2712;1462;2899.47;881.0705;1.515001;True;False
+Node;AmplifyShaderEditor.RangedFloatNode;31;-1390.638,-584.899;Inherit;False;InstancedProperty;_AudioHueShift;Audio Hue Shift;12;0;Create;True;0;0;0;False;0;False;0;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.ColorNode;2;-955,-202.5;Inherit;False;Property;_Color;Color;1;0;Create;True;0;0;0;False;0;False;0.4980392,0.4980392,0.4980392,1;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.GetLocalVarNode;34;-366.2949,-141.8591;Inherit;False;33;hueShift;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;9;-936,-2;Inherit;True;Property;_BumpMap;Normal Map;4;0;Create;False;0;0;0;False;0;False;-1;None;None;True;0;False;bump;Auto;True;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;5;-597,-280;Inherit;False;2;2;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;1;COLOR;0
+Node;AmplifyShaderEditor.RangedFloatNode;12;261.2,1021.201;Inherit;False;Property;_Smoothness;Smoothness;3;0;Create;True;0;0;0;False;0;False;0.5;0.5;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.TextureCoordinatesNode;50;-2385.262,732.5444;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.FunctionNode;69;-1917.486,737.521;Inherit;False;RotateUVFill;-1;;4;459952d587cbfe742a7e7f4a8a0a4169;0;2;1;FLOAT2;0,0;False;2;FLOAT;0;False;1;FLOAT2;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;33;-1046.295,-583.8591;Inherit;False;hueShift;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;10;-812,202;Inherit;False;Property;_BumpScale;Normal Scale;5;0;Create;False;0;0;0;False;0;False;1;1;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.BreakToComponentsNode;78;-1616.565,796.2052;Inherit;False;FLOAT2;1;0;FLOAT2;0,0;False;16;FLOAT;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4;FLOAT;5;FLOAT;6;FLOAT;7;FLOAT;8;FLOAT;9;FLOAT;10;FLOAT;11;FLOAT;12;FLOAT;13;FLOAT;14;FLOAT;15
+Node;AmplifyShaderEditor.FunctionNode;96;-961.7287,821.9091;Inherit;False;4BandAmplitudeLerp;-1;;6;3cf4b6e83381a9a4f84f8cf857bc3af5;0;2;2;INT;0;False;4;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleAddOpNode;44;70.29944,482.272;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.GetLocalVarNode;37;-372.7727,-36.59692;Inherit;False;36;amplitude;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;38;-152.7727,-73.59692;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;47;534.9175,735.4701;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.FunctionNode;93;-1410.24,873.1649;Inherit;False;BandPulse;-1;;7;c478702160369ce4480fa2fb6d734ffa;0;3;1;FLOAT;0;False;2;FLOAT;0;False;3;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RadiansOpNode;51;-2083.566,860.3765;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RGBToHSVNode;32;-372.2949,-372.8591;Inherit;False;1;0;FLOAT3;0,0,0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.TextureCoordinatesNode;6;-1357,-367;Inherit;False;0;-1;2;3;2;SAMPLER2D;;False;0;FLOAT2;1,1;False;1;FLOAT2;0,0;False;5;FLOAT2;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;43;-91.17834,730.5342;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;98;-1137.932,882.2094;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;128;False;1;FLOAT;0
+Node;AmplifyShaderEditor.RegisterLocalVarNode;36;-599.8431,921.3793;Inherit;False;amplitude;-1;True;1;0;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.HSVToRGBNode;39;191.2273,-167.5969;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.SimpleAddOpNode;35;8.705078,-321.8591;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;0;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;14;-989.8879,298.6613;Inherit;True;Property;_EmissionMap;Emission Map;6;0;Create;True;0;0;0;False;0;False;-1;None;None;True;0;False;gray;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.HSVToRGBNode;45;252.8217,636.5342;Inherit;False;3;0;FLOAT;0;False;1;FLOAT;0;False;2;FLOAT;0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.GetLocalVarNode;42;-304.7005,662.272;Inherit;False;33;hueShift;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;11;-502,92;Inherit;False;2;2;0;FLOAT3;0,0,0;False;1;FLOAT;0;False;1;FLOAT3;0
+Node;AmplifyShaderEditor.SimpleMultiplyOpNode;15;-528.8879,636.6613;Inherit;False;3;3;0;COLOR;0,0,0,0;False;1;COLOR;0,0,0,0;False;2;FLOAT;0;False;1;COLOR;0
+Node;AmplifyShaderEditor.RangedFloatNode;49;-2381.913,871.5845;Inherit;False;InstancedProperty;_PulseRotation;Pulse Rotation;13;0;Create;True;0;0;0;False;0;False;0;0;0;360;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;57;-1752.023,925.6572;Inherit;False;InstancedProperty;_Pulse;Pulse;11;1;[Header];Create;True;1;Pulse Across UVs;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;18;-1751.102,1027.495;Inherit;False;InstancedProperty;_Delay;Delay;10;0;Create;True;0;0;0;False;0;False;0;0;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;17;-1434.696,642.8046;Inherit;False;InstancedProperty;_Band;Band;9;2;[Header];[IntRange];Create;True;1;Audio Section;0;0;False;0;False;0;0;0;3;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;46;255.5175,800.3702;Inherit;False;InstancedProperty;_Emission;Emission Scale;8;0;Create;False;0;0;0;False;0;False;1;0;0;0;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RangedFloatNode;13;258.2,923.202;Inherit;False;Property;_Metallic;Metallic;2;0;Create;True;0;0;0;False;0;False;0;0.5;0;1;0;1;FLOAT;0
+Node;AmplifyShaderEditor.RGBToHSVNode;40;-310.7005,431.272;Inherit;False;1;0;FLOAT3;0,0,0;False;4;FLOAT3;0;FLOAT;1;FLOAT;2;FLOAT;3
+Node;AmplifyShaderEditor.GetLocalVarNode;41;-311.1783,767.5342;Inherit;False;36;amplitude;1;0;OBJECT;;False;1;FLOAT;0
+Node;AmplifyShaderEditor.SamplerNode;4;-1039,-416;Inherit;True;Property;_MainTex;Albedo;0;0;Create;False;0;0;0;False;0;False;-1;None;None;True;0;False;white;Auto;False;Object;-1;Auto;Texture2D;8;0;SAMPLER2D;;False;1;FLOAT2;0,0;False;2;FLOAT;0;False;3;FLOAT2;0,0;False;4;FLOAT2;0,0;False;5;FLOAT;1;False;6;FLOAT;0;False;7;SAMPLERSTATE;;False;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.ColorNode;3;-935.8119,580.942;Inherit;False;InstancedProperty;_EmissionColor;Emission Color;7;1;[HDR];Create;True;0;0;0;False;0;False;0,0,0,1;0,0,0,0;True;0;5;COLOR;0;FLOAT;1;FLOAT;2;FLOAT;3;FLOAT;4
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;85;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;Deferred;0;3;Deferred;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Deferred;True;2;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;86;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;Meta;0;4;Meta;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=Meta;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;82;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;ExtraPrePass;0;0;ExtraPrePass;6;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;True;True;0;False;-1;0;False;-1;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;87;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;ShadowCaster;0;5;ShadowCaster;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;False;False;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;False;-1;True;3;False;-1;False;True;1;LightMode=ShadowCaster;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;84;824,664;Float;False;False;-1;2;ASEMaterialInspector;0;10;New Amplify Shader;f0be08cf82190c945883605df227bec5;True;ForwardAdd;0;2;ForwardAdd;0;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;4;1;False;-1;1;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;2;False;-1;False;False;True;1;LightMode=ForwardAdd;False;0;;0;0;Standard;0;False;0
+Node;AmplifyShaderEditor.TemplateMultiPassMasterNode;83;824,664;Float;False;True;-1;2;ASEMaterialInspector;0;10;AudioLink/Surface/AudioReactiveSurface;f0be08cf82190c945883605df227bec5;True;ForwardBase;0;1;ForwardBase;18;False;True;0;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;True;0;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;True;0;False;-1;False;True;0;False;-1;False;True;True;True;True;True;0;False;-1;False;False;False;False;False;False;False;True;False;255;False;-1;255;False;-1;255;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;7;False;-1;1;False;-1;1;False;-1;1;False;-1;False;True;1;False;-1;True;3;False;-1;False;True;3;RenderType=Opaque=RenderType;Queue=Geometry=Queue=0;DisableBatching=False=DisableBatching;True;2;0;False;True;1;1;False;-1;0;False;-1;0;1;False;-1;0;False;-1;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;False;True;1;LightMode=ForwardBase;False;0;;0;0;Standard;40;Workflow,InvertActionOnDeselection;1;Surface;0;  Blend;0;  Refraction Model;0;  Dither Shadows;1;Two Sided;1;Deferred Pass;1;Transmission;0;  Transmission Shadow;0.5,False,-1;Translucency;0;  Translucency Strength;1,False,-1;  Normal Distortion;0.5,False,-1;  Scattering;2,False,-1;  Direct;0.9,False,-1;  Ambient;0.1,False,-1;  Shadow;0.5,False,-1;Cast Shadows;1;  Use Shadow Threshold;0;Receive Shadows;1;GPU Instancing;1;LOD CrossFade;1;Built-in Fog;1;Ambient Light;1;Meta Pass;1;Add Pass;1;Override Baked GI;0;Extra Pre Pass;0;Tessellation;0;  Phong;0;  Strength;0.5,False,-1;  Type;0;  Tess;16,False,-1;  Min;10,False,-1;  Max;25,False,-1;  Edge Length;16,False,-1;  Max Displacement;25,False,-1;Fwd Specular Highlights Toggle;0;Fwd Reflections Toggle;0;Disable Batching;0;Vertex Position,InvertActionOnDeselection;1;0;6;False;True;True;True;True;True;False;;False;0
+WireConnection;5;0;4;0
+WireConnection;5;1;2;0
+WireConnection;69;1;50;0
+WireConnection;69;2;51;0
+WireConnection;33;0;31;0
+WireConnection;78;0;69;0
+WireConnection;96;2;17;0
+WireConnection;96;4;98;0
+WireConnection;44;0;40;1
+WireConnection;44;1;43;0
+WireConnection;38;0;34;0
+WireConnection;38;1;37;0
+WireConnection;47;0;45;0
+WireConnection;47;1;46;0
+WireConnection;93;1;78;0
+WireConnection;93;2;57;0
+WireConnection;93;3;18;0
+WireConnection;51;0;49;0
+WireConnection;32;0;5;0
+WireConnection;43;0;42;0
+WireConnection;43;1;41;0
+WireConnection;98;0;93;0
+WireConnection;36;0;96;0
+WireConnection;39;0;35;0
+WireConnection;39;1;32;2
+WireConnection;39;2;32;3
+WireConnection;35;0;32;1
+WireConnection;35;1;38;0
+WireConnection;45;0;44;0
+WireConnection;45;1;40;2
+WireConnection;45;2;40;3
+WireConnection;11;0;9;0
+WireConnection;11;1;10;0
+WireConnection;15;0;14;0
+WireConnection;15;1;3;0
+WireConnection;15;2;96;0
+WireConnection;40;0;15;0
+WireConnection;4;1;6;0
+WireConnection;83;0;39;0
+WireConnection;83;1;11;0
+WireConnection;83;2;47;0
+WireConnection;83;4;13;0
+WireConnection;83;5;12;0
+ASEEND*/
+//CHKSM=EC822472A6313A32E5127FEC5369A7CEABC7478D
