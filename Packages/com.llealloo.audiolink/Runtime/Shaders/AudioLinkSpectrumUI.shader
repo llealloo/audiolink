@@ -31,7 +31,7 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
         _Threshold1("Threshold 1", Range(0.0, 1.0)) = 0.45
         _Threshold2("Threshold 2", Range(0.0, 1.0)) = 0.45
         _Threshold3("Threshold 3", Range(0.0, 1.0)) = 0.45
-        
+
     }
     SubShader
     {
@@ -71,7 +71,7 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
             uniform float _Threshold1;
             uniform float _Threshold2;
             uniform float _Threshold3;
-            
+
             float _SpectrumGain;
             float _SpectrumColorMix;
             float4 _SeparatorColor;
@@ -90,34 +90,34 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
             float _BandDelayPulse;
             float _BandDelayPulseOpacity;
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
 
                 UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_OUTPUT(v2f, o);
+                    UNITY_INITIALIZE_OUTPUT(v2f, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
-            
+
             float4 forcefilt(sampler2D sample, float4 texelsize, float2 uv)
             {
                 float4 A = tex2D(sample, uv);
                 float4 B = tex2D(sample, uv + float2(texelsize.x, 0));
                 float4 C = tex2D(sample, uv + float2(0, texelsize.y));
                 float4 D = tex2D(sample, uv + float2(texelsize.x, texelsize.y));
-                float2 conv = frac(uv*texelsize.zw);
+                float2 conv = frac(uv * texelsize.zw);
                 //return float4(uv, 0., 1.);
                 return lerp(
                     lerp(A, B, conv.x),
                     lerp(C, D, conv.x),
                     conv.y);
             }
-            
+
             fixed4 frag(v2f IN) : SV_Target
             {
                 float2 iuv = IN.uv;
@@ -129,16 +129,16 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
                 float notenof = AudioLinkRemap(iuv.x, 0., 1., AUDIOLINK_4BAND_FREQFLOOR * totalBins, AUDIOLINK_4BAND_FREQCEILING * totalBins);
 
                 {
-                    float4 spectrum_value_lower  =  AudioLinkData(float2(fmod(noteno, 128), (noteno/128)+4.0));
-                    float4 spectrum_value_higher =  AudioLinkData(float2(fmod(noteno+1, 128), ((noteno+1)/128)+4.0));
-                    intensity = lerp(spectrum_value_lower, spectrum_value_higher, frac(notenof) )* _SpectrumGain;
+                    float4 spectrum_value_lower = AudioLinkData(float2(fmod(noteno, 128), (noteno/128)+4.0));
+                    float4 spectrum_value_higher = AudioLinkData(float2(fmod(noteno+1, 128), ((noteno+1)/128)+4.0));
+                    intensity = lerp(spectrum_value_lower, spectrum_value_higher, frac(notenof)) * _SpectrumGain;
                 }
-            
+
                 float4 c = _BaseColor;
 
                 // Band segments
                 float4 segment = 0.;
-                for (int i=0; i<4; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     segment += saturate(_SegmentThickness - abs(iuv.x - audioBands[i])) * 1000.;
                 }
@@ -148,11 +148,11 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
                 float minHeight = 0.186;
                 float maxHeight = 0.875;
                 int band = 0;
-                for (int j=1; j<4; j++)
+                for (int j = 1; j < 4; j++)
                 {
                     band += (iuv.x > audioBands[j]);
                 }
-                for (int k=0; k<4; k++)
+                for (int k = 0; k < 4; k++)
                 {
                     threshold += (band == k) * saturate(_ThresholdThickness - abs(iuv.y - lerp(minHeight, maxHeight, audioThresholds[k]))) * 1000.;
                 }
@@ -167,15 +167,15 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
                 bandColor += (band == 3) * _Band3Color;
                 bandColor *= (iuv.x > _X0);
                 float bandIntensity = AudioLinkData(float2(0., (float)band));
-                
+
                 // Under-spectrum first
                 float rval = clamp(_SpectrumThickness - iuv.y + intensity.g + _SpectrumVertOffset, 0., 1.);
-                rval = min( 1., 1000*rval );
+                rval = min(1., 1000 * rval);
                 c = lerp(c, _UnderSpectrumColor, rval * _UnderSpectrumColor.a);
-                
+
                 // Spectrum-Line second
                 rval = max(_SpectrumThickness - abs(intensity.g - iuv.y + _SpectrumVertOffset), 0.);
-                rval = min(1., 1000*rval);
+                rval = min(1., 1000 * rval);
                 rval *= (iuv.x > _X0);
                 c = lerp(c, _SpectrumFixedColor, rval * bandIntensity);
 
@@ -189,10 +189,105 @@ Shader "AudioLink/Internal/AudioLinkSpectrumUI"
                 } else {
                     c = 1. - 2. * (1. - a) * (1. - b);
                 }
-                
+
                 float4 finalColor = (segment + threshold) * _SeparatorColor + c;
                 UNITY_APPLY_FOG(IN.fogCoord, finalColor);
                 return finalColor;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                return 0;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            ZWrite On
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normal);
+                return float4(normalWS * 0.5 + 0.5, 1);
             }
             ENDCG
         }
