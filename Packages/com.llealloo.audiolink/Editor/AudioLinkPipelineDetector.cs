@@ -15,7 +15,6 @@ public static class AudioLinkPipelineDetector
 #endif
     }
 
-    // [MenuItem("Tools/VRSL/Check Pipeline")]
     private static void DetectPackages()
     {
         // Check for URP
@@ -37,7 +36,6 @@ public static class AudioLinkPipelineDetector
         var listRequest = UnityEditor.PackageManager.Client.List(true);
         while (!listRequest.IsCompleted) { }
 
-        bool found;
         if (listRequest.Status == UnityEditor.PackageManager.StatusCode.Success)
         {
             return listRequest.Result.Any(package => package.name == packageName);
