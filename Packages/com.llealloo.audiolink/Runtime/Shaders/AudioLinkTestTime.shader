@@ -80,7 +80,7 @@
                     if( dig.x < cols - number_area_cols )
                     {
                         uint sendchar = 0;
-                        const uint sendarr[130] = { 
+                        const uint sendarr[130] = {
                             'I', 'n', 's', 't', 'a', 'n', 'c', 'e', ' ', ' ',
                             'W', 'a', 'l', 'l', 'c', 'l', 'o', 'c', 'k', ' ',
                             'N', 'e', 't', 'w', 'o', 'r', 'k', ' ', ' ', ' ',
@@ -98,7 +98,7 @@
                         sendchar = sendarr[dig.x+dig.y*10];
                         return PrintChar( sendchar, fmxy, softness, 0.0 );
                     }
-                    
+
 
                     dig.x -= cols - number_area_cols;
                 }
@@ -118,7 +118,7 @@
                     int minutes = (value/60) % 60;
                     int hours = (value/3600);
                     value = hours * 10000 + minutes * 100 + seconds;
-                    
+
                     if( dig.x < 3 )
                     {
                         value = hours;
@@ -248,7 +248,11 @@
                     break;
                 }
 
-                return PrintNumberOnLine( value, fmxy, softness, dig.x - xoffset, points_after_decimal, max_decimals, leadingzero, 0 );         
+                return PrintNumberOnLine( value, fmxy, softness, dig.x - xoffset, points_after_decimal, max_decimals, leadingzero, 0 );
+            }
+            ENDCG
+        }
+
         Pass
         {
             Name "DepthOnly"
