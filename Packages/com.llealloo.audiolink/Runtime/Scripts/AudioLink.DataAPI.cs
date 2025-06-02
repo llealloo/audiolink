@@ -186,6 +186,26 @@ namespace AudioLink
         }
 
         /// <summary>
+        /// Gets an AudioLink Band, history or smoothed.
+        /// </summary>
+        /// <param name="band">What Band to use.</param>
+        /// <param name="delay">How long to wait (0 - 127), or if smoothed how smooth (0 - 15).</param>
+        /// <param name="smooth">Wheather to smooth the output.</param>
+        /// <returns>Float value from History or Smoothed.</returns>
+        public float GetBandAsSmooth(AudioLinkBand band, int delay, bool smooth)
+        {
+            int bandID = (int)band;
+
+            if (smooth)
+            {
+                bandID += 28;
+                delay = 15 - delay;
+            }
+
+            return ToGrayscale(GetDataAtPixel(delay, bandID));
+        }
+
+        /// <summary>
         /// Read a pixel from the AudioLink texture, interpolating values when given fractional positions.
         /// </summary>
         /// <param name="x">The x coordinate of the pixel to read.</param>
@@ -407,6 +427,25 @@ namespace AudioLink
         {
             return customString2;
         }
+
+        /// <summary>
+        /// Convert a Vector to a monochrome luminance float.
+        /// </summary>
+        /// <param name="vector">Input RGB Vector.</param>
+        /// <returns>Monochrome float luminance.</returns>
+        /// <remarks>The Dot of <vector> and a luminance Vector.</remarks>
+        public float ToGrayscale(Vector3 vector)
+        {
+            return Vector3.Dot(vector, new Vector3(0.299f, 0.587f, 0.114f));
+        }
         #endregion
+    }
+
+    public enum AudioLinkBand
+    {
+        Bass = 0,
+        LowMid = 1,
+        HighMid = 2,
+        Treble = 3
     }
 }

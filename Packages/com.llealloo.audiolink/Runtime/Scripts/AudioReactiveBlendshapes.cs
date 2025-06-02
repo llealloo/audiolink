@@ -1,24 +1,17 @@
 ﻿using UnityEngine;
 
-namespace AudioLink
+namespace AudioLink.Reactive
 {
 #if UDONSHARP
     using UdonSharp;
+#endif
 
     [RequireComponent(typeof(SkinnedMeshRenderer))]
-    public class AudioReactiveBlendshapes : UdonSharpBehaviour
-#else
-    [RequireComponent(typeof(SkinnedMeshRenderer))]
-    public class AudioReactiveBlendshapes : MonoBehaviour
-#endif
+    public class AudioReactiveBlendshapes : AudioReactive
     {
-        public AudioLink audioLink;
-        public int band;
-        [Range(0, 127)]
-        public int delay;
         public int[] blendshapeIDs;
-        public float[] blendshapeWeights;
-        public float[] blendshapeMinWeights;
+        public float[] blendshapeFromWeights;
+        public float[] blendshapeToWeights;
 
         private SkinnedMeshRenderer _skinnedMeshRenderer;
         private int _maxBlendshapes;
@@ -26,7 +19,7 @@ namespace AudioLink
         void Start()
         {
             _skinnedMeshRenderer = transform.GetComponent<SkinnedMeshRenderer>();
-            int[] maxBlendshapes = new int[3] { blendshapeIDs.Length, blendshapeWeights.Length, blendshapeMinWeights.Length };
+            int[] maxBlendshapes = new int[3] { blendshapeIDs.Length, blendshapeFromWeights.Length, blendshapeToWeights.Length};
             _maxBlendshapes = Mathf.Min(maxBlendshapes);
 
         }
@@ -35,9 +28,9 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                float amplitude = audioLink.GetDataAtPixel(delay, band).x * 100f;
+                float amplitude = audioLink.GetBandAsSmooth(band, delay, smooth);
                 for (int indx = 0; indx < _maxBlendshapes; indx++)
-                    _skinnedMeshRenderer.SetBlendShapeWeight(blendshapeIDs[indx], Mathf.LerpUnclamped(blendshapeMinWeights[indx], blendshapeWeights[indx], amplitude));
+                    _skinnedMeshRenderer.SetBlendShapeWeight(blendshapeIDs[indx], Mathf.LerpUnclamped(blendshapeFromWeights[indx], blendshapeToWeights[indx], amplitude) * 100f);
             }
         }
 
