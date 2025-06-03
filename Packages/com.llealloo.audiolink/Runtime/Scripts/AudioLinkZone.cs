@@ -7,10 +7,11 @@ using UnityEngine.Serialization;
 
 namespace AudioLink
 {
-    [RequireComponent(typeof(Collider))]
 #if UDONSHARP
+    [RequireComponent(typeof(Collider)), UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class AudioLinkZone : UdonSharpBehaviour
 #else
+    [RequireComponent(typeof(Collider))]
     public class AudioLinkZone : MonoBehaviour
 #endif
     {
