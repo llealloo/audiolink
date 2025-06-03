@@ -8,6 +8,12 @@ namespace AudioLink.Reactive
 
     public class AudioReactiveObject : AudioReactive
     {
+        public AudioLink audioLink;
+        public AudioLinkBand band;
+        public bool smooth;
+        [Range(0, 127)]
+        public int delay;
+        
         public Vector3 position;
         public Vector3 rotation;
         public Vector3 scale = new Vector3(1f, 1f, 1f);

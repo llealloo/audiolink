@@ -9,6 +9,12 @@ namespace AudioLink.Reactive
     [RequireComponent(typeof(SkinnedMeshRenderer))]
     public class AudioReactiveBlendshapes : AudioReactive
     {
+        public AudioLink audioLink;
+        public AudioLinkBand band;
+        public bool smooth;
+        [Range(0, 127)]
+        public int delay;
+        
         public int[] blendshapeIDs;
         public float[] blendshapeFromWeights;
         public float[] blendshapeToWeights;

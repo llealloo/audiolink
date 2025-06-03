@@ -11,10 +11,9 @@ namespace AudioLink.Reactive
     public abstract class AudioReactive : MonoBehaviour
 #endif
     {
-        public AudioLink audioLink;
-        public AudioLinkBand band;
-        public bool smooth;
-        [Range(0, 127)]
-        public int delay;
+        // Maybe something will go here later,
+        //
+        // For now this is a abstract class for providing
+        // a Universal AudioReactive Inspector.
     }
 }

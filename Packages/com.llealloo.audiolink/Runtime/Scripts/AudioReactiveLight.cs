@@ -11,6 +11,12 @@ namespace AudioLink.Reactive
     public class AudioReactiveLight : AudioReactive
 
     {
+        public AudioLink audioLink;
+        public AudioLinkBand band;
+        public bool smooth;
+        [Range(0, 127)]
+        public int delay;
+        
         public bool affectIntensity = true;
         public float intensityMultiplier = 1f;
         public float hueShift;
