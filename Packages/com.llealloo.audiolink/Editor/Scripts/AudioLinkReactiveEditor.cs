@@ -19,12 +19,16 @@ namespace AudioLink.Reactive
         
         private void StandardReactiveEditor(string reactiveMessage)
         {
-            UnityEngine.Object audioLinkObject = serializedObject.FindProperty("audioLink").objectReferenceValue;
+            SerializedProperty audioLinkProperty = serializedObject.FindProperty("audioLink");
+            if (audioLinkProperty != null)
+            {
+                UnityEngine.Object audioLinkObject = audioLinkProperty.objectReferenceValue;
             if (audioLinkObject == null)
                 EditorGUILayout.HelpBox("AudioLink is not connected!", MessageType.Warning);
             else if (!((AudioLink)audioLinkObject).audioDataToggle)
                 EditorGUILayout.HelpBox("AudioLink Data Readback is DISABLED!\nPress \"Enable Readback\" on AudioLink!", MessageType.Error);
-
+            }
+            
             if (reactiveMessage.Length > 0)
                 EditorGUILayout.HelpBox(reactiveMessage, MessageType.None);
 
@@ -42,8 +46,9 @@ namespace AudioLink.Reactive
                 switch (serializedProperties.propertyType)
                 {
                     case SerializedPropertyType.ObjectReference:
-                        if (!(serializedProperties.name == "m_Script"))
+                        EditorGUI.BeginDisabledGroup(serializedProperties.name == "m_Script");
                             EditorGUILayout.ObjectField(serializedProperties);
+                        EditorGUI.EndDisabledGroup();
                         break;
 
                     case SerializedPropertyType.Vector3:
@@ -227,6 +232,20 @@ namespace AudioLink.Reactive
                     StandardReactiveEditor("AudioLink Reactive Blendshapes:\nDrive multiple Blendshapes on a SkinnedMeshRenderer with different ranges for each Blendshape.\n\nNote: Doesn't work on VR Chat Avatars, Udon / C# only!");
 
                     BlendshapeReactiveEditor();
+                    break;
+
+                case "Surface":
+                    StandardReactiveEditor("AudioLink Reactive Surface:\nConfigure a single instance of an AudioReactiveSurface Shader.\n\nNote: To use custom mesh, swap mesh in Mesh Filter component above.");
+
+                    if (EditorApplication.isPlaying)
+                        ((Reactive.AudioReactiveSurface)target).UpdateMaterial();
+                    break;
+
+                case "SurfaceArray":
+                    StandardReactiveEditor("AudioLink Reactive Surface Array:\nConfigure an array of AudioLinkSurfaces' Shader.\n\nNote: Children should have AudioReactiveSurface shader applied!");
+
+                    if (EditorApplication.isPlaying)
+                        ((Reactive.AudioReactiveSurfaceArray)target).UpdateChildren();
                     break;
 
                 default:
