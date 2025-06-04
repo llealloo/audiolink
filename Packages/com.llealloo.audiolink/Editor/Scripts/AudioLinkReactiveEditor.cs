@@ -5,7 +5,7 @@ using UnityEngine;
 using System;
 using UnityEditorInternal;
 
-namespace AudioLink.Reactive
+namespace AudioLink.Editor
 {
 
     [CustomEditor(typeof(AudioReactive), true)]
@@ -216,7 +216,7 @@ namespace AudioLink.Reactive
         public override void OnInspectorGUI()
         {
             string scriptType = target.GetType().ToString();
-            string reactiveScriptType = scriptType.Substring("AudioLink.Reactive.AudioReactive".Length);
+            string reactiveScriptType = scriptType.Substring("AudioLink.AudioReactive".Length);
 
             switch (reactiveScriptType)
             {
@@ -238,14 +238,14 @@ namespace AudioLink.Reactive
                     StandardReactiveEditor("AudioLink Reactive Surface:\nConfigure a single instance of an AudioReactiveSurface Shader.\n\nNote: To use custom mesh, swap mesh in Mesh Filter component above.");
 
                     if (EditorApplication.isPlaying)
-                        ((Reactive.AudioReactiveSurface)target).UpdateMaterial();
+                        ((AudioReactiveSurface)target).UpdateMaterial();
                     break;
 
                 case "SurfaceArray":
                     StandardReactiveEditor("AudioLink Reactive Surface Array:\nConfigure an array of AudioLinkSurfaces' Shader.\n\nNote: Children should have AudioReactiveSurface shader applied!");
 
                     if (EditorApplication.isPlaying)
-                        ((Reactive.AudioReactiveSurfaceArray)target).UpdateChildren();
+                        ((AudioReactiveSurfaceArray)target).UpdateChildren();
                     break;
 
                 default:

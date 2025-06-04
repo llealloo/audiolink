@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AudioLink.Reactive
+namespace AudioLink
 {
 #if UDONSHARP
     using UdonSharp;
