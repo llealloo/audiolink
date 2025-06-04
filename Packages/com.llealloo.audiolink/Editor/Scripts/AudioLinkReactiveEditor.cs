@@ -23,10 +23,17 @@ namespace AudioLink.Editor
             if (audioLinkProperty != null)
             {
                 UnityEngine.Object audioLinkObject = audioLinkProperty.objectReferenceValue;
-            if (audioLinkObject == null)
-                EditorGUILayout.HelpBox("AudioLink is not connected!", MessageType.Warning);
-            else if (!((AudioLink)audioLinkObject).audioDataToggle)
-                EditorGUILayout.HelpBox("AudioLink Data Readback is DISABLED!\nPress \"Enable Readback\" on AudioLink!", MessageType.Error);
+                if (audioLinkObject == null)
+                {
+                    EditorGUILayout.HelpBox("AudioLink is not connected!", MessageType.Warning);
+                }
+                else if (!((AudioLink)audioLinkObject).audioDataToggle)
+                {
+                    EditorGUILayout.HelpBox("AudioLink Data Readback is DISABLED!\nPress \"Enable Readback\" on AudioLink!", MessageType.Error);
+                    if (GUILayout.Button("Enable Readback"))
+                        ((AudioLink)audioLinkObject).EnableReadback();
+                }
+                
             }
             
             if (reactiveMessage.Length > 0)
