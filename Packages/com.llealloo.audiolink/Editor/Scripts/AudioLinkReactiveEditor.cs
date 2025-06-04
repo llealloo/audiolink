@@ -27,11 +27,18 @@ namespace AudioLink.Editor
                 {
                     EditorGUILayout.HelpBox("AudioLink is not connected!", MessageType.Warning);
                 }
-                else if (!((AudioLink)audioLinkObject).audioDataToggle)
+                else
                 {
-                    EditorGUILayout.HelpBox("AudioLink Data Readback is DISABLED!\nPress \"Enable Readback\" on AudioLink!", MessageType.Error);
-                    if (GUILayout.Button("Enable Readback"))
-                        ((AudioLink)audioLinkObject).EnableReadback();
+                    AudioLink audioLink = (AudioLink)audioLinkObject;
+                    if (!audioLink.audioDataToggle)
+                    {
+                        EditorGUILayout.HelpBox("AudioLink Data Readback is DISABLED!\nPress \"Enable Readback\" on AudioLink!", MessageType.Error);
+                        if (GUILayout.Button("Enable Readback"))
+                        {
+                            audioLink.EnableReadback();
+                            EditorUtility.SetDirty(audioLink);
+                        }
+                    }
                 }
                 
             }
