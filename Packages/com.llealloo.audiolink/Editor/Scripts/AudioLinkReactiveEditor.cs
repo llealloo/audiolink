@@ -125,9 +125,9 @@ namespace AudioLink.Editor
                                 blendshapeNames.Add(blendshapeMesh.GetBlendShapeName(indx));
                         }
 
-                        SerializedProperty blendshapeIDs = serializedObject.FindProperty("blendshapeIDs");
-                        SerializedProperty blendshapeFromWeights = serializedObject.FindProperty("blendshapeFromWeights");
-                        SerializedProperty blendshapeToWeights = serializedObject.FindProperty("blendshapeToWeights");
+                        SerializedProperty blendshapeIDs = serializedObject.FindProperty(nameof(AudioReactiveBlendshapes.blendshapeIDs));
+                        SerializedProperty blendshapeFromWeights = serializedObject.FindProperty(nameof(AudioReactiveBlendshapes.blendshapeFromWeights));
+                        SerializedProperty blendshapeToWeights = serializedObject.FindProperty(nameof(AudioReactiveBlendshapes.blendshapeToWeights));
 
                         EditorGUILayout.Space();
 
