@@ -194,15 +194,15 @@ namespace AudioLink
         /// <returns>Float value from History or Smoothed.</returns>
         public Vector4 GetBandAsSmooth(AudioLinkBand band, int delay, bool smooth)
         {
-            int bandID = (int)band;
+            float bandID = (int)band;
 
             if (smooth)
             {
-                bandID += 28;
+                bandID += GetALPassFilteredAudioLink().y;
                 delay = 15 - delay;
             }
 
-            return GetDataAtPixel(delay, bandID);
+            return GetDataAtPixel(new Vector2(delay, bandID));
         }
 
         /// <summary>
