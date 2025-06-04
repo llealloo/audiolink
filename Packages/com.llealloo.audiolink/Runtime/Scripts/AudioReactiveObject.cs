@@ -34,7 +34,7 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable()) // Check for AudioLink initialization
             {
-                float amplitude = audioLink.GetBandAsSmooth(band, delay, smooth);
+                float amplitude = audioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
 
                 transform.localPosition = _initialPosition + (position * amplitude);
                 transform.localEulerAngles = _initialRotation + (rotation * amplitude);

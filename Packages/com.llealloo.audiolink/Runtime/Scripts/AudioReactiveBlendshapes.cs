@@ -34,7 +34,7 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                float amplitude = audioLink.GetBandAsSmooth(band, delay, smooth);
+                float amplitude = audioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
                 for (int indx = 0; indx < _maxBlendshapes; indx++)
                     _skinnedMeshRenderer.SetBlendShapeWeight(blendshapeIDs[indx], Mathf.LerpUnclamped(blendshapeFromWeights[indx], blendshapeToWeights[indx], amplitude) * 100f);
             }

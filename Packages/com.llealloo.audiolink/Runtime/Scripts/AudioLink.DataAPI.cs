@@ -190,9 +190,9 @@ namespace AudioLink
         /// </summary>
         /// <param name="band">What Band to use.</param>
         /// <param name="delay">How long to wait (0 - 127), or if smoothed how smooth (0 - 15).</param>
-        /// <param name="smooth">Wheather to smooth the output.</param>
+        /// <param name="smooth">Whether to smooth the output, otherwise use History.</param>
         /// <returns>Float value from History or Smoothed.</returns>
-        public float GetBandAsSmooth(AudioLinkBand band, int delay, bool smooth)
+        public Vector4 GetBandAsSmooth(AudioLinkBand band, int delay, bool smooth)
         {
             int bandID = (int)band;
 
@@ -202,7 +202,7 @@ namespace AudioLink
                 delay = 15 - delay;
             }
 
-            return ToGrayscale(GetDataAtPixel(delay, bandID));
+            return GetDataAtPixel(delay, bandID);
         }
 
         /// <summary>
