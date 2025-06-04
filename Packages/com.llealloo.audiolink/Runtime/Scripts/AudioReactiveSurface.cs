@@ -65,16 +65,16 @@ namespace AudioLink
         {
             MaterialPropertyBlock block = new MaterialPropertyBlock();
             MeshRenderer mesh = transform.GetComponent<MeshRenderer>();
-            float bandFloat = (int)band;
+            int bandInt = (int)band;
             int delayTmp = delay;
             if (smooth)
             {
-                bandFloat += AudioLink.GetALPassFilteredAudioLink().y;
+                bandInt += Mathf.FloorToInt(AudioLink.GetALPassFilteredAudioLink().y);
                 delayTmp = 15 - delayTmp;
             }
             
             block.SetFloat(_Delay, (float)delayTmp / 128f);
-            block.SetFloat(_Band, bandFloat);
+            block.SetFloat(_Band, (float)bandInt);
             block.SetFloat(_HueShift, hueShift);
             block.SetColor(_EmissionColor, color);
             block.SetFloat(_Emission, intensity);

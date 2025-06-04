@@ -194,11 +194,11 @@ namespace AudioLink
         /// <returns>Float value from History or Smoothed.</returns>
         public Vector4 GetBandAsSmooth(AudioLinkBand band, int delay, bool smooth)
         {
-            float bandID = (int)band;
+            int bandID = (int)band;
 
             if (smooth)
             {
-                bandID += GetALPassFilteredAudioLink().y;
+                bandID += Mathf.FloorToInt(GetALPassFilteredAudioLink().y);
                 delay = 15 - delay;
             }
 
