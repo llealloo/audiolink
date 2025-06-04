@@ -173,6 +173,9 @@ namespace AudioLink.Editor
 
                         blendshapeList.onAddCallback = (ReorderableList list) =>
                         {
+                            if (EditorApplication.isPlaying)
+                                return;
+
                             blendshapeIDs.InsertArrayElementAtIndex(blendshapeIDs.arraySize);
                             blendshapeFromWeights.InsertArrayElementAtIndex(blendshapeFromWeights.arraySize);
                             blendshapeToWeights.InsertArrayElementAtIndex(blendshapeToWeights.arraySize);
@@ -184,6 +187,9 @@ namespace AudioLink.Editor
 
                         blendshapeList.onRemoveCallback = (ReorderableList list) =>
                         {
+                            if (EditorApplication.isPlaying)
+                                return;
+                            
                             blendshapeIDs.DeleteArrayElementAtIndex(list.index);
                             blendshapeFromWeights.DeleteArrayElementAtIndex(list.index);
                             blendshapeToWeights.DeleteArrayElementAtIndex(list.index);
@@ -191,6 +197,9 @@ namespace AudioLink.Editor
 
                         blendshapeList.drawHeaderCallback = (Rect rect) => GUI.Label(rect, blendshapeMesh.name + " (Mesh)");
                         blendshapeList.draggable = false;
+
+                        blendshapeList.displayAdd = !EditorApplication.isPlaying;
+                        blendshapeList.displayRemove = !EditorApplication.isPlaying;
 
                         if (blendshapeList.list.Count != blendshapeIDs.arraySize)
                         {
