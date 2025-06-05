@@ -19,6 +19,10 @@ namespace AudioLink.Editor
         
         private void StandardReactiveEditor(string reactiveMessage)
         {
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.ObjectField(serializedObject.FindProperty("m_Script"));
+            EditorGUI.EndDisabledGroup();
+
             SerializedProperty audioLinkProperty = serializedObject.FindProperty("audioLink");
             if (audioLinkProperty != null)
             {
@@ -60,9 +64,8 @@ namespace AudioLink.Editor
                 switch (serializedProperties.propertyType)
                 {
                     case SerializedPropertyType.ObjectReference:
-                        EditorGUI.BeginDisabledGroup(serializedProperties.name == "m_Script");
+                        if (serializedProperties.name != "m_Script")
                             EditorGUILayout.ObjectField(serializedProperties);
-                        EditorGUI.EndDisabledGroup();
                         break;
 
                     case SerializedPropertyType.Vector3:
