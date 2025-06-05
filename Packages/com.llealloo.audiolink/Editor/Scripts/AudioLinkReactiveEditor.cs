@@ -8,7 +8,7 @@ using UnityEditorInternal;
 namespace AudioLink.Editor
 {
 
-    [CustomEditor(typeof(AudioReactive), true)]
+    //[CustomEditor(typeof(AudioReactive), true)]
     public class AudioLinkReactiveEditor : UnityEditor.Editor
     {
         private List<bool> drawersOpen = new List<bool>();
