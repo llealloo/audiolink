@@ -5,28 +5,27 @@ namespace AudioLink
 #if UDONSHARP
     using UdonSharp;
     using static VRC.SDKBase.VRCShader;
-
-    public class AudioReactiveSurfaceArray : UdonSharpBehaviour
 #else
     using static Shader;
-
-    public class AudioReactiveSurfaceArray : MonoBehaviour
 #endif
-    {
-        [Header("Children should have AudioReactiveSurface shader applied")]
+
+public class AudioReactiveSurfaceArray : AudioReactive
+ {
         [Header("AudioLink Settings")]
-        public int band;
+        public AudioLinkBand band;
+        [HideInInspector] public bool smooth;
+        [HideInInspector] public int delay;
 
         [Header("Group Settings (Applied equally to all children)")]
         [Tooltip("Applied equally to all children: Emission driven by amplitude")]
         [ColorUsage(true, true)]
-        public Color color;
+        public Color color = Color.white;
         [Tooltip("Applied equally to all children: Emission multiplier")]
         public float intensity = 1f;
         [Tooltip("Applied equally to all children: Hue shift driven by amplitude")]
         public float hueShift = 0f;
-        [Tooltip("Applied equally to all children: Pulse")]
-        public float pulse = 0f;
+        [Tooltip("Applied equally to all children: Pulse length")]
+        public float pulseLength = 0f;
         [Tooltip("Applied equally to all children: Pulse rotation")]
         public float pulseRotation = 0f;
 
@@ -78,6 +77,14 @@ namespace AudioLink
         public void UpdateChildren()
         {
 
+            MaterialPropertyBlock block = new MaterialPropertyBlock();
+            int bandInt = (int)band;
+            
+            block.SetFloat(_Band, (float)bandInt);
+            block.SetFloat(_HueShift, hueShift);
+            block.SetFloat(_Emission, intensity);
+            block.SetFloat(_Pulse, pulseLength);
+
             foreach (Renderer renderer in _childRenderers)
             {
                 Transform child = renderer.transform;
@@ -97,13 +104,9 @@ namespace AudioLink
                 {
                     if (!child.parent.Equals(transform)) continue;
                 }
-                MaterialPropertyBlock block = new MaterialPropertyBlock();
+
                 block.SetFloat(_Delay, (delayStep / 128f) * (float)index);
-                block.SetFloat(_Band, (float)band);
-                block.SetFloat(_HueShift, hueShift);
                 block.SetColor(_EmissionColor, HueShift(color, hueStep * (float)index));
-                block.SetFloat(_Emission, intensity);
-                block.SetFloat(_Pulse, pulse);
                 block.SetFloat(_PulseRotation, pulseRotation + (pulseRotationStep * (float)index));
                 renderer.SetPropertyBlock(block);
             }
