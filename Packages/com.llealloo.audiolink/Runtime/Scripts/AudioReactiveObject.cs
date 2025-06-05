@@ -9,11 +9,13 @@ namespace AudioLink
     public class AudioReactiveObject : AudioReactive
     {
         public AudioLink audioLink;
+        [Header("AudioLink Settings")]
         public AudioLinkBand band;
         public bool smooth;
         [Range(0, 127)]
         public int delay;
         
+        [Header("Reactivity Settings")]
         public Vector3 position;
         public Vector3 rotation;
         public Vector3 scale = new Vector3(1f, 1f, 1f);

@@ -10,11 +10,13 @@ namespace AudioLink
     public class AudioReactiveBlendshapes : AudioReactive
     {
         public AudioLink audioLink;
+        [Header("AudioLink Settings")]
         public AudioLinkBand band;
         public bool smooth;
         [Range(0, 127)]
         public int delay;
         
+        [Header("Reactivity Settings")]
         public int[] blendshapeIDs;
         public float[] blendshapeFromWeights;
         public float[] blendshapeToWeights;
