@@ -114,7 +114,7 @@ namespace AudioLink
 
         public void SetControllerSyncMode(ControllerSyncMode syncMode)
         {
-            
+
             UpdateSyncMode(gainSlider.transform, syncMode, ControllerSyncMode.ExcludePowerAndGain);
             UpdateSyncMode(fadeLengthSlider.transform, syncMode, ControllerSyncMode.None);
             UpdateSyncMode(fadeExpFalloffSlider.transform, syncMode, ControllerSyncMode.None);
@@ -132,8 +132,10 @@ namespace AudioLink
             UpdateSyncMode(autoGainToggle.transform, syncMode, ControllerSyncMode.None);
             UpdateSyncMode(powerToggle.transform, syncMode, ControllerSyncMode.ExcludePower);
 
-            themeColorController.networkSynced = (int)syncMode < (int)ControllerSyncMode.None;
-
+            if (themeColorController != null)
+            {
+                themeColorController.networkSynced = (int)syncMode < (int)ControllerSyncMode.None;
+            }
         }
 
         void Start()
@@ -165,7 +167,7 @@ namespace AudioLink
                 themeColorController.audioLinkUI = audioLinkUI;
                 themeColorController.InitializeAudioLinkThemeColors();
             }
-            
+
             SetControllerSyncMode(controllerSyncMode);
 
             GetSettings();
