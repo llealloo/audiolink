@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Video;
@@ -233,10 +234,11 @@ namespace AudioLink
         private static string _ytdlpPath = "";
         private static bool _ytdlpFound = false;
 
-        private static bool _useFFmpeg = false;
+        //private static bool _useFFmpeg = false;
         private static string _ffmpegPath = "";
         private static bool _ffmpegFound = false;
         private static string _ffmpegCache = "Video Cache";
+        private static Double _ffmpegTranscodeDuration = 1.0;
 
         private const string userDefinedYTDLPathKey = "YTDL-PATH-CUSTOM";
         private const string userDefinedYTDLPathMenu = "Tools/AudioLink/Select Custom YTDL Location";
@@ -295,9 +297,7 @@ namespace AudioLink
 
             }
 
-#if UNITY_EDITOR_WIN
-            //
-#else
+#if !UNITY_EDITOR_WIN
             _ffmpegPath = "/usr/bin/ffmpeg";
 #endif
 
@@ -319,7 +319,6 @@ namespace AudioLink
             if (!_ffmpegFound)
             {
                 LocateFFmpeg();
-                Debug.Log("Finding ffmpeg...");
             }
 
             if (!_ffmpegFound)
@@ -354,7 +353,10 @@ namespace AudioLink
                     transcode.resolvedURL = "file://" + outPath;
 #endif
                     transcode.isDone = true;
+
+                    Debug.Log("[AudioLink:FFmpeg] Transcode completed sucessfully.");
                 }
+                else Debug.LogWarning("[AudioLink:FFmpeg] Failed to transcode Video!");
 
                 callback(transcode);
                 
@@ -369,19 +371,31 @@ namespace AudioLink
                 }
             };
 
-            // proc.ErrorDataReceived += (sender, args) =>
-            // {
-            //     if (args.Data != null)
-            //     {
-            //         Debug.LogError("[AudioLink:FFmpeg] FFmpeg stderr: " + args.Data);
-            //     }
-            // };
+            proc.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    if (args.Data == "Press [q] to stop, [?] for help")
+                        Debug.Log("[AudioLink:FFmpeg] Starting transcode.");
+                    else if (args.Data.StartsWith("frame="))
+                    {
+                        string progressTimeString = args.Data;
+                        int progressTimeIndex = progressTimeString.IndexOf("time=") + 5;
+                        int progressTimeLength = progressTimeString.IndexOf("bitrate=") - progressTimeIndex;
+
+                        string progressTime = progressTimeString.Substring(progressTimeIndex, progressTimeLength);
+                        TimeSpan ffmpegProgress = TimeSpan.Parse(progressTime);
+
+                        Debug.Log("[AudioLink:FFmpeg] Transcode progress: " + Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * 100f) + "%");
+                    }
+                }
+            };
 
             try
             {
                 proc.Start();
                 proc.BeginOutputReadLine();
-                //proc.BeginErrorReadLine();
+                proc.BeginErrorReadLine();
             }
             catch (Exception e)
             {
@@ -495,6 +509,8 @@ namespace AudioLink
                 request.isDone = true;
 
                 callback(request);
+
+                Debug.Log("[AudioLink:FFmpeg] Loaded cached video.");
                 return;
             }
 
@@ -510,9 +526,9 @@ namespace AudioLink
             proc.StartInfo.FileName = _ytdlpPath;
 
             if (resolution == 0)
-                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"bestaudio[protocol^=http]/best[protocol^=http]\" --get-url \"{url}\"";
+                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"bestaudio[protocol^=http]/best[protocol^=http]\" --get-url \"{url}\"";
             else
-                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
+                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
 
             proc.Exited += (sender, args) => { proc.Dispose(); };
 
@@ -520,27 +536,37 @@ namespace AudioLink
             {
                 if (args.Data != null)
                 {
-                    int filterStart = args.Data.IndexOf("ip=");
-                    int filterEnd = args.Data.Substring(filterStart).IndexOf("&");
-                    Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]"));
-#if UNITY_EDITOR_LINUX
-                    bool useFFmpeg = true;
-#else
-                    bool useFFmpeg = _useFFmpeg;
-#endif
-
-                    if (useFFmpeg)
+                    if (args.Data.StartsWith("{"))
                     {
-                        Convert(args.Data, callback, urlHash + ".webm", "libvorbis", "vp8", "webm");
+                        Newtonsoft.Json.Linq.JObject json = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(args.Data);
+
+                        Newtonsoft.Json.Linq.JToken duration;
+                        if (json.TryGetValue("duration", out duration))
+                            _ffmpegTranscodeDuration = (Double)duration;
                     }
                     else
                     {
-                        request.resolvedURL = args.Data;
-                        request.isDone = true;
+                        int filterStart = args.Data.IndexOf("ip=");
+                        int filterEnd = args.Data.Substring(filterStart).IndexOf("&");
+                        Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]"));
+#if UNITY_EDITOR_LINUX
+                        bool useFFmpeg = true;
+#else
+                        bool useFFmpeg = IsFFmpegAvailable();
+#endif
 
-                        callback(request);
+                        if (useFFmpeg)
+                        {
+                            Convert(args.Data, callback, urlHash + ".webm", "libvorbis", "vp8", "webm");
+                        }
+                        else
+                        {
+                            request.resolvedURL = args.Data;
+                            request.isDone = true;
+
+                            callback(request);
+                        }
                     }
-
                 }
             };
 
@@ -813,7 +839,7 @@ namespace AudioLink
             if (!available)
             {
 #if UNITY_EDITOR_LINUX
-                EditorGUILayout.HelpBox("The yt-dlp Player is currently not supported on Linux, as Unity on Linux cannot play the required file formats.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables. To fix this, install yt-dlp and ffmpeg then make sure the executables are in your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
 #elif UNITY_EDITOR_WIN
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
 #else
