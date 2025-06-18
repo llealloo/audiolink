@@ -234,6 +234,7 @@ namespace AudioLink
         private static bool _ytdlpFound = false;
         private static Newtonsoft.Json.Linq.JObject _ytdlpJson;
 
+        private static System.Diagnostics.Process _ffmpegProc;
         private static string _ffmpegPath = "";
         private static bool _ffmpegFound = false;
         private static string _ffmpegCache = "Video Cache";
@@ -326,21 +327,22 @@ namespace AudioLink
                 Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
             }
 
-            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            _ffmpegProc = new System.Diagnostics.Process();
             ytdlpRequest transcode = new ytdlpRequest();
 
-            proc.EnableRaisingEvents = true;
+            _ffmpegProc.EnableRaisingEvents = true;
 
-            proc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.FileName = _ffmpegPath;
+            _ffmpegProc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            _ffmpegProc.StartInfo.CreateNoWindow = true;
+            _ffmpegProc.StartInfo.UseShellExecute = false;
+            _ffmpegProc.StartInfo.RedirectStandardOutput = true;
+            _ffmpegProc.StartInfo.RedirectStandardError = true;
+            _ffmpegProc.StartInfo.RedirectStandardInput = true;
+            _ffmpegProc.StartInfo.FileName = _ffmpegPath;
 
-            proc.StartInfo.Arguments = $"-i \"{url}\" -c:a {audioCodec} -c:v {videoCodec} -f {container} \"{outPath}\""; //ffmpeg -hwaccel cuda -i input.mp4 -c:v vp8 -b:v 5000k -c:a libvorbis -b:a 240k -f webm out.webm
+            _ffmpegProc.StartInfo.Arguments = $"-i \"{url}\" -c:a {audioCodec} -c:v {videoCodec} -f {container} \"{outPath}\""; //ffmpeg -hwaccel cuda -i input.mp4 -c:v vp8 -b:v 5000k -c:a libvorbis -b:a 240k -f webm out.webm
 
-            proc.Exited += (sender, args) =>
+            _ffmpegProc.Exited += (sender, args) =>
             {
 
                 if (File.Exists(outPath))
@@ -353,14 +355,15 @@ namespace AudioLink
                     transcode.isDone = true;
 
                     Debug.Log($"[AudioLink:FFmpeg] Transcode completed sucessfully{_ffmpegTranscodeID}.");
-                    
+
                     _ffmpegTranscodeID = "";
                 }
                 else Debug.LogWarning($"[AudioLink:FFmpeg] Failed to transcode Video{_ffmpegTranscodeID}!");
 
                 callback(transcode);
 
-                proc.Dispose();
+                _ffmpegProc.Dispose();
+                _ffmpegProc = null;
             };
 
             // proc.OutputDataReceived += (sender, args) =>
@@ -371,7 +374,7 @@ namespace AudioLink
             //     }
             // };
 
-            proc.ErrorDataReceived += (sender, args) =>
+            _ffmpegProc.ErrorDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
                 {
@@ -395,9 +398,9 @@ namespace AudioLink
 
             try
             {
-                proc.Start();
+                _ffmpegProc.Start();
                 // proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
+                _ffmpegProc.BeginErrorReadLine();
             }
             catch (Exception e)
             {
@@ -529,22 +532,28 @@ namespace AudioLink
 
             _ytdlpJson = null;
 
-            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            if (_ffmpegProc != null)
+            {
+                _ffmpegProc.StandardInput.Write("q");
+                _ffmpegProc.StandardInput.Flush();
+            }
 
-            proc.EnableRaisingEvents = false;
+            System.Diagnostics.Process ytdlpProc = new System.Diagnostics.Process();
 
-            proc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.FileName = _ytdlpPath;
+            ytdlpProc.EnableRaisingEvents = false;
 
-            proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
+            ytdlpProc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            ytdlpProc.StartInfo.CreateNoWindow = true;
+            ytdlpProc.StartInfo.UseShellExecute = false;
+            ytdlpProc.StartInfo.RedirectStandardOutput = true;
+            ytdlpProc.StartInfo.RedirectStandardError = true;
+            ytdlpProc.StartInfo.FileName = _ytdlpPath;
 
-            proc.Exited += (sender, args) => { proc.Dispose(); };
+            ytdlpProc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
 
-            proc.OutputDataReceived += (sender, args) =>
+            ytdlpProc.Exited += (sender, args) => { ytdlpProc.Dispose(); };
+
+            ytdlpProc.OutputDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
                 {
@@ -598,7 +607,7 @@ namespace AudioLink
                 }
             };
 
-            proc.ErrorDataReceived += (sender, args) =>
+            ytdlpProc.ErrorDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
                 {
@@ -608,9 +617,9 @@ namespace AudioLink
 
             try
             {
-                proc.Start();
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
+                ytdlpProc.Start();
+                ytdlpProc.BeginOutputReadLine();
+                ytdlpProc.BeginErrorReadLine();
             }
             catch (Exception e)
             {
