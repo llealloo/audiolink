@@ -393,7 +393,9 @@ namespace AudioLink
                             transcodeID = $" ({(string)transcodeIDToken})";
                         }
 
-                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress{transcodeID}: " + Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * 100f) + "%");
+                        bool infTime = _ffmpegTranscodeDuration < 1.1 && _ffmpegTranscodeDuration > 0.9;
+
+                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress{transcodeID}: {Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * (infTime ? 1f : 100f))}{(infTime ? "s" : "%")}");
                     }
                 }
             };
@@ -549,6 +551,7 @@ namespace AudioLink
                         Newtonsoft.Json.Linq.JToken duration;
                         if (_ytdlpJson.TryGetValue("duration", out duration))
                             _ffmpegTranscodeDuration = (Double)duration;
+                        else _ffmpegTranscodeDuration = 1.0;
                     }
                     else
                     {
@@ -560,7 +563,7 @@ namespace AudioLink
 
                             debugStdout = args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]");
                         }
-                        
+
                         Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + debugStdout);
 #if UNITY_EDITOR_LINUX
                         bool useFFmpeg = true;
