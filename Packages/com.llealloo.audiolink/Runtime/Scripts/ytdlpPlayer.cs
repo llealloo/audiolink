@@ -234,7 +234,6 @@ namespace AudioLink
         private static bool _ytdlpFound = false;
         private static Newtonsoft.Json.Linq.JObject _ytdlpJson;
 
-        //private static bool _useFFmpeg = false;
         private static string _ffmpegPath = "";
         private static bool _ffmpegFound = false;
         private static string _ffmpegCache = "Video Cache";
@@ -454,14 +453,14 @@ namespace AudioLink
             {
                 if (File.Exists(customPath))
                 {
-                    Debug.Log($"[AudioLink:ytdlp] Custom YTDL location found: {customPath}");
+                    Debug.Log($"[AudioLink:YT-dlp] Custom YTDL location found: {customPath}");
                     _ytdlpPath = customPath;
                     _ytdlpFound = true;
                     return;
                 }
 
-                Debug.LogWarning($"[AudioLink:ytdlp] Custom YTDL location detected but does not exist: {customPath}");
-                Debug.Log("[AudioLink:ytdlp] Checking other locations...");
+                Debug.LogWarning($"[AudioLink:YT-dlp] Custom YTDL location detected but does not exist: {customPath}");
+                Debug.Log("[AudioLink:YT-dlp] Checking other locations...");
             }
 
 
@@ -484,7 +483,7 @@ namespace AudioLink
                 return;
 
             _ytdlpFound = true;
-            Debug.Log($"[AudioLink:ytdlp] Found yt-dlp at path '{_ytdlpPath}'");
+            Debug.Log($"[AudioLink:YT-dlp] Found yt-dlp at path '{_ytdlpPath}'");
         }
 
         public static void Resolve(string url, Action<ytdlpRequest> callback, int resolution = 720)
@@ -496,11 +495,14 @@ namespace AudioLink
 
             if (!_ytdlpFound)
             {
-                Debug.LogWarning($"[AudioLink:ytdlp] Unable to resolve URL '{url}' : yt-dlp not found");
+                Debug.LogWarning($"[AudioLink:YT-dlp] Unable to resolve URL '{url}' : yt-dlp not found");
             }
 
-            if (!File.Exists(Path.GetFullPath(_ffmpegCache)))
-                Directory.CreateDirectory(Path.GetFullPath(_ffmpegCache));
+#if !UNITY_EDITOR_LINUX
+            if (IsFFmpegAvailable())
+#endif
+                if (!File.Exists(Path.GetFullPath(_ffmpegCache)))
+                    Directory.CreateDirectory(Path.GetFullPath(_ffmpegCache));
 
             string urlHash = Hash128.Compute(url).ToString();
             string fullUrlHash = Path.GetFullPath(Path.Combine(_ffmpegCache, urlHash + ".webm"));
@@ -564,7 +566,8 @@ namespace AudioLink
                             debugStdout = args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]");
                         }
 
-                        Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + debugStdout);
+                        Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
+
 #if UNITY_EDITOR_LINUX
                         bool useFFmpeg = true;
 #else
@@ -590,7 +593,7 @@ namespace AudioLink
             {
                 if (args.Data != null)
                 {
-                    Debug.LogError("[AudioLink:ytdlp] ytdlp stderr: " + args.Data);
+                    Debug.LogError("[AudioLink:YT-dlp] ytdlp stderr: " + args.Data);
                 }
             };
 
@@ -602,7 +605,7 @@ namespace AudioLink
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[AudioLink:ytdlp] Unable to resolve URL '{url}' : " + e.Message);
+                Debug.LogWarning($"[AudioLink:YT-dlp] Unable to resolve URL '{url}' : " + e.Message);
                 callback(null);
             }
         }
