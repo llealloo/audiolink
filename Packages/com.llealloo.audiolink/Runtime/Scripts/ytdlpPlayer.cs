@@ -340,7 +340,7 @@ namespace AudioLink
             _ffmpegProc.StartInfo.RedirectStandardInput = true;
             _ffmpegProc.StartInfo.FileName = _ffmpegPath;
 
-            _ffmpegProc.StartInfo.Arguments = $"-i \"{url}\" -c:a {audioCodec} -c:v {videoCodec} -f {container} \"{outPath}\""; //ffmpeg -hwaccel cuda -i input.mp4 -c:v vp8 -b:v 5000k -c:a libvorbis -b:a 240k -f webm out.webm
+            _ffmpegProc.StartInfo.Arguments = $"-y -i \"{url}\" -c:a {audioCodec} -c:v {videoCodec} -f {container} \"{outPath}\""; //ffmpeg -hwaccel cuda -i input.mp4 -c:v vp8 -b:v 5000k -c:a libvorbis -b:a 240k -f webm out.webm
 
             _ffmpegProc.Exited += (sender, args) =>
             {
@@ -502,12 +502,13 @@ namespace AudioLink
             if (url.StartsWith("https://youtu.be/") && url.Contains("?"))
                 url = url.Substring(0, url.IndexOf("?"));
 
+            string tempPath = Path.GetFullPath(Path.Combine("Temp", _ffmpegCache));
+
 #if !UNITY_EDITOR_LINUX
             if (IsFFmpegAvailable())
 #endif
-                string tempPath = Path.GetFullPath(Path.Combine("Temp", _ffmpegCache));
-            if (!Directory.Exists(tempPath))
-                Directory.CreateDirectory(tempPath);
+                if (!Directory.Exists(tempPath))
+                    Directory.CreateDirectory(tempPath);
 
             string urlHash = Hash128.Compute(url).ToString();
             string fullUrlHash = Path.Combine(tempPath, urlHash + ".webm");
@@ -594,7 +595,7 @@ namespace AudioLink
 
                         if (useFFmpeg)
                         {
-                            Convert(args.Data, callback, fullUrlHash + ".webm", "libvorbis", "vp8", "webm");
+                            Convert(args.Data, callback, fullUrlHash, "libvorbis", "vp8", "webm");
                         }
                         else
                         {
@@ -689,6 +690,8 @@ namespace AudioLink
         private SerializedProperty showStandbyIfPaused;
         private SerializedProperty forceStandbyTexture;
         private SerializedProperty standbyTexture;
+
+        private const string showVideoPreviewInComponentKey = "YTDLP-VIDEO-PREVIEW";
 
         void OnEnable()
         {
@@ -829,7 +832,11 @@ namespace AudioLink
             // Video preview
             using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
             {
-                _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), _ytdlpPlayer.showVideoPreviewInComponent);
+                bool wasShowingPreview = EditorPrefs.GetBool(showVideoPreviewInComponentKey, false);
+                _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), wasShowingPreview);
+
+                if (wasShowingPreview != _ytdlpPlayer.showVideoPreviewInComponent)
+                    EditorPrefs.SetBool(showVideoPreviewInComponentKey, _ytdlpPlayer.showVideoPreviewInComponent);
 
                 if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.videoPlayer.texture != null)
                 {
