@@ -535,7 +535,7 @@ namespace AudioLink
 
             if (_ffmpegProc != null)
             {
-                _ffmpegProc.StandardInput.Write("q");
+                _ffmpegProc.StandardInput.Write('q');
                 _ffmpegProc.StandardInput.Flush();
             }
 
