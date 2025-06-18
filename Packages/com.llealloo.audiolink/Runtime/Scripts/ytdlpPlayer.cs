@@ -50,7 +50,6 @@ namespace AudioLink
 
         public enum Resolution
         {
-            [InspectorName("Audio Only")] _audio = 0,
             [InspectorName("360p")] _360p = 360,
             [InspectorName("480p")] _480p = 480,
             [InspectorName("720p")] _720p = 720,
@@ -233,6 +232,7 @@ namespace AudioLink
 
         private static string _ytdlpPath = "";
         private static bool _ytdlpFound = false;
+        private static Newtonsoft.Json.Linq.JObject _ytdlpJson;
 
         //private static bool _useFFmpeg = false;
         private static string _ffmpegPath = "";
@@ -359,7 +359,7 @@ namespace AudioLink
                 else Debug.LogWarning("[AudioLink:FFmpeg] Failed to transcode Video!");
 
                 callback(transcode);
-                
+
                 proc.Dispose();
             };
 
@@ -386,7 +386,14 @@ namespace AudioLink
                         string progressTime = progressTimeString.Substring(progressTimeIndex, progressTimeLength);
                         TimeSpan ffmpegProgress = TimeSpan.Parse(progressTime);
 
-                        Debug.Log("[AudioLink:FFmpeg] Transcode progress: " + Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * 100f) + "%");
+                        Newtonsoft.Json.Linq.JToken transcodeIDToken;
+                        string transcodeID = "";
+                        if (_ytdlpJson != null) if (_ytdlpJson.TryGetValue("id", out transcodeIDToken))
+                        {
+                            transcodeID = $" ({(string)transcodeIDToken})";
+                        }
+
+                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress{transcodeID}: " + Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * 100f) + "%");
                     }
                 }
             };
@@ -491,7 +498,7 @@ namespace AudioLink
             }
 
             if (!File.Exists(Path.GetFullPath(_ffmpegCache)))
-                Directory.CreateDirectory(Path.GetFullPath(_ffmpegCache));            
+                Directory.CreateDirectory(Path.GetFullPath(_ffmpegCache));
 
             string urlHash = Hash128.Compute(url).ToString();
             string fullUrlHash = Path.GetFullPath(Path.Combine(_ffmpegCache, urlHash + ".webm"));
@@ -514,6 +521,8 @@ namespace AudioLink
                 return;
             }
 
+            _ytdlpJson = null;
+
             System.Diagnostics.Process proc = new System.Diagnostics.Process();
 
             proc.EnableRaisingEvents = false;
@@ -525,10 +534,7 @@ namespace AudioLink
             proc.StartInfo.RedirectStandardError = true;
             proc.StartInfo.FileName = _ytdlpPath;
 
-            if (resolution == 0)
-                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"bestaudio[protocol^=http]/best[protocol^=http]\" --get-url \"{url}\"";
-            else
-                proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
+            proc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
 
             proc.Exited += (sender, args) => { proc.Dispose(); };
 
@@ -538,17 +544,24 @@ namespace AudioLink
                 {
                     if (args.Data.StartsWith("{"))
                     {
-                        Newtonsoft.Json.Linq.JObject json = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(args.Data);
+                        _ytdlpJson = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(args.Data);
 
                         Newtonsoft.Json.Linq.JToken duration;
-                        if (json.TryGetValue("duration", out duration))
+                        if (_ytdlpJson.TryGetValue("duration", out duration))
                             _ffmpegTranscodeDuration = (Double)duration;
                     }
                     else
                     {
-                        int filterStart = args.Data.IndexOf("ip=");
-                        int filterEnd = args.Data.Substring(filterStart).IndexOf("&");
-                        Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]"));
+                        string debugStdout = args.Data;
+                        if (args.Data.Contains("ip="))
+                        {
+                            int filterStart = args.Data.IndexOf("ip=");
+                            int filterEnd = args.Data.Substring(filterStart).IndexOf("&");
+
+                            debugStdout = args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]");
+                        }
+                        
+                        Debug.Log("[AudioLink:ytdlp] ytdlp stdout: " + debugStdout);
 #if UNITY_EDITOR_LINUX
                         bool useFFmpeg = true;
 #else
@@ -570,8 +583,10 @@ namespace AudioLink
                 }
             };
 
-            proc.ErrorDataReceived += (sender, args) => {
-                if (args.Data != null) {
+            proc.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
                     Debug.LogError("[AudioLink:ytdlp] ytdlp stderr: " + args.Data);
                 }
             };
