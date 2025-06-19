@@ -305,6 +305,49 @@ namespace AudioLink
             return _ffmpegFound;
         }
 
+        public static void Locateytdlp()
+        {
+            _ytdlpFound = false;
+
+            // check for a custom install location
+            string customPath = EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty);
+            if (!string.IsNullOrEmpty(customPath))
+            {
+                if (File.Exists(customPath))
+                {
+                    Debug.Log($"[AudioLink:YT-dlp] Custom YTDL location found: {customPath}");
+                    _ytdlpPath = customPath;
+                    _ytdlpFound = true;
+                    return;
+                }
+
+                Debug.LogWarning($"[AudioLink:YT-dlp] Custom YTDL location detected but does not exist: {customPath}");
+                Debug.Log("[AudioLink:YT-dlp] Checking other locations...");
+            }
+
+
+#if UNITY_EDITOR_WIN
+            string[] splitPath = Application.persistentDataPath.Split('/', '\\');
+            _ytdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
+            if (!File.Exists(_ytdlpPath))
+                _ytdlpPath = _localytdlpPath;
+#else
+            _ytdlpPath = "/usr/bin/yt-dlp";
+#endif
+
+            if (!File.Exists(_ytdlpPath))
+            {
+                string[] possibleExecutableNames = { "yt-dlp", "ytdlp", "youtube-dlp", "youtubedlp", "yt-dl", "ytdl", "youtube-dl", "youtubedl" };
+                _ytdlpPath = LocateExecutable(possibleExecutableNames);
+            }
+
+            if (!File.Exists(_ytdlpPath))
+                return;
+
+            _ytdlpFound = true;
+            Debug.Log($"[AudioLink:YT-dlp] Found yt-dlp at path '{_ytdlpPath}'");
+        }
+
         public static void LocateFFmpeg()
         {
             _ffmpegFound = false;
@@ -455,49 +498,6 @@ namespace AudioLink
                 Debug.LogWarning($"[AudioLink:FFmpeg] Unable to transcode URL '{url}' : " + e.Message);
                 callback(null);
             }
-        }
-
-        public static void Locateytdlp()
-        {
-            _ytdlpFound = false;
-
-            // check for a custom install location
-            string customPath = EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty);
-            if (!string.IsNullOrEmpty(customPath))
-            {
-                if (File.Exists(customPath))
-                {
-                    Debug.Log($"[AudioLink:YT-dlp] Custom YTDL location found: {customPath}");
-                    _ytdlpPath = customPath;
-                    _ytdlpFound = true;
-                    return;
-                }
-
-                Debug.LogWarning($"[AudioLink:YT-dlp] Custom YTDL location detected but does not exist: {customPath}");
-                Debug.Log("[AudioLink:YT-dlp] Checking other locations...");
-            }
-
-
-#if UNITY_EDITOR_WIN
-            string[] splitPath = Application.persistentDataPath.Split('/', '\\');
-            _ytdlpPath = string.Join("\\", splitPath.Take(splitPath.Length - 2)) + "\\VRChat\\VRChat\\Tools\\yt-dlp.exe";
-            if (!File.Exists(_ytdlpPath))
-                _ytdlpPath = _localytdlpPath;
-#else
-            _ytdlpPath = "/usr/bin/yt-dlp";
-#endif
-
-            if (!File.Exists(_ytdlpPath))
-            {
-                string[] possibleExecutableNames = { "yt-dlp", "ytdlp", "youtube-dlp", "youtubedlp", "yt-dl", "ytdl", "youtube-dl", "youtubedl" };
-                _ytdlpPath = LocateExecutable(possibleExecutableNames);
-            }
-
-            if (!File.Exists(_ytdlpPath))
-                return;
-
-            _ytdlpFound = true;
-            Debug.Log($"[AudioLink:YT-dlp] Found yt-dlp at path '{_ytdlpPath}'");
         }
 
         private static string SanitizeURL(string url, string identifier, char seperator)
