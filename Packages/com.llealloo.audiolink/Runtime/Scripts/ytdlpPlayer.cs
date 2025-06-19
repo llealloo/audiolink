@@ -604,7 +604,7 @@ namespace AudioLink
                             int filterStart = args.Data.IndexOf("ip=");
                             int filterEnd = args.Data.Substring(filterStart).IndexOf("&");
 
-                            debugStdout = args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd), "[REDACTED]");
+                            debugStdout = args.Data.Replace(args.Data.Substring(filterStart + 3, filterEnd - 3), "[REDACTED]");
                         }
 
                         Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
