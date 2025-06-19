@@ -759,7 +759,7 @@ namespace AudioLink
             double videoLength = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.length : 0;
 
             if (ytdlpURLResolver.IsFFmpegAvailable())
-                EditorGUILayout.HelpBox("Using FFmpeg to transcode test videos into a compatible format locally.\n\nThis may play videos that *are not* supported in VRChat / CilloutVR,\nadditionally it does not support livestreams.", MessageType.Info);
+                EditorGUILayout.HelpBox("Using FFmpeg to transcode test videos into a compatible format locally.\n\nThis may play videos that *are not* supported in VRChat / CilloutVR,\nadditionally it does not support livestreams.\n\nIf you encounter any issues, specify you're using FFmpeg Transcoding when reporting issues.", MessageType.Info);
 
             using (new EditorGUI.DisabledScope(!available))
             {
