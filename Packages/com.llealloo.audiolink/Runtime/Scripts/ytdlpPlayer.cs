@@ -26,7 +26,7 @@ namespace AudioLink
         }
 
         public string ytdlpURL = "https://www.youtube.com/watch?v=vGXyAKy-X6s";
-        ytdlpRequest _currentRequest = null;
+        resolvingRequest _currentRequest = null;
 
         public bool showVideoPreviewInComponent = false;
         public VideoPlayer videoPlayer = null;
@@ -67,7 +67,7 @@ namespace AudioLink
 
         public void RequestPlay()
         {
-            ytdlpURLResolver.Resolve(ytdlpURL, (ytdlpRequest newRequest) => _currentRequest = newRequest, (int)resolution);
+            ytdlpURLResolver.Resolve(ytdlpURL, (resolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution);
         }
 
         private void Update()
@@ -220,7 +220,7 @@ namespace AudioLink
         }
     }
 
-    public class ytdlpRequest
+    public class resolvingRequest
     {
         public bool isDone;
         public string resolvedURL;
@@ -247,25 +247,53 @@ namespace AudioLink
         private const string userDefinedFFmpegPathKey = "MPEG-PATH-CUSTOM";
         private const string userDefinedFFmpegPathMenu = "Tools/AudioLink/Select Custom FFmpeg Location";
 
-        [MenuItem(userDefinedFFmpegPathMenu, priority = 1)]
-        private static void SelectFFmpegInstall()
+        private static void SelectToolInstall(string title, string pathMenu, string pathKey)
         {
-            if (Menu.GetChecked(userDefinedFFmpegPathMenu))
+            if (Menu.GetChecked(pathMenu))
             {
-                EditorPrefs.SetString(userDefinedFFmpegPathKey, string.Empty);
+                EditorPrefs.SetString(pathKey, string.Empty);
                 return;
             }
 
-            string ffmpegPath = EditorPrefs.GetString(userDefinedFFmpegPathKey, "");
-            string fpath = ffmpegPath.Substring(0, ffmpegPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
-            string path = EditorUtility.OpenFilePanel("Select FFmpeg Location", fpath, "");
-            EditorPrefs.SetString(userDefinedFFmpegPathKey, path ?? string.Empty);
+            string currentPath = EditorPrefs.GetString(pathKey, "");
+            string dirPath = currentPath.Substring(0, currentPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
+            string path = EditorUtility.OpenFilePanel(title, dirPath, "");
+            EditorPrefs.SetString(pathKey, path ?? string.Empty);
         }
+
+        [MenuItem(userDefinedYTDLPathMenu, priority = 1)]
+        private static void SelectYtdlInstall()
+        {
+            SelectToolInstall("Select YTDL Location", userDefinedYTDLPathMenu, userDefinedYTDLPathKey);
+        }
+
+        [MenuItem(userDefinedFFmpegPathMenu, priority = 1)]
+        private static void SelectFFmpegInstall()
+        {
+            SelectToolInstall("Select FFmpeg Location", userDefinedFFmpegPathMenu, userDefinedFFmpegPathKey);
+        }
+
+        [MenuItem(userDefinedYTDLPathMenu, true, priority = 1)]
+        private static bool ValidateSelectYtdlInstall()
+        {
+            Menu.SetChecked(userDefinedYTDLPathMenu, EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty) != string.Empty);
+            return true;
+        }
+
         [MenuItem(userDefinedFFmpegPathMenu, true, priority = 1)]
         private static bool ValidateSelectFFmpegInstall()
         {
             Menu.SetChecked(userDefinedFFmpegPathMenu, EditorPrefs.GetString(userDefinedFFmpegPathKey, string.Empty) != string.Empty);
             return true;
+        }
+
+        public static bool IsytdlpAvailable()
+        {
+            if (_ytdlpFound)
+                return true;
+
+            Locateytdlp();
+            return _ytdlpFound;
         }
 
         public static bool IsFFmpegAvailable()
@@ -315,7 +343,28 @@ namespace AudioLink
             Debug.Log($"[AudioLink:FFmpeg] Found FFmpeg at path '{_ffmpegPath}'");
         }
 
-        public static void Convert(string url, Action<ytdlpRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
+        public static System.Diagnostics.Process ResolvingProcess(string resolverPath, string[] args)
+        {
+            System.Diagnostics.Process resolver = new System.Diagnostics.Process();
+
+            resolver.EnableRaisingEvents = true;
+
+            resolver.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            resolver.StartInfo.CreateNoWindow = true;
+            resolver.StartInfo.UseShellExecute = false;
+            resolver.StartInfo.RedirectStandardInput = true;
+            resolver.StartInfo.RedirectStandardOutput = true;
+            resolver.StartInfo.RedirectStandardError = true;
+
+            resolver.StartInfo.FileName = resolverPath;
+
+            foreach (string argument in args)
+                resolver.StartInfo.Arguments += argument + " ";
+
+            return resolver;
+        }
+
+        public static void Convert(string url, Action<resolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
         {
             if (!_ffmpegFound)
             {
@@ -327,20 +376,23 @@ namespace AudioLink
                 Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
             }
 
-            _ffmpegProc = new System.Diagnostics.Process();
-            ytdlpRequest transcode = new ytdlpRequest();
+            resolvingRequest transcode = new resolvingRequest();
 
-            _ffmpegProc.EnableRaisingEvents = true;
+            string[] ffmpegArgs = new string[10] {
+                "-y",
 
-            _ffmpegProc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            _ffmpegProc.StartInfo.CreateNoWindow = true;
-            _ffmpegProc.StartInfo.UseShellExecute = false;
-            _ffmpegProc.StartInfo.RedirectStandardOutput = true;
-            _ffmpegProc.StartInfo.RedirectStandardError = true;
-            _ffmpegProc.StartInfo.RedirectStandardInput = true;
-            _ffmpegProc.StartInfo.FileName = _ffmpegPath;
+                "-i", $"\"{url}\"",
 
-            _ffmpegProc.StartInfo.Arguments = $"-y -i \"{url}\" -c:a {audioCodec} -c:v {videoCodec} -f {container} \"{outPath}\""; //ffmpeg -hwaccel cuda -i input.mp4 -c:v vp8 -b:v 5000k -c:a libvorbis -b:a 240k -f webm out.webm
+                "-c:a", $"{audioCodec}",
+
+                "-c:v", $"{videoCodec}",
+
+                "-f", $"{container}",
+
+                $"\"{outPath}\""
+            };
+
+            _ffmpegProc = ResolvingProcess(_ffmpegPath, ffmpegArgs);
 
             _ffmpegProc.Exited += (sender, args) =>
             {
@@ -366,14 +418,6 @@ namespace AudioLink
                 _ffmpegProc = null;
             };
 
-            // proc.OutputDataReceived += (sender, args) =>
-            // {
-            //     if (args.Data != null)
-            //     {
-            //         Debug.Log("[AudioLink:FFmpeg] FFmpeg output: " + args.Data);
-            //     }
-            // };
-
             _ffmpegProc.ErrorDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
@@ -391,7 +435,12 @@ namespace AudioLink
 
                         bool infTime = _ffmpegTranscodeDuration < 1.1 && _ffmpegTranscodeDuration > 0.9;
 
-                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress{_ffmpegTranscodeID}: {Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * (infTime ? 1f : 100f))}{(infTime ? "s" : "%")}");
+                        string progressSeconds = ffmpegProgress.ToString();
+                        progressSeconds = progressSeconds.Contains('.') ? progressSeconds.Substring(0, progressSeconds.IndexOf('.')) : progressSeconds;
+                        progressSeconds += "s";
+                        string progressPercent = infTime ? "" : $"- {Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * 100f)}%";
+
+                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress{_ffmpegTranscodeID}: {progressSeconds} {progressPercent}");
                     }
                 }
             };
@@ -399,7 +448,6 @@ namespace AudioLink
             try
             {
                 _ffmpegProc.Start();
-                // proc.BeginOutputReadLine();
                 _ffmpegProc.BeginErrorReadLine();
             }
             catch (Exception e)
@@ -407,37 +455,6 @@ namespace AudioLink
                 Debug.LogWarning($"[AudioLink:FFmpeg] Unable to transcode URL '{url}' : " + e.Message);
                 callback(null);
             }
-        }
-
-        [MenuItem(userDefinedYTDLPathMenu, priority = 1)]
-        private static void SelectYtdlInstall()
-        {
-            if (Menu.GetChecked(userDefinedYTDLPathMenu))
-            {
-                EditorPrefs.SetString(userDefinedYTDLPathKey, string.Empty);
-                return;
-            }
-
-            string ytdlPath = EditorPrefs.GetString(userDefinedYTDLPathKey, "");
-            string tpath = ytdlPath.Substring(0, ytdlPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
-            string path = EditorUtility.OpenFilePanel("Select YTDL Location", tpath, "");
-            EditorPrefs.SetString(userDefinedYTDLPathKey, path ?? string.Empty);
-        }
-
-        [MenuItem(userDefinedYTDLPathMenu, true, priority = 1)]
-        private static bool ValidateSelectYtdlInstall()
-        {
-            Menu.SetChecked(userDefinedYTDLPathMenu, EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty) != string.Empty);
-            return true;
-        }
-
-        public static bool IsytdlpAvailable()
-        {
-            if (_ytdlpFound)
-                return true;
-
-            Locateytdlp();
-            return _ytdlpFound;
         }
 
         public static void Locateytdlp()
@@ -483,7 +500,15 @@ namespace AudioLink
             Debug.Log($"[AudioLink:YT-dlp] Found yt-dlp at path '{_ytdlpPath}'");
         }
 
-        public static void Resolve(string url, Action<ytdlpRequest> callback, int resolution = 720)
+        private static string SanitizeURL(string url, string identifier, char seperator)
+        {
+            if (url.StartsWith(identifier) && url.Contains(seperator))
+                url = url.Substring(0, url.IndexOf(seperator));
+
+            return url;
+        }
+
+        public static void Resolve(string url, Action<resolvingRequest> callback, int resolution = 720)
         {
             if (!_ytdlpFound)
             {
@@ -496,24 +521,21 @@ namespace AudioLink
             }
 
             // Catch playlist runaway
-            if (url.StartsWith("https://www.youtube.com/") && url.Contains("&"))
-                url = url.Substring(0, url.IndexOf("&"));
-
-            if (url.StartsWith("https://youtu.be/") && url.Contains("?"))
-                url = url.Substring(0, url.IndexOf("?"));
+            url = SanitizeURL(url, "https://www.youtube.com/", '&');
+            url = SanitizeURL(url, "https://youtu.be/", '?');
 
             string tempPath = Path.GetFullPath(Path.Combine("Temp", _ffmpegCache));
 
 #if !UNITY_EDITOR_LINUX
             if (IsFFmpegAvailable())
 #endif
-                if (!Directory.Exists(tempPath))
-                    Directory.CreateDirectory(tempPath);
+            if (!Directory.Exists(tempPath))
+                Directory.CreateDirectory(tempPath);
 
             string urlHash = Hash128.Compute(url).ToString();
             string fullUrlHash = Path.Combine(tempPath, urlHash + ".webm");
 
-            ytdlpRequest request = new ytdlpRequest();
+            resolvingRequest request = new resolvingRequest();
 
             if (File.Exists(fullUrlHash))
             {
@@ -539,18 +561,18 @@ namespace AudioLink
                 _ffmpegProc.StandardInput.Flush();
             }
 
-            System.Diagnostics.Process ytdlpProc = new System.Diagnostics.Process();
+            string[] ytdlpArgs = new string[8] {
+                "--no-check-certificate",
+                "--no-cache-dir",
+                "--rm-cache-dir",
+                "--dump-json",
 
-            ytdlpProc.EnableRaisingEvents = false;
+                "-f", $"\"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\"",
 
-            ytdlpProc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            ytdlpProc.StartInfo.CreateNoWindow = true;
-            ytdlpProc.StartInfo.UseShellExecute = false;
-            ytdlpProc.StartInfo.RedirectStandardOutput = true;
-            ytdlpProc.StartInfo.RedirectStandardError = true;
-            ytdlpProc.StartInfo.FileName = _ytdlpPath;
+                "--get-url", $"\"{url}\""
+            };
 
-            ytdlpProc.StartInfo.Arguments = $"--no-check-certificate --no-cache-dir --rm-cache-dir --dump-json -f \"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\" --get-url \"{url}\"";
+            System.Diagnostics.Process ytdlpProc = ResolvingProcess(_ytdlpPath, ytdlpArgs);
 
             ytdlpProc.Exited += (sender, args) => { ytdlpProc.Dispose(); };
 
@@ -572,7 +594,7 @@ namespace AudioLink
                             if (_ytdlpJson.TryGetValue("id", out transcodeIDToken))
                             {
                                 _ffmpegTranscodeID = $" ({(string)transcodeIDToken})";
-                }
+                            }
                     }
                     else
                     {
@@ -737,7 +759,7 @@ namespace AudioLink
             double videoLength = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.length : 0;
 
             if (ytdlpURLResolver.IsFFmpegAvailable())
-                EditorGUILayout.HelpBox("Using FFmpeg to transcode test videos into a compatible format locally.\n\nThis may play videos that *are not* supported in VRChat / CilloutVR,\nhowever it does not support livestreams.", MessageType.Info);
+                EditorGUILayout.HelpBox("Using FFmpeg to transcode test videos into a compatible format locally.\n\nThis may play videos that *are not* supported in VRChat / CilloutVR,\nadditionally it does not support livestreams.", MessageType.Info);
 
             using (new EditorGUI.DisabledScope(!available))
             {
