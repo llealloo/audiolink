@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Video;
@@ -226,13 +225,19 @@ namespace AudioLink
         public string resolvedURL;
     }
 
+    public class VideoMeta
+    {
+        public string id;
+        public Double duration;
+    }
+
     public static class ytdlpURLResolver
     {
         private static string _localytdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static string _ytdlpPath = "";
         private static bool _ytdlpFound = false;
-        private static Newtonsoft.Json.Linq.JObject _ytdlpJson;
+        private static VideoMeta _ytdlpJson;
 
         private static System.Diagnostics.Process _ffmpegProc;
         private static string _ffmpegPath = "";
@@ -407,7 +412,7 @@ namespace AudioLink
             return resolver;
         }
 
-        public static void Convert(string url, Action<resolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
+        public static void Transcode(string url, Action<resolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
         {
             if (!_ffmpegFound)
             {
@@ -582,19 +587,17 @@ namespace AudioLink
                 {
                     if (args.Data.StartsWith("{"))
                     {
-                        _ytdlpJson = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(args.Data);
+                        _ytdlpJson = JsonUtility.FromJson<VideoMeta>(args.Data);
 
-                        Newtonsoft.Json.Linq.JToken duration;
-                        if (_ytdlpJson.TryGetValue("duration", out duration))
-                            _ffmpegTranscodeDuration = (Double)duration;
-                        else _ffmpegTranscodeDuration = 1.0;
-
-                        Newtonsoft.Json.Linq.JToken transcodeIDToken;
                         if (_ytdlpJson != null)
-                            if (_ytdlpJson.TryGetValue("id", out transcodeIDToken))
-                            {
-                                _ffmpegTranscodeID = $" ({(string)transcodeIDToken})";
-                            }
+                        {
+                            if (_ytdlpJson.id != null)
+                                _ffmpegTranscodeID = $" ({_ytdlpJson.id})";
+
+                            if (_ytdlpJson.duration != 0.0)
+                                _ffmpegTranscodeDuration = _ytdlpJson.duration;
+                            else _ffmpegTranscodeDuration = 1.0;
+                        }
                     }
                     else
                     {
@@ -617,7 +620,7 @@ namespace AudioLink
 
                         if (useFFmpeg)
                         {
-                            Convert(args.Data, callback, fullUrlHash, "libvorbis", "vp8", "webm");
+                            Transcode(args.Data, callback, fullUrlHash, "libvorbis", "vp8", "webm");
                         }
                         else
                         {
