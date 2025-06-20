@@ -424,14 +424,18 @@ namespace AudioLink
 
             resolvingRequest transcode = new resolvingRequest();
 
-            string[] ffmpegArgs = new string[10] {
+            string[] ffmpegArgs = new string[12] {
                 "-y",
+
+                "-hwaccel vulkan",
 
                 "-i", $"\"{url}\"",
 
                 "-c:a", $"{audioCodec}",
 
                 "-c:v", $"{videoCodec}",
+
+                videoCodec == "vp8" ? "-cpu-used 6 -deadline realtime -qmin 0 -qmax 50 -crf 5 -minrate 1M -maxrate 1M -b:v 1M" : "",
 
                 "-f", $"{container}",
 
