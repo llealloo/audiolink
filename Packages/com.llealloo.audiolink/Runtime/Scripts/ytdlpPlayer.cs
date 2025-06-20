@@ -25,7 +25,7 @@ namespace AudioLink
         }
 
         public string ytdlpURL = "https://www.youtube.com/watch?v=vGXyAKy-X6s";
-        resolvingRequest _currentRequest = null;
+        ResolvingRequest _currentRequest = null;
 
         public bool showVideoPreviewInComponent = false;
         public VideoPlayer videoPlayer = null;
@@ -66,7 +66,7 @@ namespace AudioLink
 
         public void RequestPlay()
         {
-            ytdlpURLResolver.Resolve(ytdlpURL, (resolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution);
+            ytdlpURLResolver.Resolve(ytdlpURL, (ResolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution);
         }
 
         private void Update()
@@ -219,7 +219,7 @@ namespace AudioLink
         }
     }
 
-    public class resolvingRequest
+    public class ResolvingRequest
     {
         public bool isDone;
         public string resolvedURL;
@@ -410,7 +410,7 @@ namespace AudioLink
             return resolver;
         }
 
-        public static void Transcode(string url, Action<resolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
+        public static void Transcode(string url, Action<ResolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
         {
             if (!_ffmpegFound)
             {
@@ -422,7 +422,7 @@ namespace AudioLink
                 Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
             }
 
-            resolvingRequest transcode = new resolvingRequest();
+            ResolvingRequest transcode = new ResolvingRequest();
 
             string[] ffmpegArgs = new string[12] {
                 "-y",
@@ -513,7 +513,7 @@ namespace AudioLink
             return url;
         }
 
-        public static void Resolve(string url, Action<resolvingRequest> callback, int resolution = 720)
+        public static void Resolve(string url, Action<ResolvingRequest> callback, int resolution = 720)
         {
             if (!_ytdlpFound)
             {
@@ -540,7 +540,7 @@ namespace AudioLink
             string urlHash = Hash128.Compute(url).ToString();
             string fullUrlHash = Path.Combine(tempPath, urlHash + ".webm");
 
-            resolvingRequest request = new resolvingRequest();
+            ResolvingRequest request = new ResolvingRequest();
 
             if (File.Exists(fullUrlHash))
             {
