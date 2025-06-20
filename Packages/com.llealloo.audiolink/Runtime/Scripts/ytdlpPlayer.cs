@@ -243,8 +243,6 @@ namespace AudioLink
         private static string _ffmpegPath = "";
         private static bool _ffmpegFound = false;
         private static string _ffmpegCache = "Video Cache";
-        private static Double _ffmpegTranscodeDuration = 1.0;
-        private static string _ffmpegTranscodeID = "";
 
         private const string userDefinedYTDLPathKey = "YTDL-PATH-CUSTOM";
         private const string userDefinedYTDLPathMenu = "Tools/AudioLink/Select Custom YTDL Location";
@@ -454,11 +452,11 @@ namespace AudioLink
 #endif
                     transcode.isDone = true;
 
-                    Debug.Log($"[AudioLink:FFmpeg] Transcode completed sucessfully{_ffmpegTranscodeID}.");
+                    Debug.Log($"[AudioLink:FFmpeg] Transcode completed sucessfully. ({_ytdlpJson.id})");
 
-                    _ffmpegTranscodeID = "";
+                    _ytdlpJson.id = "";
                 }
-                else Debug.LogWarning($"[AudioLink:FFmpeg] Failed to transcode Video{_ffmpegTranscodeID}!");
+                else Debug.LogWarning($"[AudioLink:FFmpeg] Failed to transcode Video! ({_ytdlpJson.id})");
 
                 callback(transcode);
 
@@ -471,7 +469,7 @@ namespace AudioLink
                 if (args.Data != null)
                 {
                     if (args.Data == "Press [q] to stop, [?] for help")
-                        Debug.Log($"[AudioLink:FFmpeg] Starting transcode{_ffmpegTranscodeID}.");
+                        Debug.Log($"[AudioLink:FFmpeg] Starting transcode. ({_ytdlpJson.id})");
                     else if (args.Data.StartsWith("frame="))
                     {
                         string progressTimeString = args.Data;
@@ -481,14 +479,12 @@ namespace AudioLink
                         string progressTime = progressTimeString.Substring(progressTimeIndex, progressTimeLength);
                         TimeSpan ffmpegProgress = TimeSpan.Parse(progressTime);
 
-                        bool infTime = _ffmpegTranscodeDuration < 1.1 && _ffmpegTranscodeDuration > 0.9;
-
                         string progressSeconds = ffmpegProgress.ToString();
                         progressSeconds = progressSeconds.Contains('.') ? progressSeconds.Substring(0, progressSeconds.IndexOf('.')) : progressSeconds;
                         progressSeconds += "s";
-                        string progressPercent = infTime ? "" : $"- {Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ffmpegTranscodeDuration) * 100f)}%";
+                        string progressPercent = _ytdlpJson.duration == 0.0 ? "" : $"- {Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ytdlpJson.duration) * 100f)}%";
 
-                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress{_ffmpegTranscodeID}: {progressSeconds} {progressPercent}");
+                        Debug.Log($"[AudioLink:FFmpeg] Transcode progress ({_ytdlpJson.id}): {progressSeconds} {progressPercent}");
                     }
                 }
             };
@@ -588,16 +584,6 @@ namespace AudioLink
                     if (args.Data.StartsWith("{"))
                     {
                         _ytdlpJson = JsonUtility.FromJson<VideoMeta>(args.Data);
-
-                        if (_ytdlpJson != null)
-                        {
-                            if (_ytdlpJson.id != null)
-                                _ffmpegTranscodeID = $" ({_ytdlpJson.id})";
-
-                            if (_ytdlpJson.duration != 0.0)
-                                _ffmpegTranscodeDuration = _ytdlpJson.duration;
-                            else _ffmpegTranscodeDuration = 1.0;
-                        }
                     }
                     else
                     {
