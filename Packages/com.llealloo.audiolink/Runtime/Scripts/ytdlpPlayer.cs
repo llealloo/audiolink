@@ -905,11 +905,11 @@ namespace AudioLink
             if (!available)
             {
 #if UNITY_EDITOR_LINUX
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables. To fix this, install yt-dlp and ffmpeg then make sure the executables are in your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via your package manager,\nor make sure the portable executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #elif UNITY_EDITOR_WIN
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, either install and launch VRChat once, or install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, either install and launch VRChat once,\nor install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #else
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable. To fix this, install yt-dlp and make sure the executable is on your PATH. Once this is done, enter play mode to retry.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #endif
             }
 
