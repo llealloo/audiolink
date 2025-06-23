@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using UnityEngine.Rendering;
 
-namespace VRSL.Shaders
+namespace AudioLink.Editor.Shaders
 {
 // Create a custom shader GUI that switches between Standard and URP Lit inspector
     public class AudioLinkStandardInspector : ShaderGUI

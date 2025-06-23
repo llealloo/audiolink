@@ -682,5 +682,5 @@ Shader "AudioLink/StandardLit"
 
     // Fallback to Standard shader for Built-in Render Pipeline
     FallBack "Standard"
-    CustomEditor "VRSL.Shaders.VRSLStandardInspector"
+    CustomEditor "AudioLink.Editor.Shaders.AudioLinkStandardInspector"
 }

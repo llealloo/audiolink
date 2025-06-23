@@ -127,7 +127,6 @@ Shader "AudioLink/Debug/AudioLinkDebug"
                     #define PASS_SIX_OFFSET    int2(12,22) //Pass 6: ColorChord Notes Note: This is reserved to 32,16.
 
                     int selnote = (int)(iuv.x * 10);
-                    // float4 NoteSummary = AudioLinkData(ALPASS_CCINTERNAL);
                     float4 Note = AudioLinkData(ALPASS_CCINTERNAL + uint2(selnote+1,0));
 
                     float intensity = clamp(Note.z * .01, 0, 1);

@@ -41,38 +41,18 @@
                 UNITY_INITIALIZE_OUTPUT(v2f, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-                float3 vp = v.vertex;
+                float3 vPos = v.vertex;
 
-                o.vpOrig = vp;
+                o.vpOrig = vPos;
 
-                // Generate a value for how far around the circle you are.
-                // atan2 generates a number from -pi to pi.  We want to map
-                // this from -1..1.  Tricky: add 0.001 to x otherwise
-                // we lose a vertex at the poll because atan2 is undefined.
-                float phi = atan2(vp.x + 0.001, vp.z) / 3.14159;
-
-                // We want to mirror the -1..1 so that it's actually 0..1 but
-                // mirrored.
-                float placeinautocorrelator = abs(phi);
-
-                // Note: We don't need lerp multiline because the autocorrelator
-                // is only a single line.
-                float autocorrvalue = AudioLinkLerp(ALPASS_AUTOCORRELATOR +
-                    float2(placeinautocorrelator * AUDIOLINK_WIDTH, 0.));
-
-                // Squish in the sides, and make it so it only perterbs
-                // the surface.
-                autocorrvalue = autocorrvalue * (.5 - abs(vp.y)) * 0.4 + .6;
+                vPos *= AudioLinkGetAutoCorrelatorValue(vPos);
 
                 // Perform same operation to find max.  The 0th bin on the
                 // autocorrelator will almost always be the max
                 o.corrmax = AudioLinkLerp(ALPASS_AUTOCORRELATOR) * 0.2 + .6;
 
-                // Modify the original vertices by this amount.
-                vp *= autocorrvalue;
-
-                o.vpXform = vp;
-                o.vertex = UnityObjectToClipPos(vp);
+                o.vpXform = vPos;
+                o.vertex = UnityObjectToClipPos(vPos);
                 return o;
             }
 
@@ -92,7 +72,6 @@
             ENDCG
         }
 
-        // DepthOnly pass
         Pass
         {
             Name "DepthOnly"
@@ -130,23 +109,7 @@
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
                 float3 vp = v.vertex;
-
-                // Generate a value for how far around the circle you are.
-                float phi = atan2(vp.x + 0.001, vp.z) / 3.14159;
-
-                // Mirror -1..1 to 0..1 mirrored
-                float placeinautocorrelator = abs(phi);
-
-                // Get autocorrelator value
-                float autocorrvalue = AudioLinkLerp(ALPASS_AUTOCORRELATOR +
-                    float2(placeinautocorrelator * AUDIOLINK_WIDTH, 0.));
-
-                // Apply deformation
-                autocorrvalue = autocorrvalue * (.5 - abs(vp.y)) * 0.4 + .6;
-
-                // Apply to vertex position
-                vp *= autocorrvalue;
-
+                vp *= AudioLinkGetAutoCorrelatorValue(v.vertex);
                 o.vertex = UnityObjectToClipPos(vp);
                 return o;
             }
@@ -198,18 +161,7 @@
 
                 float3 vp = v.vertex;
 
-                // Generate a value for how far around the circle you are.
-                float phi = atan2(vp.x + 0.001, vp.z) / 3.14159;
-
-                // Mirror -1..1 to 0..1 mirrored
-                float placeinautocorrelator = abs(phi);
-
-                // Get autocorrelator value
-                float autocorrvalue = AudioLinkLerp(ALPASS_AUTOCORRELATOR +
-                    float2(placeinautocorrelator * AUDIOLINK_WIDTH, 0.));
-
-                // Apply deformation
-                autocorrvalue = autocorrvalue * (.5 - abs(vp.y)) * 0.4 + .6;
+                float autocorrvalue = AudioLinkGetAutoCorrelatorValue(vp);
 
                 // Apply to vertex position
                 vp *= autocorrvalue;

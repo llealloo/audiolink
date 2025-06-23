@@ -57,6 +57,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 8295703945185298429}
   audioSource: {fileID: 569928628364396331}
+  optionalRightAudioSource: {fileID: 0}
   gain: 1
   bass: 1
   treble: 1
