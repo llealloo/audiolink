@@ -2,9 +2,6 @@ Shader "AudioLink/StandardLit"
 {
     Properties
     {
-        // URP
-
-        // Specular vs Metallic workflow
         _WorkflowMode("WorkflowMode", Float) = 1.0
 
         [MainTexture] _BaseMap("Albedo", 2D) = "white" {}
@@ -13,9 +10,9 @@ Shader "AudioLink/StandardLit"
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
 
         _Smoothness("Smoothness", Range(0.0, 1.0)) = 0.5
-        _SmoothnessTextureChannel("Smoothness texture channel", Float) = 0
+        [Enum(Metallic Alpha,0,Albedo Alpha,1)] _SmoothnessTextureChannel("Smoothness texture channel", Float) = 0
 
-        _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
+        [Gamma] _Metallic("Metallic", Range(0.0, 1.0)) = 0.0
         _MetallicGlossMap("Metallic", 2D) = "white" {}
 
         _SpecColor("Specular", Color) = (0.2, 0.2, 0.2)
@@ -25,7 +22,7 @@ Shader "AudioLink/StandardLit"
         [ToggleOff] _EnvironmentReflections("Environment Reflections", Float) = 1.0
 
         _BumpScale("Scale", Float) = 1.0
-        _BumpMap("Normal Map", 2D) = "bump" {}
+        [Normal] _BumpMap("Normal Map", 2D) = "bump" {}
 
         _Parallax("Scale", Range(0.005, 0.08)) = 0.005
         _ParallaxMap("Height Map", 2D) = "black" {}
@@ -37,48 +34,42 @@ Shader "AudioLink/StandardLit"
         _EmissionMap("Emission", 2D) = "white" {}
 
         _DetailMask("Detail Mask", 2D) = "white" {}
-        _DetailAlbedoMapScale("Scale", Range(0.0, 2.0)) = 1.0
+        _DetailAlbedoMapScale("Scale", Float) = 1.0
         _DetailAlbedoMap("Detail Albedo x2", 2D) = "linearGrey" {}
-        _DetailNormalMapScale("Scale", Range(0.0, 2.0)) = 1.0
+        _DetailNormalMapScale("Scale", Float) = 1.0
         [Normal] _DetailNormalMap("Normal Map", 2D) = "bump" {}
-
-        // SRP batching compatibility for Clear Coat (Not used in Lit)
-        [HideInInspector] _ClearCoatMask("_ClearCoatMask", Float) = 0.0
-        [HideInInspector] _ClearCoatSmoothness("_ClearCoatSmoothness", Float) = 0.0
 
         // Blending state
         _Surface("__surface", Float) = 0.0
         _Blend("__blend", Float) = 0.0
         _Cull("__cull", Float) = 2.0
+        _Mode ("__mode", Float) = 0.0
         [ToggleUI] _AlphaClip("__clip", Float) = 0.0
-        [HideInInspector] _SrcBlend("__src", Float) = 1.0
-        [HideInInspector] _DstBlend("__dst", Float) = 0.0
-        [HideInInspector] _SrcBlendAlpha("__srcA", Float) = 1.0
-        [HideInInspector] _DstBlendAlpha("__dstA", Float) = 0.0
-        [HideInInspector] _ZWrite("__zw", Float) = 1.0
-        [HideInInspector] _BlendModePreserveSpecular("_BlendModePreserveSpecular", Float) = 1.0
-        [HideInInspector] _AlphaToMask("__alphaToMask", Float) = 0.0
-        [HideInInspector] _AddPrecomputedVelocity("_AddPrecomputedVelocity", Float) = 0.0
+        _SrcBlend("__src", Float) = 1.0
+        _DstBlend("__dst", Float) = 0.0
+        _SrcBlendAlpha("__srcA", Float) = 1.0
+        _DstBlendAlpha("__dstA", Float) = 0.0
+        _ZWrite("__zw", Float) = 1.0
+        _BlendModePreserveSpecular("_BlendModePreserveSpecular", Float) = 1.0
+        _AlphaToMask("__alphaToMask", Float) = 0.0
+        _AddPrecomputedVelocity("_AddPrecomputedVelocity", Float) = 0.0
 
         [ToggleUI] _ReceiveShadows("Receive Shadows", Float) = 1.0
-        // Editmode props
         _QueueOffset("Queue offset", Float) = 0.0
 
-        // ObsoleteProperties
-        [HideInInspector] _MainTex("BaseMap", 2D) = "white" {}
-        [HideInInspector] _Color("Base Color", Color) = (1, 1, 1, 1)
-        [HideInInspector] _GlossMapScale("Smoothness", Float) = 0.0
-        [HideInInspector] _Glossiness("Smoothness", Float) = 0.0
-        [HideInInspector] _GlossyReflections("EnvironmentReflections", Float) = 0.0
+        // BIRP Only Properties
+        _MainTex("BaseMap", 2D) = "white" {}
+        _Color("Base Color", Color) = (1, 1, 1, 1)
+        _GlossMapScale("Smoothness", Float) = 0.0
+        _Glossiness("Smoothness", Float) = 0.0
+        [ToggleOff] _GlossyReflections("EnvironmentReflections", Float) = 0.0
 
         [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset]unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset]unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
 
-        // BIRP specific
+
         [Enum(UV0,0,UV1,1)] _UVSec ("UV Set for secondary textures", Float) = 0
-        // Blending state
-        [HideInInspector] _Mode ("__mode", Float) = 0.0
     }
 
     // URP Lit
@@ -183,9 +174,8 @@ Shader "AudioLink/StandardLit"
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
-            #else// Minimal vertex function
-            // #pragma vert Vertex
-            // #pragma frag Fragment
+            #else
+            // Minimal vertex function
             float4 LitPassVertex(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
@@ -682,5 +672,5 @@ Shader "AudioLink/StandardLit"
 
     // Fallback to Standard shader for Built-in Render Pipeline
     FallBack "Standard"
-    CustomEditor "AudioLink.Editor.Shaders.AudioLinkStandardInspector"
+    CustomEditor "AudioLink.Editor.Shaders.AudioLinkStandardLitShaderGUI"
 }
