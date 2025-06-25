@@ -1273,5 +1273,5 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
         }
     }
 
-    CustomEditor "AudioLink.Editor.Shaders.AudioLinkReactiveSurfaceShaderGUI"
+    CustomEditor "AudioLink.Editor.Shaders.AudioReactiveSurfaceGUI"
 }
