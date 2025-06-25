@@ -44,7 +44,6 @@ namespace AudioLink.Editor.Shaders
 
         private void SetupOpaque(Material material)
         {
-            Debug.Log("Setup Opaque");
             material.SetOverrideTag("RenderType", "Opaque");
             material.SetOverrideTag("IgnoreProjector", "False");
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Geometry;
@@ -56,7 +55,6 @@ namespace AudioLink.Editor.Shaders
 
         private void SetupCutout(Material material)
         {
-            Debug.Log("Setup Cutout");
             material.SetOverrideTag("RenderType", "TransparentCutout");
             material.SetOverrideTag("IgnoreProjector", "True");
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
@@ -68,7 +66,6 @@ namespace AudioLink.Editor.Shaders
 
         private void SetupTransparent(Material material)
         {
-            Debug.Log("Setup Transparent");
             material.SetOverrideTag("RenderType", "Transparent");
             material.SetOverrideTag("IgnoreProjector", "True");
             material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
