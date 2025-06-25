@@ -573,8 +573,8 @@ Shader "AudioLink/StandardLit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Universal2D.hlsl"
             #else
-            #pragma vert Vertex
-            #pragma frag Fragment
+            #pragma vertex Vertex
+            #pragma fragment Fragment
             float4 Vertex(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
@@ -608,8 +608,8 @@ Shader "AudioLink/StandardLit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
             #else
-            #pragma vert Vertex
-            #pragma frag Fragment
+            #pragma vertex Vertex
+            #pragma fragment Fragment
             float4 Vertex(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
@@ -653,8 +653,8 @@ Shader "AudioLink/StandardLit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
             #else
-            #pragma vert Vertex
-            #pragma frag Fragment
+            #pragma vertex Vertex
+            #pragma fragment Fragment
             float4 Vertex(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
