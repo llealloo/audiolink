@@ -142,6 +142,7 @@ namespace AudioLink
 #endif
         private double _fpsTime = 0;
         private int _fpsCount = 0;
+        private int _lastUpdatedFrame = -1;
 
 #if UDONSHARP
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1)).TotalSeconds; }
@@ -344,11 +345,11 @@ namespace AudioLink
 
             LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
 
-            Application.focusChanged += (focus) => 
+            Application.focusChanged += (focus) =>
             {
-                if (_audioLinkEnabled) 
+                if (_audioLinkEnabled)
                 {
-                    if (focus) 
+                    if (focus)
                     {
                         LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
                     }
@@ -598,6 +599,15 @@ namespace AudioLink
             UpdateSettings();
             UpdateThemeColors();
             UpdateCustomStrings();
+
+            // Handle updating the CRT when in-editor
+            // mitigation for stacked CRT updates per frame when multiple views are selected.
+            if (_audioLinkEnabled)
+                if (audioRenderTexture.updateMode == CustomRenderTextureUpdateMode.OnDemand && _lastUpdatedFrame != Time.frameCount)
+                {
+                    _lastUpdatedFrame = Time.frameCount;
+                    audioRenderTexture.Update();
+                }
 #endif
         }
 
@@ -780,11 +790,11 @@ namespace AudioLink
 
         public void SetAudioLinkState(bool state)
         {
-            if (state)
+            if (!_audioLinkEnabled && state)
             {
                 EnableAudioLink();
             }
-            else
+            else if (_audioLinkEnabled && !state)
             {
                 DisableAudioLink();
             }
@@ -794,7 +804,14 @@ namespace AudioLink
         {
             InitIDs();
             _audioLinkEnabled = true;
+#if UNITY_EDITOR
+             // When running in editor, the monobehaviour should control the render texture update cycle.
+             // This mitigates the HYPERSPEED behaviour of the CRT updating multiple times per frame when more than one view camera (scene/view/whatever) is visible.
+             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+#else
+            // In-game it will just update itself in realtime as expected.
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+#endif
             SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
