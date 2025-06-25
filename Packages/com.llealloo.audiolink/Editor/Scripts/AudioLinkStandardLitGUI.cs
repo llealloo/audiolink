@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 namespace AudioLink.Editor.Shaders
 {
 // Create a custom shader GUI that switches between Standard and URP Lit inspector
-    public class AudioLinkStandardLitShaderGUI : ShaderGUI
+    public class AudioLinkStandardLitGUI : ShaderGUI
     {
         // References to keep track of our reflected editor instances
         private ShaderGUI urpLitGUI = null;

@@ -138,11 +138,6 @@
 
             #include "UnityCG.cginc"
 
-            float _XOffset;
-            float _YOffset;
-            float _BubbleOffset;
-            float _AutocorrRound;
-
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -191,11 +186,6 @@
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-
-            float _XOffset;
-            float _YOffset;
-            float _BubbleOffset;
-            float _AutocorrRound;
 
             struct appdata
             {

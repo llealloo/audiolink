@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AudioLink.Editor.Shaders
 {
-    public class AudioLinkReactiveSurfaceShaderGUI : ShaderGUI
+    public class AudioReactiveSurfaceGUI : ShaderGUI
     {
         private int _lastMode = -1;
 
