@@ -154,7 +154,7 @@ namespace AudioLink
         private bool _ignoreRightChannel = false;
         private CustomRenderTextureUpdateMode initialUpdateMode = CustomRenderTextureUpdateMode.Realtime;
 
-#if UDONSHARP
+#if UDONSHARP || CVR_CCK_EXISTS
         [HideInInspector, SerializeField] private Transform audioTarget = null;
         [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
 #else
@@ -384,7 +384,7 @@ namespace AudioLink
                 DisableReadback();
             }
 
-#if !UDONSHARP
+#if !UDONSHARP && !CVR_CCK_EXISTS
             Invoke(nameof(AutoCacheAudioTarget), 1);
 #endif
         }
@@ -642,13 +642,16 @@ namespace AudioLink
         {
 #if UDONSHARP
             return _localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
+#elif CVR_CCK_EXISTS
+            // TODO: Update with the actual logic for where the player's head is.
+            return audioSource.transform.position;
 #else
             // if audioTarget is unavailable, use the audioSource position to make the curves use 0 for listening distance
             return audioTarget ? audioTarget.position : audioSource.transform.position;
 #endif
         }
 
-#if !UDONSHARP
+#if !UDONSHARP && !CVR_CCK_EXISTS
         private double _lastAudioTargetCheckTime;
 
         private void AutoCacheAudioTarget()
