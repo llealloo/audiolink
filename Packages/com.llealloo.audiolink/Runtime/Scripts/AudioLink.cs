@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
 namespace AudioLink
@@ -156,10 +155,10 @@ namespace AudioLink
         private CustomRenderTextureUpdateMode initialUpdateMode = CustomRenderTextureUpdateMode.Realtime;
 
 #if UDONSHARP
-        [HideInInspector, SerializeField] private Transform audioTarget;
+        [HideInInspector, SerializeField] private Transform audioTarget = null;
         [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
 #else
-        public Transform audioTarget;
+        public Transform audioTarget = null;
         public bool autoDetectAudioTarget = true;
 #endif
 
@@ -657,17 +656,23 @@ namespace AudioLink
             if (!autoDetectAudioTarget) return;
             CacheAudioTarget();
             Invoke(nameof(AutoCacheAudioTarget), audioTarget ? 10 : 1); // check faster until one is found
-            UnityEngine.Debug.Log($"Audio target found? {audioTarget != null}");
         }
 
         public void CacheAudioTarget()
         {
 #if UNITY_2022_3_OR_NEWER
-            var listener = FindObjectsByType<AudioListener>(FindObjectsInactive.Exclude, FindObjectsSortMode.None).FirstOrDefault(l => l.enabled);
+            var listeners = FindObjectsByType<AudioListener>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 #else
-            var listener = FindObjectsOfType<AudioListener>(true).FirstOrDefault(l => l.enabled);
+            var listeners = FindObjectsOfType<AudioListener>(true);
 #endif
-            audioTarget = listener != null ? listener.transform : null;
+            audioTarget = null;
+            foreach (var l in listeners)
+            {
+                if (!l.enabled) continue;
+                audioTarget = l.transform;
+                break;
+            }
+
         }
 #endif
 
