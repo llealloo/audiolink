@@ -32,11 +32,14 @@ namespace AudioLink
         [Tooltip("Automatically loop track when finished")]
         public bool loop = false;
 
+        public AudioLink audioLink;
+
         [Header("Internal")]
         [Tooltip("Use this texture as an input to materials and other shader systems like LTCGI.")]
         public CustomRenderTexture videoRenderTexture;
         [Tooltip("AVPro video player component")]
         public VRCAVProVideoPlayer avProVideo;
+        public AudioSource mainAudioSource;
 
         float retryTimeout = 6;
         float syncFrequency = 5;
@@ -123,6 +126,8 @@ namespace AudioLink
 
                 _PlayVideo(defaultUrl);
             }
+
+            SyncPlayerStateToAudioLink();
         }
 
         /// <summary>
@@ -512,7 +517,7 @@ namespace AudioLink
         {
             if (Networking.IsOwner(gameObject))
                 return;
-            
+
             CopyOutOfFlags();
 
             if (debugLogging)
@@ -584,6 +589,8 @@ namespace AudioLink
             _currentPlayer.Play();
 
             SyncVideo();
+
+            SyncPlaybackTimeToAudioLink();
         }
 
         void SyncVideoIfTime()
@@ -637,6 +644,33 @@ namespace AudioLink
                     videoRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
                 else
                     videoRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+            }
+
+            SyncPlayerStateToAudioLink();
+        }
+
+        void SyncPlayerStateToAudioLink()
+        {
+            if (audioLink == null) return;
+            audioLink.autoSetMediaState = false;
+            switch (localPlayerState)
+            {
+                case PLAYER_STATE_STOPPED: audioLink.SetMediaPlaying(MediaPlaying.Stopped); break;
+                case PLAYER_STATE_LOADING: audioLink.SetMediaPlaying(MediaPlaying.Loading); break;
+                case PLAYER_STATE_PLAYING: audioLink.SetMediaPlaying(MediaPlaying.Playing); break;
+                case PLAYER_STATE_ERROR: audioLink.SetMediaPlaying(MediaPlaying.Error); break;
+            }
+            SyncPlaybackTimeToAudioLink();
+        }
+
+        void SyncPlaybackTimeToAudioLink()
+        {
+            if (audioLink == null) return;
+            audioLink.SetMediaLoop(loop ? MediaLoop.LoopOne : MediaLoop.None);
+            audioLink.SetMediaTime(localPlayerState == PLAYER_STATE_PLAYING ? _currentPlayer.GetTime() : 0F);
+            if (mainAudioSource != null)
+            {
+                audioLink.SetMediaVolume(mainAudioSource.volume);
             }
         }
     }
