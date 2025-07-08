@@ -656,7 +656,7 @@ namespace AudioLink
         private void AutoCacheAudioTarget()
         {
             if (!autoDetectAudioTarget) return;
-            if (!audioListenerTarget || !audioListenerTarget.isActiveAndEnabled)
+            if (!audioListenerTarget || !audioListenerTarget.gameObject.activeInHierarchy || !audioListenerTarget.isActiveAndEnabled)
                 CacheAudioTarget();
             Invoke(nameof(AutoCacheAudioTarget), audioTarget ? 10 : 1); // check faster until one is found
         }
