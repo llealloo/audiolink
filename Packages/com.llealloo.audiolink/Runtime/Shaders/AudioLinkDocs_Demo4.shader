@@ -45,7 +45,7 @@
 
                 o.vpOrig = vPos;
 
-                vPos *= AudioLinkGetAutoCorrelatorValue(vPos);
+                vPos *= AudioLinkGetSphericalMappedAutoCorrelatorValue(vPos);
 
                 // Perform same operation to find max.  The 0th bin on the
                 // autocorrelator will almost always be the max
@@ -109,7 +109,7 @@
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
                 float3 vp = v.vertex;
-                vp *= AudioLinkGetAutoCorrelatorValue(v.vertex);
+                vp *= AudioLinkGetSphericalMappedAutoCorrelatorValue(v.vertex);
                 o.vertex = UnityObjectToClipPos(vp);
                 return o;
             }
@@ -161,7 +161,7 @@
 
                 float3 vp = v.vertex;
 
-                float autocorrvalue = AudioLinkGetAutoCorrelatorValue(vp);
+                float autocorrvalue = AudioLinkGetSphericalMappedAutoCorrelatorValue(vp);
 
                 // Apply to vertex position
                 vp *= autocorrvalue;

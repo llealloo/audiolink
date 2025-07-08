@@ -257,7 +257,7 @@
         return AudioLinkHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
     }
 
-    float AudioLinkGetAutoCorrelatorValue(float3 pos)
+    float AudioLinkGetSphericalMappedAutoCorrelatorValue(float3 pos)
     {
         // Generate a value for how far around the circle you are.
         // atan2 generates a number from -pi to pi.  We want to map
