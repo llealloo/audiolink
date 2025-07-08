@@ -156,6 +156,7 @@ namespace AudioLink
 
 #if UDONSHARP || CVR_CCK_EXISTS
         [HideInInspector, SerializeField] private Transform audioTarget = null;
+        [HideInInspector, SerializeField] private AudioListener audioListenerTarget = null;
         [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
 #else
         public Transform audioTarget = null;
@@ -651,13 +652,12 @@ namespace AudioLink
 #endif
         }
 
-#if !UDONSHARP && !CVR_CCK_EXISTS
-        private double _lastAudioTargetCheckTime;
-
+#if UDONSHARP && !CVR_CCK_EXISTS
         private void AutoCacheAudioTarget()
         {
             if (!autoDetectAudioTarget) return;
-            CacheAudioTarget();
+            if (!audioListenerTarget || !audioListenerTarget.isActiveAndEnabled)
+                CacheAudioTarget();
             Invoke(nameof(AutoCacheAudioTarget), audioTarget ? 10 : 1); // check faster until one is found
         }
 
@@ -672,6 +672,7 @@ namespace AudioLink
             foreach (var l in listeners)
             {
                 if (!l.enabled) continue;
+                audioListenerTarget = l;
                 audioTarget = l.transform;
                 break;
             }
