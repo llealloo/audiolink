@@ -160,6 +160,7 @@ namespace AudioLink
         [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
 #else
         public Transform audioTarget = null;
+        public AudioListener audioListenerTarget = null;
         public bool autoDetectAudioTarget = true;
 #endif
 
@@ -652,7 +653,7 @@ namespace AudioLink
 #endif
         }
 
-#if UDONSHARP && !CVR_CCK_EXISTS
+#if !UDONSHARP && !CVR_CCK_EXISTS
         private void AutoCacheAudioTarget()
         {
             if (!autoDetectAudioTarget) return;
