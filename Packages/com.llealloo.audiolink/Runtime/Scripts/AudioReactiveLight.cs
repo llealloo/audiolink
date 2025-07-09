@@ -36,7 +36,7 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                float amplitude = audioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
+                float amplitude = AudioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
                 if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
                 _light.color = HueShift(_initialColor, amplitude * hueShift);
             }

@@ -502,7 +502,7 @@ namespace AudioLink
         /// <param name="vector">Input RGB Vector.</param>
         /// <returns>Monochrome float luminance.</returns>
         /// <remarks>The Dot of <vector> and a luminance Vector.</remarks>
-        public float ToGrayscale(Vector3 vector)
+        public static float ToGrayscale(Vector3 vector)
         {
             return Vector3.Dot(vector, new Vector3(0.299f, 0.587f, 0.114f));
         }
