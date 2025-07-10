@@ -267,7 +267,7 @@ namespace AudioLink
             if (smooth)
             {
                 bandID += Mathf.FloorToInt(GetALPassFilteredAudioLink().y);
-                delay = 15 - delay;
+                delay = Mathf.FloorToInt(GetALPassFilteredAudioLinkSize().x) - (delay + 1);
             }
 
             return GetDataAtPixel(new Vector2(delay, bandID));
