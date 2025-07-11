@@ -56,6 +56,8 @@ namespace AudioLink.Editor
 
             while (serializedProperties.NextVisible(true))
             {
+                if (serializedProperties.propertyPath.Contains(fieldFilter)) continue;
+                
                 switch (serializedProperties.propertyType)
                 {
                     case SerializedPropertyType.ObjectReference:
@@ -78,8 +80,7 @@ namespace AudioLink.Editor
                             if (drawersOpen[drawerIndex - 1])
                                 serializedProperties.floatValue = EditorGUILayout.FloatField(serializedProperties.displayName, serializedProperties.floatValue);
                         }
-                        else if (!serializedProperties.propertyPath.Contains(fieldFilter))
-                            EditorGUILayout.PropertyField(serializedProperties);
+                        else EditorGUILayout.PropertyField(serializedProperties);
                         break;
 
                     case SerializedPropertyType.Integer:
@@ -88,16 +89,10 @@ namespace AudioLink.Editor
                             bool smooth = serializedObject.FindProperty("smooth").boolValue;
                             serializedProperties.intValue = EditorGUILayout.IntSlider(smooth ? "Smoothing (0 - 15)" : "Delay (0 - 127)", serializedProperties.intValue, 0, smooth ? 15 : 127);
                         }
-                        else if (!serializedProperties.propertyPath.Contains(fieldFilter))
-                            EditorGUILayout.PropertyField(serializedProperties);
+                        else EditorGUILayout.PropertyField(serializedProperties);
                         break;
 
                     case SerializedPropertyType.ArraySize:
-                        break;
-
-                    case SerializedPropertyType.Generic:
-                        if (!serializedProperties.propertyPath.Contains(fieldFilter))
-                            EditorGUILayout.PropertyField(serializedProperties);
                         break;
 
                     default:
