@@ -65,7 +65,7 @@ namespace AudioLink
                 audioLink = GetComponentInParent<AudioLink>();
                 if (audioLink == null)
                 {
-                    audioLink = FindObjectOfType<AudioLink>();
+                    audioLink = FindFirstObjectByType<AudioLink>();
                 }
             }
             _globalTextureId = Shader.PropertyToID(globalTextureName);
