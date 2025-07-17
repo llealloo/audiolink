@@ -508,12 +508,4 @@ namespace AudioLink
         }
         #endregion
     }
-
-    public enum AudioLinkBand
-    {
-        Bass = 0,
-        LowMid = 1,
-        HighMid = 2,
-        Treble = 3
-    }
 }
