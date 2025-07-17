@@ -6,11 +6,6 @@ using UdonSharp;
 
 namespace AudioLink
 {
-
-#if UDONSHARP
-    using UdonSharp;
-#endif
-
     [RequireComponent(typeof(Light))]
     public class AudioReactiveLight : AudioReactive
 
