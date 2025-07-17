@@ -1,5 +1,9 @@
 ﻿using UnityEngine;
 
+#if UDONSHARP
+using UdonSharp;
+#endif
+
 namespace AudioLink
 {
 
@@ -14,6 +18,7 @@ namespace AudioLink
         public AudioLink audioLink;
         [Header("AudioLink Settings")]
         public AudioLinkBand band;
+        public AudioReactiveLightColorMode colorMode = AudioReactiveLightColorMode.STATIC;
         public bool smooth;
         [Range(0, 127)]
         public int delay;
@@ -28,7 +33,7 @@ namespace AudioLink
 
         void Start()
         {
-            _light = transform.GetComponent<Light>();
+            _light = GetComponent<Light>();
             _initialColor = _light.color;
         }
 
@@ -38,7 +43,20 @@ namespace AudioLink
             {
                 float amplitude = AudioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
                 if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
-                _light.color = HueShift(_initialColor, amplitude * hueShift);
+                if (colorMode == AudioReactiveLightColorMode.STATIC)
+                    _light.color = HueShift(_initialColor, amplitude * hueShift);
+                else
+                {
+                    Vector2 themePixel = Vector2.zero;
+                    switch (colorMode)
+                    {
+                        case AudioReactiveLightColorMode.THEME0: themePixel = AudioLink.GetALPassThemeColor0(); break;
+                        case AudioReactiveLightColorMode.THEME1: themePixel = AudioLink.GetALPassThemeColor1(); break;
+                        case AudioReactiveLightColorMode.THEME2: themePixel = AudioLink.GetALPassThemeColor2(); break;
+                        case AudioReactiveLightColorMode.THEME3: themePixel = AudioLink.GetALPassThemeColor3(); break;
+                    }
+                    _light.color = HueShift(audioLink.GetDataAtPixel(themePixel), amplitude * hueShift);
+                }
             }
         }
 

@@ -29,6 +29,7 @@ namespace AudioLink
 
         public bool showVideoPreviewInComponent = false;
         public VideoPlayer videoPlayer = null;
+        public AudioLink audioLink = null;
         public Resolution resolution = Resolution._720p;
 
         public bool enableGlobalVideoTexture = false;
@@ -59,9 +60,25 @@ namespace AudioLink
 
         void OnEnable()
         {
+            if (audioLink == null)
+            {
+                audioLink = GetComponentInParent<AudioLink>();
+                if (audioLink == null)
+                {
+                    audioLink = FindFirstObjectByType<AudioLink>();
+                }
+            }
             _globalTextureId = Shader.PropertyToID(globalTextureName);
             _globalTextureTransformId = Shader.PropertyToID(globalTextureName + "_ST");
             RequestPlay();
+        }
+
+        void OnDisable()
+        {
+            if (audioLink != null)
+            {
+                audioLink.autoSetMediaState = true;
+            }
         }
 
         public void RequestPlay()
@@ -75,6 +92,21 @@ namespace AudioLink
             {
                 UpdateUrl(_currentRequest.resolvedURL);
                 _currentRequest = null;
+            }
+            if (audioLink != null && videoPlayer != null)
+            {
+                audioLink.autoSetMediaState = false;
+                if (_currentRequest != null && !_currentRequest.isDone)
+                    audioLink.SetMediaPlaying(MediaPlaying.Loading);
+                else if (videoPlayer.isPaused)
+                    audioLink.SetMediaPlaying(MediaPlaying.Paused);
+                else if (videoPlayer.isPlaying)
+                    audioLink.SetMediaPlaying(MediaPlaying.Playing);
+                else
+                    audioLink.SetMediaPlaying(MediaPlaying.Stopped);
+                audioLink.SetMediaTime(GetPlaybackTime());
+                audioLink.SetMediaLoop(videoPlayer.isLooping ? MediaLoop.LoopOne : MediaLoop.None);
+                if (GetAudioSourceVolume(out float volume)) audioLink.SetMediaVolume(volume);
             }
         }
 

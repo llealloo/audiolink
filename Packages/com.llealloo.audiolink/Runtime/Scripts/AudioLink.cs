@@ -1,5 +1,4 @@
 ﻿using System;
-
 using UnityEngine;
 
 namespace AudioLink
@@ -139,21 +138,31 @@ namespace AudioLink
 #if UDONSHARP
         private bool _hasInitializedTime = false;
         private VRCPlayerApi _localPlayer;
-#endif
-        private double _fpsTime = 0;
-        private int _fpsCount = 0;
-
-#if UDONSHARP
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1)).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
 #else
         private double GetElapsedSecondsSince2019() { return (DateTime.UtcNow - new DateTime(2020, 1, 1)).TotalSeconds; }
 #endif
 
+        private double _fpsTime = 0;
+        private int _fpsCount = 0;
+        private int _lastUpdatedFrame = -1;
+
         // Fix for AVPro mono game output bug (if running the game with a mono output source like a headset)
         private int _rightChannelTestDelay = 300;
         private int _rightChannelTestCounter;
         private bool _ignoreRightChannel = false;
+        private CustomRenderTextureUpdateMode initialUpdateMode = CustomRenderTextureUpdateMode.Realtime;
+
+#if UDONSHARP || CVR_CCK_EXISTS
+        [HideInInspector, SerializeField] private Transform audioTarget = null;
+        [HideInInspector, SerializeField] private AudioListener audioListenerTarget = null;
+        [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
+#else
+        public Transform audioTarget = null;
+        public AudioListener audioListenerTarget = null;
+        public bool autoDetectAudioTarget = true;
+#endif
 
         #region PropertyIDs
 
@@ -344,11 +353,11 @@ namespace AudioLink
 
             LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
 
-            Application.focusChanged += (focus) => 
+            Application.focusChanged += (focus) =>
             {
-                if (_audioLinkEnabled) 
+                if (_audioLinkEnabled)
                 {
-                    if (focus) 
+                    if (focus)
                     {
                         LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
                     }
@@ -369,13 +378,23 @@ namespace AudioLink
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
-
+            initialUpdateMode = audioRenderTexture.updateMode;
 
             // Disable camera on start if user didn't ask for it
             if (!audioDataToggle)
             {
                 DisableReadback();
             }
+
+#if !UDONSHARP && !CVR_CCK_EXISTS
+            Invoke(nameof(AutoCacheAudioTarget), 1);
+#endif
+        }
+
+        void OnDestroy()
+        {
+            // makes sure that playmode doesn't permanently modify the update mode
+            audioRenderTexture.updateMode = initialUpdateMode;
         }
 
         // TODO(3): try to port this to standalone
@@ -544,10 +563,21 @@ namespace AudioLink
 
                 // Used to correct for the volume of the audio source component
 
-                audioMaterial.SetFloat(_SourceVolume, audioSource.volume);
-                audioMaterial.SetFloat(_SourceSpatialBlend, audioSource.spatialBlend);
-                audioMaterial.SetVector(_SourcePosition, audioSource.transform.position);
+                float sourceVolume = audioSource.volume;
+                Vector3 sourcePosition = audioSource.transform.position;
+                float sourceMax = audioSource.maxDistance;
 
+                AnimationCurve sourceBlendCurve = audioSource.GetCustomCurve(AudioSourceCurveType.SpatialBlend);
+                AnimationCurve sourceFalloffCurve = audioSource.GetCustomCurve(AudioSourceCurveType.CustomRolloff);
+                var playerEars = GetHearingLocation();
+                float listeningDistance = Vector3.Distance(playerEars, sourcePosition) / sourceMax;
+                float sourceFalloff = sourceFalloffCurve.Evaluate(listeningDistance);
+                float sourceBlend = sourceBlendCurve.Evaluate(listeningDistance);
+                sourceVolume = Mathf.Lerp(sourceVolume, sourceVolume * sourceFalloff, sourceBlend);
+
+                audioMaterial.SetFloat(_SourceVolume, sourceVolume);
+                audioMaterial.SetFloat(_SourceSpatialBlend, sourceBlend);
+                audioMaterial.SetVector(_SourcePosition, sourcePosition);
 
                 if (autoSetMediaState)
                 {
@@ -598,8 +628,58 @@ namespace AudioLink
             UpdateSettings();
             UpdateThemeColors();
             UpdateCustomStrings();
+
+            // Handle updating the CRT when in-editor
+            // mitigation for stacked CRT updates per frame when multiple views are selected.
+            if (_audioLinkEnabled)
+                if (audioRenderTexture.updateMode == CustomRenderTextureUpdateMode.OnDemand && _lastUpdatedFrame != Time.frameCount)
+                {
+                    _lastUpdatedFrame = Time.frameCount;
+                    audioRenderTexture.Update();
+                }
 #endif
         }
+
+        private Vector3 GetHearingLocation()
+        {
+#if UDONSHARP
+            return _localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
+#elif CVR_CCK_EXISTS
+            // TODO: Update with the actual logic for where the player's head is.
+            return audioSource.transform.position;
+#else
+            // if audioTarget is unavailable, use the audioSource position to make the curves use 0 for listening distance
+            return audioTarget ? audioTarget.position : audioSource.transform.position;
+#endif
+        }
+
+#if !UDONSHARP && !CVR_CCK_EXISTS
+        private void AutoCacheAudioTarget()
+        {
+            if (!autoDetectAudioTarget) return;
+            if (!audioListenerTarget || !audioListenerTarget.gameObject.activeInHierarchy || !audioListenerTarget.isActiveAndEnabled)
+                CacheAudioTarget();
+            Invoke(nameof(AutoCacheAudioTarget), audioTarget ? 10 : 1); // check faster until one is found
+        }
+
+        public void CacheAudioTarget()
+        {
+#if UNITY_2022_3_OR_NEWER
+            var listeners = FindObjectsByType<AudioListener>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+#else
+            var listeners = FindObjectsOfType<AudioListener>(true);
+#endif
+            audioTarget = null;
+            foreach (var l in listeners)
+            {
+                if (!l.enabled) continue;
+                audioListenerTarget = l;
+                audioTarget = l.transform;
+                break;
+            }
+
+        }
+#endif
 
 #if UDONSHARP
         public override void OnAsyncGpuReadbackComplete(VRCAsyncGPUReadbackRequest request)
@@ -780,11 +860,11 @@ namespace AudioLink
 
         public void SetAudioLinkState(bool state)
         {
-            if (state)
+            if (!_audioLinkEnabled && state)
             {
                 EnableAudioLink();
             }
-            else
+            else if (_audioLinkEnabled && !state)
             {
                 DisableAudioLink();
             }
@@ -794,7 +874,14 @@ namespace AudioLink
         {
             InitIDs();
             _audioLinkEnabled = true;
+#if UNITY_EDITOR
+             // When running in editor, the monobehaviour should control the render texture update cycle.
+             // This mitigates the HYPERSPEED behaviour of the CRT updating multiple times per frame when more than one view camera (scene/view/whatever) is visible.
+             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+#else
+            // In-game it will just update itself in realtime as expected.
             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+#endif
             SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
