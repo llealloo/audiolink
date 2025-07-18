@@ -257,6 +257,28 @@
         return AudioLinkHSVtoRGB(float3(fmod(hue, 1.0), 1.0, clamp(val, 0.0, 1.0)));
     }
 
+    float AudioLinkGetSphericalMappedAutoCorrelatorValue(float3 pos)
+    {
+        // Generate a value for how far around the circle you are.
+        // atan2 generates a number from -pi to pi.  We want to map
+        // this from -1..1.  Tricky: add 0.001 to x otherwise
+        // we lose a vertex at the poll because atan2 is undefined.
+        float phi = atan2(pos.x + 0.001, pos.z) / 3.14159;
+
+        // We want to mirror the -1..1 so that it's actually 0..1 but
+        // mirrored.
+        float placeInAutoCorrelator = abs(phi);
+
+        // Note: We don't need lerp multiline because the autocorrelator
+        // is only a single line.
+        float autoCorrValue = AudioLinkLerp(ALPASS_AUTOCORRELATOR +
+            float2(placeInAutoCorrelator * AUDIOLINK_WIDTH, 0.));
+
+        // Squish in the sides, and make it so it only perterbs
+        // the surface.
+        return autoCorrValue * (.5 - abs(pos.y)) * 0.4 + .6;
+    }
+
     // Sample the amplitude of a given frequency in the DFT, supports frequencies in [13.75; 14080].
     float4 AudioLinkGetAmplitudeAtFrequency(float hertz)
     {

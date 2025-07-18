@@ -63,29 +63,29 @@
             float _ColorChordRange;
             float _Brightness;
             float _Fadeyness;
-            
+
             float _BubbleOffset;
             float _XOffset;
             float _YOffset;
             float _BubbleRotationSpeed;
             float _BubbleRotationMultiply;
             float _BubbleRotationOffset;
-            
-            v2f vert (appdata v)
+
+            v2f vert(appdata v)
             {
                 v2f o;
 
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_OUTPUT(v2f, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
                 float2 uvCenter = float2(i.uv.x - _XOffset, i.uv.y - _YOffset) * 2 - 1;
 
@@ -93,22 +93,22 @@
                 float angle = atan2(uvCenter.x, uvCenter.y) / UNITY_PI;
                 angle = glsl_mod(angle * _BubbleRotationMultiply + _BubbleRotationSpeed * _Time.y + _BubbleRotationOffset, 2.0);
                 float angleDelta = abs(angle - 1.0) * (AUDIOLINK_WIDTH - 1);
-                
+
                 // Read autocorrelator value, apply normalization
                 float sinCoord = lerp(abs(uvCenter.x * AUDIOLINK_WIDTH), angleDelta, _AutocorrRound);
                 float sinVal = AudioLinkLerpMultiline(ALPASS_AUTOCORRELATOR + float2(sinCoord, 0));
-                sinVal *= lerp(1.0, rsqrt(AudioLinkData( ALPASS_AUTOCORRELATOR ).r), _AutocorrNormalization);
+                sinVal *= lerp(1.0, rsqrt(AudioLinkData(ALPASS_AUTOCORRELATOR).r), _AutocorrNormalization);
                 sinVal *= _AutocorrIntensity;
-                
+
                 // Get distance to circle, subtract from autocorrelator value
                 float dist = lerp(abs(uvCenter.y), length(uvCenter), _AutocorrRound) - _BubbleOffset;
                 dist = sinVal - dist;
-                
+
                 // Fetch colorchord data, lerp to chosen colors
                 float4 mainColor = lerp(_ColorBackground, _ColorForeground, dist > 0);
                 float3 colorChordColor = AudioLinkData(int2(ALPASS_CCSTRIP + int2(clamp(abs(dist * _ColorChordRange), 0, AUDIOLINK_WIDTH - 1), 0)));
                 float3 color = lerp(mainColor.rgb, colorChordColor.rgb, _ColorChord);
-                
+
                 // Apply fade, brightness, fog
                 color *= lerp(1, dist, _Fadeyness);
                 color *= _Brightness;
@@ -116,6 +116,110 @@
                 UNITY_APPLY_FOG(i.fogCoord, finalColor);
 
                 return saturate(finalColor);
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = v.uv;
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                return 0;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            ZWrite On
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                float3 normal : TEXCOORD1;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = v.uv;
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normal);
+                float3 normalEncoded = normalWS * 0.5 + 0.5;
+                return float4(normalEncoded, 1.0);
             }
             ENDCG
         }

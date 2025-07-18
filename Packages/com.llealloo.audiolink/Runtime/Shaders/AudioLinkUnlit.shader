@@ -1,53 +1,71 @@
-﻿Shader "AudioLink/Examples/Demo2"
+Shader "AudioLink/Unlit"
 {
     Properties
     {
+        _MainTex ("Base (RGB)", 2D) = "white" {}
+        _AlphaColor ("Alpha Color", Color) = (0,0,0,1)
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
     }
+
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags
+        {
+            "RenderType"="Transparent"
+            "Queue"="Transparent"
+        }
+
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Cull [_Cull]
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 2.0
+            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
-            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
-            struct appdata
+            struct appdata_t
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float2 texcoord : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                float2 texcoord : TEXCOORD0;
+                UNITY_FOG_COORDS(1)
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            float4 _AlphaColor;
 
-            v2f vert(appdata v)
+            v2f vert(appdata_t v)
             {
                 v2f o;
-
                 UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_OUTPUT(v2f, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
-                float Sample = AudioLinkLerpMultiline(ALPASS_WAVEFORM + float2(200. * i.uv.x, 0)).r;
-                return clamp(1 - 50 * abs(Sample - i.uv.y * 2. + 1), 0, 1);
+                fixed4 col = tex2D(_MainTex, i.texcoord);
+                col = lerp(_AlphaColor, col, col.a);
+                col.a = max(col.a, _AlphaColor.a);
+                UNITY_APPLY_FOG(i.fogCoord, col);
+                return col;
             }
             ENDCG
         }
@@ -62,36 +80,40 @@
 
             ZWrite On
             ColorMask 0
-            Cull Back
+            Cull Off
 
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 2.0
+            #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
 
             struct appdata
             {
                 float4 vertex : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
+                float2 texcoord : TEXCOORD0;
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
-                UNITY_VERTEX_OUTPUT_STEREO
+                float2 texcoord : TEXCOORD0;
             };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
 
             v2f vert(appdata v)
             {
                 v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 return o;
             }
 
-            float4 frag(v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
                 return 0;
             }
@@ -107,11 +129,13 @@
             }
 
             ZWrite On
-            Cull Back
+            Cull Off
 
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 2.0
+            #pragma multi_compile_instancing
 
             #include "UnityCG.cginc"
 
@@ -119,34 +143,42 @@
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
+                float2 texcoord : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f
             {
-                float4 vertex : SV_POSITION;
-                float3 normal : TEXCOORD0;
+                float4 pos : SV_POSITION;
+                float4 nz : TEXCOORD0;
+                float2 texcoord : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
 
             v2f vert(appdata v)
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.normal = UnityObjectToWorldNormal(v.normal);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.nz.xyz = COMPUTE_VIEW_NORMAL;
+                o.nz.w = COMPUTE_DEPTH_01;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 return o;
             }
 
-            float4 frag(v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                float3 normalWS = normalize(i.normal);
-                float3 normalEncoded = normalWS * 0.5 + 0.5;
-                return float4(normalEncoded, 1.0);
+                UNITY_SETUP_INSTANCE_ID(i);
+                return EncodeDepthNormal(i.nz.w, i.nz.xyz);
             }
             ENDCG
         }
-
     }
 }

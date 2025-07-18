@@ -11,8 +11,8 @@ Shader "GUI/Color3DTextFade"
     {
         _MainTex ("Font Texture", 2D) = "white" {}
         _FadeNear ("Fade Near", float) = 2.0
-        _FadeCull ("Fade Cull", float) = 3.0
         _FadeSharpness ("Fade Range", float ) = 1
+        _FadeCull ("Fade Cull", float) = 4.0
         [HDR]_Colorize ("Colorize", Color) = (1,1,1,1)
     }
     SubShader
@@ -115,42 +115,6 @@ Shader "GUI/Color3DTextFade"
                 return o;
             }
 
-            /*
-                          #pragma geometry geom
-            
-                        struct v2g {
-                            float4 pos : SV_POSITION;
-                            fixed4 color : COLOR;
-                            float2 uv : TEXCOORD0;
-                            float3 camrelpos : TEXCOORD1;
-                        };
-                        // I tried doing an approach with a geometry shader, I didn't like how it looked.
-            
-                        [maxvertexcount(3)]            
-                        void geom(triangle v2g p[3], inout TriangleStream<g2f> triStream, uint id : SV_PrimitiveID)
-                        {
-                            float3 dists = float3( length( p[0].camrelpos ), length( p[1].camrelpos ), length( p[2].camrelpos ) );
-                            float avgdist = (dists.x+dists.y+dists.z)/3;
-                            if( max( max( dists.x, dists.y ), dists.z ) >= _FadeCull )
-                            {
-                                return;
-                            }
-                            float strength = pow( saturate( 1 + (_FadeNear - avgdist) ), 1.5 );
-                            float4 center = (p[0].pos+p[1].pos+p[2].pos)/3;
-                            float4 v0 = p[0].pos-center;
-                            float4 v1 = p[1].pos-center;
-                            float4 v2 = p[2].pos-center;
-                            v0 *= strength;
-                            v1 *= strength;
-                            v2 *= strength;
-                            p[0].pos = UnityObjectToClipPos( v0+center );
-                            p[1].pos = UnityObjectToClipPos( v1+center );
-                            p[2].pos = UnityObjectToClipPos( v2+center );
-                            triStream.Append( p[0] );
-                            triStream.Append( p[1] );
-                            triStream.Append( p[2] );
-                        }
-                   */
             fixed4 frag(v2f o) : COLOR
             {
                 // this gives us text or not based on alpha, apparently
@@ -162,5 +126,128 @@ Shader "GUI/Color3DTextFade"
             }
             ENDCG
         }
+
+        // DepthOnly pass
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            float _FadeCull;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float3 camrelpos : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.camrelpos = _WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex);
+
+                // Match the same culling logic from the main pass
+                if (length(o.camrelpos) > _FadeCull)
+                {
+                    o.vertex = 0;
+                    o.camrelpos = 0;
+                }
+
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                return 0;
+            }
+            ENDCG
+        }
+
+        // DepthNormals pass
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            ZWrite On
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            float _FadeCull;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : TEXCOORD0;
+                float3 camrelpos : TEXCOORD1;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                o.camrelpos = _WorldSpaceCameraPos - mul(unity_ObjectToWorld, v.vertex);
+
+                // Match the same culling logic from the main pass
+                if (length(o.camrelpos) > _FadeCull)
+                {
+                    o.vertex = 0;
+                    o.normal = 0;
+                    o.camrelpos = 0;
+                }
+
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normal);
+                return float4(normalWS * 0.5 + 0.5, 1);
+            }
+            ENDCG
+        }
+
     }
 }
