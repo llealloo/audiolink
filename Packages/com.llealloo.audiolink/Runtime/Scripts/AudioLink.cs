@@ -156,7 +156,7 @@ namespace AudioLink
 
 #if UDONSHARP || CVR_CCK_EXISTS
         [HideInInspector, SerializeField] private Transform audioTarget = null;
-        [HideInInspector, SerializeField] private AudioListener audioListenerTarget = null;
+        [HideInInspector, SerializeField] private Component audioListenerTarget = null;
         [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
 #else
         public Transform audioTarget = null;
