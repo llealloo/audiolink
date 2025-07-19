@@ -550,7 +550,7 @@ namespace AudioLink
 
             string tempPath = Path.GetFullPath(Path.Combine("Temp", _ffmpegCache));
 
-#if !UNITY_EDITOR_LINUX
+#if UNITY_EDITOR_WIN
             if (IsFFmpegAvailable())
 #endif
             if (!Directory.Exists(tempPath))
@@ -621,10 +621,10 @@ namespace AudioLink
 
                         Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
 
-#if UNITY_EDITOR_LINUX
-                        bool useFFmpeg = true;
+#if UNITY_EDITOR_WIN
+                        bool useFFmpeg = IsFFmpegAvailable();;
 #else
-                        bool useFFmpeg = IsFFmpegAvailable();
+                        bool useFFmpeg = true;
 #endif
 
                         if (useFFmpeg)
