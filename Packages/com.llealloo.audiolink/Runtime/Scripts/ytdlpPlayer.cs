@@ -551,7 +551,7 @@ namespace AudioLink
 
             string tempPath = Path.GetFullPath(Path.Combine("Temp", _ffmpegCache));
 
-#if UNITY_EDITOR_WIN
+#if !UNITY_EDITOR_LINUX
             if (IsFFmpegAvailable())
 #endif
             if (!Directory.Exists(tempPath))
@@ -756,18 +756,17 @@ namespace AudioLink
         {
             serializedObject.Update();
 
-#if UNITY_EDITOR_WIN
-            bool available = ytdlpURLResolver.IsytdlpAvailable();
-#else
-            
+#if UNITY_EDITOR_LINUX
             bool available = ytdlpURLResolver.IsytdlpAvailable() && ytdlpURLResolver.IsFFmpegAvailable();
+#else
+            bool available = ytdlpURLResolver.IsytdlpAvailable();
 #endif
 
             bool hasVideoPlayer = _ytdlpPlayer.videoPlayer != null;
             float playbackTime = hasVideoPlayer ? _ytdlpPlayer.GetPlaybackTime() : 0;
             double videoLength = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.length : 0;
 
-            if (ytdlpURLResolver.IsFFmpegAvailable())
+            if (ytdlpURLResolver.useFFmpeg && ytdlpURLResolver.IsFFmpegAvailable())
                 EditorGUILayout.HelpBox("Using FFmpeg to transcode test videos into a compatible format locally.\n\nThis may play videos that *are not* supported in VRChat / CilloutVR,\nadditionally it does not support livestreams.\n\nIf you encounter any issues, specify you're using FFmpeg Transcoding when reporting issues.", MessageType.Info);
 
             using (new EditorGUI.DisabledScope(!available))
@@ -933,7 +932,7 @@ namespace AudioLink
                 }
             }
 
-            if (!available)
+            if (!available || (ytdlpURLResolver.useFFmpeg && !ytdlpURLResolver.IsFFmpegAvailable()))
             {
 #if UNITY_EDITOR_LINUX
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via your package manager,\nor make sure the portable executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
