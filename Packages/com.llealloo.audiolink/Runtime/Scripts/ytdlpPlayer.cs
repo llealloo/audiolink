@@ -760,10 +760,11 @@ namespace AudioLink
         {
             serializedObject.Update();
 
-#if UNITY_EDITOR_LINUX
-            bool available = ytdlpURLResolver.IsytdlpAvailable() && ytdlpURLResolver.IsFFmpegAvailable();
-#else
+#if UNITY_EDITOR_WIN
             bool available = ytdlpURLResolver.IsytdlpAvailable();
+#else
+            
+            bool available = ytdlpURLResolver.IsytdlpAvailable() && ytdlpURLResolver.IsFFmpegAvailable();
 #endif
 
             bool hasVideoPlayer = _ytdlpPlayer.videoPlayer != null;
@@ -928,7 +929,7 @@ namespace AudioLink
 #elif UNITY_EDITOR_WIN
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, either install and launch VRChat once,\nor install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #else
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
+                EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via *homebrew*: \"brew install yt-dlp ffmpeg\", or make sure the executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #endif
             }
 
