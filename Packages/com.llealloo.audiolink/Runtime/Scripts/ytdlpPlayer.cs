@@ -239,6 +239,7 @@ namespace AudioLink
         private static bool _ytdlpFound = false;
         private static VideoMeta _ytdlpJson;
 
+        public static bool useFFmpeg = false;
         private static System.Diagnostics.Process _ffmpegProc;
         private static string _ffmpegError;
         private static string _ffmpegPath = "";
@@ -621,13 +622,7 @@ namespace AudioLink
 
                         Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
 
-#if UNITY_EDITOR_WIN
-                        bool useFFmpeg = IsFFmpegAvailable();
-#else
-                        bool useFFmpeg = true;
-#endif
-
-                        if (useFFmpeg)
+                        if (useFFmpeg && IsFFmpegAvailable())
                         {
                             Transcode(args.Data, callback, fullUrlHash, "libvorbis", "vp8", "webm");
                         }
@@ -726,6 +721,7 @@ namespace AudioLink
         private SerializedProperty standbyTexture;
 
         private const string showVideoPreviewInComponentKey = "YTDLP-VIDEO-PREVIEW";
+        private const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
 
         void OnEnable()
         {
@@ -865,6 +861,21 @@ namespace AudioLink
             using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || videoPlayerOnThisObject))
             {
                 _ytdlpPlayer.videoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _ytdlpPlayer.videoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
+            }
+
+            // FFmpeg toggle
+            using (new EditorGUI.DisabledScope(!ytdlpURLResolver.IsFFmpegAvailable()))
+            {
+                bool platformDefaultUseFFmpegTranscode = false;
+#if UNITY_EDITOR_LINUX
+                platformDefaultUseFFmpegTranscode = true;
+#endif
+
+                bool wasUsingFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
+                ytdlpURLResolver.useFFmpeg = EditorGUILayout.ToggleLeft(new GUIContent("Use FFmpeg Transcoding"), wasUsingFFmpeg);
+
+                if (wasUsingFFmpeg != ytdlpURLResolver.useFFmpeg)
+                    EditorPrefs.SetBool(useFFmpegTranscodeKey, ytdlpURLResolver.useFFmpeg);
             }
 
             // Video preview
