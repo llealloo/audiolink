@@ -622,7 +622,7 @@ namespace AudioLink
                         Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
 
 #if UNITY_EDITOR_WIN
-                        bool useFFmpeg = IsFFmpegAvailable();;
+                        bool useFFmpeg = IsFFmpegAvailable();
 #else
                         bool useFFmpeg = true;
 #endif
