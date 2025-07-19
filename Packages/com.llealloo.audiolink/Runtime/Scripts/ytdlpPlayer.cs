@@ -432,7 +432,7 @@ namespace AudioLink
 
                 "-y",
 
-                "-hwaccel vulkan",
+                "-hwaccel auto",
 
                 "-i", $"\"{url}\"",
 
