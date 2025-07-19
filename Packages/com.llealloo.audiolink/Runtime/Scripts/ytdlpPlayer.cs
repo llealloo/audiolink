@@ -240,6 +240,7 @@ namespace AudioLink
         private static VideoMeta _ytdlpJson;
 
         private static System.Diagnostics.Process _ffmpegProc;
+        private static string _ffmpegError;
         private static string _ffmpegPath = "";
         private static bool _ffmpegFound = false;
         private static string _ffmpegCache = "Video Cache";
@@ -249,6 +250,8 @@ namespace AudioLink
 
         private const string userDefinedFFmpegPathKey = "MPEG-PATH-CUSTOM";
         private const string userDefinedFFmpegPathMenu = "Tools/AudioLink/Select Custom FFmpeg Location";
+
+        private const string _ffErrorIdentifier = ", from 'http";
 
         private static void SelectToolInstall(string title, string pathMenu, string pathKey)
         {
@@ -424,7 +427,9 @@ namespace AudioLink
 
             ResolvingRequest transcode = new ResolvingRequest();
 
-            string[] ffmpegArgs = new string[12] {
+            string[] ffmpegArgs = new string[13] {
+                "-hide_banner",
+
                 "-y",
 
                 "-hwaccel vulkan",
@@ -442,6 +447,8 @@ namespace AudioLink
                 $"\"{outPath}\""
             };
 
+            _ffmpegError = "";
+
             _ffmpegProc = ResolvingProcess(_ffmpegPath, ffmpegArgs);
 
             _ffmpegProc.Exited += (sender, args) =>
@@ -457,10 +464,11 @@ namespace AudioLink
                     transcode.isDone = true;
 
                     Debug.Log($"[AudioLink:FFmpeg] Transcode completed sucessfully. ({_ytdlpJson.id})");
-
-                    _ytdlpJson.id = "";
                 }
-                else Debug.LogWarning($"[AudioLink:FFmpeg] Failed to transcode Video! ({_ytdlpJson.id})");
+                else
+                Debug.LogError($"[AudioLink:FFmpeg] Failed to transcode Video! ({_ytdlpJson.id})\n{_ffmpegError}");
+
+                _ytdlpJson.id = "";
 
                 callback(transcode);
 
@@ -489,6 +497,17 @@ namespace AudioLink
                         string progressPercent = _ytdlpJson.duration == 0.0 ? "" : $"- {Mathf.FloorToInt((float)(ffmpegProgress.TotalSeconds / _ytdlpJson.duration) * 100f)}%";
 
                         Debug.Log($"[AudioLink:FFmpeg] Transcode progress ({_ytdlpJson.id}): {progressSeconds} {progressPercent}");
+                    }
+                    else
+                    {
+                        if (args.Data.Contains(_ffErrorIdentifier))
+                        {
+                            _ffmpegError += args.Data.Substring(0, args.Data.IndexOf(_ffErrorIdentifier)) + "\n";
+                        }
+                        else
+                        {
+                            _ffmpegError += args.Data + "\n";
+                        }
                     }
                 }
             };
