@@ -252,6 +252,8 @@ namespace AudioLink
         private const string userDefinedFFmpegPathKey = "MPEG-PATH-CUSTOM";
         private const string userDefinedFFmpegPathMenu = "Tools/AudioLink/Select Custom FFmpeg Location";
 
+        private const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
+
         private const string _ffErrorIdentifier = ", from 'http";
 
         private static void SelectToolInstall(string title, string pathMenu, string pathKey)
@@ -416,15 +418,6 @@ namespace AudioLink
 
         public static void Transcode(string url, Action<ResolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
         {
-            if (!_ffmpegFound)
-            {
-                LocateFFmpeg();
-            }
-
-            if (!_ffmpegFound)
-            {
-                Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
-            }
 
             ResolvingRequest transcode = new ResolvingRequest();
 
@@ -545,6 +538,18 @@ namespace AudioLink
                 Debug.LogWarning($"[AudioLink:YT-dlp] Unable to resolve URL '{url}' : yt-dlp not found");
             }
 
+            if (!_ffmpegFound)
+            {
+                LocateFFmpeg();
+            }
+
+            bool platformDefaultUseFFmpegTranscode = false;
+#if UNITY_EDITOR_LINUX
+            platformDefaultUseFFmpegTranscode = true;
+#endif
+
+            useFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
+
             // Catch playlist runaway
             url = SanitizeURL(url, "https://www.youtube.com/", '&');
             url = SanitizeURL(url, "https://youtu.be/", '?');
@@ -628,6 +633,9 @@ namespace AudioLink
                         }
                         else
                         {
+                            if (useFFmpeg)
+                                Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
+
                             request.resolvedURL = args.Data;
                             request.isDone = true;
 
