@@ -3,7 +3,8 @@ Shader "AudioLink/Unlit"
     Properties
     {
         _MainTex ("Base (RGB)", 2D) = "white" {}
-        _AlphaColor ("Alpha Color", Color) = (0,0,0,1)
+        [HDR] _Color ("Unlit Color", Color) = (1,1,1,1)
+        [HDR] _AlphaColor ("Alpha Color", Color) = (0,0,0,1)
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
     }
 
@@ -46,6 +47,7 @@ Shader "AudioLink/Unlit"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float4 _Color;
             float4 _AlphaColor;
 
             v2f vert(appdata_t v)
@@ -62,7 +64,7 @@ Shader "AudioLink/Unlit"
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.texcoord);
-                col = lerp(_AlphaColor, col, col.a);
+                col = lerp(_AlphaColor, col * _Color, col.a);
                 col.a = max(col.a, _AlphaColor.a);
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
