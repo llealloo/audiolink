@@ -76,7 +76,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             }
 
             HLSLPROGRAM
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
             #pragma shader_feature_local _SURFACE_OPAQUE _SURFACE_CUTOUT _SURFACE_TRANSPARENT
             #pragma multi_compile_instancing
             #pragma multi_compile __ LOD_FADE_CROSSFADE
@@ -91,7 +91,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ DIRLIGHTMAP_COMBINED
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
@@ -105,7 +105,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
                 float3 normalOS : NORMAL;
                 float2 texcoord : TEXCOORD0;
                 float2 lightmapUV : TEXCOORD1;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 #endif
             };
@@ -114,7 +114,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                #if UNIVERSAL_RENDER_PIPELINE
+                #if _UNIVERSAL_RENDER_PIPELINE
                 DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
                 #endif
                 float3 positionWS : TEXCOORD2;
@@ -123,13 +123,13 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
                 float3 bitangentWS : TEXCOORD5;
                 float4 shadowCoord : TEXCOORD6;
                 float fogCoord : TEXCOORD7;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
                 #endif
             };
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             TEXTURE2D(_BumpMap);
@@ -159,7 +159,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             Varyings vert(Attributes input)
             {
                 Varyings output = (Varyings)0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -186,7 +186,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
             half4 frag(Varyings input) : SV_Target
             {
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
@@ -297,20 +297,20 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             ColorMask 0
 
             HLSLPROGRAM
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
             #pragma shader_feature_local _SURFACE_OPAQUE _SURFACE_CUTOUT _SURFACE_TRANSPARENT
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
             #endif
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             TEXTURE2D(_BumpMap);
@@ -342,7 +342,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 #endif
             };
@@ -351,7 +351,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
                 #endif
@@ -360,7 +360,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             Varyings vert(Attributes input)
             {
                 Varyings output = (Varyings)0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -382,7 +382,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
             half4 frag(Varyings input) : SV_TARGET
             {
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 #ifndef _SURFACE_OPAQUE
                 // Sample main texture for alpha
                 float4 albedoAlpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
@@ -408,17 +408,17 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             ColorMask 0
 
             HLSLPROGRAM
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
             #pragma shader_feature_local _SURFACE_OPAQUE _SURFACE_CUTOUT _SURFACE_TRANSPARENT
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #endif
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             TEXTURE2D(_BumpMap);
@@ -450,7 +450,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 #endif
             };
@@ -459,7 +459,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
                 #endif
@@ -468,7 +468,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             Varyings vert(Attributes input)
             {
                 Varyings output = (Varyings)0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -481,7 +481,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
             half4 frag(Varyings input) : SV_TARGET
             {
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 #ifndef _SURFACE_OPAQUE
                 float4 albedoAlpha = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Color);
@@ -505,13 +505,13 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             ZWrite On
 
             HLSLPROGRAM
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
             #pragma shader_feature_local _SURFACE_OPAQUE _SURFACE_CUTOUT _SURFACE_TRANSPARENT
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #endif
 
@@ -521,7 +521,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
                 float4 tangentOS : TANGENT;
                 float3 normalOS : NORMAL;
                 float2 texcoord : TEXCOORD0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 #endif
             };
@@ -533,14 +533,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
                 float3 normalWS : TEXCOORD1;
                 float3 tangentWS : TEXCOORD2;
                 float3 bitangentWS : TEXCOORD3;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
                 #endif
             };
 
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             TEXTURE2D(_BumpMap);
@@ -570,7 +570,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             Varyings vert(Attributes input)
             {
                 Varyings output = (Varyings)0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -589,7 +589,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
             half4 frag(Varyings input) : SV_TARGET
             {
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
@@ -631,13 +631,13 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             Cull Off
 
             HLSLPROGRAM
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
             #pragma shader_feature_local _SURFACE_OPAQUE _SURFACE_CUTOUT _SURFACE_TRANSPARENT
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
             #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
@@ -650,7 +650,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
                 float2 texcoord : TEXCOORD0;
                 float2 texcoord1 : TEXCOORD1;
                 float2 texcoord2 : TEXCOORD2;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 #endif
             };
@@ -659,13 +659,13 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
                 #endif
             };
 
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             TEXTURE2D(_EmissionMap);
@@ -689,7 +689,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
             Varyings vert(Attributes input)
             {
                 Varyings output = (Varyings)0;
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
@@ -702,7 +702,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface"
 
             half4 frag(Varyings input) : SV_Target
             {
-                #if defined(UNIVERSAL_RENDER_PIPELINE)
+                #if defined(_UNIVERSAL_RENDER_PIPELINE)
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 

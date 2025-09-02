@@ -164,8 +164,8 @@ Shader "AudioLink/StandardLit"
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
 
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
@@ -232,8 +232,8 @@ Shader "AudioLink/StandardLit"
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
 
 
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
             // -------------------------------------
@@ -329,8 +329,8 @@ Shader "AudioLink/StandardLit"
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
 
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
@@ -392,8 +392,8 @@ Shader "AudioLink/StandardLit"
             // GPU Instancing
             #pragma multi_compile_instancing
 
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
@@ -456,8 +456,8 @@ Shader "AudioLink/StandardLit"
             // GPU Instancing
             #pragma multi_compile_instancing
 
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
 
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
@@ -516,8 +516,8 @@ Shader "AudioLink/StandardLit"
             #pragma shader_feature EDITOR_VISUALIZATION
 
 
-            #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             // -------------------------------------
             // Includes
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
@@ -554,12 +554,13 @@ Shader "AudioLink/StandardLit"
             HLSLPROGRAM
             #pragma target 2.0
 
-            // #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
-            // -------------------------------------
-            // Shader Stages
             #pragma vertex vert
             #pragma fragment frag
+
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
+            // -------------------------------------
+            // Shader Stages
 
             // -------------------------------------
             // Material Keywords
@@ -573,15 +574,13 @@ Shader "AudioLink/StandardLit"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Universal2D.hlsl"
             #else
-            #pragma vertex Vertex
-            #pragma fragment Fragment
-            float4 Vertex(float4 positionOS : POSITION) : SV_POSITION
+            float4 vert(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
             }
 
             // Minimal fragment function
-            half4 Fragment() : SV_Target
+            half4 frag() : SV_Target
             {
                 return half4(1, 1, 1, 1); // White color
             }
@@ -599,24 +598,36 @@ Shader "AudioLink/StandardLit"
             ColorMask RG
 
             HLSLPROGRAM
-            // #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+            #pragma target 3.5
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
 
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
+            //-------------------------------------
+            // Other pragmas
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
             #else
-            #pragma vertex Vertex
-            #pragma fragment Fragment
-            float4 Vertex(float4 positionOS : POSITION) : SV_POSITION
+            float4 vert(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
             }
 
             // Minimal fragment function
-            half4 Fragment() : SV_Target
+            half4 frag() : SV_Target
             {
                 return half4(1, 1, 1, 1); // White color
             }
@@ -643,25 +654,36 @@ Shader "AudioLink/StandardLit"
             }
 
             HLSLPROGRAM
-            // #pragma shader_feature UNIVERSAL_RENDER_PIPELINE
-            #if defined(UNIVERSAL_RENDER_PIPELINE)
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #pragma shader_feature_local _UNIVERSAL_RENDER_PIPELINE
+            #if defined(_UNIVERSAL_RENDER_PIPELINE)
             #pragma shader_feature_local _ALPHATEST_ON
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
             #define APLICATION_SPACE_WARP_MOTION 1
 
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
+            //-------------------------------------
+            // Other pragmas
+            #include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
             #else
-            #pragma vertex Vertex
-            #pragma fragment Fragment
-            float4 Vertex(float4 positionOS : POSITION) : SV_POSITION
+            float4 vert(float4 positionOS : POSITION) : SV_POSITION
             {
                 return (0).xxxx;
             }
 
             // Minimal fragment function
-            half4 Fragment() : SV_Target
+            half4 frag() : SV_Target
             {
                 return half4(1, 1, 1, 1); // White color
             }
