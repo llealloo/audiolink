@@ -679,7 +679,8 @@ namespace AudioLink
 #if UNITY_EDITOR
                 // ensure texture is actually assigned. Mitigates certain edge-cases with playmode.
                 // Why? No clue, but it keeps AudioLink from appearing broken when it's just the global variable that is unassigned for some reason.
-                SetAudioLinkGlobalTexture();
+                if (GetGlobalTexture(_AudioTexture) == null)
+                    SetAudioLinkGlobalTexture();
 #endif
                 break;
             }
