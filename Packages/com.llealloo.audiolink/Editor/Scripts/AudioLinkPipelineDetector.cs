@@ -14,8 +14,8 @@ namespace AudioLink.Editor
             "AudioLink/Surface"
         };
 
-        private static string URP = "_UNIVERSAL_RENDER_PIPELINE";
-        private static string HDRP = "_HIGH_DEFINITION_RENDER_PIPELINE";
+        const string URP = "_UNIVERSAL_RENDER_PIPELINE";
+        const string HDRP = "_HIGH_DEFINITION_RENDER_PIPELINE";
 
         [InitializeOnLoadMethod]
         private static void InitializeOnLoad()
@@ -66,6 +66,7 @@ namespace AudioLink.Editor
                 }
             }
 
+            // If any changed, save asset changes and log the count
             if (count > 0)
             {
                 AssetDatabase.SaveAssets();
