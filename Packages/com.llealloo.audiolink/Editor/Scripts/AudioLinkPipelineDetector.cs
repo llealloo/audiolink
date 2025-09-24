@@ -14,6 +14,9 @@ namespace AudioLink.Editor
             "AudioLink/Surface"
         };
 
+        private static string URP = "_UNIVERSAL_RENDER_PIPELINE";
+        private static string HDRP = "_HIGH_DEFINITION_RENDER_PIPELINE";
+
         [InitializeOnLoadMethod]
         private static void InitializeOnLoad()
         {
@@ -38,22 +41,37 @@ namespace AudioLink.Editor
                 if (material != null && IsTargetShader(material.shader))
                 {
 #if URP_AVAILABLE
-                    material.EnableKeyword("_UNIVERSAL_RENDER_PIPELINE");
-                    material.DisableKeyword("_HIGH_DEFINITION_RENDER_PIPELINE");
+                    bool shouldURP = true, shouldHDRP = false;
 #elif HDRP_AVAILABLE
-                    material.EnableKeyword("_HIGH_DEFINITION_RENDER_PIPELINE");
-                    material.DisableKeyword("_UNIVERSAL_RENDER_PIPELINE");
+                    bool shouldURP = false, shouldHDRP = true;
 #else
-                    material.DisableKeyword("_UNIVERSAL_RENDER_PIPELINE");
-                    material.DisableKeyword("_HIGH_DEFINITION_RENDER_PIPELINE");
+                    bool shouldURP = false, shouldHDRP = false;
 #endif
-                    EditorUtility.SetDirty(material);
-                    count++;
+                    // compare current with expected
+                    shouldURP = material.IsKeywordEnabled(URP) != shouldURP;
+                    shouldHDRP = material.IsKeywordEnabled(HDRP) != shouldHDRP;
+
+                    // update keywords when mismatch is detected
+                    bool dirty = shouldURP || shouldHDRP;
+                    if (dirty)
+                    {
+                        if (shouldURP) material.EnableKeyword(URP);
+                        else material.DisableKeyword(URP);
+
+                        if (shouldHDRP) material.EnableKeyword(HDRP);
+                        else material.DisableKeyword(HDRP);
+
+                        EditorUtility.SetDirty(material);
+                        count++;
+                    }
                 }
             }
 
-            AssetDatabase.SaveAssets();
-            Debug.Log($"AudioLinkPipelineDetector: Applied shader keywords to {count} materials.");
+            if (count > 0)
+            {
+                AssetDatabase.SaveAssets();
+                Debug.Log($"AudioLinkPipelineDetector: Updated render pipeline shader keywords on {count} materials.");
+            }
         }
 
         private static bool IsTargetShader(Shader shader)
