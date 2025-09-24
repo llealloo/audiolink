@@ -256,6 +256,12 @@ namespace AudioLink
 
         private const string _ffErrorIdentifier = ", from 'http";
 
+#if UNITY_EDITOR_WIN
+        private const int ytdlpArgsCount = 7;
+#else
+        private const int ytdlpArgsCount = 8;
+#endif
+
         private static void SelectToolInstall(string title, string pathMenu, string pathKey)
         {
             if (Menu.GetChecked(pathMenu))
@@ -591,11 +597,13 @@ namespace AudioLink
                 _ffmpegProc.StandardInput.Flush();
             }
 
-            string[] ytdlpArgs = new string[8] {
+            string[] ytdlpArgs = new string[ytdlpArgsCount] {
                 "--no-check-certificate",
                 "--no-cache-dir",
                 "--rm-cache-dir",
+#if !UNITY_EDITOR_WIN
                 "--dump-json",
+#endif
 
                 "-f", $"\"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\"",
 
@@ -612,7 +620,13 @@ namespace AudioLink
                 {
                     if (args.Data.StartsWith("{"))
                     {
+#if UNITY_EDITOR_WIN
+                        _ytdlpJson = new VideoMeta();
+                        _ytdlpJson.id = url;
+                        _ytdlpJson.duration = 0;
+#else
                         _ytdlpJson = JsonUtility.FromJson<VideoMeta>(args.Data);
+#endif
                     }
                     else
                     {
