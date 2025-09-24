@@ -52,8 +52,7 @@ namespace AudioLink.Editor
                     shouldHDRP = material.IsKeywordEnabled(HDRP) != shouldHDRP;
 
                     // update keywords when mismatch is detected
-                    bool dirty = shouldURP || shouldHDRP;
-                    if (dirty)
+                    if (shouldURP || shouldHDRP)
                     {
                         if (shouldURP) material.EnableKeyword(URP);
                         else material.DisableKeyword(URP);
