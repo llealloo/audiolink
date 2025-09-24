@@ -7,38 +7,36 @@ using UdonSharp;
 namespace AudioLink
 {
     [RequireComponent(typeof(Light))]
-#if UDONSHARP
-    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    public class AudioReactiveLight : UdonSharpBehaviour
-#else
-    public class AudioReactiveLight : MonoBehaviour
-#endif
+    public class AudioReactiveLight : AudioReactive
+
     {
         public AudioLink audioLink;
+        [Header("AudioLink Settings")]
         public AudioLinkBand band;
         public AudioReactiveLightColorMode colorMode = AudioReactiveLightColorMode.STATIC;
-        [Range(0, 127)] public int delay;
+        public bool smooth;
+        [Range(0, 127)]
+        public int delay;
+        
+        [Header("Reactivity Settings")]
         public bool affectIntensity = true;
         public float intensityMultiplier = 1f;
         public float hueShift;
 
         private Light _light;
-        private int _dataIndex;
         private Color _initialColor;
 
         void Start()
         {
             _light = GetComponent<Light>();
             _initialColor = _light.color;
-            _dataIndex = ((int)band * 128) + delay;
         }
 
         void Update()
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                // Convert to grayscale
-                float amplitude = Vector3.Dot(audioLink.GetDataAtPixel(delay, (int)band), new Vector3(0.299f, 0.587f, 0.114f));
+                float amplitude = AudioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
                 if (affectIntensity) _light.intensity = amplitude * intensityMultiplier;
                 if (colorMode == AudioReactiveLightColorMode.STATIC)
                     _light.color = HueShift(_initialColor, amplitude * hueShift);

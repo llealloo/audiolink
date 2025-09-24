@@ -73,6 +73,74 @@ namespace AudioLink
         public static Vector2 GetALPassGlobalStrings() => new Vector2(40, 28);
         #endregion
 
+        #region PassSizes
+        /// <remarks>Corresponds to ALPASS_DFT in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassDftSize() => new Vector2(128, 2);
+        /// <remarks>Corresponds to ALPASS_WAVEFORM in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassWaveformSize() => new Vector2(128, 16);
+        /// <remarks>Corresponds to ALPASS_AUDIOLINK in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAudioLinkSize() => new Vector2(128, 4);
+        /// <remarks>Corresponds to ALPASS_AUDIOBASS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAudioBassSize() => new Vector2(128, 1);
+        /// <remarks>Corresponds to ALPASS_AUDIOLOWMIDS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAudioLowMidsSize() => new Vector2(128, 1);
+        /// <remarks>Corresponds to ALPASS_AUDIOHIGHMIDS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAudioHighMidsSize() => new Vector2(128, 1);
+        /// <remarks>Corresponds to ALPASS_AUDIOTREBLE in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAudioTrebleSize() => new Vector2(128, 1);
+        /// <remarks>Corresponds to ALPASS_AUDIOLINKHISTORY in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAudioLinkHistorySize() => new Vector2(127, 4);
+        /// <remarks>Corresponds to ALPASS_GENERALVU in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUSize() => new Vector2(12, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_INSTANCE_TIME in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUInstanceTimeSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_LOCAL_TIME in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVULocalTimeSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_NETWORK_TIME in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUNetworkTimeSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_PLAYERINFO in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUPlayerInfoSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_THEME_COLOR0 in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassThemeColor0Size() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_THEME_COLOR1 in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassThemeColor1Size() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_THEME_COLOR2 in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassThemeColor2Size() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_THEME_COLOR3 in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassThemeColor3Size() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_DAYS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUUnixDaysSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_UNIX_SECONDS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUUnixSecondsSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_GENERALVU_SOURCE_POS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGeneralVUSourcePosSize() => new Vector2(1, 1);
+        /// <remarks>Corresponds to ALPASS_MEDIASTATE in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassMediaStateSize() => new Vector2(1, 1);
+
+        /// <remarks>Corresponds to ALPASS_CCINTERNAL in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassCcInternalSize() => new Vector2(12, 2);
+        /// <remarks>Corresponds to ALPASS_CCCOLORS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassCcColorsSize() => new Vector2(12, 1);
+        /// <remarks>Corresponds to ALPASS_CCSTRIP in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassCcStripSize() => new Vector2(128, 1);
+        /// <remarks>Corresponds to ALPASS_CCLIGHTS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassCcLightsSize() => new Vector2(128, 2);
+        /// <remarks>Corresponds to ALPASS_AUTOCORRELATOR in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassAutoCorrelatorSize() => new Vector2(128, 1);
+        /// <remarks>Corresponds to ALPASS_FILTEREDAUDIOLINK in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassFilteredAudioLinkSize() => new Vector2(16, 4);
+        /// <remarks>Corresponds to ALPASS_CHRONOTENSITY in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassChronotensitySize() => new Vector2(8, 4);
+        /// <remarks>Corresponds to ALPASS_FILTEREDVU in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassFilteredVUSize() => new Vector2(4, 4);
+        /// <remarks>Corresponds to ALPASS_FILTEREDVU_INTENSITY in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassFilteredVUIntensitySize() => new Vector2(4, 1);
+        /// <remarks>Corresponds to ALPASS_FILTEREDVU_MARKER in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassFilteredVUMarkerSize() => new Vector2(4, 1);
+        /// <remarks>Corresponds to ALPASS_GLOBAL_STRINGS in AudioLink.cginc.</remarks>
+        public static Vector2 GetALPassGlobalStringsSize() => new Vector2(8, 4);
+        #endregion
+
         #region Deprecated
         [Obsolete("Use the AudioLink.ALPassDft() function instead.")] public static Vector2 ALPassDft => new Vector2(0, 4);
         [Obsolete("Use the AudioLink.ALPassWaveform() function instead.")] public static Vector2 ALPassWaveform => new Vector2(0, 6);
@@ -183,6 +251,26 @@ namespace AudioLink
         public Vector4 GetDataAtPixel(Vector2 position)
         {
             return GetDataAtPixel((int)position.x, (int)position.y);
+        }
+
+        /// <summary>
+        /// Gets an AudioLink Band, history or smoothed.
+        /// </summary>
+        /// <param name="band">What Band to use.</param>
+        /// <param name="delay">How long to wait (0 - 127), or if smoothed how smooth (0 - 15).</param>
+        /// <param name="smooth">Whether to smooth the output, otherwise use History.</param>
+        /// <returns>Float value from History or Smoothed.</returns>
+        public Vector4 GetBandAsSmooth(AudioLinkBand band, int delay, bool smooth)
+        {
+            int bandID = (int)band;
+
+            if (smooth)
+            {
+                bandID += Mathf.FloorToInt(GetALPassFilteredAudioLink().y);
+                delay = Mathf.FloorToInt(GetALPassFilteredAudioLinkSize().x) - (delay + 1);
+            }
+
+            return GetDataAtPixel(new Vector2(delay, bandID));
         }
 
         /// <summary>
@@ -406,6 +494,17 @@ namespace AudioLink
         public string GetCustomString2()
         {
             return customString2;
+        }
+
+        /// <summary>
+        /// Convert a Vector to a monochrome luminance float.
+        /// </summary>
+        /// <param name="vector">Input RGB Vector.</param>
+        /// <returns>Monochrome float luminance.</returns>
+        /// <remarks>The Dot of <vector> and a luminance Vector.</remarks>
+        public static float ToGrayscale(Vector3 vector)
+        {
+            return Vector3.Dot(vector, new Vector3(0.299f, 0.587f, 0.114f));
         }
         #endregion
     }
