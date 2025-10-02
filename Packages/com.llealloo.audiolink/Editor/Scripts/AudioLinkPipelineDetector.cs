@@ -30,6 +30,7 @@ namespace AudioLink.Editor
 
         private static void SetShaderKeywords()
         {
+            // ReSharper disable ConditionIsAlwaysTrueOrFalse
             string[] materialGuids = AssetDatabase.FindAssets("t:Material");
             int count = 0;
 
@@ -47,12 +48,9 @@ namespace AudioLink.Editor
 #else
                     bool shouldURP = false, shouldHDRP = false;
 #endif
-                    // compare current with expected
-                    shouldURP = material.IsKeywordEnabled(URP) != shouldURP;
-                    shouldHDRP = material.IsKeywordEnabled(HDRP) != shouldHDRP;
-
                     // update keywords when mismatch is detected
-                    if (shouldURP || shouldHDRP)
+                    if (material.IsKeywordEnabled(URP) != shouldURP
+                        || material.IsKeywordEnabled(HDRP) != shouldHDRP)
                     {
                         if (shouldURP) material.EnableKeyword(URP);
                         else material.DisableKeyword(URP);
