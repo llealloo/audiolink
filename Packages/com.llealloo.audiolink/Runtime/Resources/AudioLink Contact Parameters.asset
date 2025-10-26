@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEmpty: 0
   parameters:
+  - name: AudioLink/Active
+    valueType: 2
+    saved: 0
+    defaultValue: 0
+    networkSynced: 0
   - name: AudioLink/Bass
     valueType: 1
     saved: 0
