@@ -2,9 +2,6 @@
 
 namespace AudioLink
 {
-#if UDONSHARP
-    using UdonSharp;
-#endif
 
     public class AudioLinkContactBridge : AudioReactive
     {
@@ -21,6 +18,7 @@ namespace AudioLink
             "HighMid",
             "Treble"
             };
+        private Transform _readyContactTransform;
         private Transform[] _contactTransforms = new Transform[4];
         private Transform[] _smoothContactTransforms = new Transform[4];
 
@@ -37,6 +35,20 @@ namespace AudioLink
                 1.0f / transform.lossyScale.y,
                 1.0f / transform.lossyScale.z
             );
+
+            Transform readyContactTransform = transform.Find("AudioLink.Active");
+
+#if UDONSHARP
+            if (!VRC.SDKBase.Utilities.IsValid(readyContactTransform))
+#else
+            if (readyContactTransform == null)
+#endif
+            {
+                enabled = false;
+                return;
+            }
+
+            _readyContactTransform = readyContactTransform;
 
             for (int indx = 0; indx < 4; indx ++)
             {
@@ -65,12 +77,25 @@ namespace AudioLink
 
         void Update()
         {
-            if (audioLink.AudioDataIsAvailable() && _ready) // Check for AudioLink initialization
+            if (!_ready || !audioLink.AudioDataIsAvailable()) // Check for AudioLink initialization
+                return;
+
+            bool audioLinkEnabled = audioLink.IsEnabled();
+            _readyContactTransform.gameObject.SetActive(audioLinkEnabled);
+
+            if (audioLinkEnabled)
             {
                 for (int indx = 0; indx < 4; indx ++)
                 {
                     _contactTransforms[indx].position = Vector3.up * ((AudioLink.ToGrayscale(audioLink.GetBandAsSmooth((AudioLinkBand)indx, 0, false)) * 0.1f) - 0.2f);
                     _smoothContactTransforms[indx].position = Vector3.up * ((AudioLink.ToGrayscale(audioLink.GetBandAsSmooth((AudioLinkBand)indx, smoothing, true)) * 0.1f) - 0.2f);
+                }
+            } else
+            {
+                for (int indx = 0; indx < 4; indx ++)
+                {
+                    _contactTransforms[indx].position = Vector3.down;
+                    _smoothContactTransforms[indx].position = Vector3.down;
                 }
             }
         }
