@@ -43,14 +43,14 @@ Shader "AudioLink/Examples/Demo8"
             };
 
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
 
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_OUTPUT(v2f, o);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                
+
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
                 return o;
@@ -61,10 +61,10 @@ Shader "AudioLink/Examples/Demo8"
                 // Implement the bottom row
                 // Note: It's not performance optimal to do branching in shaders but it's quicker to develop this example.
                 float v = AudioLinkData(uint2(0, _AudioLinkBand)).r;
-                if (column == 0) return max(v-0.4, 0) * 2;
+                if (column == 0) return max(v - 0.4, 0) * 2;
                 if (column == 1) return v * 2 - 1;
-                if (column == 2) return v > 0.4? 0 : 1;
-                if (column == 3) return v > 0.4? -1 : 1;
+                if (column == 2) return v > 0.4 ? 0 : 1;
+                if (column == 3) return v > 0.4 ? -1 : 1;
                 return 0;
             }
 
@@ -76,9 +76,9 @@ Shader "AudioLink/Examples/Demo8"
                 return grid_index.y == 0 ? getBandAngle(grid_index.x) : chronotensityAngle;
             }
 
-            float4 frag (v2f i) : SV_Target
+            float4 frag(v2f i) : SV_Target
             {
-                float2 grid_dimensions = float2(4,4);
+                float2 grid_dimensions = float2(4, 4);
                 float2 uv = i.uv * grid_dimensions;
                 uint2 grid_index = floor(uv);
 				
@@ -107,12 +107,109 @@ Shader "AudioLink/Examples/Demo8"
                         // If pos is aligned with direction, be white.
                         // Otherwise choose a background color based on the grid_index.
                         float3(grid_index / grid_dimensions, 0),
-                        float3(1,1,1),
+                        float3(1, 1, 1),
                         smoothstep(.995, .996, dot(direction, normalize(pos)))
                     ),
-                    smoothstep(.91, .90, length(pos))  // circular cutout
+                    smoothstep(.91, .90, length(pos)) // circular cutout
                 );
+            }
+            ENDCG
+        }
 
+        Pass
+        {
+            Name "DepthOnly"
+            Tags
+            {
+                "LightMode" = "DepthOnly"
+            }
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                return 0;
+            }
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags
+            {
+                "LightMode" = "DepthNormals"
+            }
+
+            ZWrite On
+            Cull Back
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normal);
+                float3 normalEncoded = normalWS * 0.5 + 0.5;
+                return float4(normalEncoded, 1.0);
             }
             ENDCG
         }

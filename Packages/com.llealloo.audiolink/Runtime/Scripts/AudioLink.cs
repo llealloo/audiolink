@@ -387,7 +387,7 @@ namespace AudioLink
             }
 
 #if !UDONSHARP && !CVR_CCK_EXISTS
-            Invoke(nameof(AutoCacheAudioTarget), 1);
+            if (autoDetectAudioTarget) Invoke(nameof(AutoCacheAudioTarget), 1);
 #endif
         }
 
@@ -649,20 +649,21 @@ namespace AudioLink
             return audioSource.transform.position;
 #else
             // if audioTarget is unavailable, use the audioSource position to make the curves use 0 for listening distance
-            return audioTarget ? audioTarget.position : audioSource.transform.position;
+            return audioTarget != null ? audioTarget.position : audioSource.transform.position;
 #endif
         }
 
 #if !UDONSHARP && !CVR_CCK_EXISTS
         private void AutoCacheAudioTarget()
         {
-            if (!autoDetectAudioTarget) return;
-            if (!audioListenerTarget || !audioListenerTarget.gameObject.activeInHierarchy || !audioListenerTarget.isActiveAndEnabled)
+            if (!autoDetectAudioTarget || !_audioLinkEnabled) return;
+            Invoke(nameof(AutoCacheAudioTarget), audioTarget != null ? 10 : 1); // check faster until one is found
+            if (!enabled) return;
+            if (audioListenerTarget == null || !audioListenerTarget.isActiveAndEnabled)
                 CacheAudioTarget();
-            Invoke(nameof(AutoCacheAudioTarget), audioTarget ? 10 : 1); // check faster until one is found
         }
 
-        public void CacheAudioTarget()
+        private void CacheAudioTarget()
         {
 #if UNITY_2022_3_OR_NEWER
             var listeners = FindObjectsByType<AudioListener>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
@@ -675,6 +676,12 @@ namespace AudioLink
                 if (!l.enabled) continue;
                 audioListenerTarget = l;
                 audioTarget = l.transform;
+#if UNITY_EDITOR
+                // ensure texture is actually assigned. Mitigates certain edge-cases with playmode.
+                // Why? No clue, but it keeps AudioLink from appearing broken when it's just the global variable that is unassigned for some reason.
+                if (GetGlobalTexture(_AudioTexture) == null)
+                    SetAudioLinkGlobalTexture();
+#endif
                 break;
             }
 
@@ -874,15 +881,11 @@ namespace AudioLink
         {
             InitIDs();
             _audioLinkEnabled = true;
-#if UNITY_EDITOR
-             // When running in editor, the monobehaviour should control the render texture update cycle.
-             // This mitigates the HYPERSPEED behaviour of the CRT updating multiple times per frame when more than one view camera (scene/view/whatever) is visible.
-             audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
-#else
-            // In-game it will just update itself in realtime as expected.
-            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+            SetAudioLinkGlobalTexture();
+
+#if !UDONSHARP && !CVR_CCK_EXISTS
+            if (autoDetectAudioTarget) Invoke(nameof(AutoCacheAudioTarget), 1f);
 #endif
-            SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyzerSpace();
@@ -899,6 +902,24 @@ namespace AudioLink
 #if UNITY_WEBGL && !UNITY_EDITOR
             UnlinkAnalyzer(WebALID);
 #endif
+
+#if !UDONSHARP && !CVR_CCK_EXISTS
+            CancelInvoke(nameof(AutoCacheAudioTarget));
+#endif
+        }
+
+        private void SetAudioLinkGlobalTexture()
+        {
+#if UNITY_EDITOR
+            // When running in editor, the monobehaviour should control the render texture update cycle.
+            // This mitigates the HYPERSPEED behaviour of the CRT updating multiple times per frame when more than one view camera (scene/view/whatever) is visible.
+            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand;
+#else
+            // In-game it will just update itself in realtime as expected.
+            audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.Realtime;
+#endif
+            SetGlobalTextureWrapper(_AudioTexture, audioRenderTexture, UnityEngine.Rendering.RenderTextureSubElement.Default);
+
         }
 
         public void SetGlobalTextureWrapper(int nameID, RenderTexture value, UnityEngine.Rendering.RenderTextureSubElement element)

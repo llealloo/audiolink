@@ -1,8 +1,8 @@
 // Upgrade NOTE: upgraded instancing buffer 'AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha' to new syntax.
 
 // Made with Amplify Shader Editor
-// Available at the Unity Asset Store - http://u3d.as/y3X 
-Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
+// Available at the Unity Asset Store - http://u3d.as/y3X
+Shader "AudioLink/Amplify/AudioReactiveSurface_SmoothAlpha"
 {
 	Properties
 	{
@@ -38,10 +38,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 		//[ToggleOff] _SpecularHighlights("Specular Highlights", Float) = 1.0
 		//[ToggleOff] _GlossyReflections("Reflections", Float) = 1.0
 	}
-	
+
 	SubShader
 	{
-		
+
 		Tags { "RenderType"="Transparent" "Queue"="Transparent" "DisableBatching"="False" }
 	LOD 0
 
@@ -50,9 +50,9 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 		ZWrite Off
 		ZTest LEqual
 		ColorMask RGBA
-		
+
 		Blend Off
-		
+
 
 		CGINCLUDE
 		#pragma target 3.0
@@ -61,7 +61,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 		{
 			return tessValue;
 		}
-		
+
 		float CalcDistanceTessFactor (float4 vertex, float minDist, float maxDist, float tess, float4x4 o2w, float3 cameraPos )
 		{
 			float3 wpos = mul(o2w,vertex).xyz;
@@ -157,13 +157,12 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 		}
 		ENDCG
 
-		
+
 		Pass
 		{
-			
+
 			Name "ForwardBase"
-			Tags { "LightMode"="ForwardBase" }
-			
+
 			Blend SrcAlpha OneMinusSrcAlpha
 
 			CGPROGRAM
@@ -209,7 +208,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float4 ase_texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
-			
+
 			struct v2f {
 				#if UNITY_VERSION >= 201810
 					UNITY_POSITION(pos);
@@ -292,14 +291,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 #define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
 			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
 
-	
+
 			float3 HSVToRGB( float3 c )
 			{
 				float4 K = float4( 1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0 );
 				float3 p = abs( frac( c.xxx + K.xyz ) * 6.0 - K.www );
 				return c.z * lerp( K.xxx, saturate( p - K.xxx ), c.y );
 			}
-			
+
 			float3 RGBToHSV(float3 c)
 			{
 				float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -313,7 +312,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
-			
+
 
 			v2f VertexFunction (appdata v  ) {
 				UNITY_SETUP_INSTANCE_ID(v);
@@ -323,7 +322,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 				o.ase_texcoord9.xy = v.ase_texcoord.xy;
-				
+
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord9.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -478,12 +477,12 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				return VertexFunction( v );
 			}
 			#endif
-			
-			fixed4 frag (v2f IN 
+
+			fixed4 frag (v2f IN
 				#ifdef _DEPTHOFFSET_ON
 				, out float outputDepth : SV_Depth
 				#endif
-				) : SV_Target 
+				) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID(IN);
 
@@ -534,19 +533,19 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float temp_output_96_0 = localAudioLinkLerp3_g8;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
-				
+
 				float4 _BumpMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_BumpMap_ST_arr, _BumpMap_ST);
 				float2 uv_BumpMap = IN.ase_texcoord9.xy * _BumpMap_ST_Instance.xy + _BumpMap_ST_Instance.zw;
-				
+
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord9.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
 				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
 				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
-				
+
 				float alpha98 = tex2DNode4.a;
-				
+
 				o.Albedo = hsvTorgb39;
 				o.Normal = ( UnpackNormal( tex2D( _BumpMap, uv_BumpMap ) ) * _BumpScale );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -564,7 +563,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float3 RefractionColor = 1;
 				float RefractionIndex = 1;
 				float3 Transmission = 1;
-				float3 Translucency = 1;				
+				float3 Translucency = 1;
 
 				#ifdef _ALPHATEST_ON
 					clip( o.Alpha - AlphaClipThreshold );
@@ -623,7 +622,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 					giInput.boxMin[1] = unity_SpecCube1_BoxMin;
 					giInput.probePosition[1] = unity_SpecCube1_ProbePosition;
 				#endif
-				
+
 				#if defined(_SPECULAR_SETUP)
 					LightingStandardSpecular_GI(o, giInput, gi);
 				#else
@@ -643,7 +642,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#else
 					c += LightingStandard( o, worldViewDir, gi );
 				#endif
-				
+
 				#ifdef _TRANSMISSION_ASE
 				{
 					float shadow = _TransmissionShadow;
@@ -697,10 +696,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			ENDCG
 		}
 
-		
+
 		Pass
 		{
-			
+
 			Name "ForwardAdd"
 			Tags { "LightMode"="ForwardAdd" }
 			ZWrite Off
@@ -826,14 +825,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 #define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
 			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
 
-	
+
 			float3 HSVToRGB( float3 c )
 			{
 				float4 K = float4( 1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0 );
 				float3 p = abs( frac( c.xxx + K.xyz ) * 6.0 - K.www );
 				return c.z * lerp( K.xxx, saturate( p - K.xxx ), c.y );
 			}
-			
+
 			float3 RGBToHSV(float3 c)
 			{
 				float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -847,7 +846,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
-			
+
 
 			v2f VertexFunction (appdata v  ) {
 				UNITY_SETUP_INSTANCE_ID(v);
@@ -857,7 +856,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 				o.ase_texcoord9.xy = v.ase_texcoord.xy;
-				
+
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord9.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -993,11 +992,11 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			}
 			#endif
 
-			fixed4 frag ( v2f IN 
+			fixed4 frag ( v2f IN
 				#ifdef _DEPTHOFFSET_ON
 				, out float outputDepth : SV_Depth
 				#endif
-				) : SV_Target 
+				) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID(IN);
 
@@ -1049,19 +1048,19 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float temp_output_96_0 = localAudioLinkLerp3_g8;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
-				
+
 				float4 _BumpMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_BumpMap_ST_arr, _BumpMap_ST);
 				float2 uv_BumpMap = IN.ase_texcoord9.xy * _BumpMap_ST_Instance.xy + _BumpMap_ST_Instance.zw;
-				
+
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord9.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
 				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
 				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
-				
+
 				float alpha98 = tex2DNode4.a;
-				
+
 				o.Albedo = hsvTorgb39;
 				o.Normal = ( UnpackNormal( tex2D( _BumpMap, uv_BumpMap ) ) * _BumpScale );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -1075,7 +1074,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				o.Alpha = alpha98;
 				float AlphaClipThreshold = 0.5;
 				float3 Transmission = 1;
-				float3 Translucency = 1;		
+				float3 Translucency = 1;
 
 				#ifdef _ALPHATEST_ON
 					clip( o.Alpha - AlphaClipThreshold );
@@ -1112,7 +1111,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#else
 					c += LightingStandard( o, worldViewDir, gi );
 				#endif
-				
+
 				#ifdef _TRANSMISSION_ASE
 				{
 					float shadow = _TransmissionShadow;
@@ -1164,10 +1163,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			ENDCG
 		}
 
-		
+
 		Pass
 		{
-			
+
 			Name "Deferred"
 			Tags { "LightMode"="Deferred" }
 
@@ -1283,14 +1282,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 #define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
 			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
 
-	
+
 			float3 HSVToRGB( float3 c )
 			{
 				float4 K = float4( 1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0 );
 				float3 p = abs( frac( c.xxx + K.xyz ) * 6.0 - K.www );
 				return c.z * lerp( K.xxx, saturate( p - K.xxx ), c.y );
 			}
-			
+
 			float3 RGBToHSV(float3 c)
 			{
 				float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -1304,7 +1303,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
-			
+
 
 			v2f VertexFunction (appdata v  ) {
 				UNITY_SETUP_INSTANCE_ID(v);
@@ -1314,7 +1313,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 				o.ase_texcoord8.xy = v.ase_texcoord.xy;
-				
+
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord8.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -1452,7 +1451,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			}
 			#endif
 
-			void frag (v2f IN 
+			void frag (v2f IN
 				, out half4 outGBuffer0 : SV_Target0
 				, out half4 outGBuffer1 : SV_Target1
 				, out half4 outGBuffer2 : SV_Target2
@@ -1463,7 +1462,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#ifdef _DEPTHOFFSET_ON
 				, out float outputDepth : SV_Depth
 				#endif
-			) 
+			)
 			{
 				UNITY_SETUP_INSTANCE_ID(IN);
 
@@ -1507,19 +1506,19 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float temp_output_96_0 = localAudioLinkLerp3_g8;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
-				
+
 				float4 _BumpMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_BumpMap_ST_arr, _BumpMap_ST);
 				float2 uv_BumpMap = IN.ase_texcoord8.xy * _BumpMap_ST_Instance.xy + _BumpMap_ST_Instance.zw;
-				
+
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord8.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
 				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
 				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
-				
+
 				float alpha98 = tex2DNode4.a;
-				
+
 				o.Albedo = hsvTorgb39;
 				o.Normal = ( UnpackNormal( tex2D( _BumpMap, uv_BumpMap ) ) * _BumpScale );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -1621,10 +1620,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			ENDCG
 		}
 
-		
+
 		Pass
 		{
-			
+
 			Name "Meta"
 			Tags { "LightMode"="Meta" }
 			Cull Off
@@ -1718,14 +1717,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 #define _Emission_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
 			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
 
-	
+
 			float3 HSVToRGB( float3 c )
 			{
 				float4 K = float4( 1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0 );
 				float3 p = abs( frac( c.xxx + K.xyz ) * 6.0 - K.www );
 				return c.z * lerp( K.xxx, saturate( p - K.xxx ), c.y );
 			}
-			
+
 			float3 RGBToHSV(float3 c)
 			{
 				float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -1739,7 +1738,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			{
 				return AudioLinkLerp( ALPASS_AUDIOLINK + float2( Delay, Band ) ).r;
 			}
-			
+
 
 			v2f VertexFunction (appdata v  ) {
 				UNITY_SETUP_INSTANCE_ID(v);
@@ -1749,7 +1748,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 				o.ase_texcoord3.xy = v.ase_texcoord.xy;
-				
+
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord3.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -1873,14 +1872,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			}
 			#endif
 
-			fixed4 frag (v2f IN 
+			fixed4 frag (v2f IN
 				#ifdef _DEPTHOFFSET_ON
 				, out float outputDepth : SV_Depth
 				#endif
-				) : SV_Target 
+				) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID(IN);
-				
+
 				#ifdef LOD_FADE_CROSSFADE
 					UNITY_APPLY_DITHER_CROSSFADE(IN.pos.xy);
 				#endif
@@ -1890,7 +1889,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				#else
 					SurfaceOutputStandard o = (SurfaceOutputStandard)0;
 				#endif
-				
+
 				float2 texCoord6 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
 				float3 hsvTorgb32 = RGBToHSV( ( tex2DNode4 * _Color ).rgb );
@@ -1915,16 +1914,16 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float temp_output_96_0 = localAudioLinkLerp3_g8;
 				float amplitude36 = temp_output_96_0;
 				float3 hsvTorgb39 = HSVToRGB( float3(( hsvTorgb32.x + ( hueShift33 * amplitude36 ) ),hsvTorgb32.y,hsvTorgb32.z) );
-				
+
 				float4 _EmissionMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionMap_ST_arr, _EmissionMap_ST);
 				float2 uv_EmissionMap = IN.ase_texcoord3.xy * _EmissionMap_ST_Instance.xy + _EmissionMap_ST_Instance.zw;
 				float4 _EmissionColor_Instance = UNITY_ACCESS_INSTANCED_PROP(_EmissionColor_arr, _EmissionColor);
 				float3 hsvTorgb40 = RGBToHSV( ( tex2D( _EmissionMap, uv_EmissionMap ) * _EmissionColor_Instance * temp_output_96_0 ).rgb );
 				float3 hsvTorgb45 = HSVToRGB( float3(( hsvTorgb40.x + ( hueShift33 * amplitude36 ) ),hsvTorgb40.y,hsvTorgb40.z) );
 				float _Emission_Instance = UNITY_ACCESS_INSTANCED_PROP(_Emission_arr, _Emission);
-				
+
 				float alpha98 = tex2DNode4.a;
-				
+
 				o.Albedo = hsvTorgb39;
 				o.Normal = fixed3( 0, 0, 1 );
 				o.Emission = ( hsvTorgb45 * _Emission_Instance );
@@ -1952,10 +1951,10 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			ENDCG
 		}
 
-		
+
 		Pass
 		{
-			
+
 			Name "ShadowCaster"
 			Tags { "LightMode"="ShadowCaster" }
 			ZWrite On
@@ -1997,7 +1996,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			#include "UnityPBSLighting.cginc"
 			#include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
 
-			
+
 			struct appdata {
 				float4 vertex : POSITION;
 				float4 tangent : TANGENT;
@@ -2030,8 +2029,8 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
 			UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
 
-	
-			
+
+
 			v2f VertexFunction (appdata v  ) {
 				UNITY_SETUP_INSTANCE_ID(v);
 				v2f o;
@@ -2040,7 +2039,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
 				o.ase_texcoord2.xy = v.ase_texcoord.xy;
-				
+
 				//setting value to unused interpolator channels and avoid initialization warnings
 				o.ase_texcoord2.zw = 0;
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
@@ -2151,14 +2150,14 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			}
 			#endif
 
-			fixed4 frag (v2f IN 
+			fixed4 frag (v2f IN
 				#ifdef _DEPTHOFFSET_ON
 				, out float outputDepth : SV_Depth
 				#endif
 				#if !defined( CAN_SKIP_VPOS )
 				, UNITY_VPOS_TYPE vpos : VPOS
 				#endif
-				) : SV_Target 
+				) : SV_Target
 			{
 				UNITY_SETUP_INSTANCE_ID(IN);
 
@@ -2175,7 +2174,7 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 				float2 texCoord6 = IN.ase_texcoord2.xy * float2( 1,1 ) + float2( 0,0 );
 				float4 tex2DNode4 = tex2D( _MainTex, texCoord6 );
 				float alpha98 = tex2DNode4.a;
-				
+
 				o.Normal = fixed3( 0, 0, 1 );
 				o.Occlusion = 1;
 				o.Alpha = alpha98;
@@ -2212,11 +2211,153 @@ Shader "AudioLink/Surface/AudioReactiveSurface_SmoothAlpha"
 			}
 			ENDCG
 		}
-		
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull Back
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_instancing
+            #include "UnityCG.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float4 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            sampler2D _MainTex;
+
+            UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+            UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.texcoord = v.texcoord.xy;
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_TARGET
+            {
+                UNITY_SETUP_INSTANCE_ID(i);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+
+                float4 tex2DNode4 = tex2D(_MainTex, i.texcoord);
+                float alpha = tex2DNode4.a;
+
+                #if defined(_ALPHATEST_ON)
+                    clip(alpha - 0.5);
+                #endif
+
+                return 0;
+            }
+            ENDCG
+        }
+
+        // DepthNormals pass
+        Pass
+        {
+            Name "DepthNormals"
+            Tags{"LightMode" = "DepthNormals"}
+
+            ZWrite On
+            Cull Back
+            Blend SrcAlpha OneMinusSrcAlpha
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_instancing
+            #include "UnityCG.cginc"
+            #include "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                float4 tangent : TANGENT;
+                float4 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 texcoord : TEXCOORD0;
+                float3 normal : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            sampler2D _MainTex;
+            sampler2D _BumpMap;
+            float _BumpScale;
+
+            UNITY_INSTANCING_BUFFER_START(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BumpMap_ST)
+            #define _BumpMap_ST_arr AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha
+            UNITY_INSTANCING_BUFFER_END(AudioLinkSurfaceAudioReactiveSurface_SmoothAlpha)
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.texcoord = v.texcoord.xy;
+                o.normal = UnityObjectToWorldNormal(v.normal);
+                return o;
+            }
+
+            float4 frag(v2f i) : SV_TARGET
+            {
+                UNITY_SETUP_INSTANCE_ID(i);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+
+                float4 tex2DNode4 = tex2D(_MainTex, i.texcoord);
+                float alpha = tex2DNode4.a;
+
+                #if defined(_ALPHATEST_ON)
+                    clip(alpha - 0.5);
+                #endif
+
+                float4 _BumpMap_ST_Instance = UNITY_ACCESS_INSTANCED_PROP(_BumpMap_ST_arr, _BumpMap_ST);
+                float2 uv_BumpMap = i.texcoord * _BumpMap_ST_Instance.xy + _BumpMap_ST_Instance.zw;
+                float3 normalMap = UnpackNormal(tex2D(_BumpMap, uv_BumpMap));
+                float3 normal = normalize(normalMap * float3(_BumpScale, _BumpScale, 1.0));
+
+                return float4(normal * 0.5 + 0.5, 1);
+            }
+            ENDCG
+        }
+
 	}
 	CustomEditor "ASEMaterialInspector"
-	
-	
+
+
 }
 /*ASEBEGIN
 Version=18908

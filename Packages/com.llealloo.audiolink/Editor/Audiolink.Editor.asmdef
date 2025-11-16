@@ -1,5 +1,6 @@
 {
     "name": "AudioLink.Editor",
+    "rootNamespace": "",
     "references": [
         "AudioLink",
         "UdonSharp.Editor",
@@ -15,13 +16,22 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [
-    ],
+    "defineConstraints": [],
     "versionDefines": [
         {
             "name": "com.vrchat.core.vpm-resolver",
-            "expression": "",
+            "expression": "0.0.0",
             "define": "VPM_RESOLVER"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "0.0.0",
+            "define": "URP_AVAILABLE"
+        },
+        {
+            "name": "com.unity.render-pipelines.high-definition",
+            "expression": "0.0.0",
+            "define": "HDRP_AVAILABLE"
         }
     ],
     "noEngineReferences": false
