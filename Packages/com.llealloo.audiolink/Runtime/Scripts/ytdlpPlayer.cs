@@ -663,7 +663,12 @@ namespace AudioLink
             {
                 if (args.Data != null)
                 {
-                    Debug.LogError("[AudioLink:YT-dlp] ytdlp stderr: " + args.Data);
+                    if (args.Data.StartsWith("WARNING: "))
+                    {
+                        Debug.LogWarning("[AudioLink:YT-dlp] YT-dlp " + args.Data);
+                    } else {
+                        Debug.LogError("[AudioLink:YT-dlp] YT-dlp " + args.Data);
+                    }
                 }
             };
 
