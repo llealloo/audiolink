@@ -247,6 +247,18 @@ namespace AudioLink
         }
     }
 
+    public class VideoFormat
+    {
+        public string VideoCodec { get; }
+        public string AudioCodec { get; }
+        public string Container { get; }
+
+        public VideoFormat(string videoCodec = "vp8", string audioCodec = "libvorbis", string container = "webm")
+        {
+            VideoCodec = videoCodec; AudioCodec = audioCodec; Container = container;
+        }
+    }
+
     public static class ytdlpURLResolver
     {
         private static string _localytdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
@@ -273,6 +285,14 @@ namespace AudioLink
         private const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
 
         private const string _ffErrorIdentifier = ", from 'http";
+
+#if UNITY_EDITOR_WIN
+        private static VideoFormat platformVideoFormat = new VideoFormat(videoCodec: "h264", audioCodec: "aac", container: "mp4");
+#elif UNITY_EDITOR_LINUX
+        private static VideoFormat platformVideoFormat = new VideoFormat(videoCodec: "vp8", audioCodec: "libvorbis", container: "webm");
+#elif UNITY_EDITOR_OSX
+        private static VideoFormat platformVideoFormat = new VideoFormat(videoCodec: "vp8", audioCodec: "libvorbis", container: "webm");
+#endif
 
         private static void SelectToolInstall(string title, string pathMenu, string pathKey)
         {
@@ -450,7 +470,7 @@ namespace AudioLink
             return resolver;
         }
 
-        public static void Transcode(string url, Action<ResolvingRequest> callback, string outPath, string audioCodec, string videoCodec, string container)
+        public static void Transcode(string url, Action<ResolvingRequest> callback, string outPath, VideoFormat videoFormat)
         {
 
             ResolvingRequest transcode = new ResolvingRequest();
@@ -464,13 +484,13 @@ namespace AudioLink
 
                 "-i", $"\"{url}\"",
 
-                "-c:a", $"{audioCodec}",
+                "-c:a", $"{videoFormat.AudioCodec}",
 
-                "-c:v", $"{videoCodec}",
+                "-c:v", $"{videoFormat.VideoCodec}",
 
-                videoCodec == "vp8" ? "-cpu-used 6 -deadline realtime -qmin 0 -qmax 50 -crf 5 -minrate 1M -maxrate 1M -b:v 1M" : "",
+                videoFormat.VideoCodec == "vp8" ? "-cpu-used 6 -deadline realtime -qmin 0 -qmax 50 -crf 5 -minrate 1M -maxrate 1M -b:v 1M" : "",
 
-                "-f", $"{container}",
+                "-f", $"{videoFormat.Container}",
 
                 $"\"{outPath}\""
             };
@@ -629,7 +649,7 @@ namespace AudioLink
                 Directory.CreateDirectory(tempPath);
 
             string urlHash = Hash128.Compute(url).ToString();
-            string fullUrlHash = Path.Combine(tempPath, urlHash + ".webm");
+            string fullUrlHash = Path.Combine(tempPath, urlHash + $".{platformVideoFormat.Container}");
 
             ResolvingRequest request = new ResolvingRequest();
 
@@ -696,7 +716,7 @@ namespace AudioLink
 
                         if (useFFmpeg && IsFFmpegAvailable())
                         {
-                            Transcode(args.Data, callback, fullUrlHash, "libvorbis", "vp8", "webm");
+                            Transcode(args.Data, callback, fullUrlHash, platformVideoFormat);
                         }
                         else
                         {
