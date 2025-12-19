@@ -66,7 +66,9 @@ namespace AudioLink
 
         public void RequestPlay()
         {
-            ytdlpURLResolver.Resolve(ytdlpURL, (ResolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution);
+            ytdlpURLResolver.TryResolve((bool dumpJson) => {
+                ytdlpURLResolver.Resolve(ytdlpURL, (ResolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution, dumpJson);
+            });
         }
 
         private void Update()
@@ -229,6 +231,11 @@ namespace AudioLink
     {
         public string id;
         public Double duration;
+
+        public VideoMeta(string _id = "", double _duration = 0)
+        {
+            id = _id; duration = _duration;
+        }
     }
 
     public static class ytdlpURLResolver
@@ -255,12 +262,6 @@ namespace AudioLink
         private const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
 
         private const string _ffErrorIdentifier = ", from 'http";
-
-#if UNITY_EDITOR_WIN
-        private const int ytdlpArgsCount = 7;
-#else
-        private const int ytdlpArgsCount = 8;
-#endif
 
         private static void SelectToolInstall(string title, string pathMenu, string pathKey)
         {
@@ -325,20 +326,20 @@ namespace AudioLink
             _ytdlpFound = false;
 
             // check for a custom install location
-            string customPath = EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty);
-            if (!string.IsNullOrEmpty(customPath))
-            {
-                if (File.Exists(customPath))
-                {
-                    Debug.Log($"[AudioLink:YT-dlp] Custom YTDL location found: {customPath}");
-                    _ytdlpPath = customPath;
-                    _ytdlpFound = true;
-                    return;
-                }
+            // string customPath = EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty);
+            // if (!string.IsNullOrEmpty(customPath))
+            // {
+            //     if (File.Exists(customPath))
+            //     {
+            //         Debug.Log($"[AudioLink:YT-dlp] Custom YTDL location found: {customPath}");
+            //         _ytdlpPath = customPath;
+            //         _ytdlpFound = true;
+            //         return;
+            //     }
 
-                Debug.LogWarning($"[AudioLink:YT-dlp] Custom YTDL location detected but does not exist: {customPath}");
-                Debug.Log("[AudioLink:YT-dlp] Checking other locations...");
-            }
+            //     Debug.LogWarning($"[AudioLink:YT-dlp] Custom YTDL location detected but does not exist: {customPath}");
+            //     Debug.Log("[AudioLink:YT-dlp] Checking other locations...");
+            // }
 
 
 #if UNITY_EDITOR_WIN
@@ -368,21 +369,21 @@ namespace AudioLink
             _ffmpegFound = false;
 
             // check for a custom install location
-            string customPath = EditorPrefs.GetString(userDefinedFFmpegPathKey, string.Empty);
-            if (!string.IsNullOrEmpty(customPath))
-            {
-                if (File.Exists(customPath))
-                {
-                    Debug.Log($"[AudioLink:FFmpeg] Custom FFmpeg location found: {customPath}");
-                    _ffmpegPath = customPath;
-                    _ffmpegFound = true;
-                    return;
-                }
+            // string customPath = EditorPrefs.GetString(userDefinedFFmpegPathKey, string.Empty);
+            // if (!string.IsNullOrEmpty(customPath))
+            // {
+            //     if (File.Exists(customPath))
+            //     {
+            //         Debug.Log($"[AudioLink:FFmpeg] Custom FFmpeg location found: {customPath}");
+            //         _ffmpegPath = customPath;
+            //         _ffmpegFound = true;
+            //         return;
+            //     }
 
-                Debug.LogWarning($"[AudioLink:FFmpeg] Custom FFmpeg location detected but does not exist: {customPath}");
-                Debug.Log("[AudioLink:FFmpeg] Checking other locations...");
+            //     Debug.LogWarning($"[AudioLink:FFmpeg] Custom FFmpeg location detected but does not exist: {customPath}");
+            //     Debug.Log("[AudioLink:FFmpeg] Checking other locations...");
 
-            }
+            // }
 
 #if !UNITY_EDITOR_WIN
             _ffmpegPath = "/usr/bin/ffmpeg";
@@ -524,6 +525,45 @@ namespace AudioLink
             }
         }
 
+        public static void TryResolve(Action<bool> callback)
+        {
+            if (!_ytdlpFound)
+            {
+                Locateytdlp();
+            }
+
+            bool dumpJson = true;
+
+            System.Diagnostics.Process ytdlpJsonDumpCheckProc = ResolvingProcess(_ytdlpPath, new string[] { "--dump-json" });
+
+            ytdlpJsonDumpCheckProc.Exited += (sender, args) => {
+                ytdlpJsonDumpCheckProc.Dispose();
+                callback(dumpJson);
+                };
+
+            ytdlpJsonDumpCheckProc.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    if (args.Data.Contains("error: no such option: --dump-json"))
+                        dumpJson = false;
+                    
+                    Debug.Log(args.Data);
+                }
+            };
+
+            try
+            {
+                ytdlpJsonDumpCheckProc.Start();
+                ytdlpJsonDumpCheckProc.BeginErrorReadLine();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[AudioLink:YT-dlp] Unable to check for \"--dump-json\" : " + e.Message);
+                callback(false);
+            }
+        }
+
         private static string SanitizeURL(string url, string identifier, char seperator)
         {
             if (url.StartsWith(identifier) && url.Contains(seperator))
@@ -532,7 +572,7 @@ namespace AudioLink
             return url;
         }
 
-        public static void Resolve(string url, Action<ResolvingRequest> callback, int resolution = 720)
+        public static void Resolve(string url, Action<ResolvingRequest> callback, int resolution = 720, bool dumpJson = false)
         {
             if (!_ytdlpFound)
             {
@@ -554,7 +594,7 @@ namespace AudioLink
             platformDefaultUseFFmpegTranscode = true;
 #endif
 
-            useFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
+            // useFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
 
             // Catch playlist runaway
             url = SanitizeURL(url, "https://www.youtube.com/", '&');
@@ -589,7 +629,7 @@ namespace AudioLink
                 return;
             }
 
-            _ytdlpJson = null;
+            _ytdlpJson = new VideoMeta(_id: url);
 
             if (_ffmpegProc != null)
             {
@@ -597,13 +637,12 @@ namespace AudioLink
                 _ffmpegProc.StandardInput.Flush();
             }
 
-            string[] ytdlpArgs = new string[ytdlpArgsCount] {
+            string[] ytdlpArgs = new string[8] {
                 "--no-check-certificate",
                 "--no-cache-dir",
                 "--rm-cache-dir",
-#if !UNITY_EDITOR_WIN
-                "--dump-json",
-#endif
+
+                dumpJson ? "--dump-json" : "",
 
                 "-f", $"\"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\"",
 
@@ -620,13 +659,7 @@ namespace AudioLink
                 {
                     if (args.Data.StartsWith("{"))
                     {
-#if UNITY_EDITOR_WIN
-                        _ytdlpJson = new VideoMeta();
-                        _ytdlpJson.id = url;
-                        _ytdlpJson.duration = 0;
-#else
                         _ytdlpJson = JsonUtility.FromJson<VideoMeta>(args.Data);
-#endif
                     }
                     else
                     {
