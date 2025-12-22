@@ -178,7 +178,8 @@ namespace AudioLink.Editor
                     }
 
                     shaderSource[i] = line;
-                    shouldWrite = line != initalLine;
+                    if (line != initalLine)
+                        shouldWrite = true;
                 }
 
                 if (line.TrimStart().StartsWith("Pass") && firstPass)
