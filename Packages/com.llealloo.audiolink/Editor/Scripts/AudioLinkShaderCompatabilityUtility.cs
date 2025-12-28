@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace AudioLink.Editor
 {
@@ -11,24 +12,32 @@ namespace AudioLink.Editor
         private const string OldAbsolutePath = "Assets/AudioLink/Shaders/AudioLink.cginc";
         private const string NewAbsolutePath = "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc";
         private const string AmplifyAbsoluteDir = "Packages/com.llealloo.audiolink/Runtime/Shaders/Amplify/Shaders";
-        private const string MenuItemPath = "Tools/AudioLink/Update AudioLink Compatible Shaders";
+        private const string UpgradeMenuItemPath = "Tools/AudioLink/Update AudioLink Compatible Shaders";
 
-        private const string DialogText =
+        private const string UpgradeDialogText =
             "Do you want to check all shaders in this project for AudioLink 0.3.x compatibility and update them if necessary? This is useful for upgrading projects using AudioLink 0.2.x or below."
             + "\n" + "\n" +
             "If you choose 'Go Ahead', shader files in this project which include references to 'Assets/AudioLink/Shaders/AudioLink.cginc' will be edited to use the new path introduced by AudioLink 0.3.x. Shaders which already use the new or custom path will be unaffected. You should make a backup before proceeding."
             + "\n" + "\n" +
-            "(You can always run this utility manually via the " + MenuItemPath + " menu command)";
+            "(You can always run this utility manually via the " + UpgradeMenuItemPath + " menu command)";
 
-        private const string DialogTitle = "Upgrade AudioLink compatible shaders";
-        private const string DialogOkButton = "I Made a Backup, Go Ahead!";
-        private const string DialogCancelButton = "No Thanks";
+        private const string UpgradeDialogTitle = "Upgrade AudioLink compatible shaders?";
+        private const string UpgradeDialogOkButton = "I Made a Backup, Go Ahead!";
+        private const string UpgradeDialogCancelButton = "No Thanks";
+
+        private const string ConvertMenuItemPath = "Tools/AudioLink/Convert Amplify Shaders Pipeline";
+
+        private const string ConvertDialogText = "Do you want to convert the AudioLink Amplify shaders to the ";
+
+        private const string ConvertDialogTitle = "Amplify Convert shaders pipeline?";
+        private const string ConvertDialogOkButton = "Convert";
+        private const string ConvertDialogCancelButton = "Cancel";
 
 
-        [MenuItem(MenuItemPath)]
+        [MenuItem(UpgradeMenuItemPath)]
         public static void UpgradeShaders()
         {
-            if (EditorUtility.DisplayDialog(DialogTitle, DialogText, DialogOkButton, DialogCancelButton))
+            if (EditorUtility.DisplayDialog(UpgradeDialogTitle, UpgradeDialogText, UpgradeDialogOkButton, UpgradeDialogCancelButton))
             {
                 UpgradeShaderFiles();
                 UpgradeCgincFiles();
@@ -127,7 +136,7 @@ namespace AudioLink.Editor
         [InitializeOnLoadMethod]
         private static void InitializeOnLoad()
         {
-            EditorApplication.delayCall += ConvertShaderFiles;
+            RenderPipelineManager.activeRenderPipelineTypeChanged += AskConvertShaderFiles;
         }
 
         private static string SetLightModeTag(string text, string from, string to)
@@ -135,7 +144,21 @@ namespace AudioLink.Editor
             return new Regex($"\"LightMode\"\\s*=\\s*\"{from}\"").Replace(text, $"\"LightMode\"=\"{to}\"");
         }
 
-        [MenuItem("Tools/AudioLink/Convert Amplify Shaders Pipeline")]
+        [MenuItem(ConvertMenuItemPath)]
+        private static void AskConvertShaderFiles()
+        {
+            string renderPipelineName = "BuiltinRenderPipeline";
+
+            if (RenderPipelineManager.currentPipeline != null)
+            {
+                renderPipelineName = RenderPipelineManager.currentPipeline.GetType().ToString();
+                renderPipelineName = renderPipelineName.Substring(renderPipelineName.LastIndexOf(".") + 1);
+            }
+
+            if (EditorUtility.DisplayDialog(ConvertDialogTitle, ConvertDialogText + renderPipelineName + "?", ConvertDialogOkButton, ConvertDialogCancelButton))
+                ConvertShaderFiles();
+        }
+
         public static void ConvertShaderFiles()
         {
             ShaderInfo[] shaders = ShaderUtil.GetAllShaderInfo();
