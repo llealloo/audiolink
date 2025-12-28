@@ -963,7 +963,6 @@ namespace AudioLink
             }
 
             // FFmpeg toggle
-            using (new EditorGUI.DisabledScope(!ytdlpURLResolver.IsFFmpegAvailable()))
             {
                 bool platformDefaultUseFFmpegTranscode = false;
 #if UNITY_EDITOR_LINUX
@@ -1032,12 +1031,16 @@ namespace AudioLink
                 }
             }
 
-            if (!available || (ytdlpURLResolver.useFFmpeg && !ytdlpURLResolver.IsFFmpegAvailable()))
+            bool ffmpegNotFound = (ytdlpURLResolver.useFFmpeg && !ytdlpURLResolver.IsFFmpegAvailable());
+            if (!available || ffmpegNotFound)
             {
 #if UNITY_EDITOR_LINUX
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via your package manager,\nor make sure the portable executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #elif UNITY_EDITOR_WIN
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, either install and launch VRChat once,\nor install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
+                if (ffmpegNotFound)
+                    EditorGUILayout.HelpBox("Failed to locate ffmpeg executable.\n\nTo fix this, install ffmpeg and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
+                if (!available)
+                    EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, either install and launch VRChat once,\nor install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #else
                 EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via *homebrew*: \"brew install yt-dlp ffmpeg\", or make sure the executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
 #endif
