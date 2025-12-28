@@ -505,7 +505,7 @@ namespace AudioLink
                 if (File.Exists(outPath))
                 {
 #if UNITY_EDITOR_WIN
-                    transcode.resolvedURL = "file:\\\\" + outPath;
+                    transcode.resolvedURL = outPath;
 #else
                     transcode.resolvedURL = "file://" + outPath;
 #endif
@@ -657,7 +657,7 @@ namespace AudioLink
             {
 
 #if UNITY_EDITOR_WIN
-                request.resolvedURL = "file:\\\\" + fullUrlHash;
+                request.resolvedURL = fullUrlHash;
 #else
                 request.resolvedURL = "file://" + fullUrlHash;
 #endif
