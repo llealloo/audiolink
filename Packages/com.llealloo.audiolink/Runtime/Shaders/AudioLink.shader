@@ -591,10 +591,8 @@ Shader "AudioLink/Internal/AudioLink"
                         if (_ThemeColorMode == 1)
                             return customThemeColor;
 
-                        float4 ccColor = AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(coordinateLocal.x, _ThemeColorMode == 2));
-                        ccColor.rgb = lerp(customThemeColor.rgb, ccColor.rgb, ccColor.a);
-                        ccColor.a = 1.0;
-                        return ccColor;
+                        float3 ccColor = AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(coordinateLocal.x, _ThemeColorMode == 2)).rgb;
+                        return float4(ccColor, 1);
                     }
                     else if( coordinateLocal.x == 4 )
                     {
@@ -921,7 +919,7 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 ThisNote = notes[id];
                     static const float AudioLinkColorOutputIntensity = 1.1;
                     float3 newColor = AudioLinkCCtoRGB( glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS), AudioLinkColorOutputIntensity, AUDIOLINK_ROOTNOTE);
-                    return float4(lerp(prevColor, newColor, saturate(ThisNote.z)), 1.0 );
+                    return float4(lerp(prevColor, newColor, saturate(ThisNote.z)), ThisNote.z );
                 }
                 return 0;
             }
