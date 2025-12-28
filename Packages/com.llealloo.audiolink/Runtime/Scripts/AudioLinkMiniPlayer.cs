@@ -571,6 +571,8 @@ namespace AudioLink
                 trackPosition = _currentPlayer.GetTime();
             }
 
+            SyncPlaybackTimeToAudioLink();
+
             // Video is playing: periodically sync with owner
             if (isOwner || !_waitForSync)
             {
@@ -589,8 +591,6 @@ namespace AudioLink
             _currentPlayer.Play();
 
             SyncVideo();
-
-            SyncPlaybackTimeToAudioLink();
         }
 
         void SyncVideoIfTime()
@@ -667,7 +667,7 @@ namespace AudioLink
         {
             if (audioLink == null) return;
             audioLink.SetMediaLoop(loop ? MediaLoop.LoopOne : MediaLoop.None);
-            audioLink.SetMediaTime(localPlayerState == PLAYER_STATE_PLAYING ? _currentPlayer.GetTime() : 0F);
+            audioLink.SetMediaTime(localPlayerState == PLAYER_STATE_PLAYING ? _currentPlayer.GetTime() / _currentPlayer.GetDuration() : 0F);
             if (mainAudioSource != null)
             {
                 audioLink.SetMediaVolume(mainAudioSource.volume);
