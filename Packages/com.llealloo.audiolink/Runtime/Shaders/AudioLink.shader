@@ -569,17 +569,32 @@ Shader "AudioLink/Internal/AudioLink"
                     //Second Row y = 1
                     if( coordinateLocal.x < 4 )
                     {
-                        if( _ThemeColorMode == 1 )
+                        float4 customThemeColor = 0;
+                        switch (coordinateLocal.x)
                         {
-                            if( coordinateLocal.x == 0 ) return _CustomThemeColor0;
-                            if( coordinateLocal.x == 1 ) return _CustomThemeColor1;
-                            if( coordinateLocal.x == 2 ) return _CustomThemeColor2;
-                            if( coordinateLocal.x == 3 ) return _CustomThemeColor3;
+                            case 0:
+                                customThemeColor = _CustomThemeColor0;
+                                break;
+                            case 1:
+                                customThemeColor = _CustomThemeColor1;
+                                break;
+                            case 2:
+                                customThemeColor = _CustomThemeColor2;
+                                break;
+                            case 3:
+                                customThemeColor = _CustomThemeColor3;
+                                break;
+                            default:
+                                break;
                         }
-                        else
-                        {
-                            return AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(coordinateLocal.x,0));
-                        }
+
+                        if (_ThemeColorMode == 1)
+                            return customThemeColor;
+
+                        float4 ccColor = AudioLinkGetSelfPixelData(ALPASS_CCCOLORS+uint2(coordinateLocal.x, _ThemeColorMode == 2));
+                        ccColor.rgb = lerp(customThemeColor.rgb, ccColor.rgb, ccColor.a);
+                        ccColor.a = 1.0;
+                        return ccColor;
                     }
                     else if( coordinateLocal.x == 4 )
                     {
@@ -897,6 +912,16 @@ Shader "AudioLink/Internal/AudioLink"
                     float4 ThisNote = notes[id];
                     static const float AudioLinkColorOutputIntensity = 0.4;
                     return float4( AudioLinkCCtoRGB( glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS), ThisNote.z * AudioLinkColorOutputIntensity, AUDIOLINK_ROOTNOTE), 1.0 );
+                }
+                else if( coordinateLocal.x >= COLORCHORD_MAX_NOTES+3 && coordinateLocal.x < COLORCHORD_MAX_NOTES*2+4 && coordinateLocal.y == 1 )
+                {
+                    // Colorchord colors, but persistent rather than fading to black when there is no intensity.
+                    float3 prevColor = AudioLinkGetSelfPixelData(coordinateGlobal);
+                    uint id = coordinateLocal.x - (COLORCHORD_MAX_NOTES+2);
+                    float4 ThisNote = notes[id];
+                    static const float AudioLinkColorOutputIntensity = 1.1;
+                    float3 newColor = AudioLinkCCtoRGB( glsl_mod(ThisNote.x,AUDIOLINK_EXPBINS), AudioLinkColorOutputIntensity, AUDIOLINK_ROOTNOTE);
+                    return float4(lerp(prevColor, newColor, saturate(ThisNote.z)), 1.0 );
                 }
                 return 0;
             }
