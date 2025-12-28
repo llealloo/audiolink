@@ -131,7 +131,8 @@ namespace AudioLink
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(localPlayer, gameObject);
 #endif
-            _themeColorMode = themeColorToggle.isOn ? 0 : 1;
+            int initalMode = _initThemeColorMode == 1 ? 0 : _initThemeColorMode;
+            _themeColorMode = themeColorToggle.isOn ? initalMode : 1;
             UpdateGUI();
             UpdateAudioLinkThemeColors();
 #if UDONSHARP
@@ -205,7 +206,7 @@ namespace AudioLink
             sliderValue.value = v;
 
             // update toggle
-            themeColorToggle.isOn = _themeColorMode == 0;
+            themeColorToggle.isOn = _themeColorMode != 1;
 
             if (audioLinkUI != null)
             {

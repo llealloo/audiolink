@@ -630,9 +630,11 @@ float3 drawUI(float2 uv)
     ADD_ELEMENT(color, drawFourBandArea(fourBandOrigin, fourBandSize), fourBandDist);
     currentY += fourBandSize.y + margin;
 
+    uint themeColorModeActive = distance(_ThemeColorMode, 1);
+
     // Gray out irrelevant controls
-    float themeColorMultiplier = lerp(0.2, 1.0, _ThemeColorMode);
-    float colorChordMultiplier = lerp(1.0, 0.2, _ThemeColorMode);
+    float themeColorMultiplier = lerp(1.0, 0.2, themeColorModeActive);
+    float colorChordMultiplier = lerp(0.2, 1.0, themeColorModeActive);
 
     // Theme colors
     float colorWidth = topAreaSize.x * 0.25 - margin * 0.75;
@@ -677,7 +679,7 @@ float3 drawUI(float2 uv)
     float2 ccToggleSize = float2(colorSize.x, 0.2);
     float ccToggleDist = sdRoundedBoxTopLeft(ccToggleOrigin, ccToggleSize, CORNER_RADIUS);
     ADD_ELEMENT(color, drawColorChordToggle(ccToggleOrigin, ccToggleSize) * colorChordMultiplier, ccToggleDist);
-    if (_ThemeColorMode == 0)
+    if (themeColorModeActive == 1)
     {
         float shellDist = shell(ccToggleDist, OUTLINE_WIDTH);
         ADD_ELEMENT(color, ACTIVE_COLOR, shellDist);
