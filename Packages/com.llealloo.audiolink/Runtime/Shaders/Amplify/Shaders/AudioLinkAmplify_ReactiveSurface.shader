@@ -162,6 +162,7 @@ Shader "AudioLink/Amplify/AudioReactiveSurface"
 		{
 
 			Name "ForwardBase"
+			Tags { "LightMode"="ForwardBase" }
 
 			Blend One Zero
 

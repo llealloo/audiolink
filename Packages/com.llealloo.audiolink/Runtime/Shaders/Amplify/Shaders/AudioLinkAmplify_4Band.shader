@@ -36,6 +36,7 @@ Shader "AudioLink/Amplify/AudioLinkAmplify_4Band"
 		Pass
 		{
 			Name "Unlit"
+			Tags { "LightMode"="ForwardBase" }
 			CGPROGRAM
 
 			
