@@ -1,5 +1,30 @@
 # Changelog
 
+## 3.1.0 - January 12th, 2026
+### New features
+- Added support for using AudioLink in the Universal Render Pipeline. (techanon, fundale)
+- Added support for using ffmpeg for transcoding videos in the ytdlpPlayer. This enables avatar testing on Linux and OSX. (fundale)
+- Added theme color support to AudioReactiveLight. (techanon)
+- Added a new theme color color mode called "Persistent ColorChord Colors". This is like the existing ColorChord mode, except that the colors will not fade to black when the audio is silent. (pema)
+- Added support for using custom AudioSource curves for AudioLink input. (techanon)
+- Added a custom Editor GUI for AudioReactive scripts. (fundale)
+- Added a function `AudioLinkGetSphericalMappedAutoCorrelatorValue` to AudioLink.cginc for getting the autocorrelator output, mapped onto a sphere. (techanon)
+
+### Changes
+- Renamed and changed the type of several fields in AudioReactiveLight, AudioReactiveObject, AudioReactiveSurface, AudioReactiveSurfaceArray and AudioReactiveBlendShape. This is a breaking change for scripts which directly reference these types. (fundale)
+- Log error messages from ytDlp in the console. (SenkyDragon)
+- Allow using a custom location for ytDlp in VRChat world projects. (teehzero)
+- Implemented Media Playback Reporting API in the included AudioLink video player and ytDlp player. (JLChnToZ)
+- Disabled Network Sync on AudioLinkZone script. (fundale)
+- Added some additional helper functions to the C# AudioLink data API. Among them are a function to get smoothed AudioLink data `GetBandAsSmooth`, a function for converting colors to grayscale `ToGrayscale`, and some helpers for getting the sizes of each AudioLink pass in the global texture. (fundale)
+
+### Bugfixes
+- Fixed the update speed of the AudioLink texture being too fast when multiple scene or game views are open in Editor. (techanon)
+- Fixed a compilation error on some older versions of Unity. (Hamaguri-0414)
+- Add a null check to the AudioLinkController in case of there being no ThemeColorController. (JLChnToZ)
+- Boxed AudioListener into generic Component to clear up compiler issues for U#. (techanon)
+- Fixed a bug where video playback time doesn't upddate when using the included AudioLink video player. (fundale)
+
 ## 2.1.0 - March 10th, 2025
 ### New features
 - Added support for getting phase information from AudioLink, via the alpha channel of the `ALPASS_DFT` section. There is an example shader using this feature included at `com.llealloo.audiolink/Runtime/Shaders/AudioLinkDocs_Demo10.shader`. (tt0fu)
