@@ -5,7 +5,7 @@
 - Added support for using AudioLink in the Universal Render Pipeline. (techanon, fundale)
 - Added support for using ffmpeg for transcoding videos in the ytdlpPlayer. This enables avatar testing on Linux and OSX. (fundale)
 - Added theme color support to AudioReactiveLight. (techanon)
-- Added a new theme color color mode called "Persistent ColorChord Colors". This is like the existing ColorChord mode, except that the colors will not fade to black when the audio is silent. (pema)
+- Added a new theme color mode called "Persistent ColorChord Colors". This is like the existing ColorChord mode, except that the colors will not fade to black when the audio is silent. (pema)
 - Added support for using custom AudioSource curves for AudioLink input. (techanon)
 - Added a custom Editor GUI for AudioReactive scripts. (fundale)
 - Added a function `AudioLinkGetSphericalMappedAutoCorrelatorValue` to AudioLink.cginc for getting the autocorrelator output, mapped onto a sphere. (techanon)
@@ -23,7 +23,7 @@
 - Fixed a compilation error on some older versions of Unity. (Hamaguri-0414)
 - Add a null check to the AudioLinkController in case of there being no ThemeColorController. (JLChnToZ)
 - Boxed AudioListener into generic Component to clear up compiler issues for U#. (techanon)
-- Fixed a bug where video playback time doesn't upddate when using the included AudioLink video player. (fundale)
+- Fixed a bug where video playback time doesn't update when using the included AudioLink video player. (fundale)
 
 ## 2.1.0 - March 10th, 2025
 ### New features
