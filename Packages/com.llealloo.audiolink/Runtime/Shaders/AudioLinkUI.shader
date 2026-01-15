@@ -68,7 +68,7 @@
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
                 // Prevent z-fighting on mobile by moving the panel out a bit
-                #ifdef SHADER_API_MOBILE
+                #if defined(SHADER_API_MOBILE) || SHADER_API_GLCORE
                 v.vertex.z -= 0.0012;
                 #endif
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -123,7 +123,7 @@
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                #ifdef SHADER_API_MOBILE
+                #if defined(SHADER_API_MOBILE) || SHADER_API_GLCORE
                 v.vertex.z -= 0.0012;
                 #endif
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -174,7 +174,7 @@
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-                #ifdef SHADER_API_MOBILE
+                #if defined(SHADER_API_MOBILE) || SHADER_API_GLCORE
                 v.vertex.z -= 0.0012;
                 #endif
                 o.vertex = UnityObjectToClipPos(v.vertex);
