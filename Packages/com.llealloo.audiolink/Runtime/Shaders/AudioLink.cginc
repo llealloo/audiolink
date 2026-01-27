@@ -124,7 +124,7 @@
     //Tests to see if Audio Link texture is available
     bool AudioLinkIsAvailable()
     {
-        #if !defined(AUDIOLINK_STANDARD_INDEXING) && SHADER_API_D3D11
+        #if !defined(AUDIOLINK_STANDARD_INDEXING) && !SHADER_API_GLCORE
             int width, height;
             _AudioTexture.GetDimensions(width, height);
             return width > 16;
