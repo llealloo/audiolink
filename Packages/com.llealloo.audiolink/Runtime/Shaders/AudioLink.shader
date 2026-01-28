@@ -221,29 +221,43 @@ Shader "AudioLink/Internal/AudioLink"
 
             float ReadLeft( int sample )
             {
-                if( sample < 1023 )
-                    return _Samples0L[sample];
-                else if( sample < 2046 )
-                    return _Samples1L[sample-1023];
-                else if( sample < 3069 )
-                    return _Samples2L[sample-2046];
-                else if( sample < 4092 )
-                    return _Samples3L[sample-3069];
-                else
-                    return 0.;
+                if ( sample < 0 || 4092 < sample )
+                    return 0.0;
+
+                int bufferIndex = sample / 1023;
+                int relativeIndex = sample % 1023;
+
+                float result = 0.0;
+                if ( bufferIndex == 0 )
+                    result = _Samples0L[relativeIndex];
+                if ( bufferIndex == 1 )
+                    result = _Samples1L[relativeIndex];
+                if ( bufferIndex == 2 )
+                    result = _Samples2L[relativeIndex];
+                if ( bufferIndex == 3 )
+                    result = _Samples3L[relativeIndex];
+                
+                return result;
             }
             float ReadRight( int sample )
             {
-                if( sample < 1023 )
-                    return _Samples0R[sample];
-                else if( sample < 2046 )
-                    return _Samples1R[sample-1023];
-                else if( sample < 3069 )
-                    return _Samples2R[sample-2046];
-                else if( sample < 4092 )
-                    return _Samples3R[sample-3069];
-                else
-                    return 0.;
+                if ( sample < 0 || 4092 < sample )
+                    return 0.0;
+
+                int bufferIndex = sample / 1023;
+                int relativeIndex = sample % 1023;
+
+                float result = 0.0;
+                if ( bufferIndex == 0 )
+                    result = _Samples0R[relativeIndex];
+                if ( bufferIndex == 1 )
+                    result = _Samples1R[relativeIndex];
+                if ( bufferIndex == 2 )
+                    result = _Samples2R[relativeIndex];
+                if ( bufferIndex == 3 )
+                    result = _Samples3R[relativeIndex];
+                
+                return result;
             }
 
             float4 frag (v2f_customrendertexture IN) : SV_Target
