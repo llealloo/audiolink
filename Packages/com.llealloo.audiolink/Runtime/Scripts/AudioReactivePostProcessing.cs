@@ -4,23 +4,22 @@ using UnityEngine.Rendering.PostProcessing;
 
 namespace AudioLink
 {
-#if UDONSHARP
-    using UdonSharp;
 
     [RequireComponent(typeof(PostProcessVolume))]
-    public class AudioReactivePostProcessing : UdonSharpBehaviour
-#else
-    [RequireComponent(typeof(PostProcessVolume))]
-    public class AudioReactivePostProcessing : MonoBehaviour
-#endif
+    public class AudioReactivePostProcessing : AudioReactive
     {
         public AudioLink audioLink;
-        public int band;
+        [Header("AudioLink Settings")]
+        public AudioLinkBand band;
+        public bool smooth;
         [Range(0, 127)]
         public int delay;
-        public float weight = 1;
-        public float minWeight = 0;
 
+        [Header("Reactivity Settings"), Range(0.0f, 1.0f)]
+        public float fromWeight = 0.0f;
+        [Range(0.0f, 1.0f)]
+        public float toWeight = 1.0f;
+        
         private PostProcessVolume _postProcessVolume;
 
         void Start()
@@ -33,8 +32,8 @@ namespace AudioLink
         {
             if (audioLink.AudioDataIsAvailable())
             {
-                float amplitude = audioLink.GetDataAtPixel(delay, band).x;
-                _postProcessVolume.weight = Mathf.Lerp(minWeight, weight, amplitude);
+                float amplitude = AudioLink.ToGrayscale(audioLink.GetBandAsSmooth(band, delay, smooth));
+                _postProcessVolume.weight = Mathf.Lerp(fromWeight, toWeight, amplitude);
             }
         }
 
