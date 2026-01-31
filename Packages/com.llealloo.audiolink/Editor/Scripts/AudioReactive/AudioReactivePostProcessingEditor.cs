@@ -25,24 +25,11 @@ namespace AudioLink.Editor
             float toWeight = toWeightProperty.floatValue;
 
             Rect rangeSliderHorizontal = EditorGUILayout.BeginHorizontal();
-            
+
                 Rect rangeSliderLabel = EditorGUI.PrefixLabel(rangeSliderHorizontal, new GUIContent("Weight Range"));
                 rangeSliderLabel.height += 18;
 
-                Rect floatRect = rangeSliderLabel;
-                Rect sliderRect = rangeSliderLabel;
-
-                floatRect.width = 40;
-
-                sliderRect.width -= 45 * 2;
-                sliderRect.x += 45;
-
-                fromWeight = EditorGUI.FloatField(floatRect, fromWeight);
-
-                EditorGUI.MinMaxSlider(sliderRect, ref fromWeight, ref toWeight, 0.0f, 1.0f);
-                
-                floatRect.x += sliderRect.width + 50;
-                toWeight = EditorGUI.FloatField(floatRect, toWeight);
+                RangeSliderWithFields(rangeSliderLabel, ref fromWeight, ref toWeight);
 
             EditorGUILayout.EndHorizontal();
 
