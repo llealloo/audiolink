@@ -21,12 +21,12 @@ namespace AudioLink.Editor
         const string URP = "_UNIVERSAL_RENDER_PIPELINE";
         const string HDRP = "_HIGH_DEFINITION_RENDER_PIPELINE";
 
-        private const string ConvertMenuItemPath = "Tools/AudioLink/Convert Amplify Shaders Pipeline";
+        private const string ConvertMenuItemPath = "Tools/AudioLink/Convert AudioLink Amplify Shaders Pipeline";
         private const string ShaderKeyworkMenuItemPath = "Tools/AudioLink/Apply AudioLink Shader Pipeline Keywords";
 
         private const string ConvertDialogText = "Do you want to convert the AudioLink Amplify shaders to the ";
 
-        private const string ConvertDialogTitle = "Amplify Convert shaders pipeline?";
+        private const string ConvertDialogTitle = "Convert AudioLink Amplify Shaders pipeline?";
         private const string ConvertDialogOkButton = "Convert";
         private const string ConvertDialogCancelButton = "Cancel";
 
