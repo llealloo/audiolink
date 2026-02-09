@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.1 - February 9th, 2026
+### Changes
+- Made the conversion tool for render pipeline compatability only run if the render pipeline has changed. This should fix the very long project loading times in version 3.1.0. (fundale)
+
+### Bugfixes
+- Fixed Z-fighting on the AudioLink controller on OpenGL core. (fundale)
+- Fixed `AudioLinkIsAvailable()` returning incorrect results on OpenGL core. (fundale)
+
 ## 3.1.0 - January 12th, 2026
 ### New features
 - Added support for using AudioLink in the Universal Render Pipeline. (techanon, fundale)
