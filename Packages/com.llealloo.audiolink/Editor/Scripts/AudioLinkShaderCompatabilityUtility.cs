@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace AudioLink.Editor
 {
@@ -11,7 +9,6 @@ namespace AudioLink.Editor
     {
         private const string OldAbsolutePath = "Assets/AudioLink/Shaders/AudioLink.cginc";
         private const string NewAbsolutePath = "Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc";
-        private const string AmplifyAbsoluteDir = "Packages/com.llealloo.audiolink/Runtime/Shaders/Amplify/Shaders";
         private const string UpgradeMenuItemPath = "Tools/AudioLink/Update AudioLink Compatible Shaders";
 
         private const string UpgradeDialogText =
@@ -24,15 +21,6 @@ namespace AudioLink.Editor
         private const string UpgradeDialogTitle = "Upgrade AudioLink compatible shaders?";
         private const string UpgradeDialogOkButton = "I Made a Backup, Go Ahead!";
         private const string UpgradeDialogCancelButton = "No Thanks";
-
-        private const string ConvertMenuItemPath = "Tools/AudioLink/Convert Amplify Shaders Pipeline";
-
-        private const string ConvertDialogText = "Do you want to convert the AudioLink Amplify shaders to the ";
-
-        private const string ConvertDialogTitle = "Amplify Convert shaders pipeline?";
-        private const string ConvertDialogOkButton = "Convert";
-        private const string ConvertDialogCancelButton = "Cancel";
-
 
         [MenuItem(UpgradeMenuItemPath)]
         public static void UpgradeShaders()
@@ -122,100 +110,6 @@ namespace AudioLink.Editor
                         int index = line.IndexOf("#include");
                         string whitespace = line.Remove(index, line.Length - index);
                         shaderSource[i] = whitespace + "#include \"" + NewAbsolutePath + "\"";
-                        shouldWrite = true;
-                    }
-                }
-            }
-
-            if (shouldWrite)
-            {
-                File.WriteAllLines(path, shaderSource);
-            }
-        }
-
-        [InitializeOnLoadMethod]
-        private static void InitializeOnLoad()
-        {
-            RenderPipelineManager.activeRenderPipelineTypeChanged += AskConvertShaderFiles;
-        }
-
-        private static string SetLightModeTag(string text, string from, string to)
-        {
-            return new Regex($"\"LightMode\"\\s*=\\s*\"{from}\"").Replace(text, $"\"LightMode\"=\"{to}\"");
-        }
-
-        [MenuItem(ConvertMenuItemPath)]
-        private static void AskConvertShaderFiles()
-        {
-            string renderPipelineName = "BuiltinRenderPipeline";
-
-            if (RenderPipelineManager.currentPipeline != null)
-            {
-                renderPipelineName = RenderPipelineManager.currentPipeline.GetType().ToString();
-                renderPipelineName = renderPipelineName.Substring(renderPipelineName.LastIndexOf(".") + 1);
-            }
-
-            if (EditorUtility.DisplayDialog(ConvertDialogTitle, ConvertDialogText + renderPipelineName + "?", ConvertDialogOkButton, ConvertDialogCancelButton))
-                ConvertShaderFiles();
-        }
-
-        public static void ConvertShaderFiles()
-        {
-            ShaderInfo[] shaders = ShaderUtil.GetAllShaderInfo();
-
-            foreach (ShaderInfo shaderinfo in shaders)
-            {
-                Shader shader = Shader.Find(shaderinfo.name);
-                string path = AssetDatabase.GetAssetPath(shader);
-                // we want to only affect the Amplify shaders here, so we check the Path prefix
-                if (path.StartsWith(AmplifyAbsoluteDir))
-                {
-#if URP_AVAILABLE || HDRP_AVAILABLE
-                    ReplaceLightModeInFile(path, true);
-#else
-                    ReplaceLightModeInFile(path, false);
-#endif
-                }
-            }
-
-            AssetDatabase.Refresh();
-        }
-
-        private static void ReplaceLightModeInFile(string path, bool srpBased)
-        {
-            string[] shaderSource = File.ReadAllLines(path);
-            bool firstPass = true;
-            bool shouldWrite = false;
-            for (int i = 0; i < shaderSource.Length; i++)
-            {
-                string line = shaderSource[i];
-
-                if (line.Contains("\"LightMode\""))
-                {
-                    string initalLine = line;
-                    if (srpBased) // Unity SRP based, URP, HDRP?
-                    {
-                        line = SetLightModeTag(line, "ForwardBase", "UniversalForward");
-                    } else { // Unity BiRP
-                        line = SetLightModeTag(line, "UniversalForward", "ForwardBase");
-                    }
-
-                    shaderSource[i] = line;
-                    if (line != initalLine)
-                        shouldWrite = true;
-                }
-
-                if (line.TrimStart().StartsWith("Pass") && firstPass)
-                {
-                    firstPass = false;
-                    bool hasDepthCurrently = line.Contains("\"LightMode\"=\"DepthOnly\"");
-
-                    if (!hasDepthCurrently && srpBased)
-                    {
-                        shaderSource[i - 1] = "\t\tPass { Tags { \"LightMode\"=\"DepthOnly\"} }";
-                        shouldWrite = true;
-                    } else if (hasDepthCurrently && !srpBased) {
-                        shaderSource[i] = "\t\t";
                         shouldWrite = true;
                     }
                 }
