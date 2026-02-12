@@ -293,6 +293,21 @@ namespace AudioLink
 
     public static class ytdlpURLResolver
     {
+        private static int _mainThreadId;
+
+        [InitializeOnLoadMethod]
+        private static void CaptureMainThreadId_Editor()
+        {
+            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+        }
+
+        private static bool IsMainThread()
+        {
+            // If somehow not initialized yet, assume current is main (editor init order can be weird)
+            if (_mainThreadId == 0) _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            return Thread.CurrentThread.ManagedThreadId == _mainThreadId;
+        }
+        
         private static string _localytdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static CachedEditorPrefs _cachedEditorPrefs = new CachedEditorPrefs();
@@ -387,16 +402,21 @@ namespace AudioLink
         public static void FetchEditorPrefs()
         {
             bool platformDefaultUseFFmpegTranscode = false;
-#if UNITY_EDITOR_LINUX
+            #if UNITY_EDITOR_LINUX
             platformDefaultUseFFmpegTranscode = true;
-#endif
-            try {
+            #endif
+
+            if (!IsMainThread()) return; // Do not throw; just keep the existing cached values.
+            
+            try
+            {
                 _cachedEditorPrefs.ffmpegPath = EditorPrefs.GetString(userDefinedFFmpegPathKey, string.Empty);
                 _cachedEditorPrefs.ytdlpPath = EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty);
                 _cachedEditorPrefs.useFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogException(e);
             }
         }
 
