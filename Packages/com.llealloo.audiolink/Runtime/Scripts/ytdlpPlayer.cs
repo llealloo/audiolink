@@ -404,6 +404,9 @@ namespace AudioLink
         {
             _ytdlpFound = false;
 
+            // CRITICAL: Ensure cached prefs are up-to-date. Otherwise, custom path may be ignored after reload.
+            FetchEditorPrefs();
+
             // check for a custom install location
             string customPath = _cachedEditorPrefs.ytdlpPath;
             if (!string.IsNullOrEmpty(customPath))
@@ -446,6 +449,9 @@ namespace AudioLink
         public static void LocateFFmpeg()
         {
             _ffmpegFound = false;
+
+            // CRITICAL: Ensure cached prefs are up-to-date. Otherwise, custom path may be ignored after reload.
+            FetchEditorPrefs();
 
             // check for a custom install location
             string customPath = _cachedEditorPrefs.ffmpegPath;
