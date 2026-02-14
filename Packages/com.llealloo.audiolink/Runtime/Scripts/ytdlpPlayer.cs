@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Video;
@@ -293,6 +294,21 @@ namespace AudioLink
 
     public static class ytdlpURLResolver
     {
+        private static int _mainThreadId;
+
+        [InitializeOnLoadMethod]
+        private static void CaptureMainThreadId_Editor()
+        {
+            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+        }
+
+        private static bool IsMainThread()
+        {
+            // If somehow not initialized yet, assume current is main (editor init order can be weird)
+            if (_mainThreadId == 0) _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            return Thread.CurrentThread.ManagedThreadId == _mainThreadId;
+        }
+        
         private static string _localytdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static CachedEditorPrefs _cachedEditorPrefs = new CachedEditorPrefs();
@@ -387,22 +403,30 @@ namespace AudioLink
         public static void FetchEditorPrefs()
         {
             bool platformDefaultUseFFmpegTranscode = false;
-#if UNITY_EDITOR_LINUX
+            #if UNITY_EDITOR_LINUX
             platformDefaultUseFFmpegTranscode = true;
-#endif
-            try {
+            #endif
+
+            if (!IsMainThread()) return; // Do not throw; just keep the existing cached values.
+            
+            try
+            {
                 _cachedEditorPrefs.ffmpegPath = EditorPrefs.GetString(userDefinedFFmpegPathKey, string.Empty);
                 _cachedEditorPrefs.ytdlpPath = EditorPrefs.GetString(userDefinedYTDLPathKey, string.Empty);
                 _cachedEditorPrefs.useFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.LogException(e);
             }
         }
 
         public static void Locateytdlp()
         {
             _ytdlpFound = false;
+
+            // CRITICAL: Ensure cached prefs are up-to-date. Otherwise, custom path may be ignored after reload.
+            FetchEditorPrefs();
 
             // check for a custom install location
             string customPath = _cachedEditorPrefs.ytdlpPath;
@@ -446,6 +470,9 @@ namespace AudioLink
         public static void LocateFFmpeg()
         {
             _ffmpegFound = false;
+
+            // CRITICAL: Ensure cached prefs are up-to-date. Otherwise, custom path may be ignored after reload.
+            FetchEditorPrefs();
 
             // check for a custom install location
             string customPath = _cachedEditorPrefs.ffmpegPath;
