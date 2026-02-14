@@ -1,21 +1,23 @@
 {
-    "name" : "com.llealloo.audiolink",
-    "displayName" : "AudioLink",
-    "version" : "3.1.1",
-    "unity" : "2022.3",
-    "description" : "Audio reactive prefabs for VRChat",
-    "gitDependencies" : {},
-    "vpmDependencies" : {
-    },
-    "legacyFolders" : {
+    "name": "com.llealloo.audiolink",
+    "displayName": "AudioLink",
+    "version": "3.1.2",
+    "unity": "2022.3",
+    "description": "Audio reactive prefabs for VRChat",
+    "changelogUrl": "",
+    "documentationUrl": "",
+    "gitDependencies": {},
+    "vpmDependencies": {},
+    "legacyFolders": {
         "Assets\\AudioLink": ""
     },
-    "samples" : [
+    "samples": [
         {
-            "displayName" : "AudioLinkExampleScene",
-            "description" : "An example scene showing off the capabilities of AudioLink.",
-            "path" : "Samples~/AudioLinkExampleScene"
+            "displayName": "AudioLinkExampleScene",
+            "description": "An example scene showing off the capabilities of AudioLink.",
+            "path": "Samples~/AudioLinkExampleScene"
         }
     ],
-    "legacyFiles" : {}
+    "legacyFiles": {},
+    "legacyPackages": []
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.2 - February 14th, 2026
+### Bugfixes
+- Fixed a bug where configuring a Custom YTDL or Custom FFmpeg Location no longer worked. (BluWizard10, fundale)
+
 ## 3.1.1 - February 9th, 2026
 ### Changes
 - Made the conversion tool for render pipeline compatability only run if the render pipeline has changed. This should fix the very long project loading times in version 3.1.0. (fundale)
