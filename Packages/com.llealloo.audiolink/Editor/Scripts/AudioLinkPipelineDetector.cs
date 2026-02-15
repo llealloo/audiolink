@@ -146,8 +146,7 @@ namespace AudioLink.Editor
                 renderPipelineName = renderPipelineName.Substring(renderPipelineName.LastIndexOf(".") + 1);
             }
 
-            if (EditorUtility.DisplayDialog(ConvertDialogTitle, ConvertDialogText + renderPipelineName + "?", ConvertDialogOkButton, ConvertDialogCancelButton))
-                ConvertShaderFiles();
+            ConvertShaderFiles();
         }
 
         public static void ConvertShaderFiles()
