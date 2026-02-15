@@ -124,6 +124,12 @@ namespace AudioLink
 
         private bool _audioLinkEnabled = true;
 
+        public bool AudioLinkEnabled
+        {
+            get => _audioLinkEnabled;
+            set => SetAudioLinkState(value);
+        }
+
         private float[] _audioFramesL = new float[1023 * 4];
         private float[] _audioFramesR = new float[1023 * 4];
         private float[] _samples = new float[1023];
