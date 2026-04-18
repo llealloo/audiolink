@@ -19,7 +19,6 @@ namespace AudioLink
     public partial class AudioLink : UdonSharpBehaviour
 #elif PVR_CCK_WORLDS
 	using PVR.CCK.Worlds.PSharp;
-	using System.Linq;
 
 	public partial class AudioLink : PSharpBehaviour
 #endif
