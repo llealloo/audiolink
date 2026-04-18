@@ -10,6 +10,11 @@ namespace AudioLink
     using static VRC.SDKBase.VRCShader;
 
     public class AudioLinkControllerV0 : UdonSharpBehaviour
+#elif PVR_CCK_WORLDS
+    using PVR.CCK.Worlds.PSharp;
+    using static Shader;
+
+    public class AudioLinkControllerV0 : PSharpBehaviour
 #else
     using static Shader;
 

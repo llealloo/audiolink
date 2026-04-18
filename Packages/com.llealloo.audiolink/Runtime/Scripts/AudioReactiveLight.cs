@@ -2,6 +2,8 @@
 
 #if UDONSHARP
 using UdonSharp;
+#elif PVR_CCK_WORLDS
+using PVR.CCK.Worlds.PSharp;
 #endif
 
 namespace AudioLink

@@ -1,14 +1,22 @@
-﻿
-#if UDONSHARP
-using UdonSharp;
+﻿#if UDONSHARP || PVR_CCK_WORLDS
 using UnityEngine;
 using UnityEngine.Animations;
+
+#if UDONSHARP
+using UdonSharp;
 using VRC.SDKBase;
 using VRC.Udon;
+#elif PVR_CCK_WORLDS
+using PVR.CCK.Worlds.PSharp;
+#endif
 
 namespace AudioLink
 {
+#if UDONSHARP
     public class AudioLinkControllerHandle : UdonSharpBehaviour
+#elif PVR_CCK_WORLDS
+    public class AudioLinkControllerHandle : PSharpBehaviour
+#endif
     {
         public ParentConstraint parentConstraint;
 
@@ -19,10 +27,15 @@ namespace AudioLink
             selfConstraint = GetComponent<ParentConstraint>();
         }
 
+#if UDONSHARP
         public override void OnPickup()
         {
             Networking.SetOwner(Networking.LocalPlayer, parentConstraint.gameObject);
-
+#elif PVR_CCK_WORLDS
+		public override void OnInteract()
+		{
+            PSharpNetworking.SetOwner(PSharpPlayer.LocalPlayer, parentConstraint.gameObject);
+#endif
             selfConstraint.enabled = false;
 
             parentConstraint.enabled = true;
@@ -57,7 +70,11 @@ namespace AudioLink
             }
         }
 
+#if UDONSHARP
         public override void OnDrop()
+#elif PVR_CCK_WORLDS
+		public override void OnRelease()
+#endif
         {
             selfConstraint.enabled = true;
 

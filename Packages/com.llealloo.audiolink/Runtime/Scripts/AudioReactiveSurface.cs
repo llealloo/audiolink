@@ -5,6 +5,9 @@ namespace AudioLink
 #if UDONSHARP
     using UdonSharp;
     using static VRC.SDKBase.VRCShader;
+#elif PVR_CCK_WORLDS
+    using PVR.CCK.Worlds.PSharp;
+    using static Shader;
 #else
     using static Shader;
 #endif

@@ -1,7 +1,10 @@
 ﻿#if UDONSHARP
 using VRC.SDKBase;
 using UdonSharp;
+#elif PVR_CCK_WORLDS
+using PVR.CCK.Worlds.PSharp;
 #endif
+
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -10,6 +13,9 @@ namespace AudioLink
 #if UDONSHARP
     [RequireComponent(typeof(Collider)), UdonBehaviourSyncMode(BehaviourSyncMode.None)]
     public class AudioLinkZone : UdonSharpBehaviour
+#elif PVR_CCK_WORLDS
+	[RequireComponent(typeof(Collider))]
+	public class  AudioLinkZone : PSharpBehaviour
 #else
     [RequireComponent(typeof(Collider))]
     public class AudioLinkZone : MonoBehaviour
@@ -28,6 +34,10 @@ namespace AudioLink
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)
         {
             if (!player.IsValid() || !player.isLocal) return;
+#elif PVR_CCK_WORLDS
+		public override void OnPlayerTriggerEnter(PSharpPlayer player)
+		{
+            if (player.IsNull || !player.IsLocal) return;   
 #else
         private void OnTriggerEnter(Collider player)
         {

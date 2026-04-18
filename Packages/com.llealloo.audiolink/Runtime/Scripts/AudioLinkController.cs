@@ -10,6 +10,11 @@ namespace AudioLink
     using static VRC.SDKBase.VRCShader;
 
     public class AudioLinkController : UdonSharpBehaviour
+#elif PVR_CCK_WORLDS
+    using PVR.CCK.Worlds.PSharp;
+    using static Shader;
+
+    public class AudioLinkController : PSharpBehaviour
 #else
     using static Shader;
 
@@ -104,13 +109,17 @@ namespace AudioLink
         private void UpdateSyncMode(Transform inputTransform, ControllerSyncMode userSyncMode, ControllerSyncMode desiredSyncMode)
         {
 
-            #if UDONSHARP
+#if UDONSHARP
 
-                inputTransform.GetComponent<UdonBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
+            inputTransform.GetComponent<UdonBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
 
-            #endif
+#elif PVR_CCK_WORLDS
 
-        }
+            inputTransform.GetComponent<PSharpBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
+
+#endif
+
+		}
 
         public void SetControllerSyncMode(ControllerSyncMode syncMode)
         {
@@ -211,7 +220,7 @@ namespace AudioLink
             threshold3Slider.SetValueWithoutNotify(audioLink.threshold3);
 
             // Send events
-#if UDONSHARP
+#if UDONSHARP || PVR_CCK_WORLDS
             gainSlider.GetComponent<GlobalSlider>().SlideUpdate();
             fadeLengthSlider.GetComponent<GlobalSlider>().SlideUpdate();
             fadeExpFalloffSlider.GetComponent<GlobalSlider>().SlideUpdate();

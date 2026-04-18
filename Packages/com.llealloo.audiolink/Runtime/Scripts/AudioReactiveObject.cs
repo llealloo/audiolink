@@ -4,6 +4,8 @@ namespace AudioLink
 {
 #if UDONSHARP
     using UdonSharp;
+#elif PVR_CCK_WORLDS
+    using PVR.CCK.Worlds.PSharp;
 #endif
 
     public class AudioReactiveObject : AudioReactive

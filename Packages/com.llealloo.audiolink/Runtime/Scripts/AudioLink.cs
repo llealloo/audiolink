@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace AudioLink
 {
+#if !UDONSHARP
+	using Unity.Collections;
+	using UnityEngine.Rendering;
+	using static Shader;
+#endif
+
 #if UDONSHARP
     using UdonSharp;
     using VRC.SDK3.Rendering;
@@ -11,15 +17,18 @@ namespace AudioLink
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
     public partial class AudioLink : UdonSharpBehaviour
-#else
-    using Unity.Collections;
-    using UnityEngine.Rendering;
-    using static Shader;
+#elif PVR_CCK_WORLDS
+	using PVR.CCK.Worlds.PSharp;
+	using System.Linq;
+
+	public partial class AudioLink : PSharpBehaviour
+#endif
 
 #if UNITY_WEBGL
     using System.Runtime.InteropServices;
 #endif
 
+#if !PVR_CCK_WORLDS && !UDONSHARP
     public partial class AudioLink : MonoBehaviour
 #endif
     {
@@ -105,8 +114,8 @@ namespace AudioLink
         public Color customThemeColor3 = new Color(0.0f, 1.0f, 0.0f, 1.0f);
 
         [Header("Custom Global Strings")]
-        [UdonSynced] public string customString1;
-        [UdonSynced] public string customString2;
+        [UdonSynced, PSharpSynced] public string customString1;
+        [UdonSynced, PSharpSynced] public string customString2;
 
         [HideInInspector] public Material audioMaterial;
         [HideInInspector] public CustomRenderTexture audioRenderTexture;
@@ -136,7 +145,7 @@ namespace AudioLink
 
         private string _masterName;
         // Mechanism to provide sync'd instance time to all avatars.
-        [UdonSynced] private double _masterInstanceJoinTime;
+        [UdonSynced, PSharpSynced] private double _masterInstanceJoinTime;
         private double _elapsedTime = 0;
         private double _elapsedTimeMSW = 0;
         private int _networkTimeMS;
@@ -147,6 +156,11 @@ namespace AudioLink
         private double GetElapsedSecondsSince2019() { return (Networking.GetNetworkDateTime() - new DateTime(2020, 1, 1)).TotalSeconds; }
         //private double GetElapsedSecondsSinceMidnightUTC() { return (Networking.GetNetworkDateTime() - DateTime.UtcNow.Date ).TotalSeconds; }
 #else
+
+#if PVR_CCK_WORLDS
+        private bool _hasInitializedTime = false;
+        private PSharpPlayer _localPlayer;
+#endif
         private double GetElapsedSecondsSince2019() { return (DateTime.UtcNow - new DateTime(2020, 1, 1)).TotalSeconds; }
 #endif
 
@@ -160,7 +174,7 @@ namespace AudioLink
         private bool _ignoreRightChannel = false;
         private CustomRenderTextureUpdateMode initialUpdateMode = CustomRenderTextureUpdateMode.Realtime;
 
-#if UDONSHARP || CVR_CCK_EXISTS
+#if UDONSHARP || CVR_CCK_EXISTS || PVR_CCK_WORLDS
         [HideInInspector, SerializeField] private Transform audioTarget = null;
         [HideInInspector, SerializeField] private Component audioListenerTarget = null;
         [HideInInspector, SerializeField] private bool autoDetectAudioTarget = false;
@@ -374,7 +388,7 @@ namespace AudioLink
 
 #endif
 
-            UpdateSettings();
+			UpdateSettings();
             UpdateThemeColors();
             UpdateCustomStrings();
             if (audioSource == null)
@@ -392,7 +406,7 @@ namespace AudioLink
                 DisableReadback();
             }
 
-#if !UDONSHARP && !CVR_CCK_EXISTS
+#if !UDONSHARP && !CVR_CCK_EXISTS && !PVR_CCK_WORLDS
             if (autoDetectAudioTarget) Invoke(nameof(AutoCacheAudioTarget), 1);
 #endif
         }
@@ -430,9 +444,33 @@ namespace AudioLink
                     _fpsTime = _elapsedTime;
                 }
             }
+#elif PVR_CCK_WORLDS
+            if (!PSharpNetworking.isNetworkReady) return;
+
+			if (!_hasInitializedTime)
+			{
+				if (_masterInstanceJoinTime > 0.00001)
+				{
+					//We can now do our time setup.
+					double Now = GetElapsedSecondsSince2019();
+					_elapsedTime = Now - _masterInstanceJoinTime;
+					//Debug.Log($"[AudioLink] Time Sync Debug: Received instance time of {_masterInstanceJoinTime} and current time of {Now} delta of {_elapsedTime}");
+					_hasInitializedTime = true;
+					_fpsTime = _elapsedTime;
+				}
+				else if (_elapsedTime > 10 && PSharpNetworking.IsMaster)
+				{
+					//Have we gone more than 10 seconds and we're master?
+					//Debug.Log("[AudioLink] Time Sync Debug: You were master.  But no _masterInstanceJoinTime was provided for 10 seconds.  Resetting instance time.");
+					_masterInstanceJoinTime = GetElapsedSecondsSince2019();
+					_hasInitializedTime = true;
+					_elapsedTime = 0;
+					_fpsTime = _elapsedTime;
+				}
+			}
 #endif
-            // The red channel should be 3.02f forever - this is the last version before the versioning change.
-            audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(3.02f, AudioLinkVersionNumberMajor, _fpsCount, AudioLinkVersionNumberMinor));
+			// The red channel should be 3.02f forever - this is the last version before the versioning change.
+			audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(3.02f, AudioLinkVersionNumberMajor, _fpsCount, AudioLinkVersionNumberMinor));
 #if UDONSHARP
             audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
@@ -444,6 +482,17 @@ namespace AudioLink
 #endif
                 0));
 
+#elif PVR_CCK_WORLDS
+			audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
+				PSharpPlayer.GetPlayerCount(),
+				PSharpNetworking.IsMaster ? 1.0f : 0.0f,
+#if UNITY_EDITOR
+					0.0f,
+#else
+                    _localPlayer.IsInstanceCreator ? 1.0f : 0.0f,
+#endif
+				0));
+
 #else
             audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
             0,
@@ -451,7 +500,7 @@ namespace AudioLink
             0,
             0));
 #endif
-            _fpsCount = 0;
+			_fpsCount = 0;
             _fpsTime++;
 
             // Other things to handle every second.
@@ -472,6 +521,8 @@ namespace AudioLink
             // Finely adjust our network time estimate if needed.
 #if UDONSHARP
             int networkTimeMSNow = Networking.GetServerTimeInMilliseconds();
+#elif PVR_CCK_WORLDS
+            int networkTimeMSNow = PSharpNetworking.ServerTimeInMilliseconds;
 #else
             int networkTimeMSNow = (int)(Time.time * 1000.0f);
 #endif
@@ -622,6 +673,12 @@ namespace AudioLink
                     float distanceToSource = Vector3.Distance(_localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position, audioSource.transform.position);
                     audioMaterial.SetFloat(_SourceDistance, distanceToSource);
                 }
+#elif PVR_CCK_WORLDS
+                if(_localPlayer != null)
+                {
+					float distanceToSource = Vector3.Distance(PSharpPlayer.GetMainCameraPosition(), audioSource.transform.position);
+					audioMaterial.SetFloat(_SourceDistance, distanceToSource);
+				}
 #endif
             }
 
@@ -650,6 +707,8 @@ namespace AudioLink
         {
 #if UDONSHARP
             return _localPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).position;
+#elif PVR_CCK_WORLDS
+            return PSharpPlayer.GetMainCameraPosition();
 #elif CVR_CCK_EXISTS
             // TODO: Update with the actual logic for where the player's head is.
             return audioSource.transform.position;
@@ -659,7 +718,7 @@ namespace AudioLink
 #endif
         }
 
-#if !UDONSHARP && !CVR_CCK_EXISTS
+#if !UDONSHARP && !CVR_CCK_EXISTS && !PVR_CCK_WORLDS
         private void AutoCacheAudioTarget()
         {
             if (!autoDetectAudioTarget || !_audioLinkEnabled) return;
@@ -707,11 +766,16 @@ namespace AudioLink
             if (request.hasError || !request.done) return;
 
             NativeArray<Color> data = request.GetData<Color>();
+
+#if PVR_CCK_WORLDS
+			audioData = data.ToArray();
+#else
             for (int i = 0; i < data.Length; i++)
             {
                 audioData[i] = data[i];
             }
-        }
+#endif
+		}
 #endif
 
         private void OnEnable()
@@ -797,13 +861,75 @@ namespace AudioLink
                 }
             }
         }
+#elif PVR_CCK_WORLDS
+		public override void OnNetworkReady()
+		{
+
+			double startTime = GetElapsedSecondsSince2019();
+			_networkTimeMS = PSharpNetworking.ServerTimeInMilliseconds;
+			if (PSharpNetworking.IsMaster)
+			{
+				_masterInstanceJoinTime = startTime;
+				Sync();
+			}
+
+			_rightChannelTestCounter = _rightChannelTestDelay;
+
+			// Set localplayer name on start
+			_localPlayer = PSharpPlayer.LocalPlayer;
+			if (!_localPlayer.IsNull)
+			{
+				UpdateGlobalString(_StringLocalPlayer, _localPlayer.Username);
+			}
+
+			// Set master name once on start
+			FindAndUpdateMasterName();
+		}
+
+		public override void OnPlayerJoined(PSharpPlayer player)
+		{
+			if (!player.IsNull && player.IsMaster)
+			{
+				_masterName = player.Username;
+				UpdateGlobalString(_StringMasterPlayer, player.Username);
+			}
+		}
+
+		public override void OnPlayerLeft(PSharpPlayer player)
+		{
+			if (!player.IsNull && (player.IsMaster || player.Username == _masterName))
+			{
+				FindAndUpdateMasterName();
+			}
+		}
+
+		private void FindAndUpdateMasterName()
+		{
+			PSharpPlayer[] players = new PSharpPlayer[PSharpPlayer.GetPlayerCount()];
+			PSharpPlayer.GetPlayers(players);
+			foreach (PSharpPlayer player in players)
+			{
+				if (player != null)
+				{
+					if (!player.IsNull && player.IsMaster)
+					{
+						_masterName = player.Username;
+						UpdateGlobalString(_StringMasterPlayer, player.Username);
+						break;
+					}
+				}
+			}
+		}
 #endif
 
-        public void UpdateCustomStrings()
+		public void UpdateCustomStrings()
         {
 #if UDONSHARP
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(_localPlayer, gameObject);
+#elif PVR_CCK_WORLDS
+            if (IsOwner)
+                PSharpNetworking.SetOwner(_localPlayer, gameObject);
 #endif
 
             UpdateGlobalString(_StringCustom1, customString1);
@@ -814,10 +940,14 @@ namespace AudioLink
 #endif
         }
 
-#if UDONSHARP
+#if UDONSHARP || PVR_CCK_WORLDS
         public override void OnDeserialization()
         {
+#if UDONSHARP
             if (!Networking.IsOwner(gameObject))
+#elif PVR_CCK_WORLDS
+            if(IsOwner)
+#endif
             {
                 UpdateGlobalString(_StringCustom1, customString1);
                 UpdateGlobalString(_StringCustom2, customString2);
@@ -852,19 +982,27 @@ namespace AudioLink
                 }
             }
 
-            // Pack them into vectors, clearing previous values in vecs array
-            Array.Clear(globalStringPackedVectors, 0, GlobalStringPackedVectorsLength);
-            int j = 0;
-            for (int i = 0; i < GlobalStringPackedVectorsLength; i++)
-            {
-                if (j < codePointsLength) globalStringPackedVectors[i].x = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
-                if (j < codePointsLength) globalStringPackedVectors[i].y = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
-                if (j < codePointsLength) globalStringPackedVectors[i].z = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
-                if (j < codePointsLength) globalStringPackedVectors[i].w = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
-            }
+#if PVR_CCK_WORLDS
+			// Has issues on PoligonVR but doubling the code points length seemingly works??
+			codePointsLength *= 2;
+#endif
 
-            // Expose the vectors to shader without causing additional allocations
-            audioMaterial.SetVectorArray(nameID, globalStringPackedVectors);
+			// Pack them into vectors, clearing previous values in vecs array
+			Array.Clear(globalStringPackedVectors, 0, GlobalStringPackedVectorsLength);
+            int j = 0;
+			for (int i = 0; i < GlobalStringPackedVectorsLength; i++)
+			{
+				// The previous method breaks on PVR's interpreter, however this works fine on all platforms
+				var packedVector = globalStringPackedVectors[i];
+				if (j < codePointsLength) packedVector.x = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+				if (j < codePointsLength) packedVector.y = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+				if (j < codePointsLength) packedVector.z = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+				if (j < codePointsLength) packedVector.w = IntToFloatBits24Bit((uint)globalStringCodePoints[j++]); else break;
+				globalStringPackedVectors[i] = packedVector;
+			}
+
+			// Expose the vectors to shader without causing additional allocations
+			audioMaterial.SetVectorArray(nameID, globalStringPackedVectors);
         }
         public void ToggleAudioLink()
         {
@@ -889,7 +1027,7 @@ namespace AudioLink
             _audioLinkEnabled = true;
             SetAudioLinkGlobalTexture();
 
-#if !UDONSHARP && !CVR_CCK_EXISTS
+#if !UDONSHARP && !CVR_CCK_EXISTS && !PVR_CCK_WORLDS
             if (autoDetectAudioTarget) Invoke(nameof(AutoCacheAudioTarget), 1f);
 #endif
 
@@ -909,7 +1047,7 @@ namespace AudioLink
             UnlinkAnalyzer(WebALID);
 #endif
 
-#if !UDONSHARP && !CVR_CCK_EXISTS
+#if !UDONSHARP && !CVR_CCK_EXISTS && !PVR_CCK_WORLDS
             CancelInvoke(nameof(AutoCacheAudioTarget));
 #endif
         }

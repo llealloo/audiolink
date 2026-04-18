@@ -64,8 +64,10 @@ namespace AudioLink.Editor
         private const string _audioLinkAvatarPath = "Packages/com.llealloo.audiolink/Runtime/AudioLinkAvatar.prefab";
         private const string _audioLinkCVRPath = "Packages/com.llealloo.audiolink/Runtime/CVRAudioLink.prefab";
         private const string _audioLinkCVRControllerPath = "Packages/com.llealloo.audiolink/Runtime/CVRAudioLinkController.prefab";
+        private const string _audioLinkPVRPath = "Packages/com.llealloo.audiolink/Runtime/PVRAudioLink.prefab";
+        private const string _audioLinkPVRControllerPath = "Packages/com.llealloo.audiolink/Runtime/PVRAudioLinkController.prefab";
 
-        [MenuItem("Tools/AudioLink/Add AudioLink Prefab to Scene", false)]
+		[MenuItem("Tools/AudioLink/Add AudioLink Prefab to Scene", false)]
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
@@ -77,7 +79,7 @@ namespace AudioLink.Editor
 
             var alcInstance = GetComponentsInScene<AudioLinkController>().FirstOrDefault();
             if (alcInstance == null) AddPrefabInstance(_audioLinkControllerPath);
-#elif VRC_SDK_VRCSDK3 // VRC AVATAR
+#elif VRC_SDK_VRCSDK3 || PVR_CCK_AVATARS // VRC AVATAR or PVR AVATARS
             var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
             audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkAvatarPath);
 #elif CVR_CCK_EXISTS // CVR
@@ -86,12 +88,19 @@ namespace AudioLink.Editor
 
             var controller = GetGameObjectsInScene("CVRAudioLinkController").FirstOrDefault();
             if (controller == null) AddPrefabInstance(_audioLinkCVRControllerPath);
+
+#elif PVR_CCK_WORLDS // PVR WORLDS
+			var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
+			audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPVRPath);
+
+			var alcInstance = GetComponentsInScene<AudioLinkController>().FirstOrDefault();
+			if (alcInstance == null) AddPrefabInstance(_audioLinkPVRControllerPath);
 #else // Standalone
             var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
             audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPath);
 #endif
 
-            if (audiolink != null)
+			if (audiolink != null)
             {
                 AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
                 EditorGUIUtility.PingObject(audiolink);

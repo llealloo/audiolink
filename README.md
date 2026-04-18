@@ -2,7 +2,7 @@
 
 # AudioLink
 
-## A repository of audio reactive prefabs for Unity, written in CSharp and HLSL, compatible with VRChat and ChilloutVR
+## A repository of audio reactive prefabs for Unity, written in CSharp and HLSL, compatible with VRChat, ChilloutVR, and PoligonVR
 
 AudioLink is a system that analyzes and processes in-world audio into many different highly reactive data streams and exposes the data to Scripts and Shaders. 
 
