@@ -12,6 +12,8 @@ namespace AudioLink.Editor
         {
             PVR_WorldDescriptor descriptor = Object.FindObjectOfType<PVR_WorldDescriptor>(); // Scripts not reference in a world descriptor will not compile, so we automatically set them up
 
+			if (descriptor == null) return;
+
 			if (!descriptor.psharpIncludes.Contains("Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.PlayerAPI.cs"))
 				descriptor.psharpIncludes.Add("Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.PlayerAPI.cs");
 			if (!descriptor.psharpIncludes.Contains("Packages/com.llealloo.audiolink/Runtime/Scripts/AudioLink.DataAPI.cs"))
