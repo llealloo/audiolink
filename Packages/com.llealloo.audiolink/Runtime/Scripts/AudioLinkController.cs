@@ -109,16 +109,15 @@ namespace AudioLink
         private void UpdateSyncMode(Transform inputTransform, ControllerSyncMode userSyncMode, ControllerSyncMode desiredSyncMode)
         {
 
-#if UDONSHARP
+            #if UDONSHARP
 
             inputTransform.GetComponent<UdonBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
 
-#elif PVR_CCK_WORLDS
+            #elif PVR_CCK_WORLDS
 
             inputTransform.GetComponent<PSharpBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
 
-#endif
-
+            #endif
 		}
 
         public void SetControllerSyncMode(ControllerSyncMode syncMode)

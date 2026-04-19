@@ -387,7 +387,7 @@ namespace AudioLink
 
 #endif
 
-			UpdateSettings();
+            UpdateSettings();
             UpdateThemeColors();
             UpdateCustomStrings();
             if (audioSource == null)
@@ -468,8 +468,8 @@ namespace AudioLink
 				}
 			}
 #endif
-			// The red channel should be 3.02f forever - this is the last version before the versioning change.
-			audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(3.02f, AudioLinkVersionNumberMajor, _fpsCount, AudioLinkVersionNumberMinor));
+            // The red channel should be 3.02f forever - this is the last version before the versioning change.
+            audioMaterial.SetVector(_VersionNumberAndFPSProperty, new Vector4(3.02f, AudioLinkVersionNumberMajor, _fpsCount, AudioLinkVersionNumberMinor));
 #if UDONSHARP
             audioMaterial.SetVector(_PlayerCountAndData, new Vector4(
                 VRCPlayerApi.GetPlayerCount(),
@@ -499,7 +499,7 @@ namespace AudioLink
             0,
             0));
 #endif
-			_fpsCount = 0;
+            _fpsCount = 0;
             _fpsTime++;
 
             // Other things to handle every second.
@@ -921,7 +921,7 @@ namespace AudioLink
 		}
 #endif
 
-		public void UpdateCustomStrings()
+        public void UpdateCustomStrings()
         {
 #if UDONSHARP
             if (!Networking.IsOwner(gameObject))

@@ -200,9 +200,9 @@ namespace AudioLink
 			if (networkSynced)
 				Sync("_themeColorMode", "themeColor1", "themeColor2", "themeColor3", "themeColor4");
 #endif
-		}
+        }
 
-		public void ResetThemeColors()
+        public void ResetThemeColors()
         {
             _themeColorMode = _initThemeColorMode;
 
@@ -217,9 +217,9 @@ namespace AudioLink
 			if (networkSynced)
 				Sync("_themeColorMode", "themeColor1", "themeColor2", "themeColor3", "themeColor4");
 #endif
-		}
+        }
 
-		public void UpdateGUI()
+        public void UpdateGUI()
         {
             _processGUIEvents = false;
 
@@ -279,9 +279,9 @@ namespace AudioLink
 			if (IsOwner && networkSynced)
 				Sync("_themeColorMode", "themeColor1", "themeColor2", "themeColor3", "themeColor4");
 #endif
-		}
+        }
 
-		public void UpdateAudioLinkThemeColors()
+        public void UpdateAudioLinkThemeColors()
         {
             if (audioLink == null) return;
             audioLink.themeColorMode = _themeColorMode;

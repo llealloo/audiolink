@@ -167,7 +167,7 @@ namespace AudioLink
 #elif PVR_CCK_WORLDS
 			Sync("_themeColorMode", "themeColor1", "themeColor2", "themeColor3", "themeColor4");
 #endif
-		}
+        }
 
         public void ResetThemeColors()
         {
@@ -180,7 +180,7 @@ namespace AudioLink
 #elif PVR_CCK_WORLDS
 			Sync("_themeColorMode", "themeColor1", "themeColor2", "themeColor3", "themeColor4");
 #endif
-		}
+        }
 
         public void UpdateGUI()
         {
@@ -232,7 +232,7 @@ namespace AudioLink
             if(IsOwner)
 				Sync("_themeColorMode", "themeColor1", "themeColor2", "themeColor3", "themeColor4");
 #endif
-		}
+        }
 
         public void UpdateAudioLinkThemeColors()
         {

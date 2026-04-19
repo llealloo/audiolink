@@ -67,7 +67,7 @@ namespace AudioLink.Editor
         private const string _audioLinkPVRPath = "Packages/com.llealloo.audiolink/Runtime/PVRAudioLink.prefab";
         private const string _audioLinkPVRControllerPath = "Packages/com.llealloo.audiolink/Runtime/PVRAudioLinkController.prefab";
 
-		[MenuItem("Tools/AudioLink/Add AudioLink Prefab to Scene", false)]
+        [MenuItem("Tools/AudioLink/Add AudioLink Prefab to Scene", false)]
         [MenuItem("GameObject/AudioLink/Add AudioLink Prefab to Scene", false, 49)]
         public static void AddAudioLinkToScene()
         {
@@ -100,7 +100,7 @@ namespace AudioLink.Editor
             audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPath);
 #endif
 
-			if (audiolink != null)
+            if (audiolink != null)
             {
                 AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
                 EditorGUIUtility.PingObject(audiolink);
