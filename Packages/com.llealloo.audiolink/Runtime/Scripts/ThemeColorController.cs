@@ -76,14 +76,12 @@ namespace AudioLink
             _initCustomThemeColors = GetCustomThemeColors();
         }
 
-
 #if PVR_CCK_WORLDS // Use OnNetworkReady on PVR to get local player since its null in start
 		public override void OnNetworkReady()
 		{
 			localPlayer = PSharpPlayer.LocalPlayer;
 		}
 #endif
-
 
 #if UDONSHARP || PVR_CCK_WORLDS
 		public override void OnDeserialization()

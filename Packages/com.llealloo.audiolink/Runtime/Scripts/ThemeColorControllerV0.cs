@@ -40,7 +40,7 @@ namespace AudioLink
         public Color themeColor2 = Color.blue;
         [UdonSynced, PSharpSynced(SyncType.Manual)]
         public Color themeColor3 = Color.red;
-        [UdonSynced, PSharpSynced(SyncType.Manual)  ]
+        [UdonSynced, PSharpSynced(SyncType.Manual)]
         public Color themeColor4 = Color.green;
 
         public AudioLink audioLink; // Initialized by AudioLinkController.

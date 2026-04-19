@@ -13,7 +13,7 @@ namespace AudioLink
 #endif
 
     public class AudioReactiveSurfaceArray : AudioReactive
- {
+    {
         [Header("AudioLink Settings")]
         public AudioLinkBand band;
         [HideInInspector] public bool smooth;
