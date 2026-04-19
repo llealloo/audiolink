@@ -2,7 +2,7 @@
 
 # AudioLink
 
-## A repository of audio reactive prefabs for Unity, written in CSharp and HLSL, compatible with VRChat and ChilloutVR
+## Audio Reactive prefabs for Unity, compatible with VRChat, ChilloutVR and [PoligonVR](https://github.com/TekkyNeko/pvr-audiolink)!
 
 AudioLink is a system that analyzes and processes in-world audio into many different highly reactive data streams and exposes the data to Scripts and Shaders. 
 
@@ -79,7 +79,7 @@ For installing on Linux and macOS, and for Windows users who prefer the command 
 1. Install [vpm](https://vcc.docs.vrchat.com/vpm/cli/#installation--updating/) and follow their setup instructions
 2. Run `vpm add package com.llealloo.audiolink -p /path/to/your/unity/project`
 
-### General (non VRC, including CVR)
+### General Unity usage (non VRC)
 1. Download and Import the latest **UnityPackage** AudioLink Release at https://github.com/llealloo/vrc-udon-audio-link/releases.
 2. Use the "Tools/AudioLink/Add AudioLink Prefab to Scene" menu item. It should work out of the box.
 
@@ -106,6 +106,7 @@ After installation, to use AudioLink:
 - [ShaderForge-AudioLink](https://github.com/lethanan/ShaderForge-AudioLink) by lethanan
 - [AudioLink-USharpVideo-Adapter](https://github.com/Blabzillaweasel/AudioLink-USharpVideo-Adapter/) by Blabz
 - [ProTV](https://gitlab.com/techanon/protv) by ArchiTechAnon
+- [PoligonVR fork](https://github.com/TekkyNeko/pvr-audiolink) by TekkyNeko.
 
 ## Thank you
 - phosphenolic for the math wizardry, conceptual programming, debugging, design help and emotional support!!!
