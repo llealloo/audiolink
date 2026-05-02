@@ -717,12 +717,27 @@ namespace AudioLink
         private void OnEnable()
         {
             EnableAudioLink();
+#if BASIS_FRAMEWORK_EXISTS
+            Basis.Scripts.Device_Management.BasisDeviceManagement.OnBootModeChanged
+                += OnBasisBootModeChanged;
+#endif
         }
 
         private void OnDisable()
         {
+#if BASIS_FRAMEWORK_EXISTS
+            Basis.Scripts.Device_Management.BasisDeviceManagement.OnBootModeChanged
+                -= OnBasisBootModeChanged;
+#endif
             DisableAudioLink();
         }
+
+#if BASIS_FRAMEWORK_EXISTS
+        private void OnBasisBootModeChanged(string mode)
+        {
+            if (_audioLinkEnabled) SetAudioLinkGlobalTexture();
+        }
+#endif
 
         public void UpdateSettings()
         {

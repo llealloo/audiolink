@@ -4,7 +4,8 @@
     "references": [
         "UdonSharp.Runtime",
         "UdonSharp.Lib",
-        "VRC.Udon"
+        "VRC.Udon",
+        "Basis Framework"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
