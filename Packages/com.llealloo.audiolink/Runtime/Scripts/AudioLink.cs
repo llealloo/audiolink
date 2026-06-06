@@ -93,6 +93,21 @@ namespace AudioLink
         [Range(0.001f, 1.0f)]
         public float autogainDerate = 0.1f;
 
+        [Header("Auto-Director Mode")]
+        [Tooltip("Automatically rides the 4-band threshold sliders based on spectrum analysis. Ideal for testing.")]
+        public bool autoDirectorMode = false;
+
+        [Range(0.1f, 20f)]
+        [Tooltip("How fast the thresholds adapt to the audio.")]
+        public float autoDirectorSpeed = 5f;
+
+        [Range(0.1f, 10f)]
+        [Tooltip("Scales the compressed spectrum data to match the 0.0 - 1.0 threshold slider range.")]
+        public float autoDirectorMultiplier = 2.0f;
+
+        // Pre-allocated to prevent GC spikes in Update
+        private float[] _spectrumData = new float[1024];
+
         [Header("Theme Colors")]
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
 #if UNITY_EDITOR
@@ -567,6 +582,13 @@ namespace AudioLink
             {
                 SendAudioOutputData();
 
+                // --- AUTO-DIRECTOR INJECTION ---
+                if (autoDirectorMode && audioSource.isPlaying)
+                {
+                    RunAutoDirector();
+                }
+                // -------------------------------
+
                 // Used to correct for the volume of the audio source component
 
                 float sourceVolume = audioSource.volume;
@@ -1022,6 +1044,57 @@ namespace AudioLink
         private float Remap(float t, float a, float b, float u, float v)
         {
             return ((t - a) / (b - a)) * (v - u) + u;
+        }
+
+        /// <summary>
+        /// Analyzes the spectrum using Peak Detection and Dynamic Range Compression to accurately ride AudioLink thresholds.
+        /// </summary>
+        private void RunAutoDirector()
+        {
+            audioSource.GetSpectrumData(_spectrumData, 0, FFTWindow.BlackmanHarris);
+
+            // 1. Peak Detection instead of Averaging
+            float p0 = 0f, p1 = 0f, p2 = 0f, p3 = 0f;
+
+            for (int i = 0; i <= 10; i++) if (_spectrumData[i] > p0) p0 = _spectrumData[i];
+            for (int i = 11; i <= 42; i++) if (_spectrumData[i] > p1) p1 = _spectrumData[i];
+            for (int i = 43; i <= 170; i++) if (_spectrumData[i] > p2) p2 = _spectrumData[i];
+            for (int i = 171; i <= 853; i++) if (_spectrumData[i] > p3) p3 = _spectrumData[i];
+
+            // 2. Dynamic Range Compression (Square Root)
+            // Raw FFT values are tiny (e.g., 0.04). Sqrt(0.04) = 0.2, bringing it into a usable UI slider range.
+            p0 = Mathf.Sqrt(p0);
+            p1 = Mathf.Sqrt(p1);
+            p2 = Mathf.Sqrt(p2);
+            p3 = Mathf.Sqrt(p3);
+
+            // 3. Apply Multiplier and Frequency Falloff Compensation
+            // Treble inherently has less energy in standard mixes, so we scale the top bands up more aggressively.
+            float target0 = Mathf.Clamp01(p0 * autoDirectorMultiplier * 0.8f);
+            float target1 = Mathf.Clamp01(p1 * autoDirectorMultiplier * 1.0f);
+            float target2 = Mathf.Clamp01(p2 * autoDirectorMultiplier * 1.4f);
+            float target3 = Mathf.Clamp01(p3 * autoDirectorMultiplier * 2.0f);
+
+            // 4. Framerate-independent interpolation towards the target amplitudes
+            float dt = Time.deltaTime * autoDirectorSpeed;
+            threshold0 = Mathf.Lerp(threshold0, target0, dt);
+            threshold1 = Mathf.Lerp(threshold1, target1, dt);
+            threshold2 = Mathf.Lerp(threshold2, target2, dt);
+            threshold3 = Mathf.Lerp(threshold3, target3, dt);
+
+            // Push the calculated thresholds directly to the shader
+            audioMaterial.SetFloat(_Threshold0, threshold0);
+            audioMaterial.SetFloat(_Threshold1, threshold1);
+            audioMaterial.SetFloat(_Threshold2, threshold2);
+            audioMaterial.SetFloat(_Threshold3, threshold3);
+        }
+
+        /// <summary>
+        /// Public API to toggle the Auto-Director from Udon/UI buttons.
+        /// </summary>
+        public void ToggleAutoDirector()
+        {
+            autoDirectorMode = !autoDirectorMode;
         }
     }
 }
