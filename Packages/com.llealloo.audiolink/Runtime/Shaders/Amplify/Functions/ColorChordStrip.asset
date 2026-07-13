@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: ColorChordStrip
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n802;73;1117;926;537.5;463;1;True;True\nNode;AmplifyShaderEditor.FunctionInput;2;-163.5,-23;Inherit;False;Position;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;1;54.5,10;Inherit;False;AudioLinkLerp(
-    ALPASS_CCSTRIP + float2( Position * 128., 0 ) ).rgba@;4;Create;1;True;Position;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT4;0\nNode;AmplifyShaderEditor.FunctionOutput;0;341,-14;Inherit;False;True;-1;Output;0;False;1;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0\nWireConnection;1;0;2;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=B28FB244275A015B984B5C764710B1521F3D6F5F"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.1\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19901\nNode;AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;-256,-128;Inherit;False;Position;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;-112,-128;Inherit;False;AudioLinkLerp(
+    ALPASS_CCSTRIP + float2( Position * 128., 0 ) ).rgba@;4;Create;1;True;Position;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT4;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;64,-128;Inherit;False;True;-1;Output;0;False;1;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0\nWireConnection;1;0;2;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=7FCA4D08BD9DAE3BA4086F52114E866B2BF4FE1D"
   m_functionName: 
   m_description: Takes a normalized (0-1) position on the strip as input, and outputs
     RGBA from the ColorChord strip
@@ -41,8 +44,14 @@ MonoBehaviour:
       LineValue: Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc
       GUIDToggle: 0
       GUIDValue: 
+      ShowConditionals: 0
+      VersionMin: 0
+      VersionMax: 0
+      Passes: 
       Origin: 2
   m_nodeCategory: 0
+  m_headerStyle: 0
+  m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
   m_customNodeCategory: AudioLink
   m_previewPosition: 0
   m_hidden: 0
