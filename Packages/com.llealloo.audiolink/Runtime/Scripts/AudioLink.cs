@@ -93,20 +93,69 @@ namespace AudioLink
         [Range(0.001f, 1.0f)]
         public float autogainDerate = 0.1f;
 
-        [Header("Auto-Director Mode")]
-        [Tooltip("Automatically rides the 4-band threshold sliders based on spectrum analysis. Ideal for testing.")]
+#if !UDONSHARP
+        [Header("Auto-Director (Avatar / Editor testing only)")]
+        [Tooltip("Hands-off reactivity: continuously auto-tunes the four band thresholds and crossovers from live spectrum analysis so any track fills the 0-1 range on every band. Honors the Autogain setting below. Not present in uploaded worlds.")]
         public bool autoDirectorMode = false;
 
         [Range(0.1f, 20f)]
-        [Tooltip("How fast the thresholds adapt to the audio.")]
+        [Tooltip("How quickly the thresholds track the music. 20 is instant, real-time follow with no smoothing.")]
         public float autoDirectorSpeed = 5f;
 
-        [Range(0.1f, 10f)]
-        [Tooltip("Scales the compressed spectrum data to match the 0.0 - 1.0 threshold slider range.")]
-        public float autoDirectorMultiplier = 2.0f;
+        [Tooltip("Auto-tune the four band thresholds (per-band sensitivity).")]
+        public bool autoTuneThresholds = true;
 
-        // Pre-allocated to prevent GC spikes in Update
+        [Tooltip("Auto-tune the four crossover frequencies. Turning this off resets X0-X3 to their defaults.")]
+        public bool autoTuneCrossovers = true;
+
+        [Tooltip("Auto-tune the fade / trail length. Turning this off resets the fade to its defaults.")]
+        public bool autoTuneFade = true;
+
+        private const float AutoDirectorMaxSpeed = 20f;
+        private const float AutoDirectorReferenceFps = 60f;
+        private const float AutoDirectorAgcAttack = 0.08f;
+        private const float AutoDirectorAgcRelease = 2.0f;
+        private const float AutoDirectorPeakDecay = 0.9f;
+        private const float AutoDirectorMinThreshold = 0.2f;
+        private const float AutoDirectorSilenceFloor = 0.1f;
+        private const int AutoDirectorXBins = 64;
+        private const float AutoDirectorHzPerBin = 23.4375f;
+        private const float AutoDirectorBottomFreq = 13.75f;
+        private const float AutoDirectorExpBins = 24f;
+        private const float AutoDirectorBandBinFloor = 29.52f;
+        private const float AutoDirectorBandBinSpan = 210.48f;
+        private const int AutoDirectorFreqBinLow = 1;
+        private const int AutoDirectorFreqBinHigh = 640;
+        private const float AutoDirectorCrossoverSmoothing = 0.4f;
+        private const float AutoDirectorCrossoverGate = 1e-5f;
+        private const float AutoDirectorCrossoverStrength = 0.5f;
+        private const float AutoDirectorActivitySmoothing = 0.3f;
+        private const float AutoDirectorFluxMaxDecay = 4.0f;
+        private const float AutoDirectorActivityFloor = 0.02f;
+        private const float AutoDirectorFadeCalm = 0.45f;
+        private const float AutoDirectorFadeBusy = 0.02f;
+        private const float AutoDirectorFadeExpCalm = 0.5f;
+        private const float AutoDirectorFadeExpBusy = 0.9f;
+        private const float AutoDirectorFadeSmoothing = 0.3f;
+        private const float AutoDirectorDefaultThreshold = 0.45f;
+        private const float AutoDirectorDefaultX0 = 0.0f;
+        private const float AutoDirectorDefaultX1 = 0.25f;
+        private const float AutoDirectorDefaultX2 = 0.5f;
+        private const float AutoDirectorDefaultX3 = 0.75f;
+        private const float AutoDirectorDefaultFadeLength = 0.25f;
+        private const float AutoDirectorDefaultFadeExp = 0.75f;
+
         private float[] _spectrumData = new float[1024];
+        private readonly float[] _autoDirectorBandPeak = new float[4];
+        private readonly float[] _autoDirectorBandLast = new float[4];
+        private readonly float[] _autoDirectorSpectrumHist = new float[AutoDirectorXBins];
+        private float _autoDirectorLevel;
+        private float _autoDirectorActivity;
+        private float _autoDirectorFluxMax;
+        private bool _autoDirectorPrevThresholds = true;
+        private bool _autoDirectorPrevCrossovers = true;
+        private bool _autoDirectorPrevFade = true;
+#endif
 
         [Header("Theme Colors")]
         [Tooltip("Enable for custom theme colors for Avatars to use.")]
@@ -582,12 +631,12 @@ namespace AudioLink
             {
                 SendAudioOutputData();
 
-                // --- AUTO-DIRECTOR INJECTION ---
+#if !UDONSHARP
                 if (autoDirectorMode && audioSource.isPlaying)
                 {
                     RunAutoDirector();
                 }
-                // -------------------------------
+#endif
 
                 // Used to correct for the volume of the audio source component
 
@@ -1046,55 +1095,182 @@ namespace AudioLink
             return ((t - a) / (b - a)) * (v - u) + u;
         }
 
-        /// <summary>
-        /// Analyzes the spectrum using Peak Detection and Dynamic Range Compression to accurately ride AudioLink thresholds.
-        /// </summary>
+#if !UDONSHARP
         private void RunAutoDirector()
         {
+            AutoDirectorHandleToggles();
+
             audioSource.GetSpectrumData(_spectrumData, 0, FFTWindow.BlackmanHarris);
 
-            // 1. Peak Detection instead of Averaging
             float p0 = 0f, p1 = 0f, p2 = 0f, p3 = 0f;
-
             for (int i = 0; i <= 10; i++) if (_spectrumData[i] > p0) p0 = _spectrumData[i];
             for (int i = 11; i <= 42; i++) if (_spectrumData[i] > p1) p1 = _spectrumData[i];
             for (int i = 43; i <= 170; i++) if (_spectrumData[i] > p2) p2 = _spectrumData[i];
             for (int i = 171; i <= 853; i++) if (_spectrumData[i] > p3) p3 = _spectrumData[i];
 
-            // 2. Dynamic Range Compression (Square Root)
-            // Raw FFT values are tiny (e.g., 0.04). Sqrt(0.04) = 0.2, bringing it into a usable UI slider range.
-            p0 = Mathf.Sqrt(p0);
-            p1 = Mathf.Sqrt(p1);
-            p2 = Mathf.Sqrt(p2);
-            p3 = Mathf.Sqrt(p3);
+            float instant = Mathf.Max(Mathf.Max(p0, p1), Mathf.Max(p2, p3));
+            float agcRate = instant > _autoDirectorLevel
+                ? 1f - Mathf.Exp(-Time.deltaTime / AutoDirectorAgcAttack)
+                : 1f - Mathf.Exp(-Time.deltaTime / AutoDirectorAgcRelease);
+            _autoDirectorLevel = Mathf.Lerp(_autoDirectorLevel, instant, agcRate);
 
-            // 3. Apply Multiplier and Frequency Falloff Compensation
-            // Treble inherently has less energy in standard mixes, so we scale the top bands up more aggressively.
-            float target0 = Mathf.Clamp01(p0 * autoDirectorMultiplier * 0.8f);
-            float target1 = Mathf.Clamp01(p1 * autoDirectorMultiplier * 1.0f);
-            float target2 = Mathf.Clamp01(p2 * autoDirectorMultiplier * 1.4f);
-            float target3 = Mathf.Clamp01(p3 * autoDirectorMultiplier * 2.0f);
+            float derate = autogain ? autogainDerate : AutoDirectorSilenceFloor;
+            float norm = 1f / (_autoDirectorLevel + derate);
+            float peakDecay = Mathf.Exp(-Time.deltaTime / AutoDirectorPeakDecay);
+            float n = Mathf.Clamp01(autoDirectorSpeed / AutoDirectorMaxSpeed);
+            float track = 1f - Mathf.Pow(1f - n, Time.deltaTime * AutoDirectorReferenceFps);
 
-            // 4. Framerate-independent interpolation towards the target amplitudes
-            float dt = Time.deltaTime * autoDirectorSpeed;
-            threshold0 = Mathf.Lerp(threshold0, target0, dt);
-            threshold1 = Mathf.Lerp(threshold1, target1, dt);
-            threshold2 = Mathf.Lerp(threshold2, target2, dt);
-            threshold3 = Mathf.Lerp(threshold3, target3, dt);
+            float nb0 = p0 * norm, nb1 = p1 * norm, nb2 = p2 * norm, nb3 = p3 * norm;
 
-            // Push the calculated thresholds directly to the shader
-            audioMaterial.SetFloat(_Threshold0, threshold0);
-            audioMaterial.SetFloat(_Threshold1, threshold1);
-            audioMaterial.SetFloat(_Threshold2, threshold2);
-            audioMaterial.SetFloat(_Threshold3, threshold3);
+            if (autoTuneThresholds)
+            {
+                threshold0 = AutoDirectorBandThreshold(0, nb0, threshold0, peakDecay, track);
+                threshold1 = AutoDirectorBandThreshold(1, nb1, threshold1, peakDecay, track);
+                threshold2 = AutoDirectorBandThreshold(2, nb2, threshold2, peakDecay, track);
+                threshold3 = AutoDirectorBandThreshold(3, nb3, threshold3, peakDecay, track);
+                audioMaterial.SetFloat(_Threshold0, threshold0);
+                audioMaterial.SetFloat(_Threshold1, threshold1);
+                audioMaterial.SetFloat(_Threshold2, threshold2);
+                audioMaterial.SetFloat(_Threshold3, threshold3);
+            }
+
+            if (autoTuneCrossovers) AutoDirectorCrossovers();
+            if (autoTuneFade) AutoDirectorFade(nb0, nb1, nb2, nb3);
         }
 
-        /// <summary>
-        /// Public API to toggle the Auto-Director from Udon/UI buttons.
-        /// </summary>
+        private void AutoDirectorHandleToggles()
+        {
+            if (_autoDirectorPrevThresholds && !autoTuneThresholds) AutoDirectorResetThresholds();
+            if (_autoDirectorPrevCrossovers && !autoTuneCrossovers) AutoDirectorResetCrossovers();
+            if (_autoDirectorPrevFade && !autoTuneFade) AutoDirectorResetFade();
+            _autoDirectorPrevThresholds = autoTuneThresholds;
+            _autoDirectorPrevCrossovers = autoTuneCrossovers;
+            _autoDirectorPrevFade = autoTuneFade;
+        }
+
+        private void AutoDirectorResetThresholds()
+        {
+            threshold0 = threshold1 = threshold2 = threshold3 = AutoDirectorDefaultThreshold;
+            audioMaterial.SetFloat(_Threshold0, AutoDirectorDefaultThreshold);
+            audioMaterial.SetFloat(_Threshold1, AutoDirectorDefaultThreshold);
+            audioMaterial.SetFloat(_Threshold2, AutoDirectorDefaultThreshold);
+            audioMaterial.SetFloat(_Threshold3, AutoDirectorDefaultThreshold);
+        }
+
+        private void AutoDirectorResetCrossovers()
+        {
+            x0 = AutoDirectorDefaultX0;
+            x1 = AutoDirectorDefaultX1;
+            x2 = AutoDirectorDefaultX2;
+            x3 = AutoDirectorDefaultX3;
+            audioMaterial.SetFloat(_X0, x0);
+            audioMaterial.SetFloat(_X1, x1);
+            audioMaterial.SetFloat(_X2, x2);
+            audioMaterial.SetFloat(_X3, x3);
+        }
+
+        private void AutoDirectorResetFade()
+        {
+            fadeLength = AutoDirectorDefaultFadeLength;
+            fadeExpFalloff = AutoDirectorDefaultFadeExp;
+            audioMaterial.SetFloat(_FadeLength, fadeLength);
+            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
+        }
+
+        private float AutoDirectorBandThreshold(int band, float normalized, float current, float peakDecay, float track)
+        {
+            float peak = Mathf.Max(normalized, _autoDirectorBandPeak[band] * peakDecay);
+            _autoDirectorBandPeak[band] = peak;
+            float target = Mathf.Clamp(Mathf.Sqrt(peak), AutoDirectorMinThreshold, 1f);
+            return Mathf.Lerp(current, target, track);
+        }
+
+        private void AutoDirectorCrossovers()
+        {
+            for (int i = 0; i < AutoDirectorXBins; i++) _autoDirectorSpectrumHist[i] = 0f;
+
+            float total = 0f;
+            for (int k = AutoDirectorFreqBinLow; k <= AutoDirectorFreqBinHigh; k++)
+            {
+                float note = AutoDirectorExpBins * Mathf.Log((k * AutoDirectorHzPerBin) / AutoDirectorBottomFreq, 2f);
+                float x = (note - AutoDirectorBandBinFloor) / AutoDirectorBandBinSpan;
+                if (x < 0f || x > 1f) continue;
+                _autoDirectorSpectrumHist[Mathf.Clamp((int)(x * AutoDirectorXBins), 0, AutoDirectorXBins - 1)] += _spectrumData[k];
+                total += _spectrumData[k];
+            }
+
+            if (total < AutoDirectorCrossoverGate) return;
+
+            float xtrack = 1f - Mathf.Exp(-Time.deltaTime / AutoDirectorCrossoverSmoothing);
+            float s = AutoDirectorCrossoverStrength;
+            float q0 = Mathf.Clamp(AutoDirectorSpectrumQuantile(total * 0.05f), 0.0f, 0.168f);
+            float q1 = Mathf.Clamp(AutoDirectorSpectrumQuantile(total * 0.25f), 0.242f, 0.387f);
+            float q2 = Mathf.Clamp(AutoDirectorSpectrumQuantile(total * 0.50f), 0.461f, 0.628f);
+            float q3 = Mathf.Clamp(AutoDirectorSpectrumQuantile(total * 0.75f), 0.704f, 0.953f);
+            x0 = Mathf.Lerp(x0, Mathf.Lerp(AutoDirectorDefaultX0, q0, s), xtrack);
+            x1 = Mathf.Lerp(x1, Mathf.Lerp(AutoDirectorDefaultX1, q1, s), xtrack);
+            x2 = Mathf.Lerp(x2, Mathf.Lerp(AutoDirectorDefaultX2, q2, s), xtrack);
+            x3 = Mathf.Lerp(x3, Mathf.Lerp(AutoDirectorDefaultX3, q3, s), xtrack);
+
+            audioMaterial.SetFloat(_X0, x0);
+            audioMaterial.SetFloat(_X1, x1);
+            audioMaterial.SetFloat(_X2, x2);
+            audioMaterial.SetFloat(_X3, x3);
+        }
+
+        private float AutoDirectorSpectrumQuantile(float targetEnergy)
+        {
+            float cumulative = 0f;
+            for (int i = 0; i < AutoDirectorXBins; i++)
+            {
+                cumulative += _autoDirectorSpectrumHist[i];
+                if (cumulative >= targetEnergy) return (i + 0.5f) / AutoDirectorXBins;
+            }
+            return 1f;
+        }
+
+        private void AutoDirectorFade(float nb0, float nb1, float nb2, float nb3)
+        {
+            float flux = Mathf.Max(0f, nb0 - _autoDirectorBandLast[0])
+                       + Mathf.Max(0f, nb1 - _autoDirectorBandLast[1])
+                       + Mathf.Max(0f, nb2 - _autoDirectorBandLast[2])
+                       + Mathf.Max(0f, nb3 - _autoDirectorBandLast[3]);
+            _autoDirectorBandLast[0] = nb0;
+            _autoDirectorBandLast[1] = nb1;
+            _autoDirectorBandLast[2] = nb2;
+            _autoDirectorBandLast[3] = nb3;
+
+            _autoDirectorActivity = Mathf.Lerp(_autoDirectorActivity, flux, 1f - Mathf.Exp(-Time.deltaTime / AutoDirectorActivitySmoothing));
+            _autoDirectorFluxMax = Mathf.Max(_autoDirectorActivity, _autoDirectorFluxMax * Mathf.Exp(-Time.deltaTime / AutoDirectorFluxMaxDecay));
+            float busy = Mathf.Clamp01(_autoDirectorActivity / (_autoDirectorFluxMax + AutoDirectorActivityFloor));
+
+            float fadeRate = 1f - Mathf.Exp(-Time.deltaTime / AutoDirectorFadeSmoothing);
+            fadeLength = Mathf.Lerp(fadeLength, Mathf.Lerp(AutoDirectorFadeCalm, AutoDirectorFadeBusy, busy), fadeRate);
+            fadeExpFalloff = Mathf.Lerp(fadeExpFalloff, Mathf.Lerp(AutoDirectorFadeExpCalm, AutoDirectorFadeExpBusy, busy), fadeRate);
+
+            audioMaterial.SetFloat(_FadeLength, fadeLength);
+            audioMaterial.SetFloat(_FadeExpFalloff, fadeExpFalloff);
+        }
+
         public void ToggleAutoDirector()
         {
             autoDirectorMode = !autoDirectorMode;
         }
+
+        public void ToggleAutoTuneThresholds()
+        {
+            autoTuneThresholds = !autoTuneThresholds;
+        }
+
+        public void ToggleAutoTuneCrossovers()
+        {
+            autoTuneCrossovers = !autoTuneCrossovers;
+        }
+
+        public void ToggleAutoTuneFade()
+        {
+            autoTuneFade = !autoTuneFade;
+        }
+#endif
     }
 }
