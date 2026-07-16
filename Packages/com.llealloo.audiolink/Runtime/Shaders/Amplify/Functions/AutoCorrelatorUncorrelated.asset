@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: AutoCorrelatorUncorrelated
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.1\n// Available at the
-    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19901\nNode;AmplifyShaderEditor.FunctionInput,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;-568.5,-23.5;Inherit;False;Sample;1;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;-157.5,-15.5;Inherit;False;AudioLinkLerp(
-    ALPASS_AUTOCORRELATOR + float2( Sample * 128., 0 ) ).g@;1;Create;1;True;Sample;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SaturateNode,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;4;-368,-16;Inherit;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;106,-3;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;2;0;4;0\nWireConnection;4;0;1;0\nWireConnection;0;0;2;0\nASEEND*/\n//CHKSM=55EDB936DBFA1D4B5A901E36678A123E9A70DE4D"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.12\n// Available at
+    the Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19912\n{\"type\":\"AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor\",\"id\":1,\"pos\":[-568.5,-23.5],\"params\":[\"Inherit\",\"False\",\"Sample\",\"1\",\"0\",\"False\",\"1\",\"0\",\"FLOAT\",\"0\",\"False\",\"1\",\"FLOAT\",\"0\"]}\n{\"type\":\"AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor\",\"id\":2,\"pos\":[-157.5,-15.5],\"params\":[\"Inherit\",\"False\",\"AudioLinkLerp(
+    ALPASS_AUTOCORRELATOR + float2( Sample * 128., 0 ) ).g;\",\"1\",\"Create\",\"1\",\"True\",\"Sample\",\"FLOAT\",\"0\",\"In\",\"\",\"Inherit\",\"False\",\"AudioLinkLerp\",\"True\",\"False\",\"0\",\"\",\"False\",\"1\",\"0\",\"FLOAT\",\"0\",\"False\",\"1\",\"FLOAT\",\"0\"]}\n{\"type\":\"AmplifyShaderEditor.SaturateNode,
+    AmplifyShaderEditor\",\"id\":4,\"pos\":[-368,-16],\"params\":[\"Inherit\",\"False\",\"1\",\"0\",\"FLOAT\",\"0\",\"False\",\"1\",\"FLOAT\",\"0\"]}\n{\"type\":\"AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor\",\"id\":0,\"pos\":[106,-3],\"params\":[\"Inherit\",\"False\",\"True\",\"-1\",\"Amplitude\",\"0\",\"False\",\"1\",\"0\",\"FLOAT\",\"0\",\"False\",\"1\",\"FLOAT\",\"0\"]}\n{\"wire\":[2,0,4,0]}\n{\"wire\":[4,0,1,0]}\n{\"wire\":[0,0,2,0]}\nASEEND*/\n//CHKSM=526D5D353CCB2C022A34A6D7E53184045661AA26"
   m_functionName: 
   m_description: 
   m_additionalIncludes:
@@ -49,6 +49,7 @@ MonoBehaviour:
       VersionMax: 0
       Passes: 
       Origin: 2
+    m_versionMaxExclusive: 1
   m_nodeCategory: 0
   m_headerStyle: 0
   m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
