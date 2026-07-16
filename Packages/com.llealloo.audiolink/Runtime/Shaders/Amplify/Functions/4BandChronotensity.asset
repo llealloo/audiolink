@@ -12,10 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: 4BandChronotensity
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n802;73;1117;926;717.573;378.7634;1;True;True\nNode;AmplifyShaderEditor.FunctionInput;15;-702.5,-215.5;Inherit;False;Band;0;1;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleMultiplyOpNode;5;-886.2003,-145.6;Inherit;False;2;2;0;INT;0;False;1;INT;2;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput;4;-1079.399,-116.8;Inherit;False;Mode;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput;29;-880.573,-7.263428;Inherit;False;Speed;0;2;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleAddOpNode;7;-699.3998,-102.4;Inherit;False;2;2;0;INT;0;False;1;INT;1;False;1;INT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;6;-525,-166.5;Inherit;False;AudioLinkDecodeDataAsUInt(
-    ALPASS_CHRONOTENSITY + int2(Mode, Band));0;Create;2;True;Band;INT;0;In;;Inherit;False;True;Mode;INT;0;In;uint;Inherit;False;AudioLinkDecodeDataAsUInt;True;False;0;;False;2;0;INT;0;False;1;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleRemainderNode;22;-209,-115.5;Inherit;False;2;0;INT;0;False;1;INT;628319;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleDivideOpNode;23;-2,-85.5;Inherit;False;2;0;INT;0;False;1;FLOAT;100000;False;1;FLOAT;0\nNode;AmplifyShaderEditor.RangedFloatNode;30;-212.573,0.7365723;Inherit;False;Constant;_Float0;Float
-    0;0;0;Create;True;0;0;0;False;0;False;100000;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;13;192.6999,-96.19997;Inherit;False;True;-1;Rotation;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;5;0;4;0\nWireConnection;7;0;5;0\nWireConnection;7;1;29;0\nWireConnection;6;0;15;0\nWireConnection;6;1;7;0\nWireConnection;22;0;6;0\nWireConnection;23;0;22;0\nWireConnection;23;1;30;0\nWireConnection;13;0;23;0\nASEEND*/\n//CHKSM=38035157667C38CCE88CFC216E8716EC47E75DAA"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.1\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19901\nNode;AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;15;-702.5,-215.5;Inherit;False;Band;0;1;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleMultiplyOpNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;5;-886.2003,-145.6;Inherit;False;2;2;0;INT;0;False;1;INT;2;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;4;-1079.399,-116.8;Inherit;False;Mode;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;29;-880.573,-7.263428;Inherit;False;Speed;0;2;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleAddOpNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;7;-699.3998,-102.4;Inherit;False;2;2;0;INT;0;False;1;INT;1;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleRemainderNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;22;-209,-115.5;Inherit;False;2;0;INT;0;False;1;INT;628319;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleDivideOpNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;23;-2,-85.5;Inherit;False;2;0;INT;0;False;1;FLOAT;100000;False;1;FLOAT;0\nNode;AmplifyShaderEditor.RangedFloatNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;30;-212.573,0.7365723;Inherit;False;Constant;_Float0;Float
+    0;0;0;Create;True;0;0;0;False;0;False;100000;0;0;0;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;6;-528,-160;Inherit;False;AudioLinkDecodeDataAsUInt(
+    ALPASS_CHRONOTENSITY + int2(Mode, Band));0;Create;2;True;Band;INT;0;In;;Inherit;False;True;Mode;INT;0;In;uint;Inherit;False;AudioLinkDecodeDataAsUInt;True;False;0;;False;2;0;INT;0;False;1;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;13;192.6999,-96.19997;Inherit;False;True;-1;Rotation;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;5;0;4;0\nWireConnection;7;0;5;0\nWireConnection;7;1;29;0\nWireConnection;22;0;6;0\nWireConnection;23;0;22;0\nWireConnection;23;1;30;0\nWireConnection;6;0;15;0\nWireConnection;6;1;7;0\nWireConnection;13;0;23;0\nASEEND*/\n//CHKSM=A2753DD8F9EF1E532CDAF65C5EF7758A3A916FEF"
   m_functionName: 
   m_description: Returns chronotensity. Inputs (int) mode from 0-3, (int) band from
     0-3, (int) speed either 0 or 1 (slow or fast)
@@ -42,8 +52,14 @@ MonoBehaviour:
       LineValue: Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc
       GUIDToggle: 0
       GUIDValue: 
+      ShowConditionals: 0
+      VersionMin: 0
+      VersionMax: 0
+      Passes: 
       Origin: 2
   m_nodeCategory: 0
+  m_headerStyle: 0
+  m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
   m_customNodeCategory: AudioLink
   m_previewPosition: 0
   m_hidden: 0

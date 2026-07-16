@@ -12,14 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: AudioLinkTime
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor v1.9.1.5\n// Available at the
-    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19105\nNode;AmplifyShaderEditor.FunctionOutput;0;-64,0;Inherit;False;True;-1;Instance
-    Time;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;3;-64,128;Inherit;False;False;-1;Local
-    Time;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;1;-384,-1;Inherit;False;AudioLinkDecodeDataAsSeconds(
-    ALPASS_GENERALVU_INSTANCE_TIME );1;Create;0;GetInstanceTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;2;-384,128;Inherit;False;AudioLinkDecodeDataAsSeconds(
-    ALPASS_GENERALVU_LOCAL_TIME );1;Create;0;GetLocalTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;5;-64,256;Inherit;False;False;-1;Network
-    Time;2;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;4;-384,256;Inherit;False;AudioLinkDecodeDataAsSeconds(
-    ALPASS_GENERALVU_NETWORK_TIME );1;Create;0;GetNetworkTime;True;False;0;;False;0;1;FLOAT;0\nWireConnection;0;0;1;0\nWireConnection;3;0;2;0\nWireConnection;5;0;4;0\nASEEND*/\n//CHKSM=3657028DF5DA2D35AB8E3F945975521EB04DBDC4"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.1\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19901\nNode;AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;-384,128;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_LOCAL_TIME );1;Create;0;GetLocalTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;4;-384,256;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_NETWORK_TIME );1;Create;0;GetNetworkTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;-384,0;Inherit;False;AudioLinkDecodeDataAsSeconds(
+    ALPASS_GENERALVU_INSTANCE_TIME );1;Create;0;GetInstanceTime;True;False;0;;False;0;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;-64,0;Inherit;False;True;-1;Instance
+    Time;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;-64,128;Inherit;False;False;-1;Local
+    Time;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;5;-64,256;Inherit;False;False;-1;Network
+    Time;2;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;0;0;1;0\nWireConnection;3;0;2;0\nWireConnection;5;0;4;0\nASEEND*/\n//CHKSM=57271546CC3206E0D403E865D286FD4D29574514"
   m_functionName: 
   m_description: Returns time since instance start, local time since 12am and network
     time which is synced across all of the users (in seconds).

@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: 4BandAmplitudeFiltered
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor\n// Available at the Unity
-    Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=18935\n802;73;1117;926;681.5;451;1;True;True\nNode;AmplifyShaderEditor.FunctionInput;4;-598.5,38.5;Inherit;False;Filter
-    Amount;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput;2;-543.5,-80.5;Inherit;False;Band;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.CustomExpressionNode;3;-112,-16;Inherit;False;AudioLinkLerp(
-    ALPASS_FILTEREDAUDIOLINK + float2( FilteredAmount, Band ) ).r;1;Create;2;True;Band;INT;0;In;;Inherit;False;True;FilteredAmount;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;2;0;INT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.SimpleMultiplyOpNode;5;-355,61.5;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;15;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput;0;224,-50;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;3;0;2;0\nWireConnection;3;1;5;0\nWireConnection;5;0;4;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=0A73E61305EDB032237338A617D81DCBFF66FE50"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.1\n// Available at the
+    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19901\nNode;AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;4;-598.5,38.5;Inherit;False;Filter
+    Amount;1;1;False;1;0;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;-543.5,-80.5;Inherit;False;Band;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.SimpleMultiplyOpNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;5;-355,61.5;Inherit;False;2;2;0;FLOAT;0;False;1;FLOAT;15;False;1;FLOAT;0\nNode;AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;3;-112,-32;Inherit;False;AudioLinkLerp(
+    ALPASS_FILTEREDAUDIOLINK + float2( FilteredAmount, Band ) ).r;1;Create;2;True;Band;INT;0;In;;Inherit;False;True;FilteredAmount;FLOAT;0;In;;Inherit;False;AudioLinkLerp;True;False;0;;False;2;0;INT;0;False;1;FLOAT;0;False;1;FLOAT;0\nNode;AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;224,-50;Inherit;False;True;-1;Amplitude;0;False;1;0;FLOAT;0;False;1;FLOAT;0\nWireConnection;5;0;4;0\nWireConnection;3;0;2;0\nWireConnection;3;1;5;0\nWireConnection;0;0;3;0\nASEEND*/\n//CHKSM=BE2B3A67780D5AEA07F17B4CC7B861135E583150"
   m_functionName: 
   m_description: Samples from (integer) AudioLink band 0, 1, 2, or 3 and a (float)
     filter level 0-1.
@@ -42,8 +47,14 @@ MonoBehaviour:
       LineValue: Packages/com.llealloo.audiolink/Runtime/Shaders/AudioLink.cginc
       GUIDToggle: 0
       GUIDValue: 
+      ShowConditionals: 0
+      VersionMin: 0
+      VersionMax: 0
+      Passes: 
       Origin: 2
   m_nodeCategory: 0
+  m_headerStyle: 0
+  m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
   m_customNodeCategory: AudioLink
   m_previewPosition: 0
   m_hidden: 0
