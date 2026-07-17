@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b2425a2284af743826c689403a4924, type: 3}
   m_Name: ColorChordLights
   m_EditorClassIdentifier: 
-  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.1\n// Available at the
-    Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19901\nNode;AmplifyShaderEditor.CustomExpressionNode,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;1;-144,0;Inherit;False;AudioLinkData(
-    ALPASS_CCLIGHTS + uint2( Index, 0 ) ).rgba@;4;Create;1;True;Index;INT;0;In;;Inherit;False;AudioLinkData;True;False;0;;False;1;0;INT;0;False;1;FLOAT4;0\nNode;AmplifyShaderEditor.FunctionInput,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;2;-256,0;Inherit;False;Index;0;0;False;1;0;INT;0;False;1;INT;0\nNode;AmplifyShaderEditor.FunctionOutput,
-    AmplifyShaderEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null;0;32,0;Inherit;False;True;-1;Output;0;False;1;0;FLOAT4;0,0,0,0;False;1;FLOAT4;0\nWireConnection;1;0;2;0\nWireConnection;0;0;1;0\nASEEND*/\n//CHKSM=17282FAE30D01A94381EF84531DCB718F458CA3A"
+  m_functionInfo: "// Made with Amplify Shader Editor v1.9.9.12\n// Available at
+    the Unity Asset Store - http://u3d.as/y3X \n/*ASEBEGIN\nVersion=19912\n{\"type\":\"AmplifyShaderEditor.CustomExpressionNode,
+    AmplifyShaderEditor\",\"id\":1,\"pos\":[-144,0],\"params\":[\"Inherit\",\"False\",\"AudioLinkData(
+    ALPASS_CCLIGHTS + uint2( Index, 0 ) ).rgba;\",\"4\",\"Create\",\"1\",\"True\",\"Index\",\"INT\",\"0\",\"In\",\"\",\"Inherit\",\"False\",\"AudioLinkData\",\"True\",\"False\",\"0\",\"\",\"False\",\"1\",\"0\",\"INT\",\"0\",\"False\",\"1\",\"FLOAT4\",\"0\"]}\n{\"type\":\"AmplifyShaderEditor.FunctionInput,
+    AmplifyShaderEditor\",\"id\":2,\"pos\":[-256,0],\"params\":[\"Inherit\",\"False\",\"Index\",\"0\",\"0\",\"False\",\"1\",\"0\",\"INT\",\"0\",\"False\",\"1\",\"INT\",\"0\"]}\n{\"type\":\"AmplifyShaderEditor.FunctionOutput,
+    AmplifyShaderEditor\",\"id\":0,\"pos\":[32,0],\"params\":[\"Inherit\",\"False\",\"True\",\"-1\",\"Output\",\"0\",\"False\",\"1\",\"0\",\"FLOAT4\",\"0,0,0,0\",\"False\",\"1\",\"FLOAT4\",\"0\"]}\n{\"wire\":[1,0,2,0]}\n{\"wire\":[0,0,1,0]}\nASEEND*/\n//CHKSM=B5A46AB842C7D5E71E7AEDF42BF21A9C87296261"
   m_functionName: 
   m_description: Takes an integer from 0-127 and outputs the associated ColorChord
     lights RGBA value
@@ -49,6 +49,7 @@ MonoBehaviour:
       VersionMax: 0
       Passes: 
       Origin: 2
+    m_versionMaxExclusive: 1
   m_nodeCategory: 0
   m_headerStyle: 0
   m_headerColor: {r: 1, g: 0.4, b: 0, a: 1}
