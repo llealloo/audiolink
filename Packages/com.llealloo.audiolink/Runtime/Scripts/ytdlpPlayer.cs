@@ -403,9 +403,9 @@ namespace AudioLink
         public static void FetchEditorPrefs()
         {
             bool platformDefaultUseFFmpegTranscode = false;
-            #if UNITY_EDITOR_LINUX
+#if UNITY_EDITOR_LINUX
             platformDefaultUseFFmpegTranscode = true;
-            #endif
+#endif
 
             if (!IsMainThread()) return; // Do not throw; just keep the existing cached values.
             
