@@ -1,0 +1,74 @@
+name: Check Formatting
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "**.cs"
+      - ".editorconfig"
+      - "format.sh"
+      - ".github/workflows/format.yaml"
+  push:
+    branches:
+      - master
+    paths:
+      - "**.cs"
+      - ".editorconfig"
+      - "format.sh"
+      - ".github/workflows/format.yaml"
+
+jobs:
+  format:
+    name: dotnet format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      # Runs the formatter for real rather than with --check, so that a failure
+      # can hand the contributor a patch instead of a list of line numbers.
+      - name: Run formatter
+        run: sh format.sh
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "formatting is clean"
+            exit 0
+          fi
+
+          git diff > format.diff
+
+          {
+            echo "### Formatting issues found"
+            echo
+            echo "Run \`./format.sh\` locally and commit the result, or download the patch attached to this run:"
+            echo
+            echo '```console'
+            echo "gh run download ${{ github.run_id }} -n format-patch && git apply format.diff"
+            echo '```'
+            echo
+            echo '<details><summary>Diff</summary>'
+            echo
+            echo '```diff'
+            cat format.diff
+            echo '```'
+            echo
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          git diff --stat
+          exit 1
+
+      - name: Upload patch
+        if: failure() && steps.diff.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: format-patch
+          path: format.diff
