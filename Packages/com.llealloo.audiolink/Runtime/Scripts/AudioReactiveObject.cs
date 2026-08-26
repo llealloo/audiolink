@@ -14,7 +14,7 @@ namespace AudioLink
         public bool smooth;
         [Range(0, 127)]
         public int delay;
-        
+
         [Header("Reactivity Settings")]
         public Vector3 position;
         public Vector3 rotation;

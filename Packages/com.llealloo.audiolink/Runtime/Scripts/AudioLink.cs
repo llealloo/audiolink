@@ -983,7 +983,8 @@ namespace AudioLink
                     if (hasDualMono)
                     {
                         optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
-                    } else audioSource.GetOutputData(_audioFramesR, 1);
+                    }
+                    else audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
             }
@@ -994,7 +995,8 @@ namespace AudioLink
                 if (hasDualMono)                                                    // check if dual mono is present
                 {
                     optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
-                } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
+                }
+                else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
 

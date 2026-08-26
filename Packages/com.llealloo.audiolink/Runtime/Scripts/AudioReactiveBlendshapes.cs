@@ -15,7 +15,7 @@ namespace AudioLink
         public bool smooth;
         [Range(0, 127)]
         public int delay;
-        
+
         [Header("Reactivity Settings")]
         public int[] blendshapeIDs;
         public float[] blendshapeFromWeights;
@@ -27,7 +27,7 @@ namespace AudioLink
         void Start()
         {
             _skinnedMeshRenderer = transform.GetComponent<SkinnedMeshRenderer>();
-            int[] maxBlendshapes = new int[3] { blendshapeIDs.Length, blendshapeFromWeights.Length, blendshapeToWeights.Length};
+            int[] maxBlendshapes = new int[3] { blendshapeIDs.Length, blendshapeFromWeights.Length, blendshapeToWeights.Length };
             _maxBlendshapes = Mathf.Min(maxBlendshapes);
 
         }
