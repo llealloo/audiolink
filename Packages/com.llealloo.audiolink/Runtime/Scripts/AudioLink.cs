@@ -248,6 +248,13 @@ namespace AudioLink
 
         private int WebALID = 0;
 
+        private void LinkAnalyzerToAudioSource()
+        {
+            if (audioSource == null || audioSource.clip == null) return;
+
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+        }
+
 #endif
 
         private bool _IsInitialized = false;
@@ -357,7 +364,7 @@ namespace AudioLink
 
             WebALID = UnityEngine.Random.Range(0, 99999);
 
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 
             Application.focusChanged += (focus) =>
             {
@@ -365,7 +372,7 @@ namespace AudioLink
                 {
                     if (focus)
                     {
-                        LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+                        LinkAnalyzerToAudioSource();
                     }
                     else
                         UnlinkAnalyzer(WebALID);
@@ -895,7 +902,7 @@ namespace AudioLink
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyzerSpace();
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 #endif
         }
 
