@@ -71,7 +71,7 @@ namespace AudioLink.Editor
         {
             GameObject audiolink = null;
 
-#if UDONSHARP // VRC World        
+#if UDONSHARP // VRC World
             var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
             audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPath);
 
