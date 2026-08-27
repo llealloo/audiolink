@@ -1,0 +1,37 @@
+name: Check Version
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "**/package.json"
+      - "**/VERSION.txt"
+      - "CHANGELOG.md"
+      - "**/AudioLink.cs"
+      - "**/AudioLinkAssetManager.cs"
+      - "check-version.sh"
+      - ".github/workflows/version.yaml"
+  push:
+    branches:
+      - master
+    paths:
+      - "**/package.json"
+      - "**/VERSION.txt"
+      - "CHANGELOG.md"
+      - "**/AudioLink.cs"
+      - "**/AudioLinkAssetManager.cs"
+      - "check-version.sh"
+      - ".github/workflows/version.yaml"
+
+jobs:
+  version:
+    name: version numbers agree
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Releasing means six hand edits across six files (see CONTRIBUTING.MD).
+      # This is the only thing that checks they all landed.
+      - name: Check version consistency
+        run: sh check-version.sh
