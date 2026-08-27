@@ -25,6 +25,8 @@
 
 set -eu
 
+CHECK=0
+
 cd "$(dirname "$0")"
 
 FORMAT_PATHS="Packages/com.llealloo.audiolink"
@@ -47,19 +49,65 @@ if [ -z "$(dotnet --list-sdks 2> /dev/null)" ]; then
     exit 1
 fi
 
+if ! command -v perl > /dev/null 2>&1; then
+    echo "error: perl not found on PATH, needed for the trailing whitespace pass." >&2
+    exit 1
+fi
+
 ARGS=""
 for arg in "$@"; do
     case "$arg" in
-        --check) ARGS="$ARGS --verify-no-changes" ;;
+        --check)
+            CHECK=1
+            ARGS="$ARGS --verify-no-changes"
+            ;;
         *) ARGS="$ARGS $arg" ;;
     esac
 done
+
+# `dotnet format whitespace` does not reliably implement trim_trailing_whitespace.
+# It leaves trailing whitespace on comment lines untouched, and on statements that
+# span a preprocessor directive - both of which this package has. It also won't add
+# a missing final newline. Both rules are in .editorconfig, so do them ourselves.
+tidy() {
+    tidy_path="$1"
+    tidy_found=0
+
+    while IFS= read -r file; do
+        tmp="$file.format-tmp"
+
+        # perl rather than sed: sed under Git Bash silently rewrites CRLF working
+        # copies to LF, which makes every file on Windows look like a violation.
+        # The \r capture keeps CRLF intact.
+        perl -pe 's/[ \t]+(\r?)$/$1/' "$file" > "$tmp"
+        if [ -s "$tmp" ] && [ -n "$(tail -c 1 "$tmp")" ]; then
+            printf '\n' >> "$tmp"
+        fi
+
+        if cmp -s "$file" "$tmp"; then
+            rm -f "$tmp"
+        elif [ "$CHECK" -eq 1 ]; then
+            rm -f "$tmp"
+            echo "$file: trailing whitespace or missing final newline" >&2
+            tidy_found=1
+        else
+            # cat rather than mv, to leave the file's permissions alone.
+            cat "$tmp" > "$file"
+            rm -f "$tmp"
+        fi
+    done <<EOF
+$(find "$tidy_path" -type f -name '*.cs')
+EOF
+
+    return $tidy_found
+}
 
 status=0
 for path in $FORMAT_PATHS; do
     echo "==> $path"
     # shellcheck disable=SC2086
     dotnet format whitespace "$path" --folder $ARGS || status=$?
+    tidy "$path" || status=1
 done
 
 exit $status
