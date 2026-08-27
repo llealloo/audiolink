@@ -1,0 +1,12 @@
+# The Unity projects each have their own .gitignore for Library/, Temp/, etc.
+# This file is only for things that appear at the repo root or across all of them.
+
+# Tooling scratch directories.
+.serena/
+
+# Written into each consuming project by AudioLinkPipelineDetector to cache the
+# detected render pipeline. Generated, never edited by hand.
+.audiolink_pipeline
+
+# Agent instructions. Local only, not part of the package.
+CLAUDE.md
