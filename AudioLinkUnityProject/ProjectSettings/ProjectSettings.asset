@@ -508,7 +508,7 @@ PlayerSettings:
   - m_BuildTarget: iOSSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: WindowsStandaloneSupport
-    m_GraphicsJobs: 0
+    m_GraphicsJobs: 1
   - m_BuildTarget: XboxOnePlayer
     m_GraphicsJobs: 1
   - m_BuildTarget: LuminSupport
@@ -528,7 +528,7 @@ PlayerSettings:
     m_Automatic: 0
   - m_BuildTarget: iOSSupport
     m_APIs: 10000000
-    m_Automatic: 1
+    m_Automatic: 0
   - m_BuildTarget: AppleTVSupport
     m_APIs: 10000000
     m_Automatic: 1
@@ -548,7 +548,7 @@ PlayerSettings:
     - None
     - OpenVR
     - Oculus
-  m_DefaultShaderChunkSizeInMB: 16
+  m_DefaultShaderChunkSizeInMB: 4
   m_DefaultShaderChunkCount: 0
   openGLRequireES31: 0
   openGLRequireES31AEP: 0
@@ -831,7 +831,7 @@ PlayerSettings:
     PS5: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
     QNX: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
     Stadia: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
-    Standalone: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
+    Standalone: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1;UDONSHARP;UDON;VRC_SDK_VRCSDK3;VRC_ENABLE_PLAYER_PERSISTENCE
     VisionOS: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
     WebGL: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
     Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2;AUDIOLINK;AUDIOLINK_V1
@@ -955,7 +955,7 @@ PlayerSettings:
   projectName: 
   organizationId: 
   cloudEnabled: 0
-  legacyClampBlendShapeWeights: 0
+  legacyClampBlendShapeWeights: 1
   hmiLoadingImage: {fileID: 0}
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0

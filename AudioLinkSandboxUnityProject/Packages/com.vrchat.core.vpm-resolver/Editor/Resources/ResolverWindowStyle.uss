@@ -1,22 +1,25 @@
 ﻿.unity-box {
-    margin:2px;
-    padding:10px;
-    border-width:0px;
+    margin: 2px;
+    padding: 10px;
+    border-width: 0;
+    flex-shrink: 0;
 }
 
+
 #package-box {
-    margin:2px;
-    padding:10px;
-    border-width:0px;
+    margin: 2px;
+    border-width: 0;
     flex-direction:row;
-    max-height:20px;
-    min-height:20px;
-    height:20px;
-    padding-top:0px;
-    padding-bottom:0px;
-    margin-top:0px;
-    margin-bottom:0px;
-    align-items:center;
+    padding: 6px;
+    justify-content: center;
+    align-items: center;
+}
+
+#package-row {
+    padding: 0;
+    margin: 0;
+    flex-direction: row;
+    background-color: rgba(0,0,0,0);
 }
 
 #manifest-header {
