@@ -688,6 +688,15 @@ namespace AudioLink
             if (!autoDetectAudioTarget || !_audioLinkEnabled) return;
             Invoke(nameof(AutoCacheAudioTarget), audioTarget != null ? 10 : 1); // check faster until one is found
             if (!enabled) return;
+
+            // Republish the global if anything has cleared it. Unity resets per-graphics-device
+            // global state on events like an XR loader cycle, which leaves every consumer that
+            // resolves _AudioTexture by global lookup reading null with no way to recover.
+            // This deliberately runs on every tick rather than only when the audio target changed:
+            // the global can be wiped while the cached AudioListener stays perfectly valid.
+            if (GetGlobalTexture(_AudioTexture) == null)
+                SetAudioLinkGlobalTexture();
+
             if (audioListenerTarget == null || !audioListenerTarget.isActiveAndEnabled)
                 CacheAudioTarget();
         }
@@ -705,12 +714,6 @@ namespace AudioLink
                 if (!l.enabled) continue;
                 audioListenerTarget = l;
                 audioTarget = l.transform;
-#if UNITY_EDITOR
-                // ensure texture is actually assigned. Mitigates certain edge-cases with playmode.
-                // Why? No clue, but it keeps AudioLink from appearing broken when it's just the global variable that is unassigned for some reason.
-                if (GetGlobalTexture(_AudioTexture) == null)
-                    SetAudioLinkGlobalTexture();
-#endif
                 break;
             }
 
