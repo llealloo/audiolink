@@ -158,7 +158,11 @@ namespace AudioLink
         private int _rightChannelTestDelay = 300;
         private int _rightChannelTestCounter;
         private bool _ignoreRightChannel = false;
+#if UNITY_EDITOR
+        // Only ever read back in OnDestroy, to keep playmode from permanently
+        // modifying the update mode of the render texture asset.
         private CustomRenderTextureUpdateMode initialUpdateMode = CustomRenderTextureUpdateMode.Realtime;
+#endif
 
 #if UDONSHARP || CVR_CCK_EXISTS
         [HideInInspector, SerializeField] private Transform audioTarget = null;
@@ -394,7 +398,9 @@ namespace AudioLink
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
+#if UNITY_EDITOR
             initialUpdateMode = audioRenderTexture.updateMode;
+#endif
 
             // Disable camera on start if user didn't ask for it
             if (!audioDataToggle)
@@ -407,11 +413,18 @@ namespace AudioLink
 #endif
         }
 
+#if UNITY_EDITOR
+        // Editor only: in a build there is nothing to restore, and the render texture can
+        // already have been torn down by the time this runs during teardown.
         void OnDestroy()
         {
             // makes sure that playmode doesn't permanently modify the update mode
-            audioRenderTexture.updateMode = initialUpdateMode;
+            if (audioRenderTexture != null)
+            {
+                audioRenderTexture.updateMode = initialUpdateMode;
+            }
         }
+#endif
 
         // TODO(3): try to port this to standalone
         // Only happens once per second.
