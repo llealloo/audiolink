@@ -248,6 +248,16 @@ namespace AudioLink
 
         private int WebALID = 0;
 
+        // The analyzer is matched to its audio instance by clip duration, so there is
+        // nothing to link until a clip has actually been assigned. Called from Start()
+        // and EnableAudioLink(), both of which can run before that happens.
+        private void LinkAnalyzerToAudioSource()
+        {
+            if (audioSource == null || audioSource.clip == null) return;
+
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+        }
+
 #endif
 
         private bool _IsInitialized = false;
@@ -357,7 +367,7 @@ namespace AudioLink
 
             WebALID = UnityEngine.Random.Range(0, 99999);
 
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 
             Application.focusChanged += (focus) =>
             {
@@ -365,7 +375,7 @@ namespace AudioLink
                 {
                     if (focus)
                     {
-                        LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+                        LinkAnalyzerToAudioSource();
                     }
                     else
                         UnlinkAnalyzer(WebALID);
@@ -895,7 +905,7 @@ namespace AudioLink
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyzerSpace();
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 #endif
         }
 
