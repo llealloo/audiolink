@@ -5,19 +5,45 @@ using System.Linq;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.Video;
 
 // This component uses code from the following sources:
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
 // USharpVideo, Copyright (c) 2020 Merlin, (SPDX-License-Identifier: MIT) https://github.com/MerlinVR/USharpVideo/
 
+// Editor-only test player for AudioLink. It drives the AudioSource that AudioLink samples from one
+// of two sources, picked with the Source buttons at the top of the inspector:
+//
+//   Stream     - resolved with yt-dlp and played through a VideoPlayer.
+//   Local File - decoded from a file on this machine and played through the AudioSource directly.
+//
+// The local file path exists because the extractors upstream of yt-dlp break regularly; a file you
+// already have on disk always works. Nothing in this file ships to a player build or to Udon.
+
 // TODO(float3): add this to the AudioLinkMiniPlayer
 
 namespace AudioLink
 {
-
-    public class ytdlpPlayer : MonoBehaviour
+    [AddComponentMenu("AudioLink/AudioLink Editor Audio Player")]
+    public class EditorAudioPlayer : MonoBehaviour
     {
+        public enum PlaybackSource
+        {
+            [InspectorName("Stream")] Stream = 0,
+            [InspectorName("Local File")] LocalFile = 1
+        }
+
+        /// <summary>Progress of a local file load. Stream progress is tracked by the resolving request instead.</summary>
+        public enum LoadState
+        {
+            Empty,
+            Transcoding,
+            Loading,
+            Ready,
+            Failed
+        }
+
         public enum TextureTransformMode
         {
             AsIs,
@@ -25,14 +51,50 @@ namespace AudioLink
             ByPixels
         }
 
-        public string ytdlpURL = "https://www.youtube.com/watch?v=vGXyAKy-X6s";
-        ResolvingRequest _currentRequest = null;
+        public enum Resolution
+        {
+            [InspectorName("360p")] _360p = 360,
+            [InspectorName("480p")] _480p = 480,
+            [InspectorName("720p")] _720p = 720,
+            [InspectorName("1080p")] _1080p = 1080,
+            [InspectorName("1440p")] _1440p = 1440,
+            [InspectorName("2160p")] _2160p = 2160,
+        }
 
-        public bool showVideoPreviewInComponent = false;
-        public VideoPlayer videoPlayer = null;
+        // ---- shared ----
+
+        [Tooltip("Where the audio comes from: a stream resolved with yt-dlp, or a file on this machine.")]
+        public PlaybackSource playbackSource = PlaybackSource.Stream;
+
+        [Tooltip("The AudioLink instance whose media state should be driven. By default, it is looked up in the Scene.")]
         public AudioLink audioLink = null;
+
+        [Tooltip("Repeat when the end is reached. Applies to both sources.")]
+        public bool loop = true;
+
+        // ---- stream ----
+
+        public string ytdlpURL = "https://www.youtube.com/watch?v=vGXyAKy-X6s";
+        public VideoPlayer videoPlayer = null;
         public Resolution resolution = Resolution._720p;
 
+        // ---- local file ----
+
+        [Tooltip("Path to Audio/Video file to use. Use the Browse button, or drop a file onto the inspector.")]
+        public string audioFilePath = "";
+
+        [Tooltip("Target AudioLink Audio Source. By default this is taken from the VideoPlayer, then from the linked AudioLink component.")]
+        public AudioSource audioSource = null;
+
+        [Tooltip("Start playing as soon as the file has finished decoding.")]
+        public bool playOnLoad = true;
+
+        [Tooltip("Stream the file from disk instead of decoding all of it into memory. Uses far less memory on long files, at the cost of slightly less precise seeking.")]
+        public bool streamFromDisk = false;
+
+        // ---- global video texture ----
+
+        public bool showVideoPreviewInComponent = false;
         public bool enableGlobalVideoTexture = false;
         public string globalTextureName = "_Udon_VideoTex";
         public TextureTransformMode textureTransformMode = TextureTransformMode.Normalized;
@@ -47,40 +109,234 @@ namespace AudioLink
         private int _globalTextureId;
         private int _globalTextureTransformId;
         private bool _globalTextureActive = false;
-        internal Vector4 _lastGlobalST = Vector4.zero;
+        private Vector4 _lastGlobalST = Vector4.zero;
 
-        public enum Resolution
+        /// <summary>Last texture transform pushed to the global video texture. Shown as a debug readout in the inspector.</summary>
+        public Vector4 lastGlobalST => _lastGlobalST;
+
+        // ---- stream state ----
+
+        private ResolvingRequest _currentRequest = null;
+
+        // ---- local file state ----
+
+        private AudioClip _clip;
+        private bool _ownsClip;
+        private UnityWebRequest _streamingRequest;
+        private LocalAudioTranscodeJob _transcodeJob;
+
+        private LoadState _loadState = LoadState.Empty;
+        private string _statusMessage = "";
+        private string _loadedPath;
+        private int _loadGeneration;
+        private bool _triedTranscodeFallback;
+
+        private bool _paused;
+        private int _pendingSeekSamples;
+
+        private AudioClip _originalClip;
+        private bool _capturedOriginalClip;
+
+        // ---- source switching ----
+
+        private PlaybackSource _activeSource;
+        private bool _parkedVideoPlayer;
+
+        #region State
+
+        public bool isStreaming => playbackSource == PlaybackSource.Stream;
+
+        /// <summary>The clip decoded from audioFilePath, or null in stream mode / when nothing is loaded.</summary>
+        public AudioClip clip => _clip;
+
+        public LoadState loadState => _loadState;
+
+        /// <summary>Human readable detail for the current local file load, shown in the inspector.</summary>
+        public string statusMessage => _statusMessage;
+
+        /// <summary>True while yt-dlp is resolving, or while a local file is being converted or decoded.</summary>
+        public bool isBusy => isStreaming
+            ? _currentRequest != null && !_currentRequest.isDone
+            : _loadState == LoadState.Loading || _loadState == LoadState.Transcoding;
+
+        /// <summary>True once there is something to play and transport controls make sense.</summary>
+        public bool isReady => isStreaming
+            ? videoPlayer != null && videoPlayer.length > 0
+            : _loadState == LoadState.Ready && _clip != null && audioSource != null;
+
+        public bool isPlaying => isStreaming
+            ? videoPlayer != null && videoPlayer.isPlaying
+            : isReady && audioSource.isPlaying;
+
+        public bool isPaused => isStreaming
+            ? videoPlayer != null && videoPlayer.isPaused
+            : _paused;
+
+        #endregion
+
+        #region Lifecycle
+
+        private void Reset()
         {
-            [InspectorName("360p")] _360p = 360,
-            [InspectorName("480p")] _480p = 480,
-            [InspectorName("720p")] _720p = 720,
-            [InspectorName("1080p")] _1080p = 1080,
-            [InspectorName("1440p")] _1440p = 1440,
-            [InspectorName("2160p")] _2160p = 2160,
+            ResolveReferences();
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
-            if (audioLink == null)
-            {
-                audioLink = GetComponentInParent<AudioLink>();
-                if (audioLink == null)
-                {
-                    audioLink = FindFirstObjectByType<AudioLink>();
-                }
-            }
+            ResolveReferences();
+
             _globalTextureId = Shader.PropertyToID(globalTextureName);
             _globalTextureTransformId = Shader.PropertyToID(globalTextureName + "_ST");
-            RequestPlay();
-        }
 
-        void OnDisable()
-        {
-            if (audioLink != null)
+            _activeSource = playbackSource;
+
+            if (isStreaming)
             {
-                audioLink.autoSetMediaState = true;
+                RestoreVideoPlayer();
+                RequestPlay();
+            }
+            else if (Application.isPlaying)
+            {
+                ParkVideoPlayer();
+                ReloadLocalFile();
             }
         }
+
+        private void OnDisable()
+        {
+            CancelPendingWork();
+            ReleaseClip();
+            RestoreVideoPlayer();
+
+            _loadState = LoadState.Empty;
+            _statusMessage = "";
+            _loadedPath = null;
+
+            if (audioLink != null)
+                audioLink.autoSetMediaState = true;
+        }
+
+        /// <summary>
+        /// Fills in audioLink, videoPlayer and audioSource from the surrounding scene. The AudioSource
+        /// is taken from the VideoPlayer's output first, so the shipped AudioLink prefab needs no wiring.
+        /// </summary>
+        public void ResolveReferences()
+        {
+            if (audioLink == null)
+                audioLink = GetComponentInParent<AudioLink>();
+            if (audioLink == null)
+                audioLink = FindFirstObjectByType<AudioLink>();
+
+            if (videoPlayer == null)
+                videoPlayer = GetComponent<VideoPlayer>();
+
+            if (audioSource == null)
+                audioSource = TargetAudioSourceOf(videoPlayer);
+            if (audioSource == null && audioLink != null)
+                audioSource = audioLink.audioSource;
+            if (audioSource == null)
+                audioSource = GetComponentInParent<AudioSource>();
+        }
+
+        private static AudioSource TargetAudioSourceOf(VideoPlayer player)
+        {
+            if (player == null || player.audioOutputMode != VideoAudioOutputMode.AudioSource)
+                return null;
+
+            return player.controlledAudioTrackCount > 0 ? player.GetTargetAudioSource(0) : null;
+        }
+
+        private void Update()
+        {
+            if (_activeSource != playbackSource)
+                SwitchPlaybackSource();
+
+            if (isStreaming)
+                UpdateStream();
+            else
+                UpdateLocalFile();
+
+            PushMediaState();
+        }
+
+        private void LateUpdate() => ExportGlobalVideoTexture();
+
+        private void UpdateStream()
+        {
+            if (_currentRequest != null && _currentRequest.isDone)
+            {
+                UpdateUrl(_currentRequest.resolvedURL);
+                _currentRequest = null;
+            }
+
+            if (videoPlayer != null && videoPlayer.isLooping != loop)
+                videoPlayer.isLooping = loop;
+        }
+
+        private void UpdateLocalFile()
+        {
+            PollPendingWork();
+
+            if (isReady && audioSource.loop != loop)
+                audioSource.loop = loop;
+        }
+
+        #endregion
+
+        #region Source switching
+
+        private void SwitchPlaybackSource()
+        {
+            _activeSource = playbackSource;
+
+            if (!Application.isPlaying)
+                return;
+
+            if (isStreaming)
+            {
+                // Hand the AudioSource back and let the VideoPlayer drive it again.
+                CancelPendingWork();
+                ReleaseClip();
+                _loadState = LoadState.Empty;
+                _statusMessage = "";
+                _loadedPath = null;
+
+                RestoreVideoPlayer();
+                RequestPlay();
+            }
+            else
+            {
+                // A VideoPlayer in AudioSource output mode writes its own clip into our AudioSource,
+                // so it has to be parked before we can put ours there.
+                _currentRequest = null;
+                ParkVideoPlayer();
+                ReloadLocalFile();
+            }
+        }
+
+        private void ParkVideoPlayer()
+        {
+            if (videoPlayer == null || !Application.isPlaying || _parkedVideoPlayer)
+                return;
+
+            videoPlayer.Stop();
+            videoPlayer.enabled = false;
+            _parkedVideoPlayer = true;
+        }
+
+        private void RestoreVideoPlayer()
+        {
+            if (!_parkedVideoPlayer)
+                return;
+
+            _parkedVideoPlayer = false;
+            if (videoPlayer != null)
+                videoPlayer.enabled = true;
+        }
+
+        #endregion
+
+        #region Stream source
 
         public void RequestPlay()
         {
@@ -90,32 +346,6 @@ namespace AudioLink
                 ytdlpURLResolver.Resolve(ytdlpURL, (ResolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution, dumpJson);
             });
         }
-
-        private void Update()
-        {
-            if (_currentRequest != null && _currentRequest.isDone)
-            {
-                UpdateUrl(_currentRequest.resolvedURL);
-                _currentRequest = null;
-            }
-            if (audioLink != null && videoPlayer != null)
-            {
-                audioLink.autoSetMediaState = false;
-                if (_currentRequest != null && !_currentRequest.isDone)
-                    audioLink.SetMediaPlaying(MediaPlaying.Loading);
-                else if (videoPlayer.isPaused)
-                    audioLink.SetMediaPlaying(MediaPlaying.Paused);
-                else if (videoPlayer.isPlaying)
-                    audioLink.SetMediaPlaying(MediaPlaying.Playing);
-                else
-                    audioLink.SetMediaPlaying(MediaPlaying.Stopped);
-                audioLink.SetMediaTime(GetPlaybackTime());
-                audioLink.SetMediaLoop(videoPlayer.isLooping ? MediaLoop.LoopOne : MediaLoop.None);
-                if (GetAudioSourceVolume(out float volume)) audioLink.SetMediaVolume(volume);
-            }
-        }
-
-        private void LateUpdate() => ExportGlobalVideoTexture();
 
         public void UpdateUrl(string resolved)
         {
@@ -130,69 +360,495 @@ namespace AudioLink
 
         private void MediaReady(VideoPlayer player)
         {
-            SetPlaybackTime(player, 0.0f);
-            if (player.length > 0) player.Play();
+            if (player.canSetTime)
+                player.time = 0.0;
+
+            if (player.length > 0)
+                player.Play();
         }
 
+        #endregion
+
+        #region Local file source
+
+        /// <summary>Decode audioFilePath again from scratch. Only does anything in play mode.</summary>
+        public void ReloadLocalFile()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            _loadedPath = audioFilePath;
+            _triedTranscodeFallback = false;
+
+            CancelPendingWork();
+            ReleaseClip();
+            _statusMessage = "";
+
+            if (string.IsNullOrEmpty(audioFilePath))
+            {
+                _loadState = LoadState.Empty;
+                return;
+            }
+
+            if (!File.Exists(audioFilePath))
+            {
+                Fail($"File not found: {audioFilePath}");
+                return;
+            }
+
+            if (LocalAudioFile.IsNativelySupported(audioFilePath))
+                BeginClipLoad(audioFilePath);
+            else
+                BeginTranscode();
+        }
+
+        private void PollPendingWork()
+        {
+            if (_transcodeJob != null)
+            {
+                _transcodeJob.Poll();
+                if (!_transcodeJob.isDone)
+                    return;
+
+                LocalAudioTranscodeJob job = _transcodeJob;
+                _transcodeJob = null;
+
+                if (job.succeeded)
+                    BeginClipLoad(job.outputPath);
+                else
+                    Fail($"ffmpeg could not decode '{Path.GetFileName(_loadedPath)}'.\n{job.error}");
+
+                return;
+            }
+
+            if (_loadState == LoadState.Loading)
+                return;
+
+            // Picking a different file at runtime (inspector, drag and drop, script) reloads on its own.
+            if (!string.Equals(audioFilePath ?? "", _loadedPath ?? "", StringComparison.Ordinal))
+                ReloadLocalFile();
+        }
+
+        private void BeginTranscode()
+        {
+            _triedTranscodeFallback = true;
+
+            if (!LocalAudioTranscoder.isAvailable)
+            {
+                Fail($"'{Path.GetExtension(_loadedPath)}' is not a format Unity can decode, and ffmpeg was not found to convert it.\n" +
+                     "Install ffmpeg and put it on your PATH, or set a custom location via Tools/AudioLink/Select Custom FFmpeg Location.");
+                return;
+            }
+
+            _loadState = LoadState.Transcoding;
+            _statusMessage = $"Converting {Path.GetFileName(_loadedPath)} with ffmpeg...";
+            _transcodeJob = LocalAudioTranscoder.Start(_loadedPath);
+        }
+
+        private void BeginClipLoad(string path)
+        {
+            AudioType audioType = LocalAudioFile.AudioTypeOf(path);
+            if (audioType == AudioType.UNKNOWN)
+                audioType = AudioType.WAV;
+
+            string uri;
+            try
+            {
+                uri = new Uri(path).AbsoluteUri;
+            }
+            catch (Exception e)
+            {
+                Fail($"Could not build a file URI for '{path}': {e.Message}");
+                return;
+            }
+
+            UnityWebRequest request = UnityWebRequestMultimedia.GetAudioClip(uri, audioType);
+            DownloadHandlerAudioClip handler = (DownloadHandlerAudioClip)request.downloadHandler;
+            handler.streamAudio = streamFromDisk;
+            handler.compressed = false;
+
+            _loadState = LoadState.Loading;
+            _statusMessage = $"Decoding {Path.GetFileName(path)}...";
+
+            int generation = ++_loadGeneration;
+            request.SendWebRequest().completed += _ => OnClipLoadCompleted(request, path, generation);
+        }
+
+        private void OnClipLoadCompleted(UnityWebRequest request, string path, int generation)
+        {
+            // The component may have been disabled, switched to Stream, or pointed at another file
+            // while this was in flight.
+            if (generation != _loadGeneration)
+            {
+                request.Dispose();
+                return;
+            }
+
+            AudioClip loaded = null;
+            string error = null;
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                error = request.error;
+            }
+            else
+            {
+                try
+                {
+                    loaded = DownloadHandlerAudioClip.GetContent(request);
+                }
+                catch (Exception e)
+                {
+                    error = e.Message;
+                }
+
+                if (loaded == null)
+                    error = error ?? "Unity returned no audio data.";
+                else if (loaded.samples <= 0)
+                    error = "The decoded clip is empty.";
+            }
+
+            if (error != null)
+            {
+                request.Dispose();
+
+                // A wrong container/codec guess (Opus in .ogg, ADPCM in .wav, ...) can still be
+                // rescued by handing the file to ffmpeg.
+                if (!_triedTranscodeFallback && LocalAudioTranscoder.isAvailable)
+                {
+                    Debug.LogWarning($"[AudioLink:LocalFile] Unity could not decode '{path}' ({error}). Retrying through ffmpeg.");
+                    BeginTranscode();
+                    return;
+                }
+
+                Fail($"Unity could not decode '{Path.GetFileName(path)}': {error}");
+                return;
+            }
+
+            loaded.name = Path.GetFileNameWithoutExtension(_loadedPath ?? path);
+
+            _clip = loaded;
+            _ownsClip = true;
+
+            // A streamed clip keeps reading through the download handler, so the request has to
+            // outlive it. A fully decoded clip does not.
+            if (streamFromDisk)
+                _streamingRequest = request;
+            else
+                request.Dispose();
+
+            _loadState = LoadState.Ready;
+            _statusMessage = $"{loaded.channels}ch - {loaded.frequency} Hz - {FormattedTimestamp(loaded.length)}";
+
+            AttachClip();
+
+            if (_loadState == LoadState.Ready && playOnLoad)
+                Play();
+        }
+
+        private void AttachClip()
+        {
+            if (audioSource == null)
+            {
+                Fail("No AudioSource is assigned, so the decoded clip has nowhere to go.");
+                return;
+            }
+
+            if (!_capturedOriginalClip)
+            {
+                _originalClip = audioSource.clip;
+                _capturedOriginalClip = true;
+            }
+
+            audioSource.Stop();
+            audioSource.clip = _clip;
+            audioSource.loop = loop;
+
+            _paused = false;
+            _pendingSeekSamples = 0;
+        }
+
+        private void ReleaseClip()
+        {
+            // Only hand the AudioSource back if it is actually playing our clip; on a first load
+            // there is nothing of ours on it yet and stopping it would be rude.
+            if (_clip != null && audioSource != null && audioSource.clip == _clip)
+            {
+                audioSource.Stop();
+                audioSource.clip = _capturedOriginalClip ? _originalClip : null;
+            }
+
+            _capturedOriginalClip = false;
+            _originalClip = null;
+
+            if (_clip != null && _ownsClip)
+            {
+                if (Application.isPlaying)
+                    Destroy(_clip);
+                else
+                    DestroyImmediate(_clip);
+            }
+
+            _clip = null;
+            _ownsClip = false;
+
+            if (_streamingRequest != null)
+            {
+                _streamingRequest.Dispose();
+                _streamingRequest = null;
+            }
+
+            _paused = false;
+            _pendingSeekSamples = 0;
+        }
+
+        private void CancelPendingWork()
+        {
+            _loadGeneration++;
+
+            if (_transcodeJob != null)
+            {
+                _transcodeJob.Cancel();
+                _transcodeJob = null;
+            }
+        }
+
+        private void Fail(string message)
+        {
+            _loadState = LoadState.Failed;
+            _statusMessage = message;
+            Debug.LogError($"[AudioLink:LocalFile] {message}", this);
+        }
+
+        private int CurrentSamples
+        {
+            get
+            {
+                if (_clip == null)
+                    return 0;
+
+                if (audioSource != null && (audioSource.isPlaying || _paused))
+                    return Mathf.Clamp(audioSource.timeSamples, 0, Mathf.Max(0, _clip.samples - 1));
+
+                return Mathf.Clamp(_pendingSeekSamples, 0, Mathf.Max(0, _clip.samples - 1));
+            }
+        }
+
+        #endregion
+
+        #region Transport
+
+        /// <summary>Re-resolve the stream URL, or decode the local file again.</summary>
+        public void Reload()
+        {
+            if (isStreaming)
+                RequestPlay();
+            else
+                ReloadLocalFile();
+        }
+
+        public void Play()
+        {
+            if (isStreaming)
+            {
+                if (videoPlayer != null)
+                    videoPlayer.Play();
+                return;
+            }
+
+            if (!isReady)
+                return;
+
+            audioSource.loop = loop;
+
+            if (_paused)
+            {
+                audioSource.UnPause();
+                _paused = false;
+                return;
+            }
+
+            if (audioSource.isPlaying)
+                return;
+
+            int start = Mathf.Clamp(_pendingSeekSamples, 0, Mathf.Max(0, _clip.samples - 1));
+            audioSource.Play();
+            if (start > 0)
+                audioSource.timeSamples = start;
+            _pendingSeekSamples = 0;
+        }
+
+        public void Pause()
+        {
+            if (isStreaming)
+            {
+                if (videoPlayer != null)
+                    videoPlayer.Pause();
+                return;
+            }
+
+            if (audioSource == null || !audioSource.isPlaying)
+                return;
+
+            audioSource.Pause();
+            _paused = true;
+        }
+
+        public void Stop()
+        {
+            if (isStreaming)
+            {
+                if (videoPlayer != null)
+                    videoPlayer.Stop();
+                return;
+            }
+
+            if (audioSource == null)
+                return;
+
+            audioSource.Stop();
+            _paused = false;
+            _pendingSeekSamples = 0;
+        }
+
+        public void TogglePlayPause()
+        {
+            if (isPlaying)
+                Pause();
+            else
+                Play();
+        }
+
+        /// <summary>Playback position as a 0..1 fraction, matching AudioLink's media time.</summary>
         public float GetPlaybackTime()
         {
-            if (videoPlayer != null && videoPlayer.length > 0)
-                return (float)(videoPlayer.length > 0 ? videoPlayer.time / videoPlayer.length : 0);
-            else
-                return 0;
+            if (isStreaming)
+                return videoPlayer != null && videoPlayer.length > 0 ? (float)(videoPlayer.time / videoPlayer.length) : 0f;
+
+            if (_clip == null || _clip.samples <= 0)
+                return 0f;
+
+            return Mathf.Clamp01((float)CurrentSamples / _clip.samples);
         }
 
-        public void SetPlaybackTime(VideoPlayer player, float time)
+        /// <summary>Seek to a 0..1 fraction. Works while playing, paused or stopped.</summary>
+        public void SetPlaybackTime(float normalizedTime)
         {
-            if (player != null && player.length > 0 && player.canSetTime)
-                player.time = player.length * Mathf.Clamp(time, 0.0f, 1.0f);
+            if (isStreaming)
+            {
+                if (videoPlayer != null && videoPlayer.length > 0 && videoPlayer.canSetTime)
+                    videoPlayer.time = videoPlayer.length * Mathf.Clamp01(normalizedTime);
+                return;
+            }
+
+            if (_clip == null || audioSource == null || _clip.samples <= 0)
+                return;
+
+            int target = Mathf.Clamp(Mathf.RoundToInt(Mathf.Clamp01(normalizedTime) * _clip.samples), 0, _clip.samples - 1);
+
+            if (audioSource.isPlaying || _paused)
+            {
+                audioSource.timeSamples = target;
+                // Some Unity versions resume a paused source when the playhead is moved.
+                if (_paused && audioSource.isPlaying)
+                    audioSource.Pause();
+            }
+            else
+            {
+                // A stopped source rewinds to 0 on Play(), so remember where to jump to instead.
+                _pendingSeekSamples = target;
+            }
         }
+
+        public void SetPlaybackSeconds(double seconds)
+        {
+            if (lengthSeconds <= 0)
+                return;
+
+            SetPlaybackTime((float)(seconds / lengthSeconds));
+        }
+
+        public double playbackSeconds => isStreaming
+            ? (videoPlayer != null ? videoPlayer.time : 0.0)
+            : (_clip != null && _clip.frequency > 0 ? (double)CurrentSamples / _clip.frequency : 0.0);
+
+        public double lengthSeconds => isStreaming
+            ? (videoPlayer != null ? videoPlayer.length : 0.0)
+            : (_clip != null ? _clip.length : 0.0);
 
         public string FormattedTimestamp(double seconds, double maxSeconds = 0)
         {
             double formatValue = maxSeconds > 0 ? maxSeconds : seconds;
             string formatString = formatValue >= 3600.0 ? @"hh\:mm\:ss" : @"mm\:ss";
-            return TimeSpan.FromSeconds(seconds).ToString(formatString);
+            return TimeSpan.FromSeconds(Math.Max(0.0, seconds)).ToString(formatString);
         }
 
         public string PlaybackTimestampFormatted()
         {
-            if (videoPlayer != null && videoPlayer.length > 0)
-            {
-                return $"{FormattedTimestamp(videoPlayer.time, videoPlayer.length)} / {FormattedTimestamp(videoPlayer.length)}";
-            }
-            else
-            {
+            if (lengthSeconds <= 0)
                 return "00:00 / 00:00";
-            }
+
+            return $"{FormattedTimestamp(playbackSeconds, lengthSeconds)} / {FormattedTimestamp(lengthSeconds)}";
         }
 
         public bool GetAudioSourceVolume(out float volume)
         {
-            volume = 0;
+            volume = 0f;
+            if (audioSource == null)
+                return false;
 
-            if (videoPlayer != null)
-            {
-                AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
-                if (audioSourceOutput != null)
-                {
-                    volume = audioSourceOutput.volume;
-                    return true;
-                }
-            }
-
-            return false;
+            volume = audioSource.volume;
+            return true;
         }
 
         public void SetAudioSourceVolume(float volume)
         {
-            if (videoPlayer != null)
-            {
-                AudioSource audioSourceOutput = videoPlayer.GetTargetAudioSource(0);
-                if (audioSourceOutput != null)
-                    audioSourceOutput.volume = Mathf.Clamp01(volume);
-            }
+            if (audioSource != null)
+                audioSource.volume = Mathf.Clamp01(volume);
         }
+
+        #endregion
+
+        #region AudioLink media state
+
+        private void PushMediaState()
+        {
+            if (audioLink == null)
+                return;
+
+            if (isStreaming ? videoPlayer == null : audioSource == null)
+                return;
+
+            // In local file mode with nothing picked there is nothing to report, so leave AudioLink's
+            // own media state handling alone rather than pinning it to "None".
+            if (!isStreaming && string.IsNullOrEmpty(audioFilePath))
+            {
+                audioLink.autoSetMediaState = true;
+                return;
+            }
+
+            audioLink.autoSetMediaState = false;
+
+            if (isBusy)
+                audioLink.SetMediaPlaying(MediaPlaying.Loading);
+            else if (!isStreaming && _loadState == LoadState.Failed)
+                audioLink.SetMediaPlaying(MediaPlaying.Error);
+            else if (isPaused)
+                audioLink.SetMediaPlaying(MediaPlaying.Paused);
+            else if (isPlaying)
+                audioLink.SetMediaPlaying(MediaPlaying.Playing);
+            else
+                audioLink.SetMediaPlaying(MediaPlaying.Stopped);
+
+            audioLink.SetMediaTime(GetPlaybackTime());
+            audioLink.SetMediaLoop(loop ? MediaLoop.LoopOne : MediaLoop.None);
+            if (GetAudioSourceVolume(out float volume))
+                audioLink.SetMediaVolume(volume);
+        }
+
+        #endregion
+
+        #region Global video texture
 
         private void ExportGlobalVideoTexture()
         {
@@ -254,6 +910,8 @@ namespace AudioLink
                 Shader.SetGlobalTexture(_globalTextureId, null);
             }
         }
+
+        #endregion
     }
 
     public class CachedEditorPrefs
@@ -399,6 +1057,12 @@ namespace AudioLink
             LocateFFmpeg();
             return _ffmpegFound;
         }
+
+        /// <summary>
+        /// Path to the ffmpeg executable found by LocateFFmpeg. Only meaningful once
+        /// IsFFmpegAvailable has returned true.
+        /// </summary>
+        public static string FFmpegPath => _ffmpegPath;
 
         public static void FetchEditorPrefs()
         {
@@ -857,255 +1521,6 @@ namespace AudioLink
 
             // no executable was found...
             return string.Empty;
-        }
-    }
-
-    [CustomEditor(typeof(ytdlpPlayer))]
-    public class ytdlpPlayerEditor : UnityEditor.Editor
-    {
-        private ytdlpPlayer _ytdlpPlayer;
-
-        private SerializedProperty ytdlpURL;
-        private SerializedProperty resolution;
-
-        private SerializedProperty enableGlobalVideoTexture;
-        private SerializedProperty globalTextureName;
-        private SerializedProperty transformTextureMode;
-        private SerializedProperty texturePixelOrigin;
-        private SerializedProperty texturePixelSize;
-        private SerializedProperty textureTiling;
-        private SerializedProperty textureOffset;
-        private SerializedProperty showStandbyIfPaused;
-        private SerializedProperty forceStandbyTexture;
-        private SerializedProperty standbyTexture;
-
-        private const string showVideoPreviewInComponentKey = "YTDLP-VIDEO-PREVIEW";
-        private const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
-
-        void OnEnable()
-        {
-            _ytdlpPlayer = (ytdlpPlayer)target;
-            // If video player is on the same gameobject, assign it automatically
-            if (_ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null)
-                _ytdlpPlayer.videoPlayer = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>();
-
-            ytdlpURL = serializedObject.FindProperty(nameof(_ytdlpPlayer.ytdlpURL));
-            resolution = serializedObject.FindProperty(nameof(_ytdlpPlayer.resolution));
-            enableGlobalVideoTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.enableGlobalVideoTexture));
-            globalTextureName = serializedObject.FindProperty(nameof(_ytdlpPlayer.globalTextureName));
-            transformTextureMode = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureTransformMode));
-            texturePixelOrigin = serializedObject.FindProperty(nameof(_ytdlpPlayer.texturePixelOrigin));
-            texturePixelSize = serializedObject.FindProperty(nameof(_ytdlpPlayer.texturePixelSize));
-            textureTiling = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureTiling));
-            textureOffset = serializedObject.FindProperty(nameof(_ytdlpPlayer.textureOffset));
-            showStandbyIfPaused = serializedObject.FindProperty(nameof(_ytdlpPlayer.showStandbyIfPaused));
-            forceStandbyTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.forceStandbyTexture));
-            standbyTexture = serializedObject.FindProperty(nameof(_ytdlpPlayer.standbyTexture));
-        }
-
-        public override bool RequiresConstantRepaint()
-        {
-            if (_ytdlpPlayer.videoPlayer != null)
-                return _ytdlpPlayer.videoPlayer.isPlaying;
-            else
-                return false;
-        }
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-#if UNITY_EDITOR_LINUX
-            bool available = ytdlpURLResolver.IsytdlpAvailable() && ytdlpURLResolver.IsFFmpegAvailable();
-#else
-            bool available = ytdlpURLResolver.IsytdlpAvailable();
-#endif
-
-            bool hasVideoPlayer = _ytdlpPlayer.videoPlayer != null;
-            float playbackTime = hasVideoPlayer ? _ytdlpPlayer.GetPlaybackTime() : 0;
-            double videoLength = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.length : 0;
-
-            if (ytdlpURLResolver.useFFmpeg && ytdlpURLResolver.IsFFmpegAvailable())
-                EditorGUILayout.HelpBox("Using FFmpeg to transcode test videos into a compatible format locally.\n\nThis may play videos that *are not* supported in VRChat / CilloutVR,\nadditionally it does not support livestreams.\n\nIf you encounter any issues, specify you're using FFmpeg Transcoding when reporting issues.", MessageType.Info);
-
-            using (new EditorGUI.DisabledScope(!available))
-            {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    EditorGUILayout.LabelField(new GUIContent(" Video URL", EditorGUIUtility.IconContent("CloudConnect").image), GUILayout.Width(100));
-                    EditorGUILayout.PropertyField(ytdlpURL, GUIContent.none);
-                    EditorGUILayout.PropertyField(resolution, GUIContent.none, GUILayout.Width(65));
-                }
-
-                using (new EditorGUI.DisabledScope(!hasVideoPlayer || !EditorApplication.isPlaying))
-                {
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        // Timestamp/Reload button
-                        EditorGUILayout.LabelField(new GUIContent(" Seek: " + _ytdlpPlayer.PlaybackTimestampFormatted(), EditorGUIUtility.IconContent("d_Slider Icon").image));
-
-                        GUIContent reloadButtonContent = new GUIContent(" Reload URL", EditorGUIUtility.IconContent("TreeEditor.Refresh").image);
-
-                        bool updateURL = GUILayout.Button(reloadButtonContent);
-                        if (updateURL)
-                            _ytdlpPlayer.RequestPlay();
-                    }
-
-                    // Seekbar/Time input
-                    using (new EditorGUI.DisabledScope(!hasVideoPlayer || videoLength == 0))
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        // Seekbar input
-                        EditorGUI.BeginChangeCheck();
-                        playbackTime = GUILayout.HorizontalSlider(playbackTime, 0, 1);
-                        if (EditorGUI.EndChangeCheck())
-                            _ytdlpPlayer.SetPlaybackTime(_ytdlpPlayer.videoPlayer, playbackTime);
-
-                        // Timestamp input
-                        EditorGUI.BeginChangeCheck();
-                        double time = hasVideoPlayer ? _ytdlpPlayer.videoPlayer.time : 0;
-                        string currentTimestamp = _ytdlpPlayer.FormattedTimestamp(time, videoLength);
-                        string seekTimestamp = EditorGUILayout.DelayedTextField(currentTimestamp, GUILayout.MaxWidth(8 * currentTimestamp.Length));
-                        if (EditorGUI.EndChangeCheck() && videoLength > 0)
-                        {
-                            TimeSpan inputTimestamp;
-                            // Add extra 00:'s to force TimeSpan.TryParse to interpret times properly
-                            // 22 -> 00:00:22, 2:22 -> 00:02:22, 2:22:22 -> 00:2:22:22
-                            if (seekTimestamp.Length < 5)
-                                seekTimestamp = "00:" + seekTimestamp;
-                            if (TimeSpan.TryParse($"00:{seekTimestamp}", out inputTimestamp))
-                            {
-                                playbackTime = (float)(inputTimestamp.TotalSeconds / videoLength);
-                                _ytdlpPlayer.SetPlaybackTime(_ytdlpPlayer.videoPlayer, playbackTime);
-                            }
-                        }
-                    }
-
-                    // Media Controls
-                    using (new EditorGUILayout.HorizontalScope())
-                    {
-                        bool isPlaying = hasVideoPlayer && _ytdlpPlayer.videoPlayer.isPlaying;
-                        bool isPaused = hasVideoPlayer && _ytdlpPlayer.videoPlayer.isPaused;
-                        bool isStopped = !isPlaying && !isPaused;
-
-                        bool play = GUILayout.Toggle(isPlaying, new GUIContent(" Play", EditorGUIUtility.IconContent("d_PlayButton On").image), "Button") != isPlaying;
-                        bool pause = GUILayout.Toggle(isPaused, new GUIContent(" Pause", EditorGUIUtility.IconContent("d_PauseButton On").image), "Button") != isPaused;
-                        bool stop = GUILayout.Toggle(isStopped, new GUIContent(" Stop", EditorGUIUtility.IconContent("d_Record Off").image), "Button") != isStopped;
-
-                        if (hasVideoPlayer)
-                        {
-                            if (play)
-                                _ytdlpPlayer.videoPlayer.Play();
-                            else if (pause)
-                                _ytdlpPlayer.videoPlayer.Pause();
-                            else if (stop)
-                                _ytdlpPlayer.videoPlayer.Stop();
-                        }
-                    }
-                }
-
-                float volume;
-                using (new EditorGUI.DisabledScope(!_ytdlpPlayer.GetAudioSourceVolume(out volume)))
-                {
-                    EditorGUI.BeginChangeCheck();
-                    volume = EditorGUILayout.Slider(new GUIContent("  AudioSource Volume", EditorGUIUtility.IconContent("d_Profiler.Audio").image), volume, 0.0f, 1.0f);
-                    if (EditorGUI.EndChangeCheck())
-                        _ytdlpPlayer.SetAudioSourceVolume(volume);
-                }
-            }
-
-            bool videoPlayerOnThisObject = _ytdlpPlayer.gameObject.GetComponent<VideoPlayer>() != null;
-
-            using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || videoPlayerOnThisObject))
-            {
-                _ytdlpPlayer.videoPlayer = (VideoPlayer)EditorGUILayout.ObjectField(new GUIContent("  VideoPlayer", EditorGUIUtility.IconContent("d_Profiler.Video").image), _ytdlpPlayer.videoPlayer, typeof(VideoPlayer), allowSceneObjects: true);
-            }
-
-            // FFmpeg toggle
-            {
-                bool platformDefaultUseFFmpegTranscode = false;
-#if UNITY_EDITOR_LINUX
-                platformDefaultUseFFmpegTranscode = true;
-#endif
-
-                bool wasUsingFFmpeg = EditorPrefs.GetBool(useFFmpegTranscodeKey, platformDefaultUseFFmpegTranscode);
-                ytdlpURLResolver.useFFmpeg = EditorGUILayout.ToggleLeft(new GUIContent("Use FFmpeg Transcoding"), wasUsingFFmpeg);
-
-                if (wasUsingFFmpeg != ytdlpURLResolver.useFFmpeg)
-                    EditorPrefs.SetBool(useFFmpegTranscodeKey, ytdlpURLResolver.useFFmpeg);
-            }
-
-            // Video preview
-            using (new EditorGUI.DisabledScope(!available || !hasVideoPlayer))
-            {
-                bool wasShowingPreview = EditorPrefs.GetBool(showVideoPreviewInComponentKey, false);
-                _ytdlpPlayer.showVideoPreviewInComponent = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), wasShowingPreview);
-
-                if (wasShowingPreview != _ytdlpPlayer.showVideoPreviewInComponent)
-                    EditorPrefs.SetBool(showVideoPreviewInComponentKey, _ytdlpPlayer.showVideoPreviewInComponent);
-
-                if (_ytdlpPlayer.showVideoPreviewInComponent && available && hasVideoPlayer && _ytdlpPlayer.videoPlayer.texture != null)
-                {
-                    // Draw video preview with the same aspect ratio as the video
-                    Texture videoPlayerTexture = _ytdlpPlayer.videoPlayer.texture;
-                    EditorGUILayout.LabelField($"Resolution: {videoPlayerTexture.width}x{videoPlayerTexture.height}");
-                    float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
-                    Rect previewRect = GUILayoutUtility.GetAspectRect(aspectRatio);
-                    EditorGUI.DrawPreviewTexture(previewRect, videoPlayerTexture, null, ScaleMode.ScaleToFit);
-                }
-
-                EditorGUILayout.PropertyField(enableGlobalVideoTexture, new GUIContent("Enable Global Video Texture"));
-                using (new EditorGUILayout.VerticalScope("box"))
-                {
-                    if (_ytdlpPlayer.enableGlobalVideoTexture)
-                    {
-                        EditorGUILayout.LabelField("Global Video Texture Settings");
-
-                        EditorGUILayout.HelpBox("Global Video Texture is NOT part of AudioLink and is only provided as a convenience for testing avatars in editor.", MessageType.Info);
-
-                        using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
-                            EditorGUILayout.PropertyField(globalTextureName, new GUIContent("Global Texture Property Target"));
-                        EditorGUILayout.PropertyField(transformTextureMode, new GUIContent("Transform Texture (" + _ytdlpPlayer.globalTextureName + "_ST)"));
-                        EditorGUI.indentLevel++;
-                        switch (_ytdlpPlayer.textureTransformMode)
-                        {
-                            case ytdlpPlayer.TextureTransformMode.Normalized:
-                                EditorGUILayout.PropertyField(textureTiling, new GUIContent("Tiling"));
-                                EditorGUILayout.PropertyField(textureOffset, new GUIContent("Offset"));
-                                break;
-                            case ytdlpPlayer.TextureTransformMode.ByPixels:
-                                EditorGUILayout.PropertyField(texturePixelOrigin, new GUIContent("Pixel Origin (from Top-Left)"));
-                                EditorGUILayout.PropertyField(texturePixelSize, new GUIContent("Pixel Size (0 = Texture Source Size)"));
-                                if (EditorApplication.isPlaying)
-                                    using (new EditorGUI.DisabledScope(true))
-                                        EditorGUILayout.LabelField($"Normalized: {_ytdlpPlayer._lastGlobalST}");
-                                break;
-                        }
-
-                        EditorGUI.indentLevel--;
-                        EditorGUILayout.PropertyField(showStandbyIfPaused, new GUIContent("Show Standby Texture when Paused"));
-                        EditorGUILayout.PropertyField(forceStandbyTexture, new GUIContent("Force Show Standby Texture"));
-                        EditorGUILayout.PropertyField(standbyTexture, new GUIContent("Standby Texture"), GUILayout.Height(EditorGUIUtility.singleLineHeight));
-                    }
-                }
-            }
-
-            bool ffmpegNotFound = (ytdlpURLResolver.useFFmpeg && !ytdlpURLResolver.IsFFmpegAvailable());
-            if (!available || ffmpegNotFound)
-            {
-#if UNITY_EDITOR_LINUX
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via your package manager,\nor make sure the portable executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
-#elif UNITY_EDITOR_WIN
-                if (ffmpegNotFound)
-                    EditorGUILayout.HelpBox("Failed to locate ffmpeg executable.\n\nTo fix this, install ffmpeg and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
-                if (!available)
-                    EditorGUILayout.HelpBox("Failed to locate yt-dlp executable.\n\nTo fix this, either install and launch VRChat once,\nor install yt-dlp and make sure the executable is on your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
-#else
-                EditorGUILayout.HelpBox("Failed to locate yt-dlp & ffmpeg executables.\n\nTo fix this, install yt-dlp and ffmpeg via *homebrew*: \"brew install yt-dlp ffmpeg\", or make sure the executables are in your PATH.\n\nOnce this is done, enter play mode to retry.", MessageType.Warning);
-#endif
-            }
-
-            serializedObject.ApplyModifiedProperties();
         }
     }
 }
