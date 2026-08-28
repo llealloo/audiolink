@@ -90,7 +90,7 @@ namespace AudioLink
         public bool playOnLoad = true;
 
         [Tooltip("Stream the file from disk instead of decoding all of it into memory. Uses far less memory on long files, at the cost of slightly less precise seeking.")]
-        public bool streamFromDisk = false;
+        public bool streamFromDisk = true;
 
         // ---- global video texture ----
 
