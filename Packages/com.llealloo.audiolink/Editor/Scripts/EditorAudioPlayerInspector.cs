@@ -294,7 +294,7 @@ namespace AudioLink.Editor
             }
 
             if (!EditorApplication.isPlaying)
-                EditorGUILayout.HelpBox("Enter Play Mode to decode and play the selected file. Unity does not run AudioSources in edit mode.", MessageType.Info);
+                EditorGUILayout.HelpBox("Enter Play Mode to play the selected file. AudioLink does not run in Edit Mode.", MessageType.Info);
         }
 
         #endregion
