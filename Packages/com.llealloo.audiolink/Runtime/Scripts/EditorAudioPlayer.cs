@@ -26,7 +26,7 @@ using UnityEngine.Video;
 namespace AudioLink
 {
     [AddComponentMenu("AudioLink/AudioLink Editor Audio Player")]
-    public class EditorAudioPlayer : MonoBehaviour
+    public partial class EditorAudioPlayer : MonoBehaviour
     {
         public enum PlaybackSource
         {
@@ -123,7 +123,7 @@ namespace AudioLink
         private AudioClip _clip;
         private bool _ownsClip;
         private UnityWebRequest _streamingRequest;
-        private LocalAudioTranscodeJob _transcodeJob;
+        private TranscodeJob _transcodeJob;
 
         private LoadState _loadState = LoadState.Empty;
         private string _statusMessage = "";
@@ -396,7 +396,7 @@ namespace AudioLink
                 return;
             }
 
-            if (LocalAudioFile.IsNativelySupported(audioFilePath))
+            if (IsNativelySupportedFile(audioFilePath))
                 BeginClipLoad(audioFilePath);
             else
                 BeginTranscode();
@@ -410,7 +410,7 @@ namespace AudioLink
                 if (!_transcodeJob.isDone)
                     return;
 
-                LocalAudioTranscodeJob job = _transcodeJob;
+                TranscodeJob job = _transcodeJob;
                 _transcodeJob = null;
 
                 if (job.succeeded)
@@ -433,7 +433,7 @@ namespace AudioLink
         {
             _triedTranscodeFallback = true;
 
-            if (!LocalAudioTranscoder.isAvailable)
+            if (!ytdlpURLResolver.IsFFmpegAvailable())
             {
                 Fail($"'{Path.GetExtension(_loadedPath)}' is not a format Unity can decode, and ffmpeg was not found to convert it.\n" +
                      "Install ffmpeg and put it on your PATH, or set a custom location via Tools/AudioLink/Select Custom FFmpeg Location.");
@@ -442,12 +442,12 @@ namespace AudioLink
 
             _loadState = LoadState.Transcoding;
             _statusMessage = $"Converting {Path.GetFileName(_loadedPath)} with ffmpeg...";
-            _transcodeJob = LocalAudioTranscoder.Start(_loadedPath);
+            _transcodeJob = StartTranscode(_loadedPath);
         }
 
         private void BeginClipLoad(string path)
         {
-            AudioType audioType = LocalAudioFile.AudioTypeOf(path);
+            AudioType audioType = AudioTypeOf(path);
             if (audioType == AudioType.UNKNOWN)
                 audioType = AudioType.WAV;
 
@@ -514,7 +514,7 @@ namespace AudioLink
 
                 // A wrong container/codec guess (Opus in .ogg, ADPCM in .wav, ...) can still be
                 // rescued by handing the file to ffmpeg.
-                if (!_triedTranscodeFallback && LocalAudioTranscoder.isAvailable)
+                if (!_triedTranscodeFallback && ytdlpURLResolver.IsFFmpegAvailable())
                 {
                     Debug.LogWarning($"[AudioLink:LocalFile] Unity could not decode '{path}' ({error}). Retrying through ffmpeg.");
                     BeginTranscode();
@@ -988,7 +988,15 @@ namespace AudioLink
         private const string userDefinedFFmpegPathKey = "MPEG-PATH-CUSTOM";
         private const string userDefinedFFmpegPathMenu = "Tools/AudioLink/Select Custom FFmpeg Location";
 
-        private const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
+        public const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
+
+        /// <summary>Whether FFmpeg transcoding is on by default here. Linux has no other working path.</summary>
+        public static bool platformDefaultUseFFmpegTranscode =>
+#if UNITY_EDITOR_LINUX
+            true;
+#else
+            false;
+#endif
 
         private const string _ffErrorIdentifier = ", from 'http";
 
@@ -1066,11 +1074,6 @@ namespace AudioLink
 
         public static void FetchEditorPrefs()
         {
-            bool platformDefaultUseFFmpegTranscode = false;
-            #if UNITY_EDITOR_LINUX
-            platformDefaultUseFFmpegTranscode = true;
-            #endif
-
             if (!IsMainThread()) return; // Do not throw; just keep the existing cached values.
             
             try
