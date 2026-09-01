@@ -160,8 +160,7 @@ namespace AudioLink.Editor
         private void CaptureLayoutState()
         {
             // intValue is the enum's numeric value; the enumValueIndex used by the toolbar below is
-            // its position in the declaration order. They coincide today, but only intValue stays
-            // correct if PlaybackSource is ever reordered or renumbered.
+            // its position in the declaration order.
             _layoutLocalMode = _playbackSource.intValue == (int)EditorAudioPlayer.PlaybackSource.LocalFile;
             _layoutAdvanced = _showAdvanced;
             _layoutPath = _audioFilePath.stringValue ?? "";
