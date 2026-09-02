@@ -2,6 +2,7 @@
     "name": "AudioLink",
     "rootNamespace": "",
     "references": [
+        "Unity.Postprocessing.Runtime",
         "UdonSharp.Runtime",
         "UdonSharp.Lib",
         "VRC.Udon"

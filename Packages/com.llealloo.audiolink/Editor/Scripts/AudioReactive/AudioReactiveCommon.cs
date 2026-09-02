@@ -9,6 +9,24 @@ namespace AudioLink.Editor
     {
         private List<bool> drawersOpen = new List<bool>();
 
+        public void RangeSliderWithFields(Rect drawrect, ref float fromValue, ref float toValue, float minValue = 0, float maxValue = 1, float fieldWidth = 40, float fieldSpacing = 5)
+        {
+            Rect floatRect = drawrect;
+            Rect sliderRect = drawrect;
+
+            floatRect.width = fieldWidth;
+
+            sliderRect.width -= (fieldWidth + fieldSpacing) * 2.0f;
+            sliderRect.x += fieldWidth + fieldSpacing;
+
+            fromValue = EditorGUI.FloatField(floatRect, fromValue);
+
+            EditorGUI.MinMaxSlider(sliderRect, ref fromValue, ref toValue, minValue, maxValue);
+                
+            floatRect.x += sliderRect.width + fieldWidth + (fieldSpacing * 2.0f);
+            toValue = EditorGUI.FloatField(floatRect, toValue);
+        }
+
         public void StandardReactiveEditorHeader(string reactiveMessage)
         {
             EditorGUI.BeginDisabledGroup(true);

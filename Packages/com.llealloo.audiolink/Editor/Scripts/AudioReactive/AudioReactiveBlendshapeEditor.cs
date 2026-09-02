@@ -52,30 +52,19 @@ namespace AudioLink.Editor
                             int blendshapeID = blendshapeIDs.GetArrayElementAtIndex(indx).intValue;
 
                             Rect dropdownRect = rect;
-                            Rect floatRect = rect;
-                            Rect sliderRect = rect;
 
                             dropdownRect.width = 80;
-
-                            floatRect.width = 40;
-                            floatRect.height -= 6;
-                            floatRect.x += 85;
-
-                            sliderRect.width = sliderRect.width - (85 + 45 + 45);
-                            sliderRect.x += 85 + 45;
 
                             blendshapeIDs.GetArrayElementAtIndex(indx).intValue = EditorGUI.Popup(dropdownRect, blendshapeIDs.GetArrayElementAtIndex(indx).intValue, blendshapeNames.ToArray());
 
                             float fromMinimum = blendshapeFromWeights.GetArrayElementAtIndex(indx).floatValue;
                             float toMaximum = blendshapeToWeights.GetArrayElementAtIndex(indx).floatValue;
 
-                            fromMinimum = EditorGUI.FloatField(floatRect, fromMinimum);
+                            rect.x += 85;
+                            rect.width -= 85;
+                            rect.height -= 6;
 
-                            EditorGUI.MinMaxSlider(sliderRect, ref fromMinimum, ref toMaximum, 0f, 1f);
-
-                            floatRect.x += sliderRect.width + 50;
-
-                            toMaximum = EditorGUI.FloatField(floatRect, toMaximum);
+                            RangeSliderWithFields(rect, ref fromMinimum, ref toMaximum);
 
                             blendshapeFromWeights.GetArrayElementAtIndex(indx).floatValue = fromMinimum;
                             blendshapeToWeights.GetArrayElementAtIndex(indx).floatValue = toMaximum;
