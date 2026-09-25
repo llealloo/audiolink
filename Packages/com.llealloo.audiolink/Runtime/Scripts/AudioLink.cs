@@ -158,7 +158,9 @@ namespace AudioLink
         private int _rightChannelTestDelay = 300;
         private int _rightChannelTestCounter;
         private bool _ignoreRightChannel = false;
+#if UNITY_EDITOR
         private CustomRenderTextureUpdateMode initialUpdateMode = CustomRenderTextureUpdateMode.Realtime;
+#endif
 
 #if UDONSHARP || CVR_CCK_EXISTS
         [HideInInspector, SerializeField] private Transform audioTarget = null;
@@ -247,6 +249,13 @@ namespace AudioLink
         private static extern int FetchAnalyzerRight(int ID, float[] timeDomainDataRight, int size);
 
         private int WebALID = 0;
+
+        private void LinkAnalyzerToAudioSource()
+        {
+            if (audioSource == null || audioSource.clip == null) return;
+
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+        }
 
 #endif
 
@@ -357,7 +366,7 @@ namespace AudioLink
 
             WebALID = UnityEngine.Random.Range(0, 99999);
 
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 
             Application.focusChanged += (focus) =>
             {
@@ -365,7 +374,7 @@ namespace AudioLink
                 {
                     if (focus)
                     {
-                        LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+                        LinkAnalyzerToAudioSource();
                     }
                     else
                         UnlinkAnalyzer(WebALID);
@@ -384,7 +393,9 @@ namespace AudioLink
 
             gameObject.SetActive(true); // client disables extra cameras, so set it true
             transform.position = new Vector3(0f, 10000000f, 0f); // keep this in a far away place
+#if UNITY_EDITOR
             initialUpdateMode = audioRenderTexture.updateMode;
+#endif
 
             // Disable camera on start if user didn't ask for it
             if (!audioDataToggle)
@@ -397,11 +408,16 @@ namespace AudioLink
 #endif
         }
 
+#if UNITY_EDITOR
         void OnDestroy()
         {
             // makes sure that playmode doesn't permanently modify the update mode
-            audioRenderTexture.updateMode = initialUpdateMode;
+            if (audioRenderTexture != null)
+            {
+                audioRenderTexture.updateMode = initialUpdateMode;
+            }
         }
+#endif
 
         // TODO(3): try to port this to standalone
         // Only happens once per second.
@@ -665,6 +681,10 @@ namespace AudioLink
             if (!autoDetectAudioTarget || !_audioLinkEnabled) return;
             Invoke(nameof(AutoCacheAudioTarget), audioTarget != null ? 10 : 1); // check faster until one is found
             if (!enabled) return;
+
+            if (GetGlobalTexture(_AudioTexture) == null)
+                SetAudioLinkGlobalTexture();
+
             if (audioListenerTarget == null || !audioListenerTarget.isActiveAndEnabled)
                 CacheAudioTarget();
         }
@@ -682,12 +702,6 @@ namespace AudioLink
                 if (!l.enabled) continue;
                 audioListenerTarget = l;
                 audioTarget = l.transform;
-#if UNITY_EDITOR
-                // ensure texture is actually assigned. Mitigates certain edge-cases with playmode.
-                // Why? No clue, but it keeps AudioLink from appearing broken when it's just the global variable that is unassigned for some reason.
-                if (GetGlobalTexture(_AudioTexture) == null)
-                    SetAudioLinkGlobalTexture();
-#endif
                 break;
             }
 
@@ -895,7 +909,7 @@ namespace AudioLink
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyzerSpace();
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 #endif
         }
 
@@ -983,7 +997,8 @@ namespace AudioLink
                     if (hasDualMono)
                     {
                         optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
-                    } else audioSource.GetOutputData(_audioFramesR, 1);
+                    }
+                    else audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
             }
@@ -994,7 +1009,8 @@ namespace AudioLink
                 if (hasDualMono)                                                    // check if dual mono is present
                 {
                     optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
-                } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
+                }
+                else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
 

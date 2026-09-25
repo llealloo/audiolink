@@ -222,7 +222,7 @@ namespace AudioLink
         #region API
         /// <summary>
         /// Check if AudioLink data is available to Udon. If this is returning false,
-        /// you may need to enable readbacks on the AudioLink prefab. 
+        /// you may need to enable readbacks on the AudioLink prefab.
         /// </summary>
         /// <remarks>Corresponds to AudioLinkIsAvailable() in AudioLink.cginc.</remarks>
         public bool AudioDataIsAvailable()
@@ -246,7 +246,7 @@ namespace AudioLink
         /// Read a pixel from the AudioLink texture.
         /// </summary>
         /// <param name="position">The coordinates of the pixel to read.</param>
-        /// <returns>The value of the pixel at the given coordinates.</returns> 
+        /// <returns>The value of the pixel at the given coordinates.</returns>
         /// <remarks>Corresponds to AudioLinkData() in AudioLink.cginc.</remarks>
         public Vector4 GetDataAtPixel(Vector2 position)
         {
@@ -278,7 +278,7 @@ namespace AudioLink
         /// </summary>
         /// <param name="x">The x coordinate of the pixel to read.</param>
         /// <param name="y">The y coordinate of the pixel to read.</param>
-        /// <returns>The value of the pixel at the given coordinates.</returns> 
+        /// <returns>The value of the pixel at the given coordinates.</returns>
         /// <remarks>Corresponds to AudioLinkLerp() in AudioLink.cginc.</remarks>
         public Vector4 LerpAudioDataAtPixel(float x, float y)
         {
@@ -301,7 +301,7 @@ namespace AudioLink
         /// </summary>
         /// <param name="x">The x coordinate of the pixel to read.</param>
         /// <param name="y">The y coordinate of the pixel to read.</param>
-        /// <returns>The value of the pixel at the given coordinates.</returns> 
+        /// <returns>The value of the pixel at the given coordinates.</returns>
         /// <remarks>Corresponds to AudioLinkDataMultiline() in AudioLink.cginc.</remarks>
         public Vector4 GetDataAtPixelMultiline(int x, int y)
         {
@@ -374,7 +374,7 @@ namespace AudioLink
         /// </summary>
         /// <param name="hertz">The frequency to sample in range [13.75; 14080].</param>
         /// <returns>The amplitude of the given frequency.</returns>
-        /// <remarks>Corresponds to AudioLinkGetAmplitudeAtFrequency() in AudioLink.cginc.</remarks> 
+        /// <remarks>Corresponds to AudioLinkGetAmplitudeAtFrequency() in AudioLink.cginc.</remarks>
         public Vector4 GetAmplitudeAtFrequency(float hertz)
         {
             float note = AudioLinkExpBins * Mathf.Log(hertz / AudioLinkBottomFrequency, 2);
@@ -448,7 +448,7 @@ namespace AudioLink
         }
 
         /// <summary>
-        /// Get a chronotensity value in the interval [0; 1], modulated by the speed input, 
+        /// Get a chronotensity value in the interval [0; 1], modulated by the speed input,
         /// with the given chronotensity index [0; 7] and AudioLink band [0; 3].
         /// </summary>
         /// <param name="band">The AudioLink band to sample in range [0; 3].</param>
