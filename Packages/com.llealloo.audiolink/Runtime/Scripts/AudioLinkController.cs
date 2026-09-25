@@ -57,6 +57,8 @@ namespace AudioLink
         private RectTransform _threshold2Rect;
         private RectTransform _threshold3Rect;
 
+        private bool _initialized;
+
         #region PropertyIDs
 
         // ReSharper disable InconsistentNaming
@@ -101,41 +103,38 @@ namespace AudioLink
             return controllerTransform.GetComponent<ThemeColorController>();
         }
 
-        private void UpdateSyncMode(Transform inputTransform, ControllerSyncMode userSyncMode, ControllerSyncMode desiredSyncMode)
+        private void DisableWidgetSync(Transform inputTransform)
         {
-
-            #if UDONSHARP
-
-                inputTransform.GetComponent<UdonBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
-
-            #endif
-
+#if UDONSHARP
+            inputTransform.GetComponent<UdonBehaviour>().enabled = false;
+#endif
         }
 
         public void SetControllerSyncMode(ControllerSyncMode syncMode)
         {
+            DisableWidgetSync(gainSlider.transform);
+            DisableWidgetSync(fadeLengthSlider.transform);
+            DisableWidgetSync(fadeExpFalloffSlider.transform);
 
-            UpdateSyncMode(gainSlider.transform, syncMode, ControllerSyncMode.ExcludePowerAndGain);
-            UpdateSyncMode(fadeLengthSlider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(fadeExpFalloffSlider.transform, syncMode, ControllerSyncMode.None);
+            DisableWidgetSync(x0Slider.transform);
+            DisableWidgetSync(x1Slider.transform);
+            DisableWidgetSync(x2Slider.transform);
+            DisableWidgetSync(x3Slider.transform);
 
-            UpdateSyncMode(x0Slider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(x1Slider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(x2Slider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(x3Slider.transform, syncMode, ControllerSyncMode.None);
+            DisableWidgetSync(threshold0Slider.transform);
+            DisableWidgetSync(threshold1Slider.transform);
+            DisableWidgetSync(threshold2Slider.transform);
+            DisableWidgetSync(threshold3Slider.transform);
 
-            UpdateSyncMode(threshold0Slider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(threshold1Slider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(threshold2Slider.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(threshold3Slider.transform, syncMode, ControllerSyncMode.None);
-
-            UpdateSyncMode(autoGainToggle.transform, syncMode, ControllerSyncMode.None);
-            UpdateSyncMode(powerToggle.transform, syncMode, ControllerSyncMode.ExcludePower);
+            DisableWidgetSync(autoGainToggle.transform);
+            DisableWidgetSync(powerToggle.transform);
 
             if (themeColorController != null)
             {
                 themeColorController.networkSynced = (int)syncMode < (int)ControllerSyncMode.None;
             }
+
+            audioLink.RegisterController(this, syncMode);
         }
 
         void Start()
@@ -168,8 +167,6 @@ namespace AudioLink
                 themeColorController.InitializeAudioLinkThemeColors();
             }
 
-            SetControllerSyncMode(controllerSyncMode);
-
             GetSettings();
 
             _initGain = gainSlider.value;
@@ -189,7 +186,10 @@ namespace AudioLink
             _threshold2Rect = threshold2Slider.GetComponent<RectTransform>();
             _threshold3Rect = threshold3Slider.GetComponent<RectTransform>();
 
-            UpdateSettings();
+            _initialized = true;
+            UpdateUI();
+            audioLink.SetAudioLinkState(powerToggle.isOn);
+            SetControllerSyncMode(controllerSyncMode);
         }
 
         private void GetSettings()
@@ -209,25 +209,16 @@ namespace AudioLink
             threshold1Slider.SetValueWithoutNotify(audioLink.threshold1);
             threshold2Slider.SetValueWithoutNotify(audioLink.threshold2);
             threshold3Slider.SetValueWithoutNotify(audioLink.threshold3);
-
-            // Send events
-#if UDONSHARP
-            gainSlider.GetComponent<GlobalSlider>().SlideUpdate();
-            fadeLengthSlider.GetComponent<GlobalSlider>().SlideUpdate();
-            fadeExpFalloffSlider.GetComponent<GlobalSlider>().SlideUpdate();
-            autoGainToggle.GetComponent<GlobalToggle>().ToggleUpdate();
-            x0Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            x1Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            x2Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            x3Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            threshold0Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            threshold1Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            threshold2Slider.GetComponent<GlobalSlider>().SlideUpdate();
-            threshold3Slider.GetComponent<GlobalSlider>().SlideUpdate();
-#endif
         }
 
-        public void UpdateSettings()
+        public void RefreshFromAudioLink()
+        {
+            GetSettings();
+            powerToggle.SetIsOnWithoutNotify(audioLink.AudioLinkEnabled);
+            UpdateUI();
+        }
+
+        private void UpdateUI()
         {
             // Update Sliders
             Vector2 anchor0 = new Vector2(x0Slider.value, 1f);
@@ -256,6 +247,16 @@ namespace AudioLink
             audioLinkUI.SetFloat(_ExpFalloff, fadeExpFalloffSlider.value);
             audioLinkUI.SetInt(_AutoGain, autoGainToggle.isOn ? 1 : 0);
             audioLinkUI.SetInt(_Power, powerToggle.isOn ? 1 : 0);
+        }
+
+        public void UpdateSettings()
+        {
+            if (!_initialized)
+            {
+                return;
+            }
+
+            UpdateUI();
 
             if (audioLink == null)
             {
@@ -282,6 +283,8 @@ namespace AudioLink
 
             // Toggle
             audioLink.SetAudioLinkState(powerToggle.isOn);
+
+            audioLink.SyncSettings();
         }
 
         public void ResetSettings()
@@ -311,7 +314,8 @@ namespace AudioLink
         }
     }
 
-    public enum ControllerSyncMode {
+    public enum ControllerSyncMode
+    {
         All = 0,
         ExcludePower = 1,
         ExcludePowerAndGain = 2,
