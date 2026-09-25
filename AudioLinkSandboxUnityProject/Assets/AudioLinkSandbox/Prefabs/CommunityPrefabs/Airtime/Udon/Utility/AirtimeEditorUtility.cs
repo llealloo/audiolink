@@ -4,7 +4,7 @@ using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
 using UnityEditor;
-using UnityEditor.Experimental.SceneManagement;
+
 using UdonSharpEditor;
 using Airtime.Player.Movement;
 
@@ -16,7 +16,7 @@ namespace Airtime
         {
             GUIStyle warning = new GUIStyle(EditorStyles.wordWrappedLabel);
 
-            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            if (UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 warning.normal.textColor = Color.yellow;
                 GUILayout.Label("You are in prefab editing mode: please assign a PlayerController UdonBehaviour manually.", warning);
