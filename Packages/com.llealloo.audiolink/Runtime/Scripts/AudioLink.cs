@@ -383,7 +383,7 @@ namespace AudioLink
 
             UpdateSettings();
             UpdateThemeColors();
-            UpdateCustomStrings();
+            ApplyCustomStrings();
             if (audioSource == null)
             {
                 Debug.LogWarning("[AudioLink] No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
@@ -643,7 +643,7 @@ namespace AudioLink
 #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
-            UpdateCustomStrings();
+            ApplyCustomStrings();
 
             // Handle updating the CRT when in-editor
             // mitigation for stacked CRT updates per frame when multiple views are selected.
@@ -814,12 +814,17 @@ namespace AudioLink
                 Networking.SetOwner(_localPlayer, gameObject);
 #endif
 
-            UpdateGlobalString(_StringCustom1, customString1);
-            UpdateGlobalString(_StringCustom2, customString2);
+            ApplyCustomStrings();
 
 #if UDONSHARP
             RequestSerialization();
 #endif
+        }
+
+        private void ApplyCustomStrings()
+        {
+            UpdateGlobalString(_StringCustom1, customString1);
+            UpdateGlobalString(_StringCustom2, customString2);
         }
 
 #if UDONSHARP
@@ -827,8 +832,7 @@ namespace AudioLink
         {
             if (!Networking.IsOwner(gameObject))
             {
-                UpdateGlobalString(_StringCustom1, customString1);
-                UpdateGlobalString(_StringCustom2, customString2);
+                ApplyCustomStrings();
             }
         }
 #endif
