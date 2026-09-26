@@ -91,7 +91,6 @@ MonoBehaviour:
   audioSource: {fileID: 8800328340110197116}
   playOnLoad: 1
   streamFromDisk: 1
-  showVideoPreviewInComponent: 0
   enableGlobalVideoTexture: 0
   globalTextureName: _Udon_VideoTex
   textureTransformMode: 1

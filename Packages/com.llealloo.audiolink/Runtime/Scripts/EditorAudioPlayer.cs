@@ -93,7 +93,6 @@ namespace AudioLink
 
         // ---- global video texture ----
 
-        public bool showVideoPreviewInComponent = false;
         public bool enableGlobalVideoTexture = false;
         public string globalTextureName = "_Udon_VideoTex";
         public TextureTransformMode textureTransformMode = TextureTransformMode.Normalized;
