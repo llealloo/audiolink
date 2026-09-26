@@ -1086,11 +1086,7 @@ namespace AudioLink
             return _ffmpegFound;
         }
 
-        /// <summary>
-        /// Path to the ffmpeg executable found by LocateFFmpeg. Only meaningful once
-        /// IsFFmpegAvailable has returned true.
-        /// </summary>
-        public static string FFmpegPath => _ffmpegPath;
+        public static string FFmpegPath => IsFFmpegAvailable() ? _ffmpegPath : string.Empty;
 
         public static void FetchEditorPrefs()
         {
