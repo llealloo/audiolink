@@ -16,9 +16,7 @@ namespace AudioLink.Editor
 
         private const long LargeFileWarningBytes = 32L * 1024L * 1024L;
 
-        // Locating yt-dlp or ffmpeg walks every entry in PATH when they are missing, which is far
-        // too much work to repeat on an inspector that repaints every frame during playback. These
-        // are only ever refreshed from the Layout pass below.
+        // Locating a missing tool walks the whole PATH, so these are only refreshed from the Layout pass.
         private static bool _ytdlpAvailable;
         private static bool _ffmpegAvailable;
         private static double _toolsLastChecked = double.NegativeInfinity;
@@ -31,9 +29,7 @@ namespace AudioLink.Editor
         private bool _probedExists;
         private long _probedSize;
 
-        // The load state is the one thing here that changes on its own, off the back of a finished
-        // decode or conversion. IMGUI lays out and paints in two separate passes over this method
-        // and both must draw the same controls, so it is sampled once on Layout.
+        // Changes asynchronously, and IMGUI's Layout and Repaint passes must see the same value.
         private EditorAudioPlayer.LoadState _layoutLoadState;
 
         private EditorAudioPlayer _player;
@@ -62,7 +58,6 @@ namespace AudioLink.Editor
         private SerializedProperty _forceStandbyTexture;
         private SerializedProperty _standbyTexture;
 
-        /// <summary>Whether the resolver is set to route videos through ffmpeg, straight from EditorPrefs.</summary>
         private static bool UseFFmpegTranscoding =>
             EditorPrefs.GetBool(EditorAudioURLResolver.useFFmpegTranscodeKey, EditorAudioURLResolver.platformDefaultUseFFmpegTranscode);
 
@@ -94,8 +89,6 @@ namespace AudioLink.Editor
             _forceStandbyTexture = serializedObject.FindProperty(nameof(EditorAudioPlayer.forceStandbyTexture));
             _standbyTexture = serializedObject.FindProperty(nameof(EditorAudioPlayer.standbyTexture));
 
-            // The shipped prefab keeps the VideoPlayer on this same object; wire it up so a fresh
-            // component is usable without hunting for the reference.
             if (_videoPlayer.objectReferenceValue == null)
             {
                 VideoPlayer local = _player.GetComponent<VideoPlayer>();
@@ -116,8 +109,6 @@ namespace AudioLink.Editor
         {
             serializedObject.Update();
 
-            // PlaybackSource pins Stream to 0 and LocalFile to 1 so the values double as indices
-            // into the Source toolbar below.
             bool localMode = _playbackSource.intValue == (int)EditorAudioPlayer.PlaybackSource.LocalFile;
 
             if (Event.current.type == EventType.Layout)
@@ -367,7 +358,6 @@ namespace AudioLink.Editor
                     EditorGUILayout.PropertyField(_streamFromDisk, new GUIContent("Stream From Disk"));
                     if (EditorGUI.EndChangeCheck() && EditorApplication.isPlaying)
                     {
-                        // The mode is picked when the clip is decoded, so the change needs a fresh load.
                         serializedObject.ApplyModifiedProperties();
                         _player.Reload();
                     }
@@ -443,15 +433,11 @@ namespace AudioLink.Editor
 
         private void DrawVideoTextureSection(bool localMode)
         {
-            // Only the preview itself needs a VideoPlayer. The global texture settings stay usable
-            // without one, since the standby texture is still exported in Local File mode.
             if (!localMode)
             {
                 using (new EditorGUI.DisabledScope(_videoPlayer.objectReferenceValue == null))
                 {
-                    // Kept in EditorPrefs rather than on the component: it is a per-user viewing
-                    // preference, and writing the serialized field here would be undone by the
-                    // ApplyModifiedProperties at the end of this pass anyway.
+                    // Writing the serialized field here would be undone by ApplyModifiedProperties at the end of this pass.
                     bool wasShowingPreview = EditorPrefs.GetBool(ShowVideoPreviewKey, false);
                     bool showPreview = EditorGUILayout.Toggle(new GUIContent("  Show Video Preview", EditorGUIUtility.IconContent("d_ViewToolOrbit On").image), wasShowingPreview);
 
@@ -461,7 +447,6 @@ namespace AudioLink.Editor
                     VideoPlayer player = (VideoPlayer)_videoPlayer.objectReferenceValue;
                     if (wasShowingPreview && player != null && player.texture != null)
                     {
-                        // Draw video preview with the same aspect ratio as the video
                         Texture videoPlayerTexture = player.texture;
                         EditorGUILayout.LabelField($"Resolution: {videoPlayerTexture.width}x{videoPlayerTexture.height}");
                         float aspectRatio = (float)videoPlayerTexture.width / videoPlayerTexture.height;
@@ -615,7 +600,6 @@ namespace AudioLink.Editor
             return null;
         }
 
-        /// <summary>Sets the file path from inside the GUI pass, keeping the SerializedObject in step.</summary>
         private void ApplyPathFromGui(string path)
         {
             ApplyPath(_player, path);
@@ -649,13 +633,10 @@ namespace AudioLink.Editor
             if (!string.IsNullOrEmpty(full))
                 EditorPrefs.SetString(LastDirectoryKey, Path.GetDirectoryName(full));
 
-            // In play mode the component picks the change up on its next Update, but reloading here
-            // makes the swap feel immediate.
             if (EditorApplication.isPlaying)
                 player.Reload();
         }
 
-        /// <summary>Parses "ss", "mm:ss" or "hh:mm:ss" into seconds.</summary>
         private static bool TryParseTimestamp(string text, out double seconds)
         {
             seconds = 0.0;

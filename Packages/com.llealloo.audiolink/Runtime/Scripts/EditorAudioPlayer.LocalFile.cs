@@ -5,40 +5,32 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-// Format tables and the ffmpeg conversion step behind EditorAudioPlayer's Local File source, split
-// off from EditorAudioPlayer.cs only to keep that file to a readable size.
-
 namespace AudioLink
 {
     public partial class EditorAudioPlayer
     {
-        /// <summary>Extensions Unity's own decoders handle, so they can be loaded straight off disk.</summary>
         private static readonly string[] NativeExtensions =
         {
             "wav", "wave", "mp3", "ogg", "oga", "aif", "aiff", "aifc"
         };
 
-        /// <summary>Everything else worth offering in the file dialog. These go through ffmpeg first.</summary>
         private static readonly string[] TranscodeExtensions =
         {
             "flac", "m4a", "m4b", "aac", "alac", "opus", "wma", "ape", "wv", "mka",
             "mp4", "m4v", "mkv", "webm", "mov", "avi", "wmv", "flv", "ts", "mpg", "mpeg"
         };
 
-        /// <summary>True when Unity can decode this file itself, without help from ffmpeg.</summary>
         internal static bool IsNativelySupportedFile(string path)
         {
             return Array.IndexOf(NativeExtensions, ExtensionOf(path)) >= 0;
         }
 
-        /// <summary>True for anything this component will accept, natively decoded or converted.</summary>
         internal static bool IsKnownAudioFile(string path)
         {
             string extension = ExtensionOf(path);
             return Array.IndexOf(NativeExtensions, extension) >= 0 || Array.IndexOf(TranscodeExtensions, extension) >= 0;
         }
 
-        /// <summary>Filter list for EditorUtility.OpenFilePanelWithFilters.</summary>
         internal static string[] FilePanelFilters()
         {
             List<string> all = new List<string>(NativeExtensions);
@@ -72,17 +64,14 @@ namespace AudioLink
             }
         }
 
-        /// <summary>Lower cased extension without the leading dot, matching the tables above.</summary>
         private static string ExtensionOf(string path)
         {
             return Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
         }
 
-        /// <summary>Where the ffmpeg-converted copy of an unsupported file is cached for this session.</summary>
         private static string TranscodeCachePath(string sourcePath)
         {
-            // Callers have already established the file exists. Size and timestamp are part of the
-            // key so that editing the source invalidates the cached conversion.
+            // Size and timestamp are part of the key so that editing the source invalidates the cached conversion.
             FileInfo info = new FileInfo(sourcePath);
             string key = $"{sourcePath}|{info.Length}|{info.LastWriteTimeUtc.Ticks}";
 
@@ -90,10 +79,6 @@ namespace AudioLink
             return Path.Combine(directory, Hash128.Compute(key) + ".wav");
         }
 
-        /// <summary>
-        /// Converts a format Unity cannot decode into a plain 16-bit stereo WAV, reusing the ffmpeg
-        /// installation that EditorAudioURLResolver already knows how to locate.
-        /// </summary>
         private static TranscodeJob StartTranscode(string sourcePath)
         {
             TranscodeJob job = new TranscodeJob(TranscodeCachePath(sourcePath));
@@ -140,7 +125,6 @@ namespace AudioLink
             return job;
         }
 
-        /// <summary>A running (or finished) ffmpeg conversion. Poll it from the main thread.</summary>
         private class TranscodeJob
         {
             private readonly StringBuilder _standardError = new StringBuilder();
@@ -261,7 +245,6 @@ namespace AudioLink
                 DiscardScratchFile();
             }
 
-            /// <summary>Moves a completed conversion to its cache name. Only then does it count as cached.</summary>
             private bool PublishScratchFile()
             {
                 try
