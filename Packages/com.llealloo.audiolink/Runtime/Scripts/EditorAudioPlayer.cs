@@ -123,6 +123,7 @@ namespace AudioLink
         private AudioClip _clip;
         private bool _ownsClip;
         private UnityWebRequest _streamingRequest;
+        private UnityWebRequest _loadingRequest;
         private TranscodeJob _transcodeJob;
 
         private LoadState _loadState = LoadState.Empty;
@@ -470,7 +471,10 @@ namespace AudioLink
             _loadState = LoadState.Loading;
             _statusMessage = $"Decoding {Path.GetFileName(path)}...";
 
+            AbortClipLoad();
+
             int generation = ++_loadGeneration;
+            _loadingRequest = request;
             request.SendWebRequest().completed += _ => OnClipLoadCompleted(request, path, generation);
         }
 
@@ -479,10 +483,9 @@ namespace AudioLink
             // The component may have been disabled, switched to Stream, or pointed at another file
             // while this was in flight.
             if (generation != _loadGeneration)
-            {
-                request.Dispose();
                 return;
-            }
+
+            _loadingRequest = null;
 
             AudioClip loaded = null;
             string error = null;
@@ -606,11 +609,25 @@ namespace AudioLink
         {
             _loadGeneration++;
 
+            AbortClipLoad();
+
             if (_transcodeJob != null)
             {
                 _transcodeJob.Cancel();
                 _transcodeJob = null;
             }
+        }
+
+        private void AbortClipLoad()
+        {
+            if (_loadingRequest == null)
+                return;
+
+            UnityWebRequest request = _loadingRequest;
+            _loadingRequest = null;
+
+            request.Abort();
+            request.Dispose();
         }
 
         private void Fail(string message)
