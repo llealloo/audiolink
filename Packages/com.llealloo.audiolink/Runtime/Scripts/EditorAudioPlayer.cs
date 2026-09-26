@@ -297,7 +297,10 @@ namespace AudioLink
                 _loadedPath = null;
 
                 RestoreVideoPlayer();
-                RequestPlay();
+                if (videoPlayer != null && !string.IsNullOrEmpty(videoPlayer.url))
+                    videoPlayer.Play();
+                else
+                    RequestPlay();
             }
             else
             {
