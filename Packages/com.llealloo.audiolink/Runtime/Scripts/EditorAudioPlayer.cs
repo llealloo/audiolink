@@ -17,10 +17,6 @@ using UnityEngine.Video;
 //
 //   Stream     - resolved with yt-dlp and played through a VideoPlayer.
 //   Local File - decoded from a file on this machine and played through the AudioSource directly.
-//
-// The local file path exists because the extractors upstream of yt-dlp break regularly; a file you
-// already have on disk always works. Nothing in this file ships to a player build or to Udon.
-
 // TODO(float3): add this to the AudioLinkMiniPlayer
 
 namespace AudioLink
@@ -109,7 +105,6 @@ namespace AudioLink
         private bool _globalTextureActive = false;
         private Vector4 _lastGlobalST = Vector4.zero;
 
-        /// <summary>Last texture transform pushed to the global video texture. Shown as a debug readout in the inspector.</summary>
         internal Vector4 lastGlobalST => _lastGlobalST;
 
         // ---- stream state ----
@@ -289,7 +284,6 @@ namespace AudioLink
 
             if (isStreaming)
             {
-                // Hand the AudioSource back and let the VideoPlayer drive it again.
                 CancelPendingWork();
                 ReleaseClip();
                 _loadState = LoadState.Empty;
@@ -571,7 +565,7 @@ namespace AudioLink
         private void ReleaseClip()
         {
             // Only hand the AudioSource back if it is actually playing our clip; on a first load
-            // there is nothing of ours on it yet and stopping it would be rude.
+            // there is nothing of ours on it yet.
             if (_clip != null && audioSource != null && audioSource.clip == _clip)
             {
                 audioSource.Stop();
