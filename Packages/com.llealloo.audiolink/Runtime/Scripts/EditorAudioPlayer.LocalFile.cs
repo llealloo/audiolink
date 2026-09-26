@@ -231,14 +231,7 @@ namespace AudioLink
                         // Already gone, or we never had the rights to signal it.
                     }
 
-                    try
-                    {
-                        _process.Dispose();
-                    }
-                    catch (Exception)
-                    {
-                    }
-
+                    _process.Dispose();
                     _process = null;
                 }
 
