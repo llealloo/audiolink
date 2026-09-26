@@ -112,7 +112,7 @@ namespace AudioLink
         private Vector4 _lastGlobalST = Vector4.zero;
 
         /// <summary>Last texture transform pushed to the global video texture. Shown as a debug readout in the inspector.</summary>
-        public Vector4 lastGlobalST => _lastGlobalST;
+        internal Vector4 lastGlobalST => _lastGlobalST;
 
         // ---- stream state ----
 

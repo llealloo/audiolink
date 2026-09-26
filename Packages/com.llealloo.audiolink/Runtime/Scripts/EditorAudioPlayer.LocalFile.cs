@@ -26,20 +26,20 @@ namespace AudioLink
         };
 
         /// <summary>True when Unity can decode this file itself, without help from ffmpeg.</summary>
-        public static bool IsNativelySupportedFile(string path)
+        internal static bool IsNativelySupportedFile(string path)
         {
             return Array.IndexOf(NativeExtensions, ExtensionOf(path)) >= 0;
         }
 
         /// <summary>True for anything this component will accept, natively decoded or converted.</summary>
-        public static bool IsKnownAudioFile(string path)
+        internal static bool IsKnownAudioFile(string path)
         {
             string extension = ExtensionOf(path);
             return Array.IndexOf(NativeExtensions, extension) >= 0 || Array.IndexOf(TranscodeExtensions, extension) >= 0;
         }
 
         /// <summary>Filter list for EditorUtility.OpenFilePanelWithFilters.</summary>
-        public static string[] FilePanelFilters()
+        internal static string[] FilePanelFilters()
         {
             List<string> all = new List<string>(NativeExtensions);
             all.AddRange(TranscodeExtensions);
