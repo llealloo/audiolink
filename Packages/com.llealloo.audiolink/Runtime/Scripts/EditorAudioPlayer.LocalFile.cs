@@ -92,13 +92,13 @@ namespace AudioLink
 
         /// <summary>
         /// Converts a format Unity cannot decode into a plain 16-bit stereo WAV, reusing the ffmpeg
-        /// installation that ytdlpURLResolver already knows how to locate.
+        /// installation that EditorAudioURLResolver already knows how to locate.
         /// </summary>
         private static TranscodeJob StartTranscode(string sourcePath)
         {
             TranscodeJob job = new TranscodeJob(TranscodeCachePath(sourcePath));
 
-            if (!ytdlpURLResolver.IsFFmpegAvailable())
+            if (!EditorAudioURLResolver.IsFFmpegAvailable())
             {
                 job.CompleteWithError("ffmpeg was not found.");
                 return job;
@@ -136,7 +136,7 @@ namespace AudioLink
                 $"\"{job.scratchPath}\""
             };
 
-            job.Begin(ytdlpURLResolver.ResolvingProcess(ytdlpURLResolver.FFmpegPath, arguments));
+            job.Begin(EditorAudioURLResolver.ResolvingProcess(EditorAudioURLResolver.FFmpegPath, arguments));
             return job;
         }
 

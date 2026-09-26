@@ -341,10 +341,10 @@ namespace AudioLink
 
         public void RequestPlay()
         {
-            ytdlpURLResolver.FetchEditorPrefs();
+            EditorAudioURLResolver.FetchEditorPrefs();
 
-            ytdlpURLResolver.TryResolve((bool dumpJson) => {
-                ytdlpURLResolver.Resolve(ytdlpURL, (ResolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution, dumpJson);
+            EditorAudioURLResolver.TryResolve((bool dumpJson) => {
+                EditorAudioURLResolver.Resolve(ytdlpURL, (ResolvingRequest newRequest) => _currentRequest = newRequest, (int)resolution, dumpJson);
             });
         }
 
@@ -434,7 +434,7 @@ namespace AudioLink
         {
             _triedTranscodeFallback = true;
 
-            if (!ytdlpURLResolver.IsFFmpegAvailable())
+            if (!EditorAudioURLResolver.IsFFmpegAvailable())
             {
                 Fail($"'{Path.GetExtension(_loadedPath)}' is not a format Unity can decode, and ffmpeg was not found to convert it.\n" +
                      "Install ffmpeg and put it on your PATH, or set a custom location via Tools/AudioLink/Select Custom FFmpeg Location.");
@@ -517,7 +517,7 @@ namespace AudioLink
 
                 // A wrong container/codec guess (Opus in .ogg, ADPCM in .wav, ...) can still be
                 // rescued by handing the file to ffmpeg.
-                if (!_triedTranscodeFallback && ytdlpURLResolver.IsFFmpegAvailable())
+                if (!_triedTranscodeFallback && EditorAudioURLResolver.IsFFmpegAvailable())
                 {
                     Debug.LogWarning($"[AudioLink:LocalFile] Unity could not decode '{path}' ({error}). Retrying through ffmpeg.");
                     BeginTranscode();
@@ -970,7 +970,7 @@ namespace AudioLink
         }
     }
 
-    public static class ytdlpURLResolver
+    public static class EditorAudioURLResolver
     {
         private static int _mainThreadId;
 

@@ -64,7 +64,7 @@ namespace AudioLink.Editor
 
         /// <summary>Whether the resolver is set to route videos through ffmpeg, straight from EditorPrefs.</summary>
         private static bool UseFFmpegTranscoding =>
-            EditorPrefs.GetBool(ytdlpURLResolver.useFFmpegTranscodeKey, ytdlpURLResolver.platformDefaultUseFFmpegTranscode);
+            EditorPrefs.GetBool(EditorAudioURLResolver.useFFmpegTranscodeKey, EditorAudioURLResolver.platformDefaultUseFFmpegTranscode);
 
         private void OnEnable()
         {
@@ -385,8 +385,8 @@ namespace AudioLink.Editor
 
                     if (useFFmpeg != wasUsingFFmpeg)
                     {
-                        EditorPrefs.SetBool(ytdlpURLResolver.useFFmpegTranscodeKey, useFFmpeg);
-                        ytdlpURLResolver.useFFmpeg = useFFmpeg;
+                        EditorPrefs.SetBool(EditorAudioURLResolver.useFFmpegTranscodeKey, useFFmpeg);
+                        EditorAudioURLResolver.useFFmpeg = useFFmpeg;
                     }
                 }
 
@@ -714,8 +714,8 @@ namespace AudioLink.Editor
             if (now - _toolsLastChecked <= 3.0)
                 return;
 
-            _ytdlpAvailable = ytdlpURLResolver.IsytdlpAvailable();
-            _ffmpegAvailable = ytdlpURLResolver.IsFFmpegAvailable();
+            _ytdlpAvailable = EditorAudioURLResolver.IsytdlpAvailable();
+            _ffmpegAvailable = EditorAudioURLResolver.IsFFmpegAvailable();
             _toolsLastChecked = now;
         }
 
