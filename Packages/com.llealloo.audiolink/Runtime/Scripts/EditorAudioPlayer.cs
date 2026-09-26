@@ -25,7 +25,6 @@ using UnityEngine.Video;
 
 namespace AudioLink
 {
-    [AddComponentMenu("AudioLink/AudioLink Editor Audio Player")]
     public partial class EditorAudioPlayer : MonoBehaviour
     {
         public enum PlaybackSource
