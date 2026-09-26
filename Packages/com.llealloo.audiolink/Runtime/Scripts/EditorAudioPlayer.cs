@@ -834,7 +834,10 @@ namespace AudioLink
                 return;
 
             if (isStreaming ? videoPlayer == null : audioSource == null)
+            {
+                audioLink.autoSetMediaState = true;
                 return;
+            }
 
             // In local file mode with nothing picked there is nothing to report, so leave AudioLink's
             // own media state handling alone rather than pinning it to "None".
