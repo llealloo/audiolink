@@ -145,20 +145,16 @@ namespace AudioLink
 
         public bool isStreaming => playbackSource == PlaybackSource.Stream;
 
-        /// <summary>The clip decoded from audioFilePath, or null in stream mode / when nothing is loaded.</summary>
         public AudioClip clip => _clip;
 
         public LoadState loadState => _loadState;
 
-        /// <summary>Human readable detail for the current local file load, shown in the inspector.</summary>
         public string statusMessage => _statusMessage;
 
-        /// <summary>True while yt-dlp is resolving, or while a local file is being converted or decoded.</summary>
         public bool isBusy => isStreaming
             ? _currentRequest != null && !_currentRequest.isDone
             : _loadState == LoadState.Loading || _loadState == LoadState.Transcoding;
 
-        /// <summary>True once there is something to play and transport controls make sense.</summary>
         public bool isReady => isStreaming
             ? videoPlayer != null && videoPlayer.length > 0
             : _loadState == LoadState.Ready && _clip != null && audioSource != null;
