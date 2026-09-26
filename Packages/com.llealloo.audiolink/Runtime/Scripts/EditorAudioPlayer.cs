@@ -999,10 +999,9 @@ namespace AudioLink
         private const string userDefinedFFmpegPathKey = "MPEG-PATH-CUSTOM";
         private const string userDefinedFFmpegPathMenu = "Tools/AudioLink/Select Custom FFmpeg Location";
 
-        public const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
+        internal const string useFFmpegTranscodeKey = "USE-FFMPEG-TRANSCODE";
 
-        /// <summary>Whether FFmpeg transcoding is on by default here. Linux has no other working path.</summary>
-        public static bool platformDefaultUseFFmpegTranscode =>
+        internal static bool platformDefaultUseFFmpegTranscode =>
 #if UNITY_EDITOR_LINUX
             true;
 #else
