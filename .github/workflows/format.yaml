@@ -6,7 +6,7 @@ on:
     paths:
       - "**.cs"
       - ".editorconfig"
-      - "format.sh"
+      - "Tools/format.sh"
       - ".github/workflows/format.yaml"
   push:
     branches:
@@ -14,7 +14,7 @@ on:
     paths:
       - "**.cs"
       - ".editorconfig"
-      - "format.sh"
+      - "Tools/format.sh"
       - ".github/workflows/format.yaml"
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Run formatter
-        run: sh format.sh
+        run: sh Tools/format.sh
 
       - name: Check for changes
         id: diff
@@ -46,7 +46,7 @@ jobs:
           {
             echo "### Formatting issues found"
             echo
-            echo "Run \`./format.sh\` locally and commit the result, or download the patch attached to this run:"
+            echo "Run \`./Tools/format.sh\` locally and commit the result, or download the patch attached to this run:"
             echo
             echo '```console'
             echo "gh run download ${{ github.run_id }} -n format-patch && git apply format.diff"

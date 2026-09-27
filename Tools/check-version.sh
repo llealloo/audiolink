@@ -4,7 +4,7 @@
 
 set -eu
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 PKG="Packages/com.llealloo.audiolink"
 

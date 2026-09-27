@@ -2,14 +2,14 @@
 #
 # Applies the .editorconfig whitespace rules to the package.
 #
-#   ./format.sh           rewrite in place
-#   ./format.sh --check   report only, non-zero exit
+#   ./Tools/format.sh           rewrite in place
+#   ./Tools/format.sh --check   report only, non-zero exit
 
 set -eu
 
 CHECK=0
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 FORMAT_PATHS="Packages/com.llealloo.audiolink"
 

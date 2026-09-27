@@ -9,7 +9,7 @@ on:
       - "CHANGELOG.md"
       - "**/AudioLink.cs"
       - "**/AudioLinkAssetManager.cs"
-      - "check-version.sh"
+      - "Tools/check-version.sh"
       - ".github/workflows/version.yaml"
   push:
     branches:
@@ -20,7 +20,7 @@ on:
       - "CHANGELOG.md"
       - "**/AudioLink.cs"
       - "**/AudioLinkAssetManager.cs"
-      - "check-version.sh"
+      - "Tools/check-version.sh"
       - ".github/workflows/version.yaml"
 
 jobs:
@@ -32,4 +32,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check version consistency
-        run: sh check-version.sh
+        run: sh Tools/check-version.sh
