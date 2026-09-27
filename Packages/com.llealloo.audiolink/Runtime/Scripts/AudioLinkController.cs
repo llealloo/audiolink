@@ -129,11 +129,6 @@ namespace AudioLink
             DisableWidgetSync(autoGainToggle.transform);
             DisableWidgetSync(powerToggle.transform);
 
-            if (themeColorController != null)
-            {
-                themeColorController.networkSynced = (int)syncMode < (int)ControllerSyncMode.None;
-            }
-
             audioLink.RegisterController(this, syncMode);
         }
 
@@ -216,6 +211,11 @@ namespace AudioLink
             GetSettings();
             powerToggle.SetIsOnWithoutNotify(audioLink.AudioLinkEnabled);
             UpdateUI();
+
+            if (themeColorController != null)
+            {
+                themeColorController.RefreshFromAudioLink();
+            }
         }
 
         private void UpdateUI()

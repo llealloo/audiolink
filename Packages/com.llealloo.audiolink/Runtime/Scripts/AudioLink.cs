@@ -156,6 +156,11 @@ namespace AudioLink
         [UdonSynced] private float _syncedThreshold2;
         [UdonSynced] private float _syncedThreshold3;
         [UdonSynced] private bool _syncedPower;
+        [UdonSynced] private int _syncedThemeColorMode;
+        [UdonSynced] private Color _syncedThemeColor0;
+        [UdonSynced] private Color _syncedThemeColor1;
+        [UdonSynced] private Color _syncedThemeColor2;
+        [UdonSynced] private Color _syncedThemeColor3;
         private bool _receivedSettings;
 #endif
         private double _elapsedTimeMSW = 0;
@@ -928,6 +933,11 @@ namespace AudioLink
             _syncedThreshold2 = threshold2;
             _syncedThreshold3 = threshold3;
             _syncedPower = _audioLinkEnabled;
+            _syncedThemeColorMode = themeColorMode;
+            _syncedThemeColor0 = customThemeColor0;
+            _syncedThemeColor1 = customThemeColor1;
+            _syncedThemeColor2 = customThemeColor2;
+            _syncedThemeColor3 = customThemeColor3;
         }
 
         private void ApplySyncedSettings()
@@ -953,6 +963,13 @@ namespace AudioLink
             threshold2 = _syncedThreshold2;
             threshold3 = _syncedThreshold3;
             UpdateSettings();
+
+            themeColorMode = _syncedThemeColorMode;
+            customThemeColor0 = _syncedThemeColor0;
+            customThemeColor1 = _syncedThemeColor1;
+            customThemeColor2 = _syncedThemeColor2;
+            customThemeColor3 = _syncedThemeColor3;
+            UpdateThemeColors();
 
             if (IsSynced(ControllerSyncMode.ExcludePower))
             {
