@@ -103,7 +103,7 @@ namespace AudioLink
 			}
 			else
 			{
-				UseTexture.Resize( Columns, Rows );
+				UseTexture.Reinitialize( Columns, Rows );
 			}
 
 			int lx = 0, ly = 0;
