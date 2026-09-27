@@ -229,12 +229,12 @@ namespace AudioLink
         {
             if (audioLink == null) return;
 
-            Color[] customThemeColors = GetCustomThemeColors();
-
-            customThemeColors[0] = audioLink.customThemeColor0;
-            customThemeColors[1] = audioLink.customThemeColor1;
-            customThemeColors[2] = audioLink.customThemeColor2;
-            customThemeColors[3] = audioLink.customThemeColor3;
+            SetCustomThemeColors(new[] {
+                audioLink.customThemeColor0,
+                audioLink.customThemeColor1,
+                audioLink.customThemeColor2,
+                audioLink.customThemeColor3
+            });
 
             //shallow copy of the array
             _initCustomThemeColors = GetCustomThemeColors();
