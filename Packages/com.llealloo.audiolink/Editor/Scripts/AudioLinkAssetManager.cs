@@ -71,7 +71,7 @@ namespace AudioLink.Editor
         {
             GameObject audiolink = null;
 
-#if UDONSHARP // VRC World        
+#if UDONSHARP // VRC World
             var alInstance = GetComponentsInScene<AudioLink>().FirstOrDefault();
             audiolink = alInstance != null ? alInstance.gameObject : AddPrefabInstance(_audioLinkPath);
 
@@ -93,7 +93,11 @@ namespace AudioLink.Editor
 
             if (audiolink != null)
             {
-                AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
+                AudioLink component = audiolink.GetComponent<AudioLink>();
+                if (component != null)
+                {
+                    AudioLinkEditor.LinkAll(component);
+                }
                 EditorGUIUtility.PingObject(audiolink);
             }
         }

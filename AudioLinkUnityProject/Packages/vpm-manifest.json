@@ -1,24 +1,26 @@
 {
   "dependencies": {
-    "com.vrchat.core.vpm-resolver": {
-      "version": "0.1.17"
-    },
     "com.vrchat.worlds": {
-      "version": "3.5.0"
+      "version": "3.10.4"
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "0.1.29"
     }
   },
   "locked": {
-    "com.vrchat.core.vpm-resolver": {
-      "version": "0.1.27"
-    },
     "com.vrchat.worlds": {
-      "version": "3.5.0",
+      "version": "3.10.4",
       "dependencies": {
-        "com.vrchat.base": "3.5.0"
+        "com.vrchat.base": "3.10.4"
       }
     },
     "com.vrchat.base": {
-      "version": "3.5.0"
+      "version": "3.10.4",
+      "dependencies": {}
+    },
+    "com.vrchat.core.vpm-resolver": {
+      "version": "0.1.29",
+      "dependencies": {}
     }
   }
 }

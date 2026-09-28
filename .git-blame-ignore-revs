@@ -18,3 +18,7 @@
 965543e3c1c218c578d6f60075c4aede22891df6
 # move sandbox stuff into new project
 3914a530a592024de2a970f6993c9fd843c7290d
+# Apply dotnet format whitespace to the package
+283a63c048c462d4ab2534338701bc5cb8c309c9
+# Strip whitespace dotnet format leaves behind
+cc2eac4dd4d189243b3106f7dbf1150d8342ae46

@@ -57,7 +57,7 @@ namespace AudioLink.Editor
             while (serializedProperties.NextVisible(true))
             {
                 if (serializedProperties.propertyPath.Contains(fieldFilter)) continue;
-                
+
                 switch (serializedProperties.propertyType)
                 {
                     case SerializedPropertyType.ObjectReference:

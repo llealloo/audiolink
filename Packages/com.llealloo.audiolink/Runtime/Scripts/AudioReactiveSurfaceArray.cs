@@ -9,8 +9,8 @@ namespace AudioLink
     using static Shader;
 #endif
 
-public class AudioReactiveSurfaceArray : AudioReactive
- {
+    public class AudioReactiveSurfaceArray : AudioReactive
+    {
         [Header("AudioLink Settings")]
         public AudioLinkBand band;
         [HideInInspector] public bool smooth;
@@ -79,7 +79,7 @@ public class AudioReactiveSurfaceArray : AudioReactive
 
             MaterialPropertyBlock block = new MaterialPropertyBlock();
             int bandInt = (int)band;
-            
+
             block.SetFloat(_Band, (float)bandInt);
             block.SetFloat(_HueShift, hueShift);
             block.SetFloat(_Emission, intensity);

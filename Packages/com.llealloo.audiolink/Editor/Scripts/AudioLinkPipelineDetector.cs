@@ -186,7 +186,9 @@ namespace AudioLink.Editor
                     if (srpBased) // Unity SRP based, URP, HDRP?
                     {
                         line = SetLightModeTag(line, "ForwardBase", "UniversalForward");
-                    } else { // Unity BiRP
+                    }
+                    else
+                    { // Unity BiRP
                         line = SetLightModeTag(line, "UniversalForward", "ForwardBase");
                     }
 
@@ -204,7 +206,9 @@ namespace AudioLink.Editor
                     {
                         shaderSource[i - 1] = "\t\tPass { Tags { \"LightMode\"=\"DepthOnly\"} }";
                         shouldWrite = true;
-                    } else if (hasDepthCurrently && !srpBased) {
+                    }
+                    else if (hasDepthCurrently && !srpBased)
+                    {
                         shaderSource[i] = "\t\t";
                         shouldWrite = true;
                     }
