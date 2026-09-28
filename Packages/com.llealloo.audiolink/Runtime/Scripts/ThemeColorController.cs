@@ -15,7 +15,7 @@ namespace AudioLink
     public class ThemeColorController : MonoBehaviour
 #endif
     {
-        [UdonSynced] private int _themeColorMode;
+        private int _themeColorMode;
 
         [Obsolete("This array will return a copy of the data, causing it to not write any data when trying to write directly to a index. Use " + nameof(GetCustomThemeColors) + " and " + nameof(SetCustomThemeColors) + " instead.", false)]
         public Color[] customThemeColors
@@ -30,13 +30,9 @@ namespace AudioLink
             }
         }
 
-        [UdonSynced]
         public Color themeColor1 = Color.yellow;
-        [UdonSynced]
         public Color themeColor2 = Color.blue;
-        [UdonSynced]
         public Color themeColor3 = Color.red;
-        [UdonSynced]
         public Color themeColor4 = Color.green;
 
         public AudioLink audioLink; // Initialized by AudioLinkController.
@@ -47,10 +43,6 @@ namespace AudioLink
         private int _initThemeColorMode;
 
         private bool _processGUIEvents = true;
-
-#if UDONSHARP
-        private VRCPlayerApi localPlayer;
-#endif
 
         // A view-controller for customThemeColors
         public Slider sliderHue;
@@ -63,21 +55,8 @@ namespace AudioLink
 
         private void Start()
         {
-#if UDONSHARP
-            localPlayer = Networking.LocalPlayer;
-#endif
-
             _initCustomThemeColors = GetCustomThemeColors();
         }
-
-#if UDONSHARP
-        public override void OnDeserialization()
-        {
-            if (!networkSynced) return;
-            UpdateGUI();
-            UpdateAudioLinkThemeColors();
-        }
-#endif
 
         public void SelectCustomColor0() { SelectCustomColorN(0); }
         public void SelectCustomColor1() { SelectCustomColorN(1); }
@@ -127,18 +106,16 @@ namespace AudioLink
 
         public void ToggleThemeColorMode()
         {
-#if UDONSHARP
-            if (!Networking.IsOwner(gameObject))
-                Networking.SetOwner(localPlayer, gameObject);
-#endif
+            if (!_processGUIEvents)
+            {
+                return;
+            }
+
             int initalMode = _initThemeColorMode == 1 ? 0 : _initThemeColorMode;
             _themeColorMode = themeColorToggle.isOn ? initalMode : 1;
             UpdateGUI();
             UpdateAudioLinkThemeColors();
-#if UDONSHARP
-            if (networkSynced)
-                RequestSerialization();
-#endif
+            SyncThemeColors();
         }
 
         public void ForceThemeColorMode()
@@ -157,10 +134,7 @@ namespace AudioLink
             {
                 return;
             }
-#if UDONSHARP
-            if (!Networking.IsOwner(gameObject))
-                Networking.SetOwner(localPlayer, gameObject);
-#endif
+
             Color[] themeColors = GetCustomThemeColors();
             themeColors[customColorIndex] = Color.HSVToRGB(
                 sliderHue.value,
@@ -171,10 +145,7 @@ namespace AudioLink
 
             UpdateGUI();
             UpdateAudioLinkThemeColors();
-#if UDONSHARP
-            if (networkSynced)
-                RequestSerialization();
-#endif
+            SyncThemeColors();
         }
 
         public void ResetThemeColors()
@@ -185,10 +156,7 @@ namespace AudioLink
 
             UpdateGUI();
             UpdateAudioLinkThemeColors();
-#if UDONSHARP
-            if (networkSynced)
-                RequestSerialization();
-#endif
+            SyncThemeColors();
         }
 
         public void UpdateGUI()
@@ -229,12 +197,12 @@ namespace AudioLink
         {
             if (audioLink == null) return;
 
-            Color[] customThemeColors = GetCustomThemeColors();
-
-            customThemeColors[0] = audioLink.customThemeColor0;
-            customThemeColors[1] = audioLink.customThemeColor1;
-            customThemeColors[2] = audioLink.customThemeColor2;
-            customThemeColors[3] = audioLink.customThemeColor3;
+            SetCustomThemeColors(new[] {
+                audioLink.customThemeColor0,
+                audioLink.customThemeColor1,
+                audioLink.customThemeColor2,
+                audioLink.customThemeColor3
+            });
 
             //shallow copy of the array
             _initCustomThemeColors = GetCustomThemeColors();
@@ -244,10 +212,33 @@ namespace AudioLink
 
             UpdateGUI();
             UpdateAudioLinkThemeColors();
-#if UDONSHARP
-            if (Networking.IsOwner(gameObject) && networkSynced)
-                RequestSerialization();
-#endif
+        }
+
+        public void RefreshFromAudioLink()
+        {
+            if (audioLink == null)
+            {
+                return;
+            }
+
+            _themeColorMode = audioLink.themeColorMode;
+            SetCustomThemeColors(new[] {
+                audioLink.customThemeColor0,
+                audioLink.customThemeColor1,
+                audioLink.customThemeColor2,
+                audioLink.customThemeColor3
+            });
+            UpdateGUI();
+        }
+
+        private void SyncThemeColors()
+        {
+            if (audioLink == null)
+            {
+                return;
+            }
+
+            audioLink.SyncSettings();
         }
 
         public void UpdateAudioLinkThemeColors()

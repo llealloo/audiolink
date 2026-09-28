@@ -138,6 +138,31 @@ namespace AudioLink
         // Mechanism to provide sync'd instance time to all avatars.
         [UdonSynced] private double _masterInstanceJoinTime;
         private double _elapsedTime = 0;
+
+        private AudioLinkController[] _controllers = new AudioLinkController[0];
+        private ControllerSyncMode _controllerSyncMode = ControllerSyncMode.None;
+
+#if UDONSHARP
+        [UdonSynced] private float _syncedGain;
+        [UdonSynced] private float _syncedFadeLength;
+        [UdonSynced] private float _syncedFadeExpFalloff;
+        [UdonSynced] private bool _syncedAutogain;
+        [UdonSynced] private float _syncedX0;
+        [UdonSynced] private float _syncedX1;
+        [UdonSynced] private float _syncedX2;
+        [UdonSynced] private float _syncedX3;
+        [UdonSynced] private float _syncedThreshold0;
+        [UdonSynced] private float _syncedThreshold1;
+        [UdonSynced] private float _syncedThreshold2;
+        [UdonSynced] private float _syncedThreshold3;
+        [UdonSynced] private bool _syncedPower;
+        [UdonSynced] private int _syncedThemeColorMode;
+        [UdonSynced] private Color _syncedThemeColor0;
+        [UdonSynced] private Color _syncedThemeColor1;
+        [UdonSynced] private Color _syncedThemeColor2;
+        [UdonSynced] private Color _syncedThemeColor3;
+        private bool _receivedSettings;
+#endif
         private double _elapsedTimeMSW = 0;
         private int _networkTimeMS;
         private double _networkTimeMSAccumulatedError;
@@ -376,7 +401,7 @@ namespace AudioLink
 
             UpdateSettings();
             UpdateThemeColors();
-            UpdateCustomStrings();
+            ApplyCustomStrings();
             if (audioSource == null)
             {
                 Debug.LogWarning("[AudioLink] No audioSource provided. AudioLink will not do anything until an audio source has been assigned.");
@@ -633,7 +658,7 @@ namespace AudioLink
 #if UNITY_EDITOR
             UpdateSettings();
             UpdateThemeColors();
-            UpdateCustomStrings();
+            ApplyCustomStrings();
 
             // Handle updating the CRT when in-editor
             // mitigation for stacked CRT updates per frame when multiple views are selected.
@@ -806,22 +831,165 @@ namespace AudioLink
                 Networking.SetOwner(_localPlayer, gameObject);
 #endif
 
-            UpdateGlobalString(_StringCustom1, customString1);
-            UpdateGlobalString(_StringCustom2, customString2);
+            ApplyCustomStrings();
 
 #if UDONSHARP
             RequestSerialization();
 #endif
         }
 
+        private void ApplyCustomStrings()
+        {
+            UpdateGlobalString(_StringCustom1, customString1);
+            UpdateGlobalString(_StringCustom2, customString2);
+        }
+
+        public void RegisterController(AudioLinkController controller, ControllerSyncMode syncMode)
+        {
+            _controllerSyncMode = syncMode;
+
+            bool registered = false;
+            for (int i = 0; i < _controllers.Length; i++)
+            {
+                if (_controllers[i] == controller)
+                {
+                    registered = true;
+                }
+            }
+
+            if (!registered)
+            {
+                AudioLinkController[] controllers = new AudioLinkController[_controllers.Length + 1];
+                for (int i = 0; i < _controllers.Length; i++)
+                {
+                    controllers[i] = _controllers[i];
+                }
+                controllers[_controllers.Length] = controller;
+                _controllers = controllers;
+            }
+
 #if UDONSHARP
+            if (_receivedSettings)
+            {
+                ApplySyncedSettings();
+                return;
+            }
+
+            if (Networking.IsOwner(gameObject))
+            {
+                StoreSyncedSettings();
+                RequestSerialization();
+            }
+#endif
+        }
+
+        public void SyncSettings()
+        {
+#if UDONSHARP
+            if (_controllerSyncMode != ControllerSyncMode.None)
+            {
+                if (!Networking.IsOwner(gameObject))
+                {
+                    Networking.SetOwner(_localPlayer, gameObject);
+                }
+
+                StoreSyncedSettings();
+                RequestSerialization();
+            }
+#endif
+
+            RefreshControllers();
+        }
+
+        private void RefreshControllers()
+        {
+            for (int i = 0; i < _controllers.Length; i++)
+            {
+                if (_controllers[i] != null)
+                {
+                    _controllers[i].RefreshFromAudioLink();
+                }
+            }
+        }
+
+#if UDONSHARP
+        private bool IsSynced(ControllerSyncMode setting)
+        {
+            return (int)_controllerSyncMode < (int)setting;
+        }
+
+        private void StoreSyncedSettings()
+        {
+            _syncedGain = gain;
+            _syncedFadeLength = fadeLength;
+            _syncedFadeExpFalloff = fadeExpFalloff;
+            _syncedAutogain = autogain;
+            _syncedX0 = x0;
+            _syncedX1 = x1;
+            _syncedX2 = x2;
+            _syncedX3 = x3;
+            _syncedThreshold0 = threshold0;
+            _syncedThreshold1 = threshold1;
+            _syncedThreshold2 = threshold2;
+            _syncedThreshold3 = threshold3;
+            _syncedPower = _audioLinkEnabled;
+            _syncedThemeColorMode = themeColorMode;
+            _syncedThemeColor0 = customThemeColor0;
+            _syncedThemeColor1 = customThemeColor1;
+            _syncedThemeColor2 = customThemeColor2;
+            _syncedThemeColor3 = customThemeColor3;
+        }
+
+        private void ApplySyncedSettings()
+        {
+            if (!IsSynced(ControllerSyncMode.None))
+            {
+                return;
+            }
+
+            if (IsSynced(ControllerSyncMode.ExcludePowerAndGain))
+            {
+                gain = _syncedGain;
+            }
+            fadeLength = _syncedFadeLength;
+            fadeExpFalloff = _syncedFadeExpFalloff;
+            autogain = _syncedAutogain;
+            x0 = _syncedX0;
+            x1 = _syncedX1;
+            x2 = _syncedX2;
+            x3 = _syncedX3;
+            threshold0 = _syncedThreshold0;
+            threshold1 = _syncedThreshold1;
+            threshold2 = _syncedThreshold2;
+            threshold3 = _syncedThreshold3;
+            UpdateSettings();
+
+            themeColorMode = _syncedThemeColorMode;
+            customThemeColor0 = _syncedThemeColor0;
+            customThemeColor1 = _syncedThemeColor1;
+            customThemeColor2 = _syncedThemeColor2;
+            customThemeColor3 = _syncedThemeColor3;
+            UpdateThemeColors();
+
+            if (IsSynced(ControllerSyncMode.ExcludePower))
+            {
+                SetAudioLinkState(_syncedPower);
+            }
+
+            RefreshControllers();
+        }
+
         public override void OnDeserialization()
         {
-            if (!Networking.IsOwner(gameObject))
+            if (Networking.IsOwner(gameObject))
             {
-                UpdateGlobalString(_StringCustom1, customString1);
-                UpdateGlobalString(_StringCustom2, customString2);
+                return;
             }
+
+            ApplyCustomStrings();
+
+            _receivedSettings = true;
+            ApplySyncedSettings();
         }
 #endif
 
@@ -983,7 +1151,8 @@ namespace AudioLink
                     if (hasDualMono)
                     {
                         optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
-                    } else audioSource.GetOutputData(_audioFramesR, 1);
+                    }
+                    else audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
             }
@@ -994,7 +1163,8 @@ namespace AudioLink
                 if (hasDualMono)                                                    // check if dual mono is present
                 {
                     optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
-                } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
+                }
+                else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
 
