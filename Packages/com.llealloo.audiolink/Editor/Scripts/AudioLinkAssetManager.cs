@@ -93,7 +93,11 @@ namespace AudioLink.Editor
 
             if (audiolink != null)
             {
-                AudioLinkEditor.LinkAll(audiolink.GetComponent<AudioLink>());
+                AudioLink component = audiolink.GetComponent<AudioLink>();
+                if (component != null)
+                {
+                    AudioLinkEditor.LinkAll(component);
+                }
                 EditorGUIUtility.PingObject(audiolink);
             }
         }
