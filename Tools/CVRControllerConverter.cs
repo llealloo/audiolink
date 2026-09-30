@@ -1,3 +1,4 @@
+#if CVR_CCK_EXISTS
 using System.Collections.Generic;
 using System.Linq;
 using ABI.CCK.Components;
@@ -8,7 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Generates a CCK-only version of the AudioLink controller from the VRChat prefab.
-// Needs the CVR CCK: copy into a CVR project's Assets/Editor, then AudioLink > Generate CVR Controller.
+// Needs the CVR CCK: copy into a CVR project's Assets/Editor, then Tools > AudioLink > Generate CVR Controller.
 //
 //   Slider --onValueChanged--> VariableBuffer --OnVariableBufferUpdate (networked, buffered)-->
 //     SetPropertyByValue: AudioLink material updater, screen material updater, Slider.value
@@ -80,7 +81,7 @@ public static class CVRControllerConverter
     private static Material _screenMaterial;
     private static readonly Dictionary<string, (CVRVariableBuffer buffer, CVRInteractable interactable)> _toggles = new Dictionary<string, (CVRVariableBuffer, CVRInteractable)>();
 
-    [MenuItem("AudioLink/Generate CVR Controller")]
+    [MenuItem("Tools/AudioLink/Generate CVR Controller")]
     private static void Generate()
     {
         _toggles.Clear();
@@ -524,3 +525,4 @@ public static class CVRControllerConverter
         return found.gameObject;
     }
 }
+#endif
