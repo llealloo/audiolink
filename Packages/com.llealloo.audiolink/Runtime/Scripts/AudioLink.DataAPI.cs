@@ -497,6 +497,16 @@ namespace AudioLink
         }
 
         /// <summary>
+        /// Check if AudioLink is currently Enabled.
+        /// </summary>
+        /// <returns>bool `_audioLinkEnabled`</returns>
+        
+        public bool IsEnabled()
+        {
+            return _audioLinkEnabled;
+        }
+
+        /// <summary>
         /// Convert a Vector to a monochrome luminance float.
         /// </summary>
         /// <param name="vector">Input RGB Vector.</param>
