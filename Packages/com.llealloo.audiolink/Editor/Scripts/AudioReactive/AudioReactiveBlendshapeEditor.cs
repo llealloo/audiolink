@@ -13,7 +13,7 @@ namespace AudioLink.Editor
         private bool blendshapeDrawerOpen = false;
         private List<string> blendshapeNames = new List<string>();
         private ReorderableList blendshapeList;
-        
+
         private void BlendshapeReactiveEditor()
         {
             blendshapeDrawerOpen = EditorGUILayout.BeginFoldoutHeaderGroup(blendshapeDrawerOpen, "Blendshapes");

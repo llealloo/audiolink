@@ -39,7 +39,7 @@ namespace AudioLink
         public void ToggleUpdate()
         {
             if (!enabled) return;
-            
+
             if (toggle == null)
                 return;
             if (deserializing)

@@ -308,7 +308,7 @@ namespace AudioLink
             if (_mainThreadId == 0) _mainThreadId = Thread.CurrentThread.ManagedThreadId;
             return Thread.CurrentThread.ManagedThreadId == _mainThreadId;
         }
-        
+
         private static string _localytdlpPath = Application.dataPath + "\\AudioLink\\yt-dlp.exe";
 
         private static CachedEditorPrefs _cachedEditorPrefs = new CachedEditorPrefs();
@@ -403,12 +403,12 @@ namespace AudioLink
         public static void FetchEditorPrefs()
         {
             bool platformDefaultUseFFmpegTranscode = false;
-            #if UNITY_EDITOR_LINUX
+#if UNITY_EDITOR_LINUX
             platformDefaultUseFFmpegTranscode = true;
-            #endif
+#endif
 
             if (!IsMainThread()) return; // Do not throw; just keep the existing cached values.
-            
+
             try
             {
                 _cachedEditorPrefs.ffmpegPath = EditorPrefs.GetString(userDefinedFFmpegPathKey, string.Empty);

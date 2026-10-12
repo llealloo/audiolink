@@ -72,7 +72,7 @@ namespace AudioLink
                 bandInt += Mathf.FloorToInt(AudioLink.GetALPassFilteredAudioLink().y);
                 delayTmp = 15 - delayTmp;
             }
-            
+
             block.SetFloat(_Delay, (float)delayTmp / 128f);
             block.SetFloat(_Band, (float)bandInt);
             block.SetFloat(_HueShift, hueShift);
