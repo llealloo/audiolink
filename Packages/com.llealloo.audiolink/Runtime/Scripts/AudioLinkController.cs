@@ -18,7 +18,7 @@ namespace AudioLink
     {
         [Space(10)]
         public AudioLink audioLink;
-        public ControllerSyncMode controllerSyncMode;
+        public ControllerSyncMode controllerSyncMode = ControllerSyncMode.None;
         [Space(25)]
         [Header("Internal (Do not modify)")]
         public ThemeColorController themeColorController;
