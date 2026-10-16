@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Video;
+using System.Collections.Generic;
 
 // This component uses code from the following sources:
 // UnityYoutubePlayer, courtesy iBicha (SPDX-License-Identifier: Unlicense) https://github.com/iBicha/UnityYoutubePlayer
@@ -1181,7 +1182,7 @@ namespace AudioLink
             Debug.Log($"[AudioLink:FFmpeg] Found FFmpeg at path '{_ffmpegPath}'");
         }
 
-        public static System.Diagnostics.Process ResolvingProcess(string resolverPath, string[] args)
+        public static System.Diagnostics.Process ResolvingProcess(string resolverPath, List<string> args)
         {
             System.Diagnostics.Process resolver = new System.Diagnostics.Process();
 
@@ -1202,30 +1203,32 @@ namespace AudioLink
             return resolver;
         }
 
-        public static void Transcode(string url, Action<ResolvingRequest> callback, string outPath, VideoFormat videoFormat)
+        public static void Transcode(List<string> urls, Action<ResolvingRequest> callback, string outPath, VideoFormat videoFormat)
         {
 
             ResolvingRequest transcode = new ResolvingRequest();
 
-            string[] ffmpegArgs = new string[13] {
-                "-hide_banner",
+            List<string> ffmpegArgs = new List<string>();
+            ffmpegArgs.Add("-hide_banner");
+            ffmpegArgs.Add("-y");
+            ffmpegArgs.Add("-hwaccel auto");
 
-                "-y",
+            foreach (string url in urls)
+                ffmpegArgs.Add($"-i \"{url}\"");
 
-                "-hwaccel auto",
+            ffmpegArgs.Add("-c:a");
+            ffmpegArgs.Add(videoFormat.AudioCodec);
 
-                "-i", $"\"{url}\"",
+            ffmpegArgs.Add("-c:v");
+            ffmpegArgs.Add(videoFormat.VideoCodec);
 
-                "-c:a", $"{videoFormat.AudioCodec}",
+            if (videoFormat.VideoCodec == "vp8")
+                ffmpegArgs.Add("-cpu-used 6 -deadline realtime -qmin 0 -qmax 50 -crf 5 -minrate 1M -maxrate 1M -b:v 1M");
 
-                "-c:v", $"{videoFormat.VideoCodec}",
-
-                videoFormat.VideoCodec == "vp8" ? "-cpu-used 6 -deadline realtime -qmin 0 -qmax 50 -crf 5 -minrate 1M -maxrate 1M -b:v 1M" : "",
-
-                "-f", $"{videoFormat.Container}",
-
-                $"\"{outPath}\""
-            };
+            ffmpegArgs.Add("-f");
+            ffmpegArgs.Add(videoFormat.Container);
+            
+            ffmpegArgs.Add('"' + outPath + '"');
 
             _ffmpegError = "";
 
@@ -1299,7 +1302,7 @@ namespace AudioLink
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"[AudioLink:FFmpeg] Unable to transcode URL '{url}' : " + e.Message);
+                Debug.LogWarning($"[AudioLink:FFmpeg] Unable to transcode URL '{urls[0]}' : " + e.Message);
                 callback(null);
             }
         }
@@ -1313,7 +1316,7 @@ namespace AudioLink
 
             bool dumpJson = true;
 
-            System.Diagnostics.Process ytdlpJsonDumpCheckProc = ResolvingProcess(_ytdlpPath, new string[] { "--dump-json" });
+            System.Diagnostics.Process ytdlpJsonDumpCheckProc = ResolvingProcess(_ytdlpPath, new List<string>() { "--dump-json" });
 
             ytdlpJsonDumpCheckProc.Exited += (sender, args) => {
                 ytdlpJsonDumpCheckProc.Dispose();
@@ -1409,21 +1412,25 @@ namespace AudioLink
                 _ffmpegProc.StandardInput.Flush();
             }
 
-            string[] ytdlpArgs = new string[8] {
-                "--no-check-certificate",
-                "--no-cache-dir",
-                "--rm-cache-dir",
+            List<string> ytdlpArgs = new List<string>();
+            ytdlpArgs.Add("--no-check-certificate");
+            ytdlpArgs.Add("--no-cache-dir");
+            ytdlpArgs.Add("--rm-cache-dir");
 
-                dumpJson ? "--dump-json" : "",
+            if (dumpJson)
+                ytdlpArgs.Add("--dump-json");
 
-                "-f", $"\"mp4[height<=?{resolution}][protocol^=http]/best[height<=?{resolution}][protocol^=http]\"",
+            ytdlpArgs.Add("-f");
+            ytdlpArgs.Add($"\"mp4[height<=?{resolution}][protocol^=http]+m4a[protocol^=http]/best[height<=?{resolution}][protocol^=http]\"");
 
-                "--get-url", $"\"{url}\""
-            };
+            ytdlpArgs.Add("--get-url");
+            ytdlpArgs.Add('"' + url + '"');
 
             System.Diagnostics.Process ytdlpProc = ResolvingProcess(_ytdlpPath, ytdlpArgs);
 
             ytdlpProc.Exited += (sender, args) => { ytdlpProc.Dispose(); };
+
+            List<string> resolvedURLs = new List<string>();
 
             ytdlpProc.OutputDataReceived += (sender, args) =>
             {
@@ -1446,9 +1453,16 @@ namespace AudioLink
 
                         Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
 
+                        resolvedURLs.Add(args.Data);
+
+                        if ((url.StartsWith("https://www.youtube.com/watch") ||
+                            url.StartsWith("https://youtu.be/")) &&
+                            resolvedURLs.Count < 2)
+                                return;
+
                         if (useFFmpeg && IsFFmpegAvailable())
                         {
-                            Transcode(args.Data, callback, fullUrlHash, platformVideoFormat);
+                            Transcode(resolvedURLs, callback, fullUrlHash, platformVideoFormat);
                         }
                         else
                         {
