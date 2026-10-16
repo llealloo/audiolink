@@ -1182,7 +1182,7 @@ namespace AudioLink
             Debug.Log($"[AudioLink:FFmpeg] Found FFmpeg at path '{_ffmpegPath}'");
         }
 
-        public static System.Diagnostics.Process ResolvingProcess(string resolverPath, string[] args)
+        public static System.Diagnostics.Process ResolvingProcess(string resolverPath, List<string> args)
         {
             System.Diagnostics.Process resolver = new System.Diagnostics.Process();
 
@@ -1232,7 +1232,7 @@ namespace AudioLink
 
             _ffmpegError = "";
 
-            _ffmpegProc = ResolvingProcess(_ffmpegPath, ffmpegArgs.ToArray());
+            _ffmpegProc = ResolvingProcess(_ffmpegPath, ffmpegArgs);
 
             _ffmpegProc.Exited += (sender, args) =>
             {
@@ -1316,7 +1316,7 @@ namespace AudioLink
 
             bool dumpJson = true;
 
-            System.Diagnostics.Process ytdlpJsonDumpCheckProc = ResolvingProcess(_ytdlpPath, new string[] { "--dump-json" });
+            System.Diagnostics.Process ytdlpJsonDumpCheckProc = ResolvingProcess(_ytdlpPath, new List<string>() { "--dump-json" });
 
             ytdlpJsonDumpCheckProc.Exited += (sender, args) => {
                 ytdlpJsonDumpCheckProc.Dispose();
@@ -1412,17 +1412,19 @@ namespace AudioLink
                 _ffmpegProc.StandardInput.Flush();
             }
 
-            string[] ytdlpArgs = new string[8] {
-                "--no-check-certificate",
-                "--no-cache-dir",
-                "--rm-cache-dir",
+            List<string> ytdlpArgs = new List<string>();
+            ytdlpArgs.Add("--no-check-certificate");
+            ytdlpArgs.Add("--no-cache-dir");
+            ytdlpArgs.Add("--rm-cache-dir");
 
-                dumpJson ? "--dump-json" : "",
+            if (dumpJson)
+                ytdlpArgs.Add("--dump-json");
 
-                "-f", $"\"mp4[height<=?{resolution}][protocol^=http]+m4a[protocol^=http]/best[height<=?{resolution}][protocol^=http]\"",
+            ytdlpArgs.Add("-f");
+            ytdlpArgs.Add($"\"mp4[height<=?{resolution}][protocol^=http]+m4a[protocol^=http]/best[height<=?{resolution}][protocol^=http]\"");
 
-                "--get-url", $"\"{url}\""
-            };
+            ytdlpArgs.Add("--get-url");
+            ytdlpArgs.Add('"' + url + '"');
 
             System.Diagnostics.Process ytdlpProc = ResolvingProcess(_ytdlpPath, ytdlpArgs);
 

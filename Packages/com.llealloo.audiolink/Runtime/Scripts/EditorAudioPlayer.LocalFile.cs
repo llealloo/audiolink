@@ -107,19 +107,29 @@ namespace AudioLink
 
             // ffmpeg writes to a scratch name and the finished file is moved into place, so a run
             // that is killed or fails can never leave a truncated file that later reads as a cache hit.
-            string[] arguments =
-            {
-                "-hide_banner",
-                "-nostats",
-                "-loglevel error",
-                "-y",
-                "-i", $"\"{sourcePath}\"",
-                "-vn", "-sn", "-dn",
-                "-ac", "2",
-                "-c:a", "pcm_s16le",
-                "-f", "wav",
-                $"\"{job.scratchPath}\""
-            };
+            List<string> arguments = new List<string>();
+            arguments.Add("-hide_banner");
+            arguments.Add("-nostats");
+            arguments.Add("-loglevel error");
+            arguments.Add("-y");
+
+            arguments.Add("-i");
+            arguments.Add('"' + sourcePath + '"');
+
+            arguments.Add("-vn");
+            arguments.Add("-sn");
+            arguments.Add("-dn");
+
+            arguments.Add("-ac");
+            arguments.Add("2");
+
+            arguments.Add("-c:a");
+            arguments.Add("pcm_s16le");
+
+            arguments.Add("-f");
+            arguments.Add("wav");
+
+            arguments.Add('"' + job.scratchPath +'"');
 
             job.Begin(EditorAudioURLResolver.ResolvingProcess(EditorAudioURLResolver.FFmpegPath, arguments));
             return job;
