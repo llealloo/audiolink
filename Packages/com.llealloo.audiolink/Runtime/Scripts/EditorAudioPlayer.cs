@@ -1435,7 +1435,11 @@ namespace AudioLink
 
             System.Diagnostics.Process ytdlpProc = ResolvingProcess(_ytdlpPath, ytdlpArgs);
 
-            ytdlpProc.Exited += (sender, args) => { ytdlpProc.Dispose(); };
+            ytdlpProc.Exited += (sender, args) =>
+            {
+                ytdlpProc.WaitForExit();
+                ytdlpProc.Dispose();
+            };
 
             List<string> resolvedURLs = new List<string>();
 
