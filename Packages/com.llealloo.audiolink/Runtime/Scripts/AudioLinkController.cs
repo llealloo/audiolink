@@ -18,7 +18,7 @@ namespace AudioLink
     {
         [Space(10)]
         public AudioLink audioLink;
-        public ControllerSyncMode controllerSyncMode;
+        public ControllerSyncMode controllerSyncMode = ControllerSyncMode.None;
         [Space(25)]
         [Header("Internal (Do not modify)")]
         public ThemeColorController themeColorController;
@@ -104,11 +104,11 @@ namespace AudioLink
         private void UpdateSyncMode(Transform inputTransform, ControllerSyncMode userSyncMode, ControllerSyncMode desiredSyncMode)
         {
 
-            #if UDONSHARP
+#if UDONSHARP
 
                 inputTransform.GetComponent<UdonBehaviour>().enabled = (int)userSyncMode < (int)desiredSyncMode;
 
-            #endif
+#endif
 
         }
 
@@ -311,7 +311,8 @@ namespace AudioLink
         }
     }
 
-    public enum ControllerSyncMode {
+    public enum ControllerSyncMode
+    {
         All = 0,
         ExcludePower = 1,
         ExcludePowerAndGain = 2,

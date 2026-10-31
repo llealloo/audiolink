@@ -120,8 +120,11 @@ namespace VRC.PackageManagement.PackageMaker
             {
                 _windowData = PackageMakerWindowData.GetOrCreate();
             }
+
+            ScrollView scrollView = new();
+            rootVisualElement.Add(scrollView);
             
-            _rootView = rootVisualElement;
+            _rootView = scrollView;
             _rootView.name = "root-view";
             _rootView.styleSheets.Add((StyleSheet) Resources.Load("PackageMakerWindowStyle"));
 

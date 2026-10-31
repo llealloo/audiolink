@@ -248,6 +248,13 @@ namespace AudioLink
 
         private int WebALID = 0;
 
+        private void LinkAnalyzerToAudioSource()
+        {
+            if (audioSource == null || audioSource.clip == null) return;
+
+            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+        }
+
 #endif
 
         private bool _IsInitialized = false;
@@ -357,7 +364,7 @@ namespace AudioLink
 
             WebALID = UnityEngine.Random.Range(0, 99999);
 
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 
             Application.focusChanged += (focus) =>
             {
@@ -365,7 +372,7 @@ namespace AudioLink
                 {
                     if (focus)
                     {
-                        LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+                        LinkAnalyzerToAudioSource();
                     }
                     else
                         UnlinkAnalyzer(WebALID);
@@ -400,7 +407,10 @@ namespace AudioLink
         void OnDestroy()
         {
             // makes sure that playmode doesn't permanently modify the update mode
-            audioRenderTexture.updateMode = initialUpdateMode;
+            if (audioRenderTexture != null)
+            {
+                audioRenderTexture.updateMode = initialUpdateMode;
+            }
         }
 
         // TODO(3): try to port this to standalone
@@ -665,6 +675,10 @@ namespace AudioLink
             if (!autoDetectAudioTarget || !_audioLinkEnabled) return;
             Invoke(nameof(AutoCacheAudioTarget), audioTarget != null ? 10 : 1); // check faster until one is found
             if (!enabled) return;
+
+            if (GetGlobalTexture(_AudioTexture) == null)
+                SetAudioLinkGlobalTexture();
+
             if (audioListenerTarget == null || !audioListenerTarget.isActiveAndEnabled)
                 CacheAudioTarget();
         }
@@ -682,12 +696,6 @@ namespace AudioLink
                 if (!l.enabled) continue;
                 audioListenerTarget = l;
                 audioTarget = l.transform;
-#if UNITY_EDITOR
-                // ensure texture is actually assigned. Mitigates certain edge-cases with playmode.
-                // Why? No clue, but it keeps AudioLink from appearing broken when it's just the global variable that is unassigned for some reason.
-                if (GetGlobalTexture(_AudioTexture) == null)
-                    SetAudioLinkGlobalTexture();
-#endif
                 break;
             }
 
@@ -895,7 +903,7 @@ namespace AudioLink
 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SetupAnalyzerSpace();
-            LinkAnalyzer(WebALID, audioSource.clip.length, 4096);
+            LinkAnalyzerToAudioSource();
 #endif
         }
 
@@ -983,7 +991,8 @@ namespace AudioLink
                     if (hasDualMono)
                     {
                         optionalRightAudioSource.GetOutputData(_audioFramesR, 0);
-                    } else audioSource.GetOutputData(_audioFramesR, 1);
+                    }
+                    else audioSource.GetOutputData(_audioFramesR, 1);
                 }
                 _rightChannelTestCounter--;
             }
@@ -994,7 +1003,8 @@ namespace AudioLink
                 if (hasDualMono)                                                    // check if dual mono is present
                 {
                     optionalRightAudioSource.GetOutputData(_audioFramesR, 0);       // right channel test
-                } else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
+                }
+                else audioSource.GetOutputData(_audioFramesR, 1);                 // right channel test
                 _ignoreRightChannel = (_audioFramesR[0] == 0f) ? true : false;
             }
 

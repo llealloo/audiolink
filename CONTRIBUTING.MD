@@ -19,9 +19,11 @@ Update the version number in all places. These are:
 - Version number in Packages/com.llealloo.audiolink/package.json
 - A string in AudioLinkAssetManager.OpenExampleScene in AudioLinkAssetManager.cs, at the top of the function
 - Version number in Packages/com.llealloo.audiolink/Runtime/VERSION.txt
-- The AUDIOLINK_VERSION_NUMBER float in AudioLink.cs.
-    - We use convention 0.3.x == 3.x where x is padded to 2 digits,
-      so 0.3.2 would be 3.02f as a float
+- The AudioLinkVersionNumberMajor and AudioLinkVersionNumberMinor floats at the top of AudioLink.cs.
+    - For a version `X.Y.Z`, Major is `X.00f` and Minor is `Y.0Zf`, i.e. the patch number
+      is padded to two decimal places. So 3.1.2 is `3.00f` and `1.02f`.
+    - Note the unrelated hardcoded `3.02f` in the red channel of `_VersionNumberAndFPSProperty`.
+      That one is frozen at the last version before the versioning change and must not be updated.
 
 Go through the commit history since last release, make sure that everything is in the changelog.
 
