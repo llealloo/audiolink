@@ -1227,7 +1227,7 @@ namespace AudioLink
 
             ffmpegArgs.Add("-f");
             ffmpegArgs.Add(videoFormat.Container);
-            
+
             ffmpegArgs.Add('"' + outPath + '"');
 
             _ffmpegError = "";
