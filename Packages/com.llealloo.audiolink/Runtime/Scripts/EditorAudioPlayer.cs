@@ -1461,26 +1461,23 @@ namespace AudioLink
                         Debug.Log("[AudioLink:YT-dlp] ytdlp resolved: " + debugStdout);
 
                         resolvedURLs.Add(args.Data);
+                    }
+                }
+                else if (resolvedURLs.Count > 0)
+                {
+                    if (transcode)
+                    {
+                        Transcode(resolvedURLs, callback, fullUrlHash, platformVideoFormat);
+                    }
+                    else
+                    {
+                        if (useFFmpeg)
+                            Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
 
-                        if ((url.StartsWith("https://www.youtube.com/watch") ||
-                            url.StartsWith("https://youtu.be/")) &&
-                            resolvedURLs.Count < 2)
-                                return;
+                        request.resolvedURL = resolvedURLs[0];
+                        request.isDone = true;
 
-                        if (useFFmpeg && IsFFmpegAvailable())
-                        {
-                            Transcode(resolvedURLs, callback, fullUrlHash, platformVideoFormat);
-                        }
-                        else
-                        {
-                            if (useFFmpeg)
-                                Debug.LogWarning($"[AudioLink:FFmpeg] Unable to convert URL '{url}' : FFmpeg not found");
-
-                            request.resolvedURL = args.Data;
-                            request.isDone = true;
-
-                            callback(request);
-                        }
+                        callback(request);
                     }
                 }
             };
