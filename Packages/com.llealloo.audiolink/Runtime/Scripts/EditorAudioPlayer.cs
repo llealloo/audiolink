@@ -1420,8 +1420,15 @@ namespace AudioLink
             if (dumpJson)
                 ytdlpArgs.Add("--dump-json");
 
+            bool transcode = useFFmpeg && IsFFmpegAvailable();
+
+            // ffmpeg can take separate video and audio streams, but the VideoPlayer can only play a
+            // single URL, so without transcoding only pick formats that carry audio on their own.
             ytdlpArgs.Add("-f");
-            ytdlpArgs.Add($"\"mp4[height<=?{resolution}][protocol^=http]+m4a[protocol^=http]/best[height<=?{resolution}][protocol^=http]\"");
+            if (transcode)
+                ytdlpArgs.Add($"\"mp4[height<=?{resolution}][protocol^=http]+m4a[protocol^=http]/best[height<=?{resolution}][protocol^=http]\"");
+            else
+                ytdlpArgs.Add($"\"b[ext=mp4][height<=?{resolution}][protocol^=http]/b[height<=?{resolution}][protocol^=http]/ba[ext=m4a][protocol^=http]\"");
 
             ytdlpArgs.Add("--get-url");
             ytdlpArgs.Add('"' + url + '"');
