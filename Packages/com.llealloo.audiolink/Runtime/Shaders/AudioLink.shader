@@ -143,6 +143,35 @@ Shader "AudioLink/Internal/AudioLink"
 
             const static float _WaveInClampValue = 2.0;
 
+            //Forcing consistant audiolink advancement independant of frames per second.
+            void AudioLink4BandHistoryClock(float4 previousClock, out float4 nextClock, out uint steps)
+            {
+                float2 now = _AdvancedTimeProps0.xy;
+                steps = 0;
+                float fractionalSteps = previousClock.x;
+
+                if (previousClock.w > 0.5)
+                {
+                    float elapsed = now.x - previousClock.y + (now.y - previousClock.z) * 1024.0;
+                    if (elapsed < 0.0)
+                    {
+                        fractionalSteps = 0.0;
+                        steps = AUDIOLINK_WIDTH;
+                    }
+                    else
+                    {
+                        float progress = fractionalSteps + elapsed * AUDIOLINK_4BAND_TARGET_RATE;
+                        steps = (uint)min(floor(progress), (float)AUDIOLINK_WIDTH);
+                        fractionalSteps = frac(progress);
+                    }
+                }
+                else
+                {
+                    fractionalSteps = 0.0;
+                }
+                nextClock = float4(fractionalSteps, now.x, now.y, 1.0);
+            }
+
             // Encodes a uint so it can be read-out by AudioLinkDecodeDataAsUInt().
             inline float4 AudioLinkEncodeUInt(uint val)
             {
@@ -345,10 +374,14 @@ Shader "AudioLink/Internal/AudioLink"
                     else 
                     {
                     // Slide pixels (coordinateLocal.x > 0)
-                    float4 lastvalTiming = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
-                    lastvalTiming.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                    uint framesToRoll = floor( lastvalTiming.x );
-
+                    float4 previousClock = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1));
+                    float4 nextClock;
+                    uint framesToRoll;
+                    AudioLink4BandHistoryClock(previousClock, nextClock, framesToRoll);
+                    if (framesToRoll >= AUDIOLINK_WIDTH)
+                    {
+                        return float4(0.0, 0.0, 0.0, 1.0);
+                    }
                     if( framesToRoll == 0 )
                     {
                         return AudioLinkGetSelfPixelData(ALPASS_AUDIOLINK + int2(coordinateLocal.x, coordinateLocal.y));
@@ -596,14 +629,12 @@ Shader "AudioLink/Internal/AudioLink"
                     }
                     else if( coordinateLocal.x == 4 )
                     {
-                        // Computation for history timing.
-                        float4 lastval = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1)); // Timing for 4-band, move at 90 Hz.
-                        lastval.x += unity_DeltaTime.x * AUDIOLINK_4BAND_TARGET_RATE;
-                        // This looks like a frac() but I want to make sure the math gets done the same here
-                        // to prevent any possible mismatch between here and the use of finding the int.
-                        int framesToRoll = floor( lastval.x );
-                        lastval.x -= framesToRoll;
-                        return lastval;
+                        // Reusing same clock.
+                        float4 previousClock = AudioLinkGetSelfPixelData(ALPASS_GENERALVU + int2(4, 1));
+                        float4 nextClock;
+                        uint framesToRoll;
+                        AudioLink4BandHistoryClock(previousClock, nextClock, framesToRoll);
+                        return nextClock;
                     }
                     else if( coordinateLocal.x == 5 )
                     {
