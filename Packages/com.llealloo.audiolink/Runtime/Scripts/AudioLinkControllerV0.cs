@@ -73,8 +73,12 @@ namespace AudioLink
         private int _Threshold3;
         // ReSharper restore InconsistentNaming
 
+        private bool _IsInitialized = false;
         private void InitIDs()
         {
+            if (_IsInitialized)
+                return;
+
             _X0 = PropertyToID("_X0");
             _X1 = PropertyToID("_X1");
             _X2 = PropertyToID("_X2");
@@ -83,6 +87,8 @@ namespace AudioLink
             _Threshold1 = PropertyToID("_Threshold1");
             _Threshold2 = PropertyToID("_Threshold2");
             _Threshold3 = PropertyToID("_Threshold3");
+
+            _IsInitialized = true;
         }
 
         #endregion
@@ -169,6 +175,7 @@ namespace AudioLink
 
         public void UpdateSettings()
         {
+            InitIDs();
             // Update labels
             gainLabel.text = "Gain: " + ((int)Remap(gainSlider.value, 0f, 2f, 0f, 200f)).ToString() + "%";
             trebleLabel.text = "Treble: " + ((int)Remap(trebleSlider.value, 0f, 2f, 0f, 200f)).ToString() + "%";

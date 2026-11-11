@@ -39,7 +39,7 @@ namespace AudioLink
         [Tooltip("If enabled, recursively step for children of children like a tree with branches. Otherwise only step for 1st level children")]
         public bool childrenOfChildren = false;
 
-        private Renderer[] _childRenderers;
+        private Renderer[] _childRenderers = new Renderer[0];
 
         #region PropertyIDs
 
@@ -54,8 +54,12 @@ namespace AudioLink
         private int _PulseRotation;
         // ReSharper restore InconsistentNaming
 
+        private bool _IsInitialized = false;
         private void InitIDs()
         {
+            if (_IsInitialized)
+                return;
+
             _Delay = PropertyToID("_Delay");
             _Band = PropertyToID("_Band");
             _HueShift = PropertyToID("_HueShift");
@@ -63,6 +67,8 @@ namespace AudioLink
             _Emission = PropertyToID("_Emission");
             _Pulse = PropertyToID("_Pulse");
             _PulseRotation = PropertyToID("_PulseRotation");
+
+            _IsInitialized = true;
         }
 
         #endregion
@@ -76,7 +82,7 @@ namespace AudioLink
 
         public void UpdateChildren()
         {
-
+            InitIDs();
             MaterialPropertyBlock block = new MaterialPropertyBlock();
             int bandInt = (int)band;
 

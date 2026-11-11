@@ -320,6 +320,7 @@ namespace AudioLink
         // TODO(3): try to port this to standalone
         void Start()
         {
+            InitIDs();
 #if UDONSHARP
             {
                 // Handle sync'd time stuff.
@@ -809,6 +810,7 @@ namespace AudioLink
 
         public void UpdateCustomStrings()
         {
+            InitIDs();
 #if UDONSHARP
             if (!Networking.IsOwner(gameObject))
                 Networking.SetOwner(_localPlayer, gameObject);
@@ -909,6 +911,7 @@ namespace AudioLink
 
         public void DisableAudioLink()
         {
+            InitIDs();
             _audioLinkEnabled = false;
             if (audioRenderTexture != null) { audioRenderTexture.updateMode = CustomRenderTextureUpdateMode.OnDemand; }
             SetGlobalTextureWrapper(_AudioTexture, null, UnityEngine.Rendering.RenderTextureSubElement.Default);

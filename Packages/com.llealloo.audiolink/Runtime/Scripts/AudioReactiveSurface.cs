@@ -43,8 +43,12 @@ namespace AudioLink
         private int _PulseRotation;
         // ReSharper restore InconsistentNaming
 
+        private bool _IsInitialized = false;
         private void InitIDs()
         {
+            if (_IsInitialized)
+                return;
+
             _Delay = PropertyToID("_Delay");
             _Band = PropertyToID("_Band");
             _HueShift = PropertyToID("_HueShift");
@@ -52,6 +56,8 @@ namespace AudioLink
             _Emission = PropertyToID("_Emission");
             _Pulse = PropertyToID("_Pulse");
             _PulseRotation = PropertyToID("_PulseRotation");
+
+            _IsInitialized = true;
         }
 
         #endregion
@@ -63,6 +69,7 @@ namespace AudioLink
 
         public void UpdateMaterial()
         {
+            InitIDs();
             MaterialPropertyBlock block = new MaterialPropertyBlock();
             MeshRenderer mesh = transform.GetComponent<MeshRenderer>();
             int bandInt = (int)band;

@@ -75,8 +75,12 @@ namespace AudioLink
         private int _Power;
         // ReSharper restore InconsistentNaming
 
+        private bool _IsInitialized = false;
         private void InitIDs()
         {
+            if (_IsInitialized)
+                return;
+
             _X0 = PropertyToID("_X0");
             _X1 = PropertyToID("_X1");
             _X2 = PropertyToID("_X2");
@@ -90,6 +94,8 @@ namespace AudioLink
             _ExpFalloff = PropertyToID("_ExpFalloff");
             _AutoGain = PropertyToID("_AutoGain");
             _Power = PropertyToID("_Power");
+
+            _IsInitialized = true;
         }
 
         #endregion
@@ -229,6 +235,7 @@ namespace AudioLink
 
         public void UpdateSettings()
         {
+            InitIDs();
             // Update Sliders
             Vector2 anchor0 = new Vector2(x0Slider.value, 1f);
             Vector2 anchor1 = new Vector2(x1Slider.value, 1f);
